@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * DTO for creating a new Use Case with all related data.
  */
@@ -34,7 +36,8 @@ public class UseCaseRequestDTO {
     private String thumbnailImageUrl;
 
     @Size(max = 100, message = "Tag must not exceed 100 characters")
-    private String tag;
+
+    private List<String> tags;
 
     private String description;
 
@@ -43,29 +46,9 @@ public class UseCaseRequestDTO {
     @NotNull(message = "Owner ID is required")
     private Integer ownerId;
 
-    @Size(max = 100, message = "Primary speaker EID must not exceed 100 characters")
-    private String primarySpeakerEid;
+    private List<SpeakerDTO> speakers;
 
-    @Size(max = 100, message = "Secondary speaker EID must not exceed 100 characters")
-    private String secondarySpeakerEid;
-
-    @Size(max = 100, message = "Tertiary speaker EID must not exceed 100 characters")
-    private String tertiarySpeakerEid;
-
-    @Size(max = 500, message = "One slider URL must not exceed 500 characters")
-    private String oneSliderUrl;
-
-    @Size(max = 500, message = "Multi slider URL must not exceed 500 characters")
-    private String multiSliderUrl;
-
-    @Size(max = 500, message = "Demo video URL must not exceed 500 characters")
-    private String demoVideoUrl;
-
-    @Size(max = 500, message = "Client testimonial URL must not exceed 500 characters")
-    private String clientTestimonialDemoUrl;
-
-    @Size(max = 500, message = "Narration video URL must not exceed 500 characters")
-    private String narrationVideoUrl;
+    private List<ArtifactDTO> artifacts;
 
     private String businessProblem;
 

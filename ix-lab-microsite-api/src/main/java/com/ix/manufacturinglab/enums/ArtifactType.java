@@ -4,8 +4,8 @@ package com.ix.manufacturinglab.enums;
  * Enum representing the type of an Artifact.
  */
 public enum ArtifactType {
-    ONE_SLIDER("one_slider"),
-    MULTI_SLIDER("multi_slider"),
+    ELEVATOR_PITCH("elevator_pitch"),
+    DETAILED_CLIENT_STORY("detailed_client_story"),
     DEMO_VIDEO("demo_video"),
     CLIENT_TESTIMONIAL("client_testimonial"),
     NARRATION("narration"),

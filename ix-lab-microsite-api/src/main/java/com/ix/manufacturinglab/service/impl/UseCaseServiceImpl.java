@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ix.manufacturinglab.dto.ArtifactDTO;
+import com.ix.manufacturinglab.dto.SpeakerDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -188,77 +190,61 @@ public class UseCaseServiceImpl implements UseCaseService {
     // ==================== PRIVATE HELPERS ====================
 
     private void addTags(UseCase useCase, UseCaseRequestDTO dto) {
-        if (dto.getTag() != null && !dto.getTag().isBlank()) {
-            UseCaseTag tag = UseCaseTag.builder()
-                    .useCase(useCase)
-                    .tag(dto.getTag())
-                    .build();
-            useCase.getTags().add(tag);
+
+        if (dto.getTags() != null && !dto.getTags().isEmpty()) {
+
+            for (String tagValue : dto.getTags()) {
+
+                if (tagValue != null && !tagValue.isBlank()) {
+
+                    UseCaseTag tag = UseCaseTag.builder()
+                            .useCase(useCase)
+                            .tag(tagValue)
+                            .build();
+
+                    useCase.getTags().add(tag);
+                }
+            }
         }
     }
 
     private void addSpeakers(UseCase useCase, UseCaseRequestDTO dto) {
-        if (dto.getPrimarySpeakerEid() != null && !dto.getPrimarySpeakerEid().isBlank()) {
-            useCase.getSpeakers().add(UseCaseSpeaker.builder()
-                    .useCase(useCase)
-                    .speakerEid(dto.getPrimarySpeakerEid())
-                    .speakerType("PRIMARY")
-                    .build());
-        }
-        if (dto.getSecondarySpeakerEid() != null && !dto.getSecondarySpeakerEid().isBlank()) {
-            useCase.getSpeakers().add(UseCaseSpeaker.builder()
-                    .useCase(useCase)
-                    .speakerEid(dto.getSecondarySpeakerEid())
-                    .speakerType("SECONDARY")
-                    .build());
-        }
-        if (dto.getTertiarySpeakerEid() != null && !dto.getTertiarySpeakerEid().isBlank()) {
-            useCase.getSpeakers().add(UseCaseSpeaker.builder()
-                    .useCase(useCase)
-                    .speakerEid(dto.getTertiarySpeakerEid())
-                    .speakerType("TERTIARY")
-                    .build());
+
+        if (dto.getSpeakers() != null && !dto.getSpeakers().isEmpty()) {
+
+            for (SpeakerDTO speakerDTO : dto.getSpeakers()) {
+
+                if (speakerDTO.getSpeakerEid() != null && !speakerDTO.getSpeakerEid().isBlank()) {
+
+                    UseCaseSpeaker speaker = UseCaseSpeaker.builder().speakerEid(speakerDTO.getSpeakerEid())
+                            .speakerType(speakerDTO.getSpeakerType())
+                            .build();
+
+                    useCase.addSpeaker(speaker);
+                }
+            }
         }
     }
 
     private void addArtifacts(UseCase useCase, UseCaseRequestDTO dto) {
-        if (dto.getOneSliderUrl() != null && !dto.getOneSliderUrl().isBlank()) {
-            useCase.getArtifacts().add(UseCaseArtifact.builder()
-                    .useCase(useCase)
-                    .artifactType("ONE_SLIDER")
-                    .url(dto.getOneSliderUrl())
-                    .build());
-        }
-        if (dto.getMultiSliderUrl() != null && !dto.getMultiSliderUrl().isBlank()) {
-            useCase.getArtifacts().add(UseCaseArtifact.builder()
-                    .useCase(useCase)
-                    .artifactType("MULTI_SLIDER")
-                    .url(dto.getMultiSliderUrl())
-                    .build());
-        }
-        if (dto.getDemoVideoUrl() != null && !dto.getDemoVideoUrl().isBlank()) {
-            useCase.getArtifacts().add(UseCaseArtifact.builder()
-                    .useCase(useCase)
-                    .artifactType("DEMO_VIDEO")
-                    .url(dto.getDemoVideoUrl())
-                    .build());
-        }
-        if (dto.getClientTestimonialDemoUrl() != null && !dto.getClientTestimonialDemoUrl().isBlank()) {
-            useCase.getArtifacts().add(UseCaseArtifact.builder()
-                    .useCase(useCase)
-                    .artifactType("CLIENT_TESTIMONIAL")
-                    .url(dto.getClientTestimonialDemoUrl())
-                    .build());
-        }
-        if (dto.getNarrationVideoUrl() != null && !dto.getNarrationVideoUrl().isBlank()) {
-            useCase.getArtifacts().add(UseCaseArtifact.builder()
-                    .useCase(useCase)
-                    .artifactType("NARRATION")
-                    .url(dto.getNarrationVideoUrl())
-                    .build());
+
+        if (dto.getArtifacts() != null && !dto.getArtifacts().isEmpty()) {
+
+            for (ArtifactDTO artifactDTO : dto.getArtifacts()) {
+
+                if (artifactDTO.getUrl() != null && !artifactDTO.getUrl().isBlank()) {
+
+                    UseCaseArtifact artifact = UseCaseArtifact.builder()
+                            .useCase(useCase)
+                            .artifactType(artifactDTO.getArtifactType())
+                            .url(artifactDTO.getUrl())
+                            .build();
+
+                    useCase.getArtifacts().add(artifact);
+                }
+            }
         }
     }
-
     private UseCaseResponseDTO buildResponseDTO(UseCase useCase, UseCaseContent content, UseCaseRequestDTO requestDTO) {
         return UseCaseResponseDTO.builder()
                 .usecaseId(useCase.getUsecaseId())
@@ -267,18 +253,12 @@ public class UseCaseServiceImpl implements UseCaseService {
                 .valueChainId(useCase.getValueChainId())
                 .title(useCase.getTitle())
                 .thumbnailImageUrl(content.getThumbnailUrl())
-                .tag(requestDTO.getTag())
+                .tag(useCase.getTags().stream().map(UseCaseTag::getTag).toList())
                 .description(content.getDescription())
                 .duration(content.getDuration())
                 .ownerId(requestDTO.getOwnerId())
-                .primarySpeakerEid(requestDTO.getPrimarySpeakerEid())
-                .secondarySpeakerEid(requestDTO.getSecondarySpeakerEid())
-                .tertiarySpeakerEid(requestDTO.getTertiarySpeakerEid())
-                .oneSliderUrl(requestDTO.getOneSliderUrl())
-                .multiSliderUrl(requestDTO.getMultiSliderUrl())
-                .demoVideoUrl(requestDTO.getDemoVideoUrl())
-                .clientTestimonialDemoUrl(requestDTO.getClientTestimonialDemoUrl())
-                .narrationVideoUrl(requestDTO.getNarrationVideoUrl())
+                .speakers(useCase.getSpeakers().stream().map(s -> new SpeakerDTO(s.getSpeakerEid(), s.getSpeakerType())).toList())
+                .artifacts(useCase.getArtifacts().stream().map(a -> new ArtifactDTO(a.getArtifactType(), a.getUrl())).toList())
                 .businessProblem(content.getBusinessProblem())
                 .solutions(content.getSolution())
                 .valueDelivered(content.getValueDelivered())
@@ -296,6 +276,8 @@ public class UseCaseServiceImpl implements UseCaseService {
     private UseCaseResponseDTO buildResponseFromEntities(UseCase useCase, UseCaseContent content) {
         UseCaseResponseDTO.UseCaseResponseDTOBuilder builder = UseCaseResponseDTO.builder()
                 .usecaseId(useCase.getUsecaseId())
+                .industryId(useCase.getIndustryId())
+                .subIndustryId((useCase.getSubIndustryId()))
                 .valueChainId(useCase.getValueChainId())
                 .title(useCase.getTitle())
                 .ownerId(parseInteger(useCase.getOwnerEid()))
@@ -307,7 +289,7 @@ public class UseCaseServiceImpl implements UseCaseService {
                 .isActive(useCase.getIsActive())
                 .creatorId(useCase.getCreatorId());
 
-        // Content fields
+
         if (content != null) {
             builder.description(content.getDescription())
                     .businessProblem(content.getBusinessProblem())
@@ -319,36 +301,32 @@ public class UseCaseServiceImpl implements UseCaseService {
                     .thumbnailImageUrl(content.getThumbnailUrl());
         }
 
-        // Tags
         List<UseCaseTag> tags = useCase.getTags();
+
         if (tags != null && !tags.isEmpty()) {
-            builder.tag(tags.get(0).getTag());
+            List<String> tagList = tags.stream()
+                    .map(UseCaseTag::getTag)
+                    .toList(); builder.tag(tagList);
         }
 
-        // Speakers
-        List<UseCaseSpeaker> speakers = useCase.getSpeakers();
-        if (speakers != null) {
-            for (UseCaseSpeaker speaker : speakers) {
-                switch (speaker.getSpeakerType()) {
-                    case "PRIMARY" -> builder.primarySpeakerEid(speaker.getSpeakerEid());
-                    case "SECONDARY" -> builder.secondarySpeakerEid(speaker.getSpeakerEid());
-                    case "TERTIARY" -> builder.tertiarySpeakerEid(speaker.getSpeakerEid());
-                }
-            }
+
+        if (useCase.getSpeakers() != null) {
+            builder.speakers(
+                    useCase.getSpeakers()
+                            .stream()
+                            .map(s -> new SpeakerDTO(s.getSpeakerEid(), s.getSpeakerType()))
+                            .toList()
+            );
         }
 
         // Artifacts
-        List<UseCaseArtifact> artifacts = useCase.getArtifacts();
-        if (artifacts != null) {
-            for (UseCaseArtifact artifact : artifacts) {
-                switch (artifact.getArtifactType()) {
-                    case "ONE_SLIDER" -> builder.oneSliderUrl(artifact.getUrl());
-                    case "MULTI_SLIDER" -> builder.multiSliderUrl(artifact.getUrl());
-                    case "DEMO_VIDEO" -> builder.demoVideoUrl(artifact.getUrl());
-                    case "CLIENT_TESTIMONIAL" -> builder.clientTestimonialDemoUrl(artifact.getUrl());
-                    case "NARRATION" -> builder.narrationVideoUrl(artifact.getUrl());
-                }
-            }
+        if (useCase.getArtifacts() != null) {
+            builder.artifacts(
+                    useCase.getArtifacts()
+                            .stream()
+                            .map(a -> new ArtifactDTO(a.getArtifactType(), a.getUrl()))
+                            .toList()
+            );
         }
 
         return builder.build();
