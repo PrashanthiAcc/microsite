@@ -80,6 +80,10 @@ public class UseCase {
     @OneToMany(mappedBy = "useCase", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<UseCaseSpeaker> speakers = new ArrayList<>();
+    public void addSpeaker(UseCaseSpeaker speaker) {
+        speakers.add(speaker);
+        speaker.setUseCase(this);
+    }
 
     @Builder.Default
     @OneToMany(mappedBy = "useCase", cascade = CascadeType.ALL, orphanRemoval = true)
