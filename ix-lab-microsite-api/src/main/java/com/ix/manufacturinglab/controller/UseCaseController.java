@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -86,12 +87,16 @@ public class UseCaseController {
      * @return list of active use case responses
      */
     @GetMapping(value = "/v1/all")
-    public ResponseEntity<Object> getAllActiveUseCases() {
+    public ResponseEntity<Object> getAllActiveUseCases(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
         logger.info("Received request to fetch all active use cases");
+
         try {
-            List<UseCaseResponseDTO> responses = useCaseService.getAllActiveUseCases();
+            Page<UseCaseResponseDTO> responses = useCaseService.getAllActiveUseCases(page, size);
             return new ResponseEntity<>(responses, HttpStatus.OK);
+
         } catch (CommonException e) {
             logger.error("Exception occurred while fetching use cases: {}", e.getMessage(), e);
             errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);

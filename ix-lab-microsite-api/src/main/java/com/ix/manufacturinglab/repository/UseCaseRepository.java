@@ -3,6 +3,8 @@ package com.ix.manufacturinglab.repository;
 import com.ix.manufacturinglab.entity.UseCase;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -12,5 +14,5 @@ import java.util.List;
 @Repository
 public interface UseCaseRepository extends JpaRepository<UseCase, Integer> {
 
-    List<UseCase> findByIsActiveTrue();
+    Page<UseCase> findByIsActiveTrue(Pageable pageable);
 }

@@ -1,9 +1,14 @@
 package com.ix.manufacturinglab.service.impl;
 
+import com.ix.manufacturinglab.constants.CommonExceptionConstants;
+import com.ix.manufacturinglab.constants.ManufacturingLabConstants;
 import com.ix.manufacturinglab.dto.MicrositeDataDTO;
+import com.ix.manufacturinglab.dto.SubIndustryDTO;
 import com.ix.manufacturinglab.entity.Industry;
 import com.ix.manufacturinglab.entity.SubIndustry;
+import com.ix.manufacturinglab.entity.UseCase;
 import com.ix.manufacturinglab.entity.ValueChain;
+import com.ix.manufacturinglab.exception.CommonException;
 import com.ix.manufacturinglab.repository.IndustryRepository;
 import com.ix.manufacturinglab.repository.SubIndustryRepository;
 import com.ix.manufacturinglab.repository.ValueChainRepository;
@@ -11,9 +16,12 @@ import com.ix.manufacturinglab.service.MicrositeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.ix.manufacturinglab.constants.ManufacturingLabConstants.SUB_INDUSTRY_NOT_FOUND;
 
 /**
  * Implementation of MicrositeService using static/in-memory data
@@ -61,6 +69,62 @@ public class MicrositeServiceImpl implements MicrositeService {
         return subIndustryRepository.findByIndustryId(industryId);
     }
 
+    @Override
+    @Transactional
+    public SubIndustryDTO createSubIndustry(SubIndustryDTO subIndustryDTO) {
+
+        logger.info("Creating sub-industry with name {}", subIndustryDTO.getSubIndustryName());
+
+
+            SubIndustry subIndustry = new SubIndustry();
+
+            subIndustry.setSubIndustryName(subIndustryDTO.getSubIndustryName());
+            subIndustry.setIndustryId(subIndustryDTO.getIndustryId());
+
+            SubIndustry savedSubIndustry = subIndustryRepository.save(subIndustry);
+
+            return SubIndustryDTO.builder()
+                    .subIndustryId(savedSubIndustry.getSubIndustryId())
+                    .subIndustryName(savedSubIndustry.getSubIndustryName())
+                    .industryId(savedSubIndustry.getIndustryId())
+                    .build();
+    }
+
+    @Override
+    @Transactional
+    public SubIndustryDTO updateSubIndustry(Long subIndustryId, SubIndustryDTO subIndustryDTO) {
+
+        logger.info("Updating Sub-Industry with id {}", subIndustryId);
+
+        SubIndustry subIndustry = subIndustryRepository.findById(subIndustryId)
+                .orElseThrow(() -> new CommonException(CommonExceptionConstants.NOT_FOUND,
+                                   SUB_INDUSTRY_NOT_FOUND + subIndustryId));
+
+
+        subIndustry.setSubIndustryName(subIndustryDTO.getSubIndustryName());
+        subIndustry.setIndustryId(subIndustryDTO.getIndustryId());
+
+        subIndustryRepository.save(subIndustry);
+
+        return SubIndustryDTO.builder()
+                .subIndustryId(subIndustry.getSubIndustryId())
+                .subIndustryName(subIndustry.getSubIndustryName())
+                .industryId(subIndustry.getIndustryId())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public void deleteSubIndustry(Long subIndustryId) {
+
+        logger.info("Deleting sub-industry with id {}", subIndustryId);
+
+        SubIndustry subIndustry = subIndustryRepository.findById(subIndustryId)
+                .orElseThrow(() -> new CommonException(CommonExceptionConstants.NOT_FOUND,
+                                    SUB_INDUSTRY_NOT_FOUND + subIndustryId));
+
+        subIndustryRepository.delete(subIndustry);
+    }
 
     @Override
     public List<ValueChain> getAllValueChains() {

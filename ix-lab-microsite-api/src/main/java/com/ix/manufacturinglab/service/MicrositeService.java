@@ -1,6 +1,7 @@
 package com.ix.manufacturinglab.service;
 
 import com.ix.manufacturinglab.dto.MicrositeDataDTO;
+import com.ix.manufacturinglab.dto.SubIndustryDTO;
 import com.ix.manufacturinglab.entity.Industry;
 import com.ix.manufacturinglab.entity.SubIndustry;
 import com.ix.manufacturinglab.entity.ValueChain;
@@ -33,6 +34,34 @@ public interface MicrositeService {
      * @return list of sub-industries for the given industry
      */
     List<SubIndustry> getSubIndustriesByIndustryId(Long industryId);
+
+    /**
+     * Create a new sub-industry
+     *
+     * @param subIndustryDTO the su-industry creation request
+     * @return the created sub-industry response
+     */
+
+    SubIndustryDTO createSubIndustry(SubIndustryDTO subIndustryDTO);
+
+    /**
+     * Update an existing sub-industryand its related data.
+     *
+     * @param subIndustryId  the sub-industry ID
+     * @param subIndustryDTO the update request
+     * @return the updated sub-industry response
+     */
+
+    SubIndustryDTO updateSubIndustry(Long subIndustryId, SubIndustryDTO subIndustryDTO);
+
+    /**
+     * Hard-delete a sub_industry.
+     *
+     * @param subIndustryId the sub-industry ID
+     */
+
+    void deleteSubIndustry(Long subIndustryId);
+
     /**
      * Get all value chains.
      *

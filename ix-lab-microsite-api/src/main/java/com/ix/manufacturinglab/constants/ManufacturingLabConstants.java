@@ -31,6 +31,9 @@ public final class ManufacturingLabConstants {
     public static final String INVALID_CATEGORY = "Invalid category: ";
     public static final String INVALID_PRIORITY = "Invalid priority: ";
     public static final String INVALID_COMPLEXITY = "Invalid complexity: ";
+    public static final String SUB_INDUSTRY_NOT_FOUND = "sub industry not found with id: ";
+
+    public static final String DELETE_SUB_INDUSTRY_GENERIC_ERROR_MESSAGE = "An error occurred while deleting sub-industry";
 
     // Success Messages
     public static final String USE_CASE_CREATED = "Use case created successfully";
@@ -42,6 +45,10 @@ public final class ManufacturingLabConstants {
     public static final String UPDATE_USE_CASE_GENERIC_ERROR_MESSAGE = "An error occurred while updating the Use case";
     public static final String DELETE_USE_CASE_GENERIC_ERROR_MESSAGE = "An error occurred while deleting the Use case";
     public static final String SEARCH_USE_CASE_GENERIC_ERROR_MESSAGE = "An unexpected error occurred while searching Use case.";
+
+    public static final String CREATE_SUB_INDUSTRY_GENERIC_ERROR_MESSAGE = "An error occurred while creating the Sub - Industry";
+
+    public static final String UPDATE_SUB_INDUSTRY_GENERIC_ERROR_MESSAGE = "An error occurred while updating the Sub - Industry";
 
     // Pagination Defaults
     public static final int DEFAULT_PAGE_SIZE = 10;
