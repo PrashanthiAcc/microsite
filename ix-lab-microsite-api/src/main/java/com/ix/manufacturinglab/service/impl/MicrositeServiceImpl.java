@@ -1,9 +1,12 @@
 package com.ix.manufacturinglab.service.impl;
 
+import com.ix.manufacturinglab.constants.CommonExceptionConstants;
+import com.ix.manufacturinglab.constants.ManufacturingLabConstants;
 import com.ix.manufacturinglab.dto.MicrositeDataDTO;
 import com.ix.manufacturinglab.entity.Industry;
 import com.ix.manufacturinglab.entity.SubIndustry;
 import com.ix.manufacturinglab.entity.ValueChain;
+import com.ix.manufacturinglab.exception.CommonException;
 import com.ix.manufacturinglab.repository.IndustryRepository;
 import com.ix.manufacturinglab.repository.SubIndustryRepository;
 import com.ix.manufacturinglab.repository.ValueChainRepository;
@@ -13,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -42,6 +46,61 @@ public class MicrositeServiceImpl implements MicrositeService {
 
     public List<Industry> getAllIndustries() {
         return industryRepository.findAll();
+    }
+
+    @Override
+    public Industry createIndustry(Industry industry) throws CommonException {
+
+        try {
+            return industryRepository.save(industry);
+        } catch (Exception e) {
+            logger.error("Exception occurred while creating industry", e);
+            throw new CommonException(
+                    CommonExceptionConstants.BAD_REQUEST,
+                    ManufacturingLabConstants.CREATE_INDUSTRY_GENERIC_ERROR_MESSAGE);
+        }
+    }
+
+    @Override
+    public Industry updateIndustry(Long id, Industry industry) throws CommonException {
+
+        try {
+            Optional<Industry> optionalIndustry = industryRepository.findById(id);
+            if (optionalIndustry.isEmpty()) throw new CommonException(
+                    CommonExceptionConstants.BAD_REQUEST,
+                    ManufacturingLabConstants.INDUSTRY_NOT_FOUND);
+            Industry existingIndustry = optionalIndustry.get();
+            existingIndustry.setIndustryName(industry.getIndustryName());
+            return industryRepository.save(existingIndustry);
+        } catch (CommonException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error updating industry", e);
+            throw new CommonException(
+                    CommonExceptionConstants.BAD_REQUEST,
+                    ManufacturingLabConstants.UPDATE_INDUSTRY_GENERIC_ERROR_MESSAGE);
+        }
+    }
+
+    @Override
+    public void deleteIndustry(Long id) throws CommonException {
+
+        try {
+            Optional<Industry> optionalIndustry = industryRepository.findById(id);
+            if (optionalIndustry.isEmpty()) {
+                throw new CommonException(
+                        CommonExceptionConstants.BAD_REQUEST,
+                        ManufacturingLabConstants.INDUSTRY_NOT_FOUND);
+            }
+            industryRepository.deleteById(id);
+        } catch (CommonException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error deleting industry", e);
+            throw new CommonException(
+                    CommonExceptionConstants.BAD_REQUEST,
+                    ManufacturingLabConstants.DELETE_INDUSTRY_GENERIC_ERROR_MESSAGE);
+        }
     }
 
     @Override
