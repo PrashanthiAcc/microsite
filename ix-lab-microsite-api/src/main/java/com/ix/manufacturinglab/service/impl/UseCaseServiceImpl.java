@@ -8,6 +8,10 @@ import com.ix.manufacturinglab.dto.ArtifactDTO;
 import com.ix.manufacturinglab.dto.SpeakerDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -108,18 +112,25 @@ public class UseCaseServiceImpl implements UseCaseService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<UseCaseResponseDTO> getAllActiveUseCases() {
-        logger.info("Fetching all active use cases");
+    public Page<UseCaseResponseDTO> getAllActiveUseCases(int page, int size) {
 
-        List<UseCase> useCases = useCaseRepository.findByIsActiveTrue();
+        logger.info("Fetching active use cases with pagination");
+
+        Pageable pageable = PageRequest.of(page-1, size);
+
+        Page<UseCase> useCases = useCaseRepository.findByIsActiveTrue(pageable);
+
         List<UseCaseResponseDTO> responses = new ArrayList<>();
 
-        for (UseCase useCase : useCases) {
-            UseCaseContent content = useCaseContentRepository.findByUsecaseId(useCase.getUsecaseId()).orElse(null);
+        for (UseCase useCase : useCases.getContent()) {
+            UseCaseContent content = useCaseContentRepository
+                    .findByUsecaseId(useCase.getUsecaseId())
+                    .orElse(null);
+
             responses.add(buildResponseFromEntities(useCase, content));
         }
 
-        return responses;
+        return new PageImpl<>(responses, pageable, useCases.getTotalElements());
     }
 
     @Override

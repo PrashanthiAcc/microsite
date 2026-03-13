@@ -107,6 +107,89 @@ public class MicrositeController {
         }
     }
 
+    /**
+     * Create a new sub-industry.
+     *
+     * @param subIndustryDTO the sub-industry request body
+     * @return the success response
+     */
+    @PostMapping(value = "/v1/microsite/sub-industries/create")
+    public ResponseEntity<Object> createSubIndustry(@RequestBody SubIndustryDTO subIndustryDTO) {
+
+        logger.info("Received request to create sub-industry");
+
+        try {
+            SubIndustryDTO response = micrositeService.createSubIndustry(subIndustryDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Sub-industry created successfully");
+
+        } catch (CommonException e) {
+
+            logger.error("Exception occurred while creating Sub Industry: {}", e.getMessage(), e);
+
+            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+            errorResponse.setErrorDescription(
+                    ManufacturingLabConstants.CREATE_SUB_INDUSTRY_GENERIC_ERROR_MESSAGE);
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    /**
+     * Update an existing sub-industry.
+     *
+     * @param subIndustryId  the sub-industry ID
+     * @param subIndustryDTO the update request body
+     * @return the updated sub-industry response
+     */
+    @PutMapping("/v1/microsite/sub-industries/{subIndustryId}")
+    public ResponseEntity<Object> updateSubIndustry(@PathVariable Long subIndustryId,
+                                                    @RequestBody SubIndustryDTO subIndustryDTO) {
+        logger.info("Received request to update sub-industry");
+        try {
+            SubIndustryDTO response = micrositeService.updateSubIndustry(subIndustryId, subIndustryDTO);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+
+        } catch (CommonException e) {
+
+            logger.error("Exception occurred while updating Sub Industry: {}", e.getMessage(), e);
+
+            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+            errorResponse.setErrorDescription(
+                    ManufacturingLabConstants.UPDATE_SUB_INDUSTRY_GENERIC_ERROR_MESSAGE);
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    /**
+     * Hard-delete a sub-industry
+     *
+     * @param subIndustryId the sub-industry ID
+     * @return success response
+     */
+    @DeleteMapping("/v1/microsite/sub-industries/{subIndustryId}")
+    public ResponseEntity<Object> deleteSubIndustry(@PathVariable Long subIndustryId) {
+
+        logger.info("Received request to delete sub-industry with id {}", subIndustryId);
+        try {
+
+            micrositeService.deleteSubIndustry(subIndustryId);
+
+            return ResponseEntity.ok("Sub-industry deleted successfully");
+
+        } catch (CommonException e) {
+
+            logger.error("Exception occurred while deleting Sub Industry: {}", e.getMessage(), e);
+
+            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+            errorResponse.setErrorDescription(
+                    ManufacturingLabConstants.DELETE_SUB_INDUSTRY_GENERIC_ERROR_MESSAGE);
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
     // ==================== VALUE CHAIN ENDPOINTS ====================
 
     /**

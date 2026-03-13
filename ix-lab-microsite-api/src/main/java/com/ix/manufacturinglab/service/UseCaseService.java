@@ -2,6 +2,7 @@ package com.ix.manufacturinglab.service;
 
 import com.ix.manufacturinglab.dto.UseCaseRequestDTO;
 import com.ix.manufacturinglab.dto.UseCaseResponseDTO;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -31,7 +32,7 @@ public interface UseCaseService {
      *
      * @return list of active use case responses
      */
-    List<UseCaseResponseDTO> getAllActiveUseCases();
+    Page<UseCaseResponseDTO> getAllActiveUseCases(int page, int size);
 
     /**
      * Update an existing use case and its related data.
