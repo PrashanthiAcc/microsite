@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.ix.manufacturinglab.constants.ManufacturingLabConstants.SUB_INDUSTRY_NOT_FOUND;
@@ -50,6 +51,61 @@ public class MicrositeServiceImpl implements MicrositeService {
 
     public List<Industry> getAllIndustries() {
         return industryRepository.findAll();
+    }
+
+    @Override
+    public Industry createIndustry(Industry industry) throws CommonException {
+
+        try {
+            return industryRepository.save(industry);
+        } catch (Exception e) {
+            logger.error("Exception occurred while creating industry", e);
+            throw new CommonException(
+                    CommonExceptionConstants.BAD_REQUEST,
+                    ManufacturingLabConstants.CREATE_INDUSTRY_GENERIC_ERROR_MESSAGE);
+        }
+    }
+
+    @Override
+    public Industry updateIndustry(Long id, Industry industry) throws CommonException {
+
+        try {
+            Optional<Industry> optionalIndustry = industryRepository.findById(id);
+            if (optionalIndustry.isEmpty()) throw new CommonException(
+                    CommonExceptionConstants.BAD_REQUEST,
+                    ManufacturingLabConstants.INDUSTRY_NOT_FOUND);
+            Industry existingIndustry = optionalIndustry.get();
+            existingIndustry.setIndustryName(industry.getIndustryName());
+            return industryRepository.save(existingIndustry);
+        } catch (CommonException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error updating industry", e);
+            throw new CommonException(
+                    CommonExceptionConstants.BAD_REQUEST,
+                    ManufacturingLabConstants.UPDATE_INDUSTRY_GENERIC_ERROR_MESSAGE);
+        }
+    }
+
+    @Override
+    public void deleteIndustry(Long id) throws CommonException {
+
+        try {
+            Optional<Industry> optionalIndustry = industryRepository.findById(id);
+            if (optionalIndustry.isEmpty()) {
+                throw new CommonException(
+                        CommonExceptionConstants.BAD_REQUEST,
+                        ManufacturingLabConstants.INDUSTRY_NOT_FOUND);
+            }
+            industryRepository.deleteById(id);
+        } catch (CommonException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error deleting industry", e);
+            throw new CommonException(
+                    CommonExceptionConstants.BAD_REQUEST,
+                    ManufacturingLabConstants.DELETE_INDUSTRY_GENERIC_ERROR_MESSAGE);
+        }
     }
 
     @Override

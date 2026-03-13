@@ -63,6 +63,71 @@ public class MicrositeController {
         }
     }
 
+    /**
+     * Create a new industry.
+     *
+     * @param industry industry details
+     * @return created industry
+     */
+    @PostMapping(value = "/v1/microsite/create")
+    public ResponseEntity<Object> createIndustry(@RequestBody Industry industry) {
+
+        logger.info("Received request to create industry");
+        try {
+            micrositeService.createIndustry(industry);
+            return new ResponseEntity<>(ManufacturingLabConstants.INDUSTRY_CREATED_SUCCESS, HttpStatus.CREATED);
+        } catch (CommonException e) {
+            logger.error("Exception occurred while creating industry: {}", e.getMessage(), e);
+            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+            errorResponse.setErrorDescription(ManufacturingLabConstants.CREATE_INDUSTRY_GENERIC_ERROR_MESSAGE);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    /**
+     * Update an existing industry.
+     *
+     * @param id industry id
+     * @param industry updated industry details
+     * @return updated industry
+     */
+    @PutMapping("/v1/microsite/industries/{id}")
+    public ResponseEntity<Object> updateIndustry(@PathVariable Long id,
+                                                 @RequestBody Industry industry) {
+
+        logger.info("Received request to update industry with id {}", id);
+        try {
+            Industry updatedIndustry = micrositeService.updateIndustry(id, industry);
+            return new ResponseEntity<>(updatedIndustry, HttpStatus.OK);
+        } catch (CommonException e) {
+            logger.error("Exception occurred while deleting industry with id {}: {}", id, e.getMessage(), e);
+            errorResponse.setErrorCode(e.getErrorCode());
+            errorResponse.setErrorDescription(e.getErrorDescription());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
+    }
+
+    /**
+     * Delete an industry by id.
+     *
+     * @param id industry id
+     * @return success message
+     */
+    @DeleteMapping("/v1/microsite/industries/{id}")
+    public ResponseEntity<Object> deleteIndustry(@PathVariable Long id) {
+
+        logger.info("Received request to delete industry with id {}", id);
+        try {
+            micrositeService.deleteIndustry(id);
+            return new ResponseEntity<>(ManufacturingLabConstants.INDUSTRY_DELETED_SUCCESS, HttpStatus.OK);
+        } catch (CommonException e) {
+            logger.error("Exception occurred while deleting industry with id {}: {}", id, e.getMessage(), e);
+            errorResponse.setErrorCode(e.getErrorCode());
+            errorResponse.setErrorDescription(e.getErrorDescription());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
+    }
+
     // ==================== SUB-INDUSTRY ENDPOINTS ====================
 
     /**

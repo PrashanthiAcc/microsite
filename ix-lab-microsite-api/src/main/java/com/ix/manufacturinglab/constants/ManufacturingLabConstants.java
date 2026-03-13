@@ -24,6 +24,7 @@ public final class ManufacturingLabConstants {
     public static final String STATUS_ARCHIVED = "ARCHIVED";
 
     // Error Messages
+    public static final String INDUSTRY_NOT_FOUND = "Industry not found";
     public static final String USE_CASE_NOT_FOUND = "Use case not found with id: ";
     public static final String USE_CASE_ALREADY_EXISTS = "Use case already exists with title: ";
     public static final String INVALID_STATUS_TRANSITION = "Invalid status transition from %s to %s";
@@ -36,11 +37,16 @@ public final class ManufacturingLabConstants {
     public static final String DELETE_SUB_INDUSTRY_GENERIC_ERROR_MESSAGE = "An error occurred while deleting sub-industry";
 
     // Success Messages
+    public static final String INDUSTRY_CREATED_SUCCESS = "Industry created successfully";
+    public static final String INDUSTRY_DELETED_SUCCESS = "Industry deleted successfully";
     public static final String USE_CASE_CREATED = "Use case created successfully";
     public static final String USE_CASE_UPDATED = "Use case updated successfully";
     public static final String USE_CASE_DELETED = "Use case deleted successfully";
     public static final String USE_CASE_STATUS_UPDATED = "Use case status updated successfully";
    // Failure Messages
+    public static final String CREATE_INDUSTRY_GENERIC_ERROR_MESSAGE = "An Error occurred while creating industry";
+    public static final String UPDATE_INDUSTRY_GENERIC_ERROR_MESSAGE = "Error occurred while updating industry";
+    public static final String DELETE_INDUSTRY_GENERIC_ERROR_MESSAGE = "Error occurred while deleting industry";
     public static final String CREATE_USE_CASE_GENERIC_ERROR_MESSAGE = "An error occurred while creating the Use case.";
     public static final String UPDATE_USE_CASE_GENERIC_ERROR_MESSAGE = "An error occurred while updating the Use case";
     public static final String DELETE_USE_CASE_GENERIC_ERROR_MESSAGE = "An error occurred while deleting the Use case";
