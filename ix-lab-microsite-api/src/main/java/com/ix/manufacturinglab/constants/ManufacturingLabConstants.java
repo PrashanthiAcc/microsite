@@ -33,6 +33,7 @@ public final class ManufacturingLabConstants {
     public static final String INVALID_PRIORITY = "Invalid priority: ";
     public static final String INVALID_COMPLEXITY = "Invalid complexity: ";
     public static final String SUB_INDUSTRY_NOT_FOUND = "sub industry not found with id: ";
+    public static final String INDUSTRY_ID_NOT_FOUND = "sub industry not found with industry id: ";
 
     public static final String DELETE_SUB_INDUSTRY_GENERIC_ERROR_MESSAGE = "An error occurred while deleting sub-industry";
 
@@ -47,7 +48,9 @@ public final class ManufacturingLabConstants {
     public static final String CREATE_INDUSTRY_GENERIC_ERROR_MESSAGE = "An Error occurred while creating industry";
     public static final String UPDATE_INDUSTRY_GENERIC_ERROR_MESSAGE = "Error occurred while updating industry";
     public static final String DELETE_INDUSTRY_GENERIC_ERROR_MESSAGE = "Error occurred while deleting industry";
-    public static final String CREATE_USE_CASE_GENERIC_ERROR_MESSAGE = "An error occurred while creating the Use case.";
+    public static final String DRAFT_TITLE_REQUIRED = "An error occurred while Drafting the Use case. Required Title";
+    public static final String SAVE_DRAFT_GENERIC_ERROR_MESSAGE = "An error occurred while drafting the use case";
+    public static final String SUBMIT_FOR_APPROVAL_GENERIC_ERROR_MESSAGE = "An error occurred while sending for approval";
     public static final String UPDATE_USE_CASE_GENERIC_ERROR_MESSAGE = "An error occurred while updating the Use case";
     public static final String DELETE_USE_CASE_GENERIC_ERROR_MESSAGE = "An error occurred while deleting the Use case";
     public static final String SEARCH_USE_CASE_GENERIC_ERROR_MESSAGE = "An unexpected error occurred while searching Use case.";
@@ -63,7 +66,8 @@ public final class ManufacturingLabConstants {
     public static final String DEFAULT_SORT_DIRECTION = "DESC";
 
     // Log Messages
-    public static final String LOG_CREATING_USE_CASE = "Creating new use case with title: {}";
+    public static final String LOG_SAVING_DRAFT = "use case with title: {} saved as Draft";
+    public static final String LOG_SUBMITTING_FOR_APPROVAL = "use case with title: {} sent for approval";
     public static final String LOG_UPDATING_USE_CASE = "Updating use case with id: {}";
     public static final String LOG_DELETING_USE_CASE = "Deleting use case with id: {}";
     public static final String LOG_FETCHING_USE_CASE = "Fetching use case with id: {}";

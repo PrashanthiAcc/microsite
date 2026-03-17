@@ -39,23 +39,51 @@ public class UseCaseController {
     }
 
     /**
-     * Create a new use case.
+     * Save a use case as draft (minimal validation).
+     * Only title is required. Status is automatically set to DRAFT.
      *
      * @param requestDTO the use case request body
-     * @return the created use case response
+     * @return the saved draft use case response
      */
-    @PostMapping(value = "/v1/create", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> createUseCase(
-            @Valid @RequestBody UseCaseRequestDTO requestDTO) {
+    @PostMapping(value = "/v1/save-draft", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> saveAsDraft(@RequestBody UseCaseRequestDTO requestDTO) {
 
-        logger.info(ManufacturingLabConstants.LOG_CREATING_USE_CASE, requestDTO.getTitle());
+        logger.info(ManufacturingLabConstants.LOG_SAVING_DRAFT, requestDTO.getTitle());
         try {
-            UseCaseResponseDTO response = useCaseService.createUseCase(requestDTO);
+            if (requestDTO.getTitle() == null || requestDTO.getTitle().isBlank()) {
+                errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+                errorResponse.setErrorDescription(ManufacturingLabConstants.DRAFT_TITLE_REQUIRED);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+            }
+            UseCaseResponseDTO response = useCaseService.saveAsDraft(requestDTO);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (CommonException e) {
-            logger.error("Exception occurred while creating use case: {}", e.getMessage(), e);
+            logger.error("Exception occurred while saving use case as draft: {}", e.getMessage(), e);
             errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
-            errorResponse.setErrorDescription(ManufacturingLabConstants.CREATE_USE_CASE_GENERIC_ERROR_MESSAGE);
+            errorResponse.setErrorDescription(ManufacturingLabConstants.SAVE_DRAFT_GENERIC_ERROR_MESSAGE);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    /**
+     * Submit a use case for approval (full validation).
+     * Status is automatically set to IN_REVIEW.
+     *
+     * @param requestDTO the use case request body
+     * @return the submitted use case response
+     */
+    @PostMapping(value = "/v1/submit-for-approval", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> submitForApproval(
+            @Valid @RequestBody UseCaseRequestDTO requestDTO) {
+
+        logger.info(ManufacturingLabConstants.LOG_SUBMITTING_FOR_APPROVAL, requestDTO.getTitle());
+        try {
+            UseCaseResponseDTO response = useCaseService.submitForApproval(requestDTO);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (CommonException e) {
+            logger.error("Exception occurred while submitting use case for approval: {}", e.getMessage(), e);
+            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+            errorResponse.setErrorDescription(ManufacturingLabConstants.SUBMIT_FOR_APPROVAL_GENERIC_ERROR_MESSAGE);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
@@ -120,7 +148,7 @@ public class UseCaseController {
         logger.info(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
         try {
             UseCaseResponseDTO response = useCaseService.updateUseCase(usecaseId, requestDTO);
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return ResponseEntity.status(HttpStatus.OK).body("Use case Id " + usecaseId + " is updated successfully");
         } catch (CommonException e) {
             logger.error("Exception occurred while updating use case: {}", e.getMessage(), e);
             errorResponse.setErrorCode(e.getErrorCode());
@@ -143,7 +171,7 @@ public class UseCaseController {
         logger.info(ManufacturingLabConstants.LOG_DELETING_USE_CASE, usecaseId);
         try {
             useCaseService.deleteUseCase(usecaseId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return ResponseEntity.status(HttpStatus.OK).body("Use case Id " + usecaseId + " is deleted successfully");
         } catch (CommonException e) {
             logger.error("Exception occurred while deleting use case: {}", e.getMessage(), e);
             errorResponse.setErrorCode(e.getErrorCode());
@@ -153,4 +181,44 @@ public class UseCaseController {
             return ResponseEntity.status(status).body(errorResponse);
         }
     }
+
+    /**
+     * Update an existing use case.
+     * @param usecaseId  the use case ID
+     * @return the success text response
+     */
+    @PatchMapping("/v1/{usecaseId}/archive")
+    public ResponseEntity<Object> archiveUseCase(@PathVariable Integer usecaseId) {
+
+        logger.info("Received request to archive use case with id {}", usecaseId);
+
+        try {
+            useCaseService.archiveUseCase(usecaseId);
+            return ResponseEntity.ok("Use case Id " + usecaseId + " is archived successfully");
+
+
+        } catch (CommonException e) {
+
+            logger.error("Exception occurred while archiving use case: {}", e.getMessage(), e);
+
+            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+            errorResponse.setErrorDescription(
+                    ManufacturingLabConstants.UPDATE_USE_CASE_GENERIC_ERROR_MESSAGE);
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    @DeleteMapping("/v1/{usecaseId}/discard")
+    public ResponseEntity<String> discardDraftUseCase(@PathVariable Integer usecaseId) {
+
+        logger.info("Discarding draft use case with id {}", usecaseId);
+
+        useCaseService.discardDraftUseCase(usecaseId);
+
+        return ResponseEntity.ok(
+                "Draft use case with Id " + usecaseId + " is discarded successfully"
+        );
+    }
+
 }

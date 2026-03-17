@@ -185,7 +185,8 @@ public class MicrositeController {
 
         try {
             SubIndustryDTO response = micrositeService.createSubIndustry(subIndustryDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Sub-industry created successfully");
+            return ResponseEntity.status(HttpStatus.CREATED).body("Sub-industry Id " + response.getSubIndustryId() + " is created successfully");
+
 
         } catch (CommonException e) {
 
@@ -211,9 +212,9 @@ public class MicrositeController {
                                                     @RequestBody SubIndustryDTO subIndustryDTO) {
         logger.info("Received request to update sub-industry");
         try {
-            SubIndustryDTO response = micrositeService.updateSubIndustry(subIndustryId, subIndustryDTO);
+            micrositeService.updateSubIndustry(subIndustryId, subIndustryDTO);
 
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return ResponseEntity.status(HttpStatus.OK).body("Sub-industry Id " + subIndustryId + " is updated successfully");
 
         } catch (CommonException e) {
 
@@ -241,7 +242,7 @@ public class MicrositeController {
 
             micrositeService.deleteSubIndustry(subIndustryId);
 
-            return ResponseEntity.ok("Sub-industry deleted successfully");
+            return ResponseEntity.ok("Sub-industry Id " + subIndustryId + " is deleted successfully");
 
         } catch (CommonException e) {
 

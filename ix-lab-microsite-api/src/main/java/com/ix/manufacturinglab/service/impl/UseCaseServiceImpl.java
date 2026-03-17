@@ -28,6 +28,9 @@ import com.ix.manufacturinglab.enums.UseCaseStatus;
 import com.ix.manufacturinglab.exception.CommonException;
 import com.ix.manufacturinglab.repository.UseCaseContentRepository;
 import com.ix.manufacturinglab.repository.UseCaseRepository;
+import com.ix.manufacturinglab.repository.UseCaseSpeakerRepository;
+import com.ix.manufacturinglab.repository.UseCaseArtifactRepository;
+import com.ix.manufacturinglab.repository.UseCaseTagRepository;
 import com.ix.manufacturinglab.service.UseCaseService;
 
 /**
@@ -40,17 +43,26 @@ public class UseCaseServiceImpl implements UseCaseService {
 
     private final UseCaseRepository useCaseRepository;
     private final UseCaseContentRepository useCaseContentRepository;
+    private final UseCaseSpeakerRepository useCaseSpeakerRepository;
+    private final UseCaseArtifactRepository useCaseArtifactRepository;
+    private final UseCaseTagRepository useCaseTagRepository;
 
     public UseCaseServiceImpl(UseCaseRepository useCaseRepository,
-                              UseCaseContentRepository useCaseContentRepository) {
+                              UseCaseContentRepository useCaseContentRepository,
+                              UseCaseSpeakerRepository useCaseSpeakerRepository,
+                              UseCaseArtifactRepository useCaseArtifactRepository,
+                              UseCaseTagRepository useCaseTagRepository) {
         this.useCaseRepository = useCaseRepository;
         this.useCaseContentRepository = useCaseContentRepository;
+        this.useCaseSpeakerRepository = useCaseSpeakerRepository;
+        this.useCaseArtifactRepository = useCaseArtifactRepository;
+        this.useCaseTagRepository = useCaseTagRepository;
     }
 
     @Override
     @Transactional
-    public UseCaseResponseDTO createUseCase(UseCaseRequestDTO requestDTO) {
-        logger.info(ManufacturingLabConstants.LOG_CREATING_USE_CASE, requestDTO.getTitle());
+    public UseCaseResponseDTO saveAsDraft(UseCaseRequestDTO requestDTO) {
+        logger.info(ManufacturingLabConstants.LOG_SAVING_DRAFT, requestDTO.getTitle());
 
         // 1. Build UseCase entity
         UseCase useCase = UseCase.builder()
@@ -63,7 +75,56 @@ public class UseCaseServiceImpl implements UseCaseService {
                 .approverId(requestDTO.getApproverId())
                 .isUpdatedUsecase(false)
                 .createdDate(LocalDateTime.now())
-                .isActive(requestDTO.getIsActive() != null ? requestDTO.getIsActive() : true)
+                .isActive(requestDTO.getIsActive() != null ? requestDTO.getIsActive() : false)
+                .creatorId(requestDTO.getCreatorId())
+                .build();
+
+        // 2. Add tags (cascade will persist)
+        addTags(useCase, requestDTO);
+
+        // 3. Add speakers (cascade will persist)
+        addSpeakers(useCase, requestDTO);
+
+        // 4. Add artifacts (cascade will persist)
+        addArtifacts(useCase, requestDTO);
+
+        // 5. Save UseCase (cascade saves speakers, tags, artifacts)
+        useCase = useCaseRepository.save(useCase);
+
+        // 6. Save UseCaseContent separately
+        UseCaseContent content = UseCaseContent.builder()
+                .usecaseId(useCase.getUsecaseId())
+                .description(requestDTO.getDescription())
+                .businessProblem(requestDTO.getBusinessProblem())
+                .solution(requestDTO.getSolutions())
+                .toolsAndTechnologies(requestDTO.getToolsAndTechnologies())
+                .keyResults(requestDTO.getKeyResults())
+                .valueDelivered(requestDTO.getValueDelivered())
+                .duration(requestDTO.getDuration())
+                .thumbnailUrl(requestDTO.getThumbnailImageUrl())
+                .build();
+        useCaseContentRepository.save(content);
+
+        return buildResponseDTO(useCase, content, requestDTO);
+    }
+
+    @Override
+    @Transactional
+    public UseCaseResponseDTO submitForApproval(UseCaseRequestDTO requestDTO) {
+        logger.info(ManufacturingLabConstants.LOG_SUBMITTING_FOR_APPROVAL, requestDTO.getTitle());
+
+        // 1. Build UseCase entity
+        UseCase useCase = UseCase.builder()
+                .valueChainId(requestDTO.getValueChainId())
+                .industryId(requestDTO.getIndustryId())
+                .subIndustryId(requestDTO.getSubIndustryId())
+                .title(requestDTO.getTitle())
+                .ownerEid(String.valueOf(requestDTO.getOwnerId()))
+                .status(requestDTO.getStatus() != null ? requestDTO.getStatus() : UseCaseStatus.IN_REVIEW.name())
+                .approverId(requestDTO.getApproverId())
+                .isUpdatedUsecase(false)
+                .createdDate(LocalDateTime.now())
+                .isActive(requestDTO.getIsActive() != null ? requestDTO.getIsActive() : false)
                 .creatorId(requestDTO.getCreatorId())
                 .build();
 
@@ -350,4 +411,38 @@ public class UseCaseServiceImpl implements UseCaseService {
             return null;
         }
     }
+
+    @Override
+    @Transactional
+    public void archiveUseCase(Integer usecaseId) {
+
+        logger.info("Archiving use case with id {}", usecaseId);
+
+        UseCase useCase = useCaseRepository.findById(usecaseId)
+                .orElseThrow(() -> new CommonException(
+                        CommonExceptionConstants.NOT_FOUND,
+                        ManufacturingLabConstants.USE_CASE_NOT_FOUND + usecaseId));
+
+        useCase.setStatus("ARCHIVE");
+        useCase.setUpdatedDate(LocalDateTime.now());
+
+        useCaseRepository.save(useCase);
+    }
+
+    @Transactional
+    public void discardDraftUseCase(Integer usecaseId) {
+
+        UseCase useCase = useCaseRepository
+                .findByUsecaseIdAndStatus(usecaseId, "DRAFT")
+                .orElseThrow(() ->
+                        new CommonException("400", "Only draft use cases can be discarded or use case not found")
+                );
+
+        useCaseContentRepository.deleteByUsecaseId(usecaseId);
+        useCaseArtifactRepository.deleteByUseCase_UsecaseId(usecaseId);
+        useCaseTagRepository.deleteByUseCase_UsecaseId(usecaseId);
+        useCaseSpeakerRepository.deleteByUseCase_UsecaseId(usecaseId);
+        useCaseRepository.delete(useCase);
+    }
+
 }

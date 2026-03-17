@@ -12,12 +12,30 @@ import java.util.List;
 public interface UseCaseService {
 
     /**
-     * Create a new use case and persist data across multiple entity tables.
+     * Saves a new use case as a draft and persists data across multiple related tables.
      *
-     * @param requestDTO the use case creation request
-     * @return the created use case response
+     * @param requestDTO the use case draft request data
+     * @return the saved use case response containing draft details
      */
-    UseCaseResponseDTO createUseCase(UseCaseRequestDTO requestDTO);
+    UseCaseResponseDTO saveAsDraft(UseCaseRequestDTO requestDTO);
+
+    /**
+     * Submits a use case for approval and persists data across multiple related tables.
+     * updates the status from to IN_REVIEW.
+     *
+     * @param requestDTO the use case request data to be submitted for approval
+     * @return the submitted use case response containing approval details
+     */
+    UseCaseResponseDTO submitForApproval(UseCaseRequestDTO requestDTO);
+
+    /**
+     * Discards a draft use case by deleting it from all related tables based on the given use case ID.
+     * This operation is allowed only if the use case is in DRAFT status.
+     *
+     * @param usecaseId the ID of the draft use case to be discarded
+     */
+
+    void discardDraftUseCase (Integer usecaseId);
 
     /**
      * Get a use case by its ID with all related data.
@@ -49,4 +67,13 @@ public interface UseCaseService {
      * @param usecaseId the use case ID
      */
     void deleteUseCase(Integer usecaseId);
+
+    /**
+     * Archives an existing use case.
+     *
+     * @param usecaseId  the use case ID
+     * @return the success message
+     */
+    void archiveUseCase(Integer usecaseId);
+
 }
