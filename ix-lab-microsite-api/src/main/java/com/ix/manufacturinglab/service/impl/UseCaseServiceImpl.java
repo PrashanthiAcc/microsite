@@ -75,7 +75,7 @@ public class UseCaseServiceImpl implements UseCaseService {
                 .approverId(requestDTO.getApproverId())
                 .isUpdatedUsecase(false)
                 .createdDate(LocalDateTime.now())
-                .isActive(requestDTO.getIsActive() != null ? requestDTO.getIsActive() : true)
+                .isActive(requestDTO.getIsActive() != null ? requestDTO.getIsActive() : false)
                 .creatorId(requestDTO.getCreatorId())
                 .build();
 
@@ -124,7 +124,7 @@ public class UseCaseServiceImpl implements UseCaseService {
                 .approverId(requestDTO.getApproverId())
                 .isUpdatedUsecase(false)
                 .createdDate(LocalDateTime.now())
-                .isActive(requestDTO.getIsActive() != null ? requestDTO.getIsActive() : true)
+                .isActive(requestDTO.getIsActive() != null ? requestDTO.getIsActive() : false)
                 .creatorId(requestDTO.getCreatorId())
                 .build();
 
@@ -438,12 +438,10 @@ public class UseCaseServiceImpl implements UseCaseService {
                         new CommonException("400", "Only draft use cases can be discarded or use case not found")
                 );
 
-
         useCaseContentRepository.deleteByUsecaseId(usecaseId);
         useCaseArtifactRepository.deleteByUseCase_UsecaseId(usecaseId);
         useCaseTagRepository.deleteByUseCase_UsecaseId(usecaseId);
         useCaseSpeakerRepository.deleteByUseCase_UsecaseId(usecaseId);
-
         useCaseRepository.delete(useCase);
     }
 

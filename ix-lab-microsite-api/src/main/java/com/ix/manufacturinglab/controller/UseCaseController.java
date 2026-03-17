@@ -187,7 +187,7 @@ public class UseCaseController {
      * @param usecaseId  the use case ID
      * @return the success text response
      */
-    @PatchMapping("/v1/usecases/{usecaseId}/archive")
+    @PatchMapping("/v1/{usecaseId}/archive")
     public ResponseEntity<Object> archiveUseCase(@PathVariable Integer usecaseId) {
 
         logger.info("Received request to archive use case with id {}", usecaseId);
@@ -209,7 +209,7 @@ public class UseCaseController {
         }
     }
 
-    @DeleteMapping("/v1/usecases/{usecaseId}/discard")
+    @DeleteMapping("/v1/{usecaseId}/discard")
     public ResponseEntity<String> discardDraftUseCase(@PathVariable Integer usecaseId) {
 
         logger.info("Discarding draft use case with id {}", usecaseId);
