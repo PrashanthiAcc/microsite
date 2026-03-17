@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository for UseCase entity operations.
@@ -15,4 +16,6 @@ import java.util.List;
 public interface UseCaseRepository extends JpaRepository<UseCase, Integer> {
 
     Page<UseCase> findByIsActiveTrue(Pageable pageable);
+
+    Optional<UseCase> findByUsecaseIdAndStatus(Integer usecaseId, String status);
 }

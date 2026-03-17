@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.ix.manufacturinglab.constants.ManufacturingLabConstants.INDUSTRY_NOT_FOUND;
+import static com.ix.manufacturinglab.constants.ManufacturingLabConstants.INDUSTRY_ID_NOT_FOUND;
 import static com.ix.manufacturinglab.constants.ManufacturingLabConstants.SUB_INDUSTRY_NOT_FOUND;
 
 /**
@@ -73,7 +75,7 @@ public class MicrositeServiceImpl implements MicrositeService {
             Optional<Industry> optionalIndustry = industryRepository.findById(id);
             if (optionalIndustry.isEmpty()) throw new CommonException(
                     CommonExceptionConstants.BAD_REQUEST,
-                    ManufacturingLabConstants.INDUSTRY_NOT_FOUND);
+                    INDUSTRY_NOT_FOUND);
             Industry existingIndustry = optionalIndustry.get();
             existingIndustry.setIndustryName(industry.getIndustryName());
             return industryRepository.save(existingIndustry);
@@ -95,7 +97,7 @@ public class MicrositeServiceImpl implements MicrositeService {
             if (optionalIndustry.isEmpty()) {
                 throw new CommonException(
                         CommonExceptionConstants.BAD_REQUEST,
-                        ManufacturingLabConstants.INDUSTRY_NOT_FOUND);
+                        INDUSTRY_NOT_FOUND);
             }
             industryRepository.deleteById(id);
         } catch (CommonException e) {
@@ -122,7 +124,13 @@ public class MicrositeServiceImpl implements MicrositeService {
                 .filter(si -> si.getIndustryId().equals(industryId))
                 .collect(Collectors.toList());
          */
-        return subIndustryRepository.findByIndustryId(industryId);
+        List<SubIndustry> subIndustries = subIndustryRepository.findByIndustryId(industryId);
+
+        if (subIndustries.isEmpty()) {
+            throw new CommonException(CommonExceptionConstants.NOT_FOUND, INDUSTRY_ID_NOT_FOUND + industryId);
+        }
+
+        return subIndustries;
     }
 
     @Override
