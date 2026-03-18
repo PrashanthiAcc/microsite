@@ -12,5 +12,6 @@ public class ArtifactDTO {
 
     private String artifactType;
     private String url;
+    private String artifactName;
 
 }

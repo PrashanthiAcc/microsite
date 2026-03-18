@@ -11,6 +11,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 /**
  * Entity representing a Value Chain mapped to an Industry and Sub-Industry.
  */
@@ -35,4 +37,11 @@ public class ValueChain {
 
     @Column(name = "sub_industry_id", nullable = false)
     private Long subIndustryId;
+
+    @Column(name = "updated_by_id")
+    private Integer updatedById;
+
+    @Column(name = "last_updated")
+    private LocalDateTime lastUpdated;
+
 }

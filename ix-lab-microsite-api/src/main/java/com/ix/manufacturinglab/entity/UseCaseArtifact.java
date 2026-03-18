@@ -43,4 +43,8 @@ public class UseCaseArtifact {
 
     @Column(name = "url", nullable = false, length = 500)
     private String url;
+
+    @Column(name = "artifact_name", nullable = false, length = 100)
+    private String artifactName;
+
 }

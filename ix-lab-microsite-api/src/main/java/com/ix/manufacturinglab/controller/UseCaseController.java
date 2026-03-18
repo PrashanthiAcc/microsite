@@ -25,7 +25,7 @@ import java.util.List;
  * with data distributed across multiple entity tables.
  */
 @RestController
-@RequestMapping(value = "/usecase", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/usecase", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UseCaseController {
 
     private static final Logger logger = LoggerFactory.getLogger(UseCaseController.class);

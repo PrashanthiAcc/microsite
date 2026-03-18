@@ -28,7 +28,7 @@ import java.util.List;
  * Provides GET endpoints to retrieve Industry, SubIndustry, and ValueChain static data.
  */
 @RestController
-@RequestMapping(value = "/industry", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/industry", produces = MediaType.APPLICATION_JSON_VALUE)
 public class MicrositeController {
 
     private static final Logger logger = LoggerFactory.getLogger(MicrositeController.class);
@@ -74,8 +74,10 @@ public class MicrositeController {
 
         logger.info("Received request to create industry");
         try {
-            micrositeService.createIndustry(industry);
-            return new ResponseEntity<>(ManufacturingLabConstants.INDUSTRY_CREATED_SUCCESS, HttpStatus.CREATED);
+            Industry savedIndustry = micrositeService.createIndustry(industry);
+            String message = savedIndustry.getIndustryName() + " industry created successfully";
+            //String message = "Industry with id " + savedIndustry.getId() + " created successfully";
+            return new ResponseEntity<>(message, HttpStatus.CREATED);
         } catch (CommonException e) {
             logger.error("Exception occurred while creating industry: {}", e.getMessage(), e);
             errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
@@ -98,9 +100,10 @@ public class MicrositeController {
         logger.info("Received request to update industry with id {}", id);
         try {
             Industry updatedIndustry = micrositeService.updateIndustry(id, industry);
-            return new ResponseEntity<>(updatedIndustry, HttpStatus.OK);
+            String message = updatedIndustry.getIndustryName() + " industry updated successfully";
+            return ResponseEntity.ok(message);
         } catch (CommonException e) {
-            logger.error("Exception occurred while deleting industry with id {}: {}", id, e.getMessage(), e);
+            logger.error("Exception occurred while updating industry with id {}: {}", id, e.getMessage(), e);
             errorResponse.setErrorCode(e.getErrorCode());
             errorResponse.setErrorDescription(e.getErrorDescription());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
@@ -114,12 +117,15 @@ public class MicrositeController {
      * @return success message
      */
     @DeleteMapping("/v1/microsite/industries/{id}")
-    public ResponseEntity<Object> deleteIndustry(@PathVariable Long id) {
+    public ResponseEntity<Object> deleteIndustry(
+            @PathVariable Long id,
+            @RequestHeader("UserId") Integer updatedById) {
 
         logger.info("Received request to delete industry with id {}", id);
         try {
-            micrositeService.deleteIndustry(id);
-            return new ResponseEntity<>(ManufacturingLabConstants.INDUSTRY_DELETED_SUCCESS, HttpStatus.OK);
+            String industryName = micrositeService.deleteIndustry(id, updatedById);
+            String message = industryName + " industry deleted successfully";
+            return ResponseEntity.ok(message);
         } catch (CommonException e) {
             logger.error("Exception occurred while deleting industry with id {}: {}", id, e.getMessage(), e);
             errorResponse.setErrorCode(e.getErrorCode());
@@ -186,7 +192,6 @@ public class MicrositeController {
         try {
             SubIndustryDTO response = micrositeService.createSubIndustry(subIndustryDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body("Sub-industry Id " + response.getSubIndustryId() + " is created successfully");
-
 
         } catch (CommonException e) {
 

@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 /**
  * DTO for Sub-Industry API responses.
  */
@@ -17,4 +19,5 @@ public class SubIndustryDTO {
     private Long subIndustryId;
     private String subIndustryName;
     private Long industryId;
+    private Integer updatedById;
 }

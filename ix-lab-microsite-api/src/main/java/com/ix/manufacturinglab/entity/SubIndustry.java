@@ -11,6 +11,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 /**
  * Entity representing a Sub-Industry within an Industry.
  */
@@ -32,4 +34,11 @@ public class SubIndustry {
 
     @Column(name = "industry_id", nullable = false)
     private Long industryId;
+
+    @Column(name = "updated_by_id")
+    private Integer updatedById;
+
+    @Column(name = "last_updated")
+    private LocalDateTime lastUpdated;
+
 }

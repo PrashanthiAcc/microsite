@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ix.manufacturinglab.dto.ArtifactDTO;
-import com.ix.manufacturinglab.dto.SpeakerDTO;
+import com.ix.manufacturinglab.dto.*;
+import com.ix.manufacturinglab.entity.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -17,13 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ix.manufacturinglab.constants.CommonExceptionConstants;
 import com.ix.manufacturinglab.constants.ManufacturingLabConstants;
-import com.ix.manufacturinglab.dto.UseCaseRequestDTO;
-import com.ix.manufacturinglab.dto.UseCaseResponseDTO;
-import com.ix.manufacturinglab.entity.UseCase;
-import com.ix.manufacturinglab.entity.UseCaseArtifact;
-import com.ix.manufacturinglab.entity.UseCaseContent;
-import com.ix.manufacturinglab.entity.UseCaseSpeaker;
-import com.ix.manufacturinglab.entity.UseCaseTag;
 import com.ix.manufacturinglab.enums.UseCaseStatus;
 import com.ix.manufacturinglab.exception.CommonException;
 import com.ix.manufacturinglab.repository.UseCaseContentRepository;
@@ -88,10 +81,13 @@ public class UseCaseServiceImpl implements UseCaseService {
         // 4. Add artifacts (cascade will persist)
         addArtifacts(useCase, requestDTO);
 
-        // 5. Save UseCase (cascade saves speakers, tags, artifacts)
+        // 5. Add UseCaseFaqs(cascade will persist)
+        addUseCaseFaqs(useCase, requestDTO);
+
+        // 6. Save UseCase (cascade saves speakers, tags, artifacts)
         useCase = useCaseRepository.save(useCase);
 
-        // 6. Save UseCaseContent separately
+        // 7. Save UseCaseContent separately
         UseCaseContent content = UseCaseContent.builder()
                 .usecaseId(useCase.getUsecaseId())
                 .description(requestDTO.getDescription())
@@ -102,6 +98,8 @@ public class UseCaseServiceImpl implements UseCaseService {
                 .valueDelivered(requestDTO.getValueDelivered())
                 .duration(requestDTO.getDuration())
                 .thumbnailUrl(requestDTO.getThumbnailImageUrl())
+                .narrationGuide(requestDTO.getNarrationGuide())
+                .bannerUrl(requestDTO.getBannerUrl())
                 .build();
         useCaseContentRepository.save(content);
 
@@ -137,10 +135,13 @@ public class UseCaseServiceImpl implements UseCaseService {
         // 4. Add artifacts (cascade will persist)
         addArtifacts(useCase, requestDTO);
 
-        // 5. Save UseCase (cascade saves speakers, tags, artifacts)
+        // 5. Add UseCaseFaqs(cascade will persist)
+        addUseCaseFaqs(useCase, requestDTO);
+
+        // 6. Save UseCase (cascade saves speakers, tags, artifacts)
         useCase = useCaseRepository.save(useCase);
 
-        // 6. Save UseCaseContent separately
+        // 7. Save UseCaseContent separately
         UseCaseContent content = UseCaseContent.builder()
                 .usecaseId(useCase.getUsecaseId())
                 .description(requestDTO.getDescription())
@@ -151,6 +152,8 @@ public class UseCaseServiceImpl implements UseCaseService {
                 .valueDelivered(requestDTO.getValueDelivered())
                 .duration(requestDTO.getDuration())
                 .thumbnailUrl(requestDTO.getThumbnailImageUrl())
+                .narrationGuide(requestDTO.getNarrationGuide())
+                .bannerUrl(requestDTO.getBannerUrl())
                 .build();
         useCaseContentRepository.save(content);
 
@@ -226,6 +229,8 @@ public class UseCaseServiceImpl implements UseCaseService {
         content.setValueDelivered(requestDTO.getValueDelivered());
         content.setDuration(requestDTO.getDuration());
         content.setThumbnailUrl(requestDTO.getThumbnailImageUrl());
+        content.setBannerUrl(requestDTO.getBannerUrl());
+        content.setNarrationGuide(requestDTO.getNarrationGuide());
         useCaseContentRepository.save(content);
 
         // Replace tags (orphanRemoval deletes old ones)
@@ -239,6 +244,9 @@ public class UseCaseServiceImpl implements UseCaseService {
         // Replace artifacts (orphanRemoval deletes old ones)
         useCase.getArtifacts().clear();
         addArtifacts(useCase, requestDTO);
+
+        useCase.getFaqs().clear();
+        addUseCaseFaqs(useCase, requestDTO);
 
         useCaseRepository.save(useCase);
 
@@ -310,9 +318,31 @@ public class UseCaseServiceImpl implements UseCaseService {
                             .useCase(useCase)
                             .artifactType(artifactDTO.getArtifactType())
                             .url(artifactDTO.getUrl())
+                            .artifactName(artifactDTO.getArtifactName())
                             .build();
 
                     useCase.getArtifacts().add(artifact);
+                }
+            }
+        }
+    }
+
+    private void addUseCaseFaqs(UseCase useCase, UseCaseRequestDTO dto) {
+
+        Integer updatedBy = dto.getCreatorId();
+
+        if (dto.getFaq() != null && !dto.getFaq().isEmpty()) {
+            for (FaqDTO faqDTO : dto.getFaq()) {
+                if (faqDTO.getQuestion() != null && !faqDTO.getQuestion().isBlank()
+                        && faqDTO.getAnswer() != null && !faqDTO.getAnswer().isBlank()) {
+                    UseCaseFaq faq = UseCaseFaq.builder()
+                            .useCase(useCase)
+                            .question(faqDTO.getQuestion())
+                            .answer(faqDTO.getAnswer())
+                            .updatedBy(updatedBy)
+                            .lastUpdated(LocalDateTime.now())
+                            .build();
+                    useCase.addFaq(faq);
                 }
             }
         }
@@ -330,7 +360,17 @@ public class UseCaseServiceImpl implements UseCaseService {
                 .duration(content.getDuration())
                 .ownerId(requestDTO.getOwnerId())
                 .speakers(useCase.getSpeakers().stream().map(s -> new SpeakerDTO(s.getSpeakerEid(), s.getSpeakerType())).toList())
-                .artifacts(useCase.getArtifacts().stream().map(a -> new ArtifactDTO(a.getArtifactType(), a.getUrl())).toList())
+                .artifacts(useCase.getArtifacts().stream().map(a -> new ArtifactDTO(a.getArtifactType(), a.getUrl(), a.getArtifactName())).toList())
+                .faqs(useCase.getFaqs() == null ? List.of() :
+                        useCase.getFaqs().stream()
+                                .map(f -> FaqDTO.builder()
+                                        .question(f.getQuestion())
+                                        .answer(f.getAnswer())
+                                        .updatedBy(f.getUpdatedBy())
+                                        .lastUpdated(f.getLastUpdated())
+                                        .build())
+                                .toList()
+                )
                 .businessProblem(content.getBusinessProblem())
                 .solutions(content.getSolution())
                 .valueDelivered(content.getValueDelivered())
@@ -396,7 +436,21 @@ public class UseCaseServiceImpl implements UseCaseService {
             builder.artifacts(
                     useCase.getArtifacts()
                             .stream()
-                            .map(a -> new ArtifactDTO(a.getArtifactType(), a.getUrl()))
+                            .map(a -> new ArtifactDTO(a.getArtifactType(), a.getUrl(),a.getArtifactName()))
+                            .toList()
+            );
+        }
+
+        // FAQs
+        if (useCase.getFaqs() != null && !useCase.getFaqs().isEmpty()) {
+            builder.faqs(
+                    useCase.getFaqs().stream()
+                            .map(f -> FaqDTO.builder()
+                                    .question(f.getQuestion())
+                                    .answer(f.getAnswer())
+                                    .updatedBy(f.getUpdatedBy())   // change to String.valueOf(...) if DTO expects String
+                                    .build()
+                            )
                             .toList()
             );
         }

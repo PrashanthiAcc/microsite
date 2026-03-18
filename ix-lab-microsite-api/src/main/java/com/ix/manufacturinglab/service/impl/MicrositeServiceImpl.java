@@ -6,7 +6,6 @@ import com.ix.manufacturinglab.dto.MicrositeDataDTO;
 import com.ix.manufacturinglab.dto.SubIndustryDTO;
 import com.ix.manufacturinglab.entity.Industry;
 import com.ix.manufacturinglab.entity.SubIndustry;
-import com.ix.manufacturinglab.entity.UseCase;
 import com.ix.manufacturinglab.entity.ValueChain;
 import com.ix.manufacturinglab.exception.CommonException;
 import com.ix.manufacturinglab.repository.IndustryRepository;
@@ -18,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,7 +41,6 @@ public class MicrositeServiceImpl implements MicrositeService {
 
     private final IndustryRepository industryRepository;
     private final SubIndustryRepository subIndustryRepository;
-
     private final ValueChainRepository valueChainRepository;
 
 
@@ -52,13 +51,15 @@ public class MicrositeServiceImpl implements MicrositeService {
     }
 
     public List<Industry> getAllIndustries() {
-        return industryRepository.findAll();
+        return industryRepository.findByIsActiveTrue();
     }
 
     @Override
     public Industry createIndustry(Industry industry) throws CommonException {
 
         try {
+            industry.setIsActive(true);
+            industry.setLastUpdated(LocalDateTime.now());
             return industryRepository.save(industry);
         } catch (Exception e) {
             logger.error("Exception occurred while creating industry", e);
@@ -78,6 +79,9 @@ public class MicrositeServiceImpl implements MicrositeService {
                     INDUSTRY_NOT_FOUND);
             Industry existingIndustry = optionalIndustry.get();
             existingIndustry.setIndustryName(industry.getIndustryName());
+            existingIndustry.setUpdatedById(industry.getUpdatedById());
+            existingIndustry.setLastUpdated(LocalDateTime.now());
+            existingIndustry.setIsActive(true);
             return industryRepository.save(existingIndustry);
         } catch (CommonException e) {
             throw e;
@@ -90,7 +94,7 @@ public class MicrositeServiceImpl implements MicrositeService {
     }
 
     @Override
-    public void deleteIndustry(Long id) throws CommonException {
+    public String deleteIndustry(Long id, Integer updatedById) throws CommonException {
 
         try {
             Optional<Industry> optionalIndustry = industryRepository.findById(id);
@@ -99,7 +103,14 @@ public class MicrositeServiceImpl implements MicrositeService {
                         CommonExceptionConstants.BAD_REQUEST,
                         INDUSTRY_NOT_FOUND);
             }
-            industryRepository.deleteById(id);
+            Industry industry = optionalIndustry.get();
+            String industryName = industry.getIndustryName();
+            // Soft delete: mark inactive and update timestamp
+            industry.setIsActive(false);
+            industry.setUpdatedById(updatedById);
+            industry.setLastUpdated(LocalDateTime.now());
+            industryRepository.save(industry);
+            return industryName;
         } catch (CommonException e) {
             throw e;
         } catch (Exception e) {
@@ -124,8 +135,17 @@ public class MicrositeServiceImpl implements MicrositeService {
                 .filter(si -> si.getIndustryId().equals(industryId))
                 .collect(Collectors.toList());
          */
-        List<SubIndustry> subIndustries = subIndustryRepository.findByIndustryId(industryId);
-
+        // Check if industry exists AND is active
+        Industry industry = industryRepository
+                .findByIndustryIdAndIsActiveTrue(industryId)
+                .orElseThrow(() ->
+                        new CommonException(
+                                CommonExceptionConstants.NOT_FOUND,
+                                INDUSTRY_ID_NOT_FOUND + industryId
+                        )
+                );
+        // Fetch sub-industries ONLY if industry is active
+        List<SubIndustry> subIndustries = subIndustryRepository.findByIndustryId(industry.getIndustryId());
         if (subIndustries.isEmpty()) {
             throw new CommonException(CommonExceptionConstants.NOT_FOUND, INDUSTRY_ID_NOT_FOUND + industryId);
         }
@@ -144,8 +164,10 @@ public class MicrositeServiceImpl implements MicrositeService {
 
             subIndustry.setSubIndustryName(subIndustryDTO.getSubIndustryName());
             subIndustry.setIndustryId(subIndustryDTO.getIndustryId());
+            subIndustry.setUpdatedById(subIndustryDTO.getUpdatedById());
+            subIndustry.setLastUpdated(LocalDateTime.now());
 
-            SubIndustry savedSubIndustry = subIndustryRepository.save(subIndustry);
+        SubIndustry savedSubIndustry = subIndustryRepository.save(subIndustry);
 
             return SubIndustryDTO.builder()
                     .subIndustryId(savedSubIndustry.getSubIndustryId())
@@ -167,7 +189,8 @@ public class MicrositeServiceImpl implements MicrositeService {
 
         subIndustry.setSubIndustryName(subIndustryDTO.getSubIndustryName());
         subIndustry.setIndustryId(subIndustryDTO.getIndustryId());
-
+        subIndustry.setUpdatedById(subIndustryDTO.getUpdatedById());
+        subIndustry.setLastUpdated(LocalDateTime.now());
         subIndustryRepository.save(subIndustry);
 
         return SubIndustryDTO.builder()

@@ -14,31 +14,27 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 /**
- * Entity representing an Industry in the Manufacturing Lab Microsite.
+ * Entity representing a Favourite Use Case in the Manufacturing Lab Microsite.
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "industry", schema = "mfg")
-public class Industry {
+@Table(name = "favourites", schema = "mfg")
+public class Favourite {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "industry_id")
-    private Long industryId;
+    @Column(name = "favourite_id")
+    private Integer favouriteId;
 
-    @Column(name = "industry_name", nullable = false, length = 255)
-    private String industryName;
+    @Column(name = "user_id", nullable = false)
+    private Integer userId;
 
-    @Column(name = "updated_by_id")
-    private Integer updatedById;
+    @Column(name = "usecase_id", nullable = false)
+    private Integer usecaseId;
 
     @Column(name = "last_updated")
     private LocalDateTime lastUpdated;
-
-    @Column(name = "is_active")
-    private Boolean isActive;
-
 }

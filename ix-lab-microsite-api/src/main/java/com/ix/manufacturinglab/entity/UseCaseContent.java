@@ -53,4 +53,11 @@ public class UseCaseContent {
 
     @Column(name = "thumbnail_url", length = 500)
     private String thumbnailUrl;
+
+    @Column(name = "narration_guide")
+    private String narrationGuide;
+
+    @Column(name = "banner_url", nullable = false, length = 500)
+    private String bannerUrl;
+
 }

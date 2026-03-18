@@ -85,6 +85,12 @@ public class UseCase {
         speaker.setUseCase(this);
     }
 
+    public void addFaq(UseCaseFaq faq) {
+        faqs.add(faq);
+        faq.setUseCase(this);
+    }
+
+
     @Builder.Default
     @OneToMany(mappedBy = "useCase", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
@@ -94,4 +100,10 @@ public class UseCase {
     @OneToMany(mappedBy = "useCase", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<UseCaseArtifact> artifacts = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "useCase", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private List<UseCaseFaq> faqs = new ArrayList<>();
+
 }

@@ -35,6 +35,9 @@ public class UseCaseRequestDTO {
     @Size(max = 500, message = "Thumbnail image URL must not exceed 500 characters")
     private String thumbnailImageUrl;
 
+    @Size(max = 500, message = "Banner URL must not exceed 500 characters")
+    private String bannerUrl;
+
     @Size(max = 100, message = "Tag must not exceed 100 characters")
 
     private List<String> tags;
@@ -50,7 +53,11 @@ public class UseCaseRequestDTO {
 
     private List<ArtifactDTO> artifacts;
 
+    private List<FaqDTO> faq;
+
     private String businessProblem;
+
+    private String narrationGuide;
 
     private String solutions;
 
@@ -66,5 +73,9 @@ public class UseCaseRequestDTO {
     private Integer approverId;
 
     private Boolean isActive;
+
     private Integer creatorId;
+
+    private Integer updatedById;
+
 }
