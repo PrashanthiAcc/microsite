@@ -7,19 +7,18 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * DTO for Value Chain API responses.
- */
-@Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ValueChainDTO {
+@Data
+@Builder
 
-    private Long valueChainId;
-    private String valueChainName;
-    private Long industryId;
-    private Long subIndustryId;
-    private Integer updatedById;
+public class FaqDTO {
+
+    //private Integer usecaseFaqId;
+    //private Integer usecaseId;
+    private String question;
+    private String answer;
+    private Integer updatedBy;
     private LocalDateTime lastUpdated;
+
 }

@@ -43,10 +43,12 @@ public interface MicrositeService {
     /**
      * Delete an industry by id.
      *
-     * @param id industry id
+     * @param id          industry id
+     * @param updatedById
+     * @return
      * @throws CommonException if industry not found or delete fails
      */
-    void deleteIndustry(Long id) throws CommonException;
+    String deleteIndustry(Long id, Integer updatedById) throws CommonException;
 
     /**
      * Get all sub-industries.

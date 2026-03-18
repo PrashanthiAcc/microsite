@@ -1,7 +1,7 @@
 -- ============================================================
 -- SQL Script: Create all tables for Manufacturing Lab Microsite
 -- Database: SQL Server
--- Schema: dbo
+-- Schema: mfg
 -- ============================================================
 --DATABASE CREATION
 create database ixmicrosite
@@ -23,7 +23,7 @@ CREATE TABLE mfg.sub_industry (
     sub_industry_id   BIGINT IDENTITY(1,1) PRIMARY KEY,
     sub_industry_name VARCHAR(255) NOT NULL,
     industry_id       BIGINT       NOT NULL,
-    CONSTRAINT FK_sub_industry_industry FOREIGN KEY (industry_id) REFERENCES dbo.industry (industry_id)
+    CONSTRAINT FK_sub_industry_industry FOREIGN KEY (industry_id) REFERENCES mfg.industry (industry_id)
 );
 
 -- 3. Value Chain
@@ -32,8 +32,8 @@ CREATE TABLE mfg.value_chain (
     value_chain_name VARCHAR(255) NOT NULL,
     industry_id      BIGINT       NOT NULL,
     sub_industry_id  BIGINT       NOT NULL,
-    CONSTRAINT FK_value_chain_industry     FOREIGN KEY (industry_id)     REFERENCES dbo.industry (industry_id),
-    CONSTRAINT FK_value_chain_sub_industry FOREIGN KEY (sub_industry_id) REFERENCES dbo.sub_industry (sub_industry_id)
+    CONSTRAINT FK_value_chain_industry     FOREIGN KEY (industry_id)     REFERENCES mfg.industry (industry_id),
+    CONSTRAINT FK_value_chain_sub_industry FOREIGN KEY (sub_industry_id) REFERENCES mfg.sub_industry (sub_industry_id)
 );
 
 -- 4. User Management
@@ -61,8 +61,8 @@ CREATE TABLE mfg.usecase (
     created_date       DATETIME     NOT NULL,
     updated_date       DATETIME     NULL,
     is_active          BIT          NOT NULL,
-    CONSTRAINT FK_usecase_value_chain FOREIGN KEY (value_chain_id) REFERENCES dbo.value_chain (value_chain_id),
-    CONSTRAINT FK_usecase_creator     FOREIGN KEY (creator_id)     REFERENCES dbo.user_management (user_id)
+    CONSTRAINT FK_usecase_value_chain FOREIGN KEY (value_chain_id) REFERENCES mfg.value_chain (value_chain_id),
+    CONSTRAINT FK_usecase_creator     FOREIGN KEY (creator_id)     REFERENCES mfg.user_management (user_id)
 );
 
 -- 6. Use Case Speakers
@@ -71,7 +71,7 @@ CREATE TABLE mfg.usecase_speakers (
     usecase_id   INT          NOT NULL,
     speaker_eid  VARCHAR(100) NOT NULL,
     speaker_type VARCHAR(20)  NOT NULL,
-    CONSTRAINT FK_usecase_speakers_usecase FOREIGN KEY (usecase_id) REFERENCES dbo.usecase (usecase_id)
+    CONSTRAINT FK_usecase_speakers_usecase FOREIGN KEY (usecase_id) REFERENCES mfg.usecase (usecase_id)
 );
 
 -- 7. Use Case Tags
@@ -79,7 +79,7 @@ CREATE TABLE mfg.usecase_tags (
     tag_id     INT IDENTITY(1,1) PRIMARY KEY,
     usecase_id INT          NOT NULL,
     tag        VARCHAR(100) NOT NULL,
-    CONSTRAINT FK_usecase_tags_usecase FOREIGN KEY (usecase_id) REFERENCES dbo.usecase (usecase_id)
+    CONSTRAINT FK_usecase_tags_usecase FOREIGN KEY (usecase_id) REFERENCES mfg.usecase (usecase_id)
 );
 
 -- 8. Use Case Artifacts
@@ -88,22 +88,41 @@ CREATE TABLE mfg.usecase_artifacts (
     usecase_id    INT          NOT NULL,
     artifact_type VARCHAR(30)  NOT NULL,
     url           VARCHAR(500) NOT NULL,
-    CONSTRAINT FK_usecase_artifacts_usecase FOREIGN KEY (usecase_id) REFERENCES dbo.usecase (usecase_id)
+    CONSTRAINT FK_usecase_artifacts_usecase FOREIGN KEY (usecase_id) REFERENCES mfg.usecase (usecase_id)
 );
 
 -- 9. Use Case Content
 CREATE TABLE mfg.usecase_content (
     usecase_content_id INT IDENTITY(1,1) PRIMARY KEY,
     usecase_id         INT          NOT NULL,
-    description        NVARCHAR(MAX) NULL,
-    business_problem   NVARCHAR(MAX) NULL,
-    solution           NVARCHAR(MAX) NULL,
-    tools_and_technologies NVARCHAR(MAX) NULL,
-    key_results        NVARCHAR(MAX) NULL,
-    value_delivered    NVARCHAR(MAX) NULL,
+    description        VARCHAR(MAX) NULL,
+    business_problem   VARCHAR(MAX) NULL,
+    solution           VARCHAR(MAX) NULL,
+    tools_and_technologies VARCHAR(MAX) NULL,
+    key_results        VARCHAR(MAX) NULL,
+    value_delivered    VARCHAR(MAX) NULL,
     duration           INT           NULL,
     thumbnail_url      VARCHAR(500)  NULL,
-    CONSTRAINT FK_usecase_content_usecase FOREIGN KEY (usecase_id) REFERENCES dbo.usecase (usecase_id)
+    CONSTRAINT FK_usecase_content_usecase FOREIGN KEY (usecase_id) REFERENCES mfg.usecase (usecase_id)
+);
+
+CREATE TABLE mfg.favourites (
+    favourite_id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id      INT NOT NULL,
+    usecase_id   INT NOT NULL,
+    last_updated DATETIME DEFAULT GETDATE(),
+    CONSTRAINT FK_favourites_user    FOREIGN KEY (user_id)    REFERENCES mfg.user_management (user_id),
+    CONSTRAINT FK_favourites_usecase FOREIGN KEY (usecase_id) REFERENCES mfg.usecase (usecase_id)
+);
+
+CREATE TABLE mfg.usecase_faq (
+    usecase_faq_id INT IDENTITY(1,1) PRIMARY KEY,
+    usecase_id     INT NOT NULL,
+    question       NVARCHAR(MAX) NOT NULL,
+    answer         NVARCHAR(MAX) NOT NULL,
+    updated_by     INT,
+    last_updated   DATETIME DEFAULT GETDATE(),
+    CONSTRAINT FK_usecase_faq_usecase FOREIGN KEY (usecase_id) REFERENCES mfg.usecase (usecase_id)
 );
 
 -- /*insert query for industry table*/
@@ -171,3 +190,28 @@ select * from mfg.user_management
 
 select * from usecase_artifacts
 
+--alter queries
+
+ALTER TABLE mfg.industry
+ADD updated_by_id INT NULL,
+    last_updated DATETIME DEFAULT GETDATE(),
+    is_active BIT DEFAULT 1;
+
+ALTER TABLE mfg.sub_industry
+ADD updated_by_id INT NULL,
+    last_updated DATETIME DEFAULT GETDATE();
+
+ALTER TABLE mfg.value_chain
+ADD updated_by_id INT NULL,
+    last_updated DATETIME DEFAULT GETDATE();
+
+ALTER TABLE mfg.usecase_artifacts
+ADD artifact_name VARCHAR(100) NOT NULL DEFAULT '';
+
+ALTER TABLE mfg.usecase_content
+ADD narration_guide VARCHAR(MAX) NULL,
+    banner_url VARCHAR(500) NOT NULL DEFAULT '';
+
+--max value
+ALTER TABLE mfg.usecase_content
+ALTER COLUMN narration_guide VARCHAR(MAX)

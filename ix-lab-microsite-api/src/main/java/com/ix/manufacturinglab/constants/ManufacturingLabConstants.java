@@ -38,7 +38,6 @@ public final class ManufacturingLabConstants {
     public static final String DELETE_SUB_INDUSTRY_GENERIC_ERROR_MESSAGE = "An error occurred while deleting sub-industry";
 
     // Success Messages
-    public static final String INDUSTRY_CREATED_SUCCESS = "Industry created successfully";
     public static final String INDUSTRY_DELETED_SUCCESS = "Industry deleted successfully";
     public static final String USE_CASE_CREATED = "Use case created successfully";
     public static final String USE_CASE_UPDATED = "Use case updated successfully";

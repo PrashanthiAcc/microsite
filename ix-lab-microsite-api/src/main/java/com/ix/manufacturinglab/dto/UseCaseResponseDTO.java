@@ -29,6 +29,7 @@ public class UseCaseResponseDTO {
     private Integer ownerId;
     private List<SpeakerDTO> speakers;
     private List<ArtifactDTO> artifacts;
+    private List<FaqDTO> faqs;
     private String businessProblem;
     private String solutions;
     private String valueDelivered;
