@@ -137,20 +137,17 @@ INSERT INTO mfg.value_chain (value_chain_name, sub_industry_id, industry_id) VAL
 -- /*insert query for user_management table */
 
 INSERT INTO mfg.user_management
-
 (user_eid, is_presenter, is_admin, is_superadmin, is_active)
-
 VALUES
+('gudluru.yashwanth',      1, 0, 0, 1),
+('shashi.veeramalla',      0, 1, 0, 1),
+('mukunda.ram.bhuyan',     0, 0, 1, 1),
+('prashanthi.guduru',      1, 1, 0, 1),
+('sharavanth.r.s',         0, 0, 0, 1),
+('dali.sowjanya.alla',     1, 0, 1, 1),
+('sheshu.gandhasiri',      0, 1, 1, 1),
+('mainak.kumar.maiti',     1, 1, 1, 1);
 
-('E1001', 1, 0, 0, 1),
-
-('E1002', 0, 1, 0, 1),
-
-('E1003', 0, 0, 1, 1),
-
-('E1004', 1, 1, 0, 1),
-
-('E1005', 0, 0, 0, 1);
 
 --Select Queries
 select * from mfg.industry
