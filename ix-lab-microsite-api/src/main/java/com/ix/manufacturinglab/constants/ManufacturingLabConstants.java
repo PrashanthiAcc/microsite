@@ -53,6 +53,7 @@ public final class ManufacturingLabConstants {
     public static final String UPDATE_USE_CASE_GENERIC_ERROR_MESSAGE = "An error occurred while updating the Use case";
     public static final String DELETE_USE_CASE_GENERIC_ERROR_MESSAGE = "An error occurred while deleting the Use case";
     public static final String SEARCH_USE_CASE_GENERIC_ERROR_MESSAGE = "An unexpected error occurred while searching Use case.";
+    public static final String SEARCH_USER_GENERIC_ERROR_MESSAGE = "An unexpected error occurred while fetching user.";
 
     public static final String CREATE_SUB_INDUSTRY_GENERIC_ERROR_MESSAGE = "An error occurred while creating the Sub - Industry";
 
