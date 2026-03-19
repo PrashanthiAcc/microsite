@@ -17,7 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * REST Controller for Use Case CRUD operations.
@@ -151,10 +153,18 @@ public class UseCaseController {
             return ResponseEntity.status(HttpStatus.OK).body("Use case Id " + usecaseId + " is updated successfully");
         } catch (CommonException e) {
             logger.error("Exception occurred while updating use case: {}", e.getMessage(), e);
+
             errorResponse.setErrorCode(e.getErrorCode());
             errorResponse.setErrorDescription(e.getErrorDescription());
-            HttpStatus status = CommonExceptionConstants.NOT_FOUND.equals(e.getErrorCode())
-                    ? HttpStatus.NOT_FOUND : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            HttpStatus status;
+
+            try {
+                status = HttpStatus.valueOf(Integer.parseInt(e.getErrorCode()));
+            } catch (Exception ex) {
+                status = HttpStatus.INTERNAL_SERVER_ERROR;
+            }
+
             return ResponseEntity.status(status).body(errorResponse);
         }
     }
@@ -184,7 +194,8 @@ public class UseCaseController {
 
     /**
      * Update an existing use case.
-     * @param usecaseId  the use case ID
+     *
+     * @param usecaseId the use case ID
      * @return the success text response
      */
     @PatchMapping("/v1/{usecaseId}/archive")
@@ -203,22 +214,33 @@ public class UseCaseController {
 
             errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
             errorResponse.setErrorDescription(
-                    ManufacturingLabConstants.UPDATE_USE_CASE_GENERIC_ERROR_MESSAGE);
+                    ManufacturingLabConstants.ARCHIVE_USE_CASE_GENERIC_ERROR_MESSAGE);
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 
     @DeleteMapping("/v1/{usecaseId}/discard")
-    public ResponseEntity<String> discardDraftUseCase(@PathVariable Integer usecaseId) {
+    public ResponseEntity<Object> discardDraftUseCase(@PathVariable Integer usecaseId) {
 
         logger.info("Discarding draft use case with id {}", usecaseId);
+        try {
+            useCaseService.discardDraftUseCase(usecaseId);
 
-        useCaseService.discardDraftUseCase(usecaseId);
+            return ResponseEntity.ok(
+                    "Draft use case with Id " + usecaseId + " is discarded successfully");
 
-        return ResponseEntity.ok(
-                "Draft use case with Id " + usecaseId + " is discarded successfully"
-        );
+        } catch (CommonException e) {
+
+            logger.error("Exception occurred while archiving use case: {}", e.getMessage(), e);
+
+            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+            errorResponse.setErrorDescription(
+                    ManufacturingLabConstants.DISCARD_USE_CASE_GENERIC_ERROR_MESSAGE);
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(errorResponse);
+        }
     }
 
 }
