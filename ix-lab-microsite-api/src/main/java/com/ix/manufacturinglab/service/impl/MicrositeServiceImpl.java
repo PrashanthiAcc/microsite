@@ -20,24 +20,19 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.ix.manufacturinglab.constants.ManufacturingLabConstants.INDUSTRY_NOT_FOUND;
 import static com.ix.manufacturinglab.constants.ManufacturingLabConstants.INDUSTRY_ID_NOT_FOUND;
 import static com.ix.manufacturinglab.constants.ManufacturingLabConstants.SUB_INDUSTRY_NOT_FOUND;
 
 /**
- * Implementation of MicrositeService using static/in-memory data
+ * Implementation using database (JPA repositories)
  * for Industry, SubIndustry, and ValueChain.
  */
 @Service
 public class MicrositeServiceImpl implements MicrositeService {
 
     private static final Logger logger = LoggerFactory.getLogger(MicrositeServiceImpl.class);
-
-    private List<Industry> industries;
-    private List<SubIndustry> subIndustries;
-    private List<ValueChain> valueChains;
 
     private final IndustryRepository industryRepository;
     private final SubIndustryRepository subIndustryRepository;
@@ -124,28 +119,15 @@ public class MicrositeServiceImpl implements MicrositeService {
     @Override
     public List<SubIndustry> getAllSubIndustries() {
         logger.info("Fetching all sub-industries");
-        return subIndustryRepository.findAll();
+        return subIndustryRepository.findAllByActiveIndustry();
     }
 
     @Override
     public List<SubIndustry> getSubIndustriesByIndustryId(Long industryId) {
         logger.info("Fetching sub-industries for industryId: {}", industryId);
-        /*
-        return subIndustries.stream()
-                .filter(si -> si.getIndustryId().equals(industryId))
-                .collect(Collectors.toList());
-         */
-        // Check if industry exists AND is active
-        Industry industry = industryRepository
-                .findByIndustryIdAndIsActiveTrue(industryId)
-                .orElseThrow(() ->
-                        new CommonException(
-                                CommonExceptionConstants.NOT_FOUND,
-                                INDUSTRY_ID_NOT_FOUND + industryId
-                        )
-                );
+
         // Fetch sub-industries ONLY if industry is active
-        List<SubIndustry> subIndustries = subIndustryRepository.findByIndustryId(industry.getIndustryId());
+        List<SubIndustry> subIndustries = subIndustryRepository.findActiveSubIndustriesByIndustryId(industryId);
         if (subIndustries.isEmpty()) {
             throw new CommonException(CommonExceptionConstants.NOT_FOUND, INDUSTRY_ID_NOT_FOUND + industryId);
         }
@@ -216,32 +198,21 @@ public class MicrositeServiceImpl implements MicrositeService {
     @Override
     public List<ValueChain> getAllValueChains() {
         logger.info("Fetching all value chains");
-        return valueChainRepository.findAll();
+        return valueChainRepository.findAllByActiveIndustry();
     }
 
     @Override
     public List<ValueChain> getValueChainsByIndustryAndSubIndustry(Long industryId, Long subIndustryId) {
         logger.info("Fetching value chains for industryId: {} and subIndustryId: {}", industryId, subIndustryId);
-        return valueChains.stream()
-                .filter(vc -> {
-                    boolean matches = true;
-                    if (industryId != null) {
-                        matches = vc.getIndustryId().equals(industryId);
-                    }
-                    if (subIndustryId != null) {
-                        matches = matches && vc.getSubIndustryId().equals(subIndustryId);
-                    }
-                    return matches;
-                })
-                .collect(Collectors.toList());
+        return valueChainRepository.findFilteredValueChains(industryId, subIndustryId);
     }
 
     @Override
     public MicrositeDataDTO getAllMicrositeData() {
         logger.info("Fetching all microsite data (industries, sub-industries, value chains)");
-        List<Industry> industries = industryRepository.findAll();
-        List<SubIndustry> subIndustries = subIndustryRepository.findAll();
-        List<ValueChain> valueChains = valueChainRepository.findAll();
+        List<Industry> industries = industryRepository.findByIsActiveTrue();
+        List<SubIndustry> subIndustries = subIndustryRepository.findAllByActiveIndustry();
+        List<ValueChain> valueChains = valueChainRepository.findAllByActiveIndustry();
         return MicrositeDataDTO.builder()
                 .industries(industries)
                 .subIndustries(subIndustries)
