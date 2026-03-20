@@ -141,21 +141,32 @@ public class MicrositeServiceImpl implements MicrositeService {
 
         logger.info("Creating sub-industry with name {}", subIndustryDTO.getSubIndustryName());
 
+        Industry industry = industryRepository.findById(subIndustryDTO.getIndustryId())
+                .orElseThrow(() -> new CommonException(CommonExceptionConstants.NOT_FOUND,
+                        "Industry does not exist with id " + subIndustryDTO.getIndustryId()));
 
-            SubIndustry subIndustry = new SubIndustry();
 
-            subIndustry.setSubIndustryName(subIndustryDTO.getSubIndustryName());
-            subIndustry.setIndustryId(subIndustryDTO.getIndustryId());
-            subIndustry.setUpdatedById(subIndustryDTO.getUpdatedById());
-            subIndustry.setLastUpdated(LocalDateTime.now());
+        if (Boolean.FALSE.equals(industry.getIsActive())) {
+            throw new CommonException(
+                    CommonExceptionConstants.CONFLICT,
+                    "Cannot create sub-industry because the industry is inactive"
+            );
+        }
+
+
+        SubIndustry subIndustry = new SubIndustry();
+        subIndustry.setSubIndustryName(subIndustryDTO.getSubIndustryName());
+        subIndustry.setIndustryId(subIndustryDTO.getIndustryId());
+        subIndustry.setUpdatedById(subIndustryDTO.getUpdatedById());
+        subIndustry.setLastUpdated(LocalDateTime.now());
 
         SubIndustry savedSubIndustry = subIndustryRepository.save(subIndustry);
 
-            return SubIndustryDTO.builder()
-                    .subIndustryId(savedSubIndustry.getSubIndustryId())
-                    .subIndustryName(savedSubIndustry.getSubIndustryName())
-                    .industryId(savedSubIndustry.getIndustryId())
-                    .build();
+        return SubIndustryDTO.builder()
+                .subIndustryId(savedSubIndustry.getSubIndustryId())
+                .subIndustryName(savedSubIndustry.getSubIndustryName())
+                .industryId(savedSubIndustry.getIndustryId())
+                .build();
     }
 
     @Override
@@ -165,14 +176,33 @@ public class MicrositeServiceImpl implements MicrositeService {
         logger.info("Updating Sub-Industry with id {}", subIndustryId);
 
         SubIndustry subIndustry = subIndustryRepository.findById(subIndustryId)
-                .orElseThrow(() -> new CommonException(CommonExceptionConstants.NOT_FOUND,
-                                   SUB_INDUSTRY_NOT_FOUND + subIndustryId));
+                .orElseThrow(() -> new CommonException(
+                        CommonExceptionConstants.NOT_FOUND,
+                        SUB_INDUSTRY_NOT_FOUND + subIndustryId
+                ));
 
+        if (subIndustryDTO.getIndustryId() != null) {
+
+            Industry industry = industryRepository.findById(subIndustryDTO.getIndustryId())
+                    .orElseThrow(() -> new CommonException(
+                            CommonExceptionConstants.NOT_FOUND,
+                            "Industry does not exist with id " + subIndustryDTO.getIndustryId()
+                    ));
+
+            if (Boolean.FALSE.equals(industry.getIsActive())) {
+                throw new CommonException(
+                        CommonExceptionConstants.CONFLICT,
+                        "Cannot update sub-industry because the industry is inactive"
+                );
+            }
+
+            subIndustry.setIndustryId(subIndustryDTO.getIndustryId());
+        }
 
         subIndustry.setSubIndustryName(subIndustryDTO.getSubIndustryName());
-        subIndustry.setIndustryId(subIndustryDTO.getIndustryId());
         subIndustry.setUpdatedById(subIndustryDTO.getUpdatedById());
         subIndustry.setLastUpdated(LocalDateTime.now());
+
         subIndustryRepository.save(subIndustry);
 
         return SubIndustryDTO.builder()
@@ -189,9 +219,19 @@ public class MicrositeServiceImpl implements MicrositeService {
         logger.info("Deleting sub-industry with id {}", subIndustryId);
 
         SubIndustry subIndustry = subIndustryRepository.findById(subIndustryId)
-                .orElseThrow(() -> new CommonException(CommonExceptionConstants.NOT_FOUND,
-                                    SUB_INDUSTRY_NOT_FOUND + subIndustryId));
+                .orElseThrow(() -> new CommonException(
+                        CommonExceptionConstants.NOT_FOUND,
+                        "Sub-industry does not exist with id " + subIndustryId
+                ));
 
+        boolean isMapped = valueChainRepository.existsBySubIndustryId(subIndustryId);
+
+        if (isMapped) {
+            throw new CommonException(
+                    CommonExceptionConstants.CONFLICT, "Value chains are associated with this sub-industry");
+        }
+
+        // ✅ Perform delete (or soft delete if needed)
         subIndustryRepository.delete(subIndustry);
     }
 

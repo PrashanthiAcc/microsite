@@ -26,7 +26,7 @@ public class UseCaseResponseDTO {
     private List<String> tag;
     private String description;
     private Integer duration;
-    private Integer ownerId;
+    private String ownerEId;
     private List<SpeakerDTO> speakers;
     private List<ArtifactDTO> artifacts;
     private List<FaqDTO> faqs;

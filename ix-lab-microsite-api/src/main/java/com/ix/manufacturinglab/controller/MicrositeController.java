@@ -194,11 +194,17 @@ public class MicrositeController {
 
             logger.error("Exception occurred while creating Sub Industry: {}", e.getMessage(), e);
 
-            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
-            errorResponse.setErrorDescription(
-                    ManufacturingLabConstants.CREATE_SUB_INDUSTRY_GENERIC_ERROR_MESSAGE);
+            errorResponse.setErrorCode(e.getErrorCode());
+            errorResponse.setErrorDescription(e.getErrorDescription());
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+            HttpStatus status;
+            try {
+                status = HttpStatus.valueOf(Integer.parseInt(e.getErrorCode()));
+            } catch (Exception ex) {
+                status = HttpStatus.INTERNAL_SERVER_ERROR;
+            }
+
+            return ResponseEntity.status(status).body(errorResponse);
         }
     }
 
@@ -222,11 +228,17 @@ public class MicrositeController {
 
             logger.error("Exception occurred while updating Sub Industry: {}", e.getMessage(), e);
 
-            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
-            errorResponse.setErrorDescription(
-                    ManufacturingLabConstants.UPDATE_SUB_INDUSTRY_GENERIC_ERROR_MESSAGE);
+            errorResponse.setErrorCode(e.getErrorCode());
+            errorResponse.setErrorDescription(e.getErrorDescription());
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+            HttpStatus status;
+            try {
+                status = HttpStatus.valueOf(Integer.parseInt(e.getErrorCode()));
+            } catch (Exception ex) {
+                status = HttpStatus.INTERNAL_SERVER_ERROR;
+            }
+
+            return ResponseEntity.status(status).body(errorResponse);
         }
     }
 
@@ -249,12 +261,16 @@ public class MicrositeController {
         } catch (CommonException e) {
 
             logger.error("Exception occurred while deleting Sub Industry: {}", e.getMessage(), e);
+            errorResponse.setErrorCode(e.getErrorCode());
+            errorResponse.setErrorDescription(e.getErrorDescription());
 
-            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
-            errorResponse.setErrorDescription(
-                    ManufacturingLabConstants.DELETE_SUB_INDUSTRY_GENERIC_ERROR_MESSAGE);
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+            HttpStatus status;
+            try {
+                status = HttpStatus.valueOf(Integer.parseInt(e.getErrorCode()));
+            } catch (Exception ex) {
+                status = HttpStatus.INTERNAL_SERVER_ERROR;
+            }
+            return ResponseEntity.status(status).body(errorResponse);
         }
     }
 

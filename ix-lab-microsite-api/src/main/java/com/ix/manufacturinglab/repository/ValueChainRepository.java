@@ -41,4 +41,7 @@ public interface ValueChainRepository extends JpaRepository<ValueChain, Long> {
      */
     @Query("SELECT vc FROM ValueChain vc JOIN Industry i ON vc.industryId = i.industryId WHERE i.isActive = true AND (:industryId IS NULL OR vc.industryId = :industryId) AND (:subIndustryId IS NULL OR vc.subIndustryId = :subIndustryId)")
     List<ValueChain> findFilteredValueChains(Long industryId, Long subIndustryId);
+
+    boolean existsBySubIndustryId(Long subIndustryId);
+
 }

@@ -18,4 +18,6 @@ public interface UseCaseRepository extends JpaRepository<UseCase, Integer> {
     Page<UseCase> findByIsActiveTrue(Pageable pageable);
 
     Optional<UseCase> findByUsecaseIdAndStatus(Integer usecaseId, String status);
+
+    Optional<UseCase> findByParentUsecaseIdAndStatus(Integer parentUsecaseId, String status);
 }
