@@ -26,4 +26,6 @@ public interface ValueChainRepository extends JpaRepository<ValueChain, Long> {
      * Find all value chains for a given industry and sub-industry.
      */
     List<ValueChain> findByIndustryIdAndSubIndustryId(Long industryId, Long subIndustryId);
+
+    boolean existsBySubIndustryId(Long subIndustryId);
 }

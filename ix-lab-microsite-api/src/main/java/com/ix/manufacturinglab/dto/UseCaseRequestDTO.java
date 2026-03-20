@@ -47,7 +47,7 @@ public class UseCaseRequestDTO {
     private Integer duration;
 
     @NotNull(message = "Owner ID is required")
-    private Integer ownerId;
+    private String ownerEId;
 
     private List<SpeakerDTO> speakers;
 
