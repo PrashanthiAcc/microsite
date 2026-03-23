@@ -215,30 +215,23 @@ public class UseCaseServiceImpl implements UseCaseService {
 
         UseCase useCase;
 
-        // ==================== DECISION LOGIC ====================
-
         if ("DRAFT".equalsIgnoreCase(status) || "IN_REVIEW".equalsIgnoreCase(status) && parentId == null) {
 
-            // 👉 UPDATE SAME RECORD
             useCase = existingUseCase;
 
         } else if ("APPROVED".equalsIgnoreCase(status) && parentId == null) {
 
-            // 👉 CREATE NEW RECORD (VERSIONING)
             useCase = new UseCase();
 
-            // Copy base fields
             useCase.setIndustryId(existingUseCase.getIndustryId());
             useCase.setSubIndustryId(existingUseCase.getSubIndustryId());
             useCase.setValueChainId(existingUseCase.getValueChainId());
             useCase.setCreatorId(existingUseCase.getCreatorId());
 
-            // Important (avoid NULL issue)
             useCase.setOwnerEid(existingUseCase.getOwnerEid());
             useCase.setCreatedDate(LocalDateTime.now());
             useCase.setCreatorId(existingUseCase.getCreatorId());
 
-            // Versioning fields
             useCase.setParentUsecaseId(existingUseCase.getUsecaseId());
             useCase.setStatus("DRAFT");
             useCase.setIsUpdatedUsecase(true);
@@ -249,33 +242,27 @@ public class UseCaseServiceImpl implements UseCaseService {
             );
         }
 
-        // ==================== UPDATE FIELDS ====================
-
         useCase.setValueChainId(requestDTO.getValueChainId());
         useCase.setTitle(requestDTO.getTitle());
         useCase.setOwnerEid(String.valueOf(requestDTO.getOwnerEId()));
         useCase.setCreatorId(requestDTO.getCreatorId());
-        useCase.setStatus(requestDTO.getStatus() != null ? requestDTO.getStatus() : useCase.getStatus());
+        useCase.setStatus("DRAFT");
         useCase.setApproverId(requestDTO.getApproverId());
         useCase.setIsUpdatedUsecase(true);
         useCase.setUpdatedDate(LocalDateTime.now());
 
         useCase.setIsActive(false);
 
-        // ==================== SAVE USECASE FIRST ====================
-
         useCase = useCaseRepository.save(useCase);
-
-        // ==================== CONTENT HANDLING ====================
 
         UseCaseContent content;
 
         if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
-            // Updating same record
+
             content = useCaseContentRepository.findByUsecaseId(useCase.getUsecaseId())
                     .orElse(UseCaseContent.builder().usecaseId(useCase.getUsecaseId()).build());
         } else {
-            // New record
+
             content = new UseCaseContent();
             content.setUsecaseId(useCase.getUsecaseId());
         }
@@ -293,10 +280,8 @@ public class UseCaseServiceImpl implements UseCaseService {
 
         useCaseContentRepository.save(content);
 
-        // ==================== CHILD COLLECTIONS ====================
-
         if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
-            // Only clear if updating same record
+
             useCase.getTags().clear();
             useCase.getSpeakers().clear();
             useCase.getArtifacts().clear();
@@ -309,8 +294,6 @@ public class UseCaseServiceImpl implements UseCaseService {
         addUseCaseFaqs(useCase, requestDTO);
 
         useCaseRepository.save(useCase);
-
-        // ==================== RESPONSE ====================
 
         return buildResponseFromEntities(useCase, content);
     }
@@ -561,6 +544,108 @@ public class UseCaseServiceImpl implements UseCaseService {
         useCaseTagRepository.deleteByUseCase_UsecaseId(usecaseId);
         useCaseSpeakerRepository.deleteByUseCase_UsecaseId(usecaseId);
         useCaseRepository.delete(useCase);
+    }
+
+    @Override
+    @Transactional
+    public UseCaseResponseDTO updatesubmitForApproval(Integer usecaseId, UseCaseRequestDTO requestDTO) {
+
+        logger.info(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
+
+        UseCase existingUseCase = useCaseRepository.findById(usecaseId)
+                .orElseThrow(() -> new CommonException(
+                        CommonExceptionConstants.NOT_FOUND,
+                        ManufacturingLabConstants.USE_CASE_NOT_FOUND + usecaseId));
+
+        String status = existingUseCase.getStatus();
+        Integer parentId = existingUseCase.getParentUsecaseId();
+
+        UseCase useCase;
+
+        if (("DRAFT".equalsIgnoreCase(status) || "IN_REVIEW".equalsIgnoreCase(status)) && parentId == null) {
+
+            useCase = existingUseCase;
+
+        }
+
+        else if ("APPROVED".equalsIgnoreCase(status) && parentId == null) {
+
+            useCase = new UseCase();
+
+
+            useCase.setIndustryId(existingUseCase.getIndustryId());
+            useCase.setSubIndustryId(existingUseCase.getSubIndustryId());
+            useCase.setValueChainId(existingUseCase.getValueChainId());
+            useCase.setCreatorId(existingUseCase.getCreatorId());
+            useCase.setOwnerEid(existingUseCase.getOwnerEid());
+
+            useCase.setCreatedDate(LocalDateTime.now());
+            useCase.setCreatorId(existingUseCase.getCreatorId());
+
+            useCase.setParentUsecaseId(existingUseCase.getUsecaseId());
+            useCase.setStatus("IN_REVIEW");
+            useCase.setIsUpdatedUsecase(true);
+            useCase.setIsActive(false);
+        }
+        else {
+            throw new CommonException(CommonExceptionConstants.CONFLICT, "Use case cannot be modified in current state"
+            );
+        }
+
+        useCase.setTitle(requestDTO.getTitle());
+        useCase.setValueChainId(requestDTO.getValueChainId());
+        useCase.setOwnerEid(String.valueOf(requestDTO.getOwnerEId()));
+        useCase.setApproverId(requestDTO.getApproverId());
+        useCase.setCreatorId(requestDTO.getCreatorId());
+        useCase.setStatus("IN_REVIEW");
+        useCase.setApproverId(requestDTO.getApproverId());
+
+        useCase.setIsActive(false);
+        useCase.setIsUpdatedUsecase(true);
+        useCase.setStatus("IN_REVIEW");
+        useCase.setUpdatedDate(LocalDateTime.now());
+
+        useCase = useCaseRepository.save(useCase);
+
+        UseCaseContent content;
+
+        if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
+            content = useCaseContentRepository.findByUsecaseId(useCase.getUsecaseId())
+                    .orElse(new UseCaseContent());
+            content.setUsecaseId(useCase.getUsecaseId());
+        } else {
+            content = new UseCaseContent();
+            content.setUsecaseId(useCase.getUsecaseId());
+        }
+
+        content.setDescription(requestDTO.getDescription());
+        content.setBusinessProblem(requestDTO.getBusinessProblem());
+        content.setSolution(requestDTO.getSolutions());
+        content.setToolsAndTechnologies(requestDTO.getToolsAndTechnologies());
+        content.setKeyResults(requestDTO.getKeyResults());
+        content.setValueDelivered(requestDTO.getValueDelivered());
+        content.setDuration(requestDTO.getDuration());
+        content.setThumbnailUrl(requestDTO.getThumbnailImageUrl());
+        content.setBannerUrl(requestDTO.getBannerUrl());
+        content.setNarrationGuide(requestDTO.getNarrationGuide());
+
+        useCaseContentRepository.save(content);
+
+        if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
+            useCase.getTags().clear();
+            useCase.getSpeakers().clear();
+            useCase.getArtifacts().clear();
+            useCase.getFaqs().clear();
+        }
+
+        addTags(useCase, requestDTO);
+        addSpeakers(useCase, requestDTO);
+        addArtifacts(useCase, requestDTO);
+        addUseCaseFaqs(useCase, requestDTO);
+
+        useCaseRepository.save(useCase);
+
+        return buildResponseFromEntities(useCase, content);
     }
 
 }
