@@ -55,7 +55,7 @@ public class UseCaseServiceImpl implements UseCaseService {
 
     @Override
     @Transactional
-    public UseCaseResponseDTO saveAsDraft(UseCaseRequestDTO requestDTO) {
+    public UseCaseResponseDTO createUseCaseAndSaveAsDraft(UseCaseRequestDTO requestDTO) {
         logger.info(ManufacturingLabConstants.LOG_SAVING_DRAFT, requestDTO.getTitle());
 
         // 1. Build UseCase entity
@@ -109,7 +109,7 @@ public class UseCaseServiceImpl implements UseCaseService {
 
     @Override
     @Transactional
-    public UseCaseResponseDTO submitForApproval(UseCaseRequestDTO requestDTO) {
+    public UseCaseResponseDTO createUseCaseAndSubmitForApproval(UseCaseRequestDTO requestDTO) {
         logger.info(ManufacturingLabConstants.LOG_SUBMITTING_FOR_APPROVAL, requestDTO.getTitle());
 
         // 1. Build UseCase entity
@@ -200,7 +200,7 @@ public class UseCaseServiceImpl implements UseCaseService {
 
     @Override
     @Transactional
-    public UseCaseResponseDTO updateUseCase(Integer usecaseId, UseCaseRequestDTO requestDTO) {
+    public UseCaseResponseDTO updateUseCaseandSaveasDraft(Integer usecaseId, UseCaseRequestDTO requestDTO) {
 
         logger.info(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
 
@@ -524,7 +524,7 @@ public class UseCaseServiceImpl implements UseCaseService {
                         CommonExceptionConstants.NOT_FOUND,
                         ManufacturingLabConstants.USE_CASE_NOT_FOUND + usecaseId));
 
-        useCase.setStatus("ARCHIVE");
+        useCase.setStatus("ARCHIVED");
         useCase.setUpdatedDate(LocalDateTime.now());
 
         useCaseRepository.save(useCase);
@@ -548,7 +548,7 @@ public class UseCaseServiceImpl implements UseCaseService {
 
     @Override
     @Transactional
-    public UseCaseResponseDTO updatesubmitForApproval(Integer usecaseId, UseCaseRequestDTO requestDTO) {
+    public UseCaseResponseDTO updateUseCaseandsubmitForApproval(Integer usecaseId, UseCaseRequestDTO requestDTO) {
 
         logger.info(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
 
@@ -646,6 +646,19 @@ public class UseCaseServiceImpl implements UseCaseService {
         useCaseRepository.save(useCase);
 
         return buildResponseFromEntities(useCase, content);
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<UseCaseResponseDTO> getAllArchiveUseCases(int page, int size) {
+
+        return useCaseRepository
+                .findByStatus("ARCHIVED", PageRequest.of(page - 1, size))
+                .map(useCase -> buildResponseFromEntities(
+                        useCase,
+                        useCaseContentRepository.findByUsecaseId(useCase.getUsecaseId()).orElse(null)
+                ));
     }
 
 }
