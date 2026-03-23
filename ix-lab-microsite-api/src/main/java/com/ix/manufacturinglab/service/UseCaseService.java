@@ -57,7 +57,7 @@ public interface UseCaseService {
      *
      * @param usecaseId  the use case ID
      * @param requestDTO the update request
-     * @return the updated use case response
+     * @return the updated use case response with status DRAFT
      */
     UseCaseResponseDTO updateUseCase(Integer usecaseId, UseCaseRequestDTO requestDTO);
 
@@ -75,5 +75,14 @@ public interface UseCaseService {
      * @return the success message
      */
     void archiveUseCase(Integer usecaseId);
+
+    /**
+     * Update an existing use case and its related data.
+     *
+     * @param usecaseId  the use case ID
+     * @param requestDTO the update request
+     * @return the updated use case response with status IN_REVIEW
+     */
+    UseCaseResponseDTO updatesubmitForApproval(Integer usecaseId, UseCaseRequestDTO requestDTO);
 
 }

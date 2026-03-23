@@ -142,15 +142,42 @@ public class UseCaseController {
      * @param requestDTO the update request body
      * @return the updated use case response
      */
-    @PutMapping(value = "/v1/{usecaseId}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> updateUseCase(
-            @PathVariable("usecaseId") Integer usecaseId,
-            @Valid @RequestBody UseCaseRequestDTO requestDTO) {
+    @PutMapping(value = "/v1/{usecaseId}/updateUsecaseByAdmin/draft", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> updateUseCase(@PathVariable("usecaseId") Integer usecaseId,
+                                                @Valid @RequestBody UseCaseRequestDTO requestDTO) {
 
         logger.info(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
         try {
             UseCaseResponseDTO response = useCaseService.updateUseCase(usecaseId, requestDTO);
             return ResponseEntity.status(HttpStatus.OK).body("Use case Id " + usecaseId + " is updated successfully");
+        } catch (CommonException e) {
+            logger.error("Exception occurred while updating use case: {}", e.getMessage(), e);
+
+            errorResponse.setErrorCode(e.getErrorCode());
+            errorResponse.setErrorDescription(e.getErrorDescription());
+
+            HttpStatus status;
+
+            try {
+                status = HttpStatus.valueOf(Integer.parseInt(e.getErrorCode()));
+            } catch (Exception ex) {
+                status = HttpStatus.INTERNAL_SERVER_ERROR;
+            }
+
+            return ResponseEntity.status(status).body(errorResponse);
+        }
+    }
+
+    @PutMapping(value = "/v1/{usecaseId}/updateUsecaseByAdmin/submit", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> submitForApproval(@PathVariable("usecaseId") Integer usecaseId,
+                                                    @Valid @RequestBody UseCaseRequestDTO requestDTO) {
+
+        logger.info("Submitting use case {} for approval", usecaseId);
+
+        try {
+            UseCaseResponseDTO response = useCaseService.updatesubmitForApproval(usecaseId, requestDTO);
+            return ResponseEntity.ok("Use case submitted for approval successfully");
+
         } catch (CommonException e) {
             logger.error("Exception occurred while updating use case: {}", e.getMessage(), e);
 
