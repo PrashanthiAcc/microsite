@@ -48,7 +48,7 @@ public class UseCaseController {
      * @return the saved draft use case response
      */
     @PostMapping(value = "/v1/save-draft", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> saveAsDraft(@RequestBody UseCaseRequestDTO requestDTO) {
+    public ResponseEntity<Object> createUseCaseAndSaveAsDraft(@RequestBody UseCaseRequestDTO requestDTO) {
 
         logger.info(ManufacturingLabConstants.LOG_SAVING_DRAFT, requestDTO.getTitle());
         try {
@@ -57,7 +57,7 @@ public class UseCaseController {
                 errorResponse.setErrorDescription(ManufacturingLabConstants.DRAFT_TITLE_REQUIRED);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
             }
-            UseCaseResponseDTO response = useCaseService.saveAsDraft(requestDTO);
+            UseCaseResponseDTO response = useCaseService.createUseCaseAndSaveAsDraft(requestDTO);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (CommonException e) {
             logger.error("Exception occurred while saving use case as draft: {}", e.getMessage(), e);
@@ -75,12 +75,12 @@ public class UseCaseController {
      * @return the submitted use case response
      */
     @PostMapping(value = "/v1/submit-for-approval", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> submitForApproval(
+    public ResponseEntity<Object> createUseCaseAndsubmitForApproval(
             @Valid @RequestBody UseCaseRequestDTO requestDTO) {
 
         logger.info(ManufacturingLabConstants.LOG_SUBMITTING_FOR_APPROVAL, requestDTO.getTitle());
         try {
-            UseCaseResponseDTO response = useCaseService.submitForApproval(requestDTO);
+            UseCaseResponseDTO response = useCaseService.createUseCaseAndSubmitForApproval(requestDTO);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (CommonException e) {
             logger.error("Exception occurred while submitting use case for approval: {}", e.getMessage(), e);
@@ -136,19 +136,19 @@ public class UseCaseController {
     }
 
     /**
-     * Update an existing use case.
+     * Update an existing use case and set status to DRAFT.
      *
      * @param usecaseId  the use case ID
      * @param requestDTO the update request body
      * @return the updated use case response
      */
-    @PutMapping(value = "/v1/{usecaseId}/updateUsecaseByAdmin/draft", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> updateUseCase(@PathVariable("usecaseId") Integer usecaseId,
+    @PutMapping(value = "/v1/{usecaseId}/save-draft", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> updateUseCaseandSaveasDraft(@PathVariable("usecaseId") Integer usecaseId,
                                                 @Valid @RequestBody UseCaseRequestDTO requestDTO) {
 
         logger.info(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
         try {
-            UseCaseResponseDTO response = useCaseService.updateUseCase(usecaseId, requestDTO);
+            UseCaseResponseDTO response = useCaseService.updateUseCaseandSaveasDraft(usecaseId, requestDTO);
             return ResponseEntity.status(HttpStatus.OK).body("Use case Id " + usecaseId + " is updated successfully");
         } catch (CommonException e) {
             logger.error("Exception occurred while updating use case: {}", e.getMessage(), e);
@@ -168,14 +168,21 @@ public class UseCaseController {
         }
     }
 
-    @PutMapping(value = "/v1/{usecaseId}/updateUsecaseByAdmin/submit", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> submitForApproval(@PathVariable("usecaseId") Integer usecaseId,
+    /**
+     * Update an existing use case and set status to IN_REVIEW.
+     *
+     * @param usecaseId  the use case ID
+     * @param requestDTO the update request body
+     * @return the updated use case response
+     */
+    @PutMapping(value = "/v1/{usecaseId}/submit-for-approval", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> updateUseCaseandsubmitForApproval(@PathVariable("usecaseId") Integer usecaseId,
                                                     @Valid @RequestBody UseCaseRequestDTO requestDTO) {
 
         logger.info("Submitting use case {} for approval", usecaseId);
 
         try {
-            UseCaseResponseDTO response = useCaseService.updatesubmitForApproval(usecaseId, requestDTO);
+            UseCaseResponseDTO response = useCaseService.updateUseCaseandsubmitForApproval(usecaseId, requestDTO);
             return ResponseEntity.ok("Use case submitted for approval successfully");
 
         } catch (CommonException e) {
@@ -247,7 +254,7 @@ public class UseCaseController {
         }
     }
 
-    @DeleteMapping("/v1/{usecaseId}/discard")
+    @DeleteMapping("/v1/discard")
     public ResponseEntity<Object> discardDraftUseCase(@PathVariable Integer usecaseId) {
 
         logger.info("Discarding draft use case with id {}", usecaseId);
@@ -269,5 +276,31 @@ public class UseCaseController {
                     .body(errorResponse);
         }
     }
+
+    /**
+     * Get all ARCHIVE use cases.
+     *
+     * @return list of ARCHIVE use case responses
+     */
+
+    @GetMapping(value = "/v1/archive/all")
+    public ResponseEntity<Object> getAllArchiveUseCases(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        logger.info("Received request to fetch all archive use cases");
+
+        try {
+            Page<UseCaseResponseDTO> responses = useCaseService.getAllArchiveUseCases(page, size);
+            return new ResponseEntity<>(responses, HttpStatus.OK);
+
+        } catch (CommonException e) {
+            logger.error("Exception occurred while fetching use cases: {}", e.getMessage(), e);
+            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+            errorResponse.setErrorDescription(ManufacturingLabConstants.SEARCH_USE_CASE_GENERIC_ERROR_MESSAGE);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
 
 }

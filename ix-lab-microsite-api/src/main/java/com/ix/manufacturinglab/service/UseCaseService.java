@@ -17,7 +17,7 @@ public interface UseCaseService {
      * @param requestDTO the use case draft request data
      * @return the saved use case response containing draft details
      */
-    UseCaseResponseDTO saveAsDraft(UseCaseRequestDTO requestDTO);
+    UseCaseResponseDTO createUseCaseAndSaveAsDraft(UseCaseRequestDTO requestDTO);
 
     /**
      * Submits a use case for approval and persists data across multiple related tables.
@@ -26,7 +26,7 @@ public interface UseCaseService {
      * @param requestDTO the use case request data to be submitted for approval
      * @return the submitted use case response containing approval details
      */
-    UseCaseResponseDTO submitForApproval(UseCaseRequestDTO requestDTO);
+    UseCaseResponseDTO createUseCaseAndSubmitForApproval(UseCaseRequestDTO requestDTO);
 
     /**
      * Discards a draft use case by deleting it from all related tables based on the given use case ID.
@@ -59,7 +59,7 @@ public interface UseCaseService {
      * @param requestDTO the update request
      * @return the updated use case response with status DRAFT
      */
-    UseCaseResponseDTO updateUseCase(Integer usecaseId, UseCaseRequestDTO requestDTO);
+    UseCaseResponseDTO updateUseCaseandSaveasDraft(Integer usecaseId, UseCaseRequestDTO requestDTO);
 
     /**
      * Soft-delete a use case (set is_active = false).
@@ -83,6 +83,13 @@ public interface UseCaseService {
      * @param requestDTO the update request
      * @return the updated use case response with status IN_REVIEW
      */
-    UseCaseResponseDTO updatesubmitForApproval(Integer usecaseId, UseCaseRequestDTO requestDTO);
+    UseCaseResponseDTO updateUseCaseandsubmitForApproval(Integer usecaseId, UseCaseRequestDTO requestDTO);
+
+    /**
+     * Get all ARCHIVE use cases.
+     *
+     * @return the use cases response
+     */
+    Page<UseCaseResponseDTO> getAllArchiveUseCases(int page, int size);
 
 }
