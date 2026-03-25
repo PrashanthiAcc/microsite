@@ -1,15 +1,12 @@
 package com.ix.manufacturinglab.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Entity representing a User in the Manufacturing Lab Microsite.
@@ -30,14 +27,33 @@ public class UserManagement {
     @Column(name = "user_eid", nullable = false, length = 100)
     private String userEid;
 
-    @Column(name = "is_presenter", nullable = false)
-    private Boolean isPresenter;
 
-    @Column(name = "is_admin", nullable = false)
-    private Boolean isAdmin;
+    @Column(name = "name", length = 256)
+    private String name;
 
-    @Column(name = "is_superadmin", nullable = false)
-    private Boolean isSuperadmin;
+    @Column(name = "role", length = 50)
+    private String role;
+
+    @Column(name = "access_start_date")
+    private LocalDate accessStartDate;
+
+    @Column(name = "requested_on")
+    private LocalDate requestedOn;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "approved_by", referencedColumnName = "user_id")
+    private UserManagement approvedBy;
+
+    @Column(name = "reason", length = 100)
+    private String reason;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "updated_by", referencedColumnName = "user_id")
+    private UserManagement updatedBy;
+
+    @Column(name = "last_updated")
+    private LocalDateTime lastUpdated;
+
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;

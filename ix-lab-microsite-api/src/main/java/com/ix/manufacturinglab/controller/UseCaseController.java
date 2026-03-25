@@ -227,18 +227,18 @@ public class UseCaseController {
     }
 
     /**
-     * Update an existing use case.
+     * Update an existing use case with status as ARCHIVE.
      *
      * @param usecaseId the use case ID
      * @return the success text response
      */
     @PatchMapping("/v1/{usecaseId}/archive")
-    public ResponseEntity<Object> archiveUseCase(@PathVariable Integer usecaseId) {
+    public ResponseEntity<Object> archiveApprovedUseCase(@PathVariable Integer usecaseId) {
 
         logger.info("Received request to archive use case with id {}", usecaseId);
 
         try {
-            useCaseService.archiveUseCase(usecaseId);
+            useCaseService.archiveApprovedUseCase(usecaseId);
             return ResponseEntity.ok("Use case Id " + usecaseId + " is archived successfully");
 
 
@@ -254,7 +254,14 @@ public class UseCaseController {
         }
     }
 
-    @DeleteMapping("/v1/discard")
+    /**
+     * Discard an existing APPROVED active use case.
+     *
+     * @param usecaseId the use case ID
+     * @return the success text response
+     */
+
+    @DeleteMapping("/v1/{usecaseId}/discard")
     public ResponseEntity<Object> discardDraftUseCase(@PathVariable Integer usecaseId) {
 
         logger.info("Discarding draft use case with id {}", usecaseId);

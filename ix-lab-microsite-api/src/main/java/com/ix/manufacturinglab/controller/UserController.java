@@ -3,7 +3,8 @@ package com.ix.manufacturinglab.controller;
 import com.ix.manufacturinglab.constants.CommonExceptionConstants;
 import com.ix.manufacturinglab.constants.ManufacturingLabConstants;
 import com.ix.common.exception.CommonErrorManagement;
-import com.ix.manufacturinglab.dto.UserDTO;
+import com.ix.manufacturinglab.dto.UserManagementDTO;
+import com.ix.manufacturinglab.dto.UserRequestDTO;
 import com.ix.manufacturinglab.exception.CommonException;
 import com.ix.manufacturinglab.service.UserService;
 import org.slf4j.Logger;
@@ -36,7 +37,7 @@ public class UserController {
         logger.info("Received request to fetch all active users");
 
         try {
-            List<UserDTO> users = userService.getAllActiveUsers();
+            List<UserManagementDTO> users = userService.getAllActiveUsers();
 
             return new ResponseEntity<>(users, HttpStatus.OK);
 
@@ -46,5 +47,11 @@ public class UserController {
             errorResponse.setErrorDescription(ManufacturingLabConstants.SEARCH_USER_GENERIC_ERROR_MESSAGE);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
+    }
+
+    @PostMapping("/v1/create")
+    public ResponseEntity<String> createUser(@RequestBody UserRequestDTO dto) {
+        userService.createUser(dto);
+        return ResponseEntity.ok("User created successfully");
     }
 }

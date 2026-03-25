@@ -515,7 +515,7 @@ public class UseCaseServiceImpl implements UseCaseService {
 
     @Override
     @Transactional
-    public void archiveUseCase(Integer usecaseId) {
+    public void archiveApprovedUseCase(Integer usecaseId) {
 
         logger.info("Archiving use case with id {}", usecaseId);
 
@@ -523,6 +523,13 @@ public class UseCaseServiceImpl implements UseCaseService {
                 .orElseThrow(() -> new CommonException(
                         CommonExceptionConstants.NOT_FOUND,
                         ManufacturingLabConstants.USE_CASE_NOT_FOUND + usecaseId));
+
+        if (!"APPROVED".equalsIgnoreCase(useCase.getStatus())) {
+            throw new CommonException(
+                    CommonExceptionConstants.BAD_REQUEST,
+                    "Only APPROVED use cases can be archived"
+            );
+        }
 
         useCase.setStatus("ARCHIVED");
         useCase.setUpdatedDate(LocalDateTime.now());

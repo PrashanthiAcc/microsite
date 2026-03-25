@@ -74,7 +74,7 @@ public interface UseCaseService {
      * @param usecaseId  the use case ID
      * @return the success message
      */
-    void archiveUseCase(Integer usecaseId);
+    void archiveApprovedUseCase(Integer usecaseId);
 
     /**
      * Update an existing use case and its related data.
