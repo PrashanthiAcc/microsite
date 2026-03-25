@@ -144,7 +144,7 @@ public class UseCaseController {
      */
     @PutMapping(value = "/v1/{usecaseId}/save-draft", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> updateUseCaseandSaveasDraft(@PathVariable("usecaseId") Integer usecaseId,
-                                                @Valid @RequestBody UseCaseRequestDTO requestDTO) {
+                                                              @Valid @RequestBody UseCaseRequestDTO requestDTO) {
 
         logger.info(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
         try {
@@ -177,7 +177,7 @@ public class UseCaseController {
      */
     @PutMapping(value = "/v1/{usecaseId}/submit-for-approval", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> updateUseCaseandsubmitForApproval(@PathVariable("usecaseId") Integer usecaseId,
-                                                    @Valid @RequestBody UseCaseRequestDTO requestDTO) {
+                                                                    @Valid @RequestBody UseCaseRequestDTO requestDTO) {
 
         logger.info("Submitting use case {} for approval", usecaseId);
 
@@ -302,5 +302,40 @@ public class UseCaseController {
         }
     }
 
+    /**
+     * Update an existing use case and set status to APPROVED by super-admin.
+     *
+     * @param usecaseId  the use case ID
+     * @param requestDTO the update request body
+     * @return the updated use case response
+     */
+    @PutMapping("/v1/{usecaseId}/save")
+    public ResponseEntity<String> updateUseCaseAndSaveBySuperAdmin(@PathVariable Integer usecaseId,
+                                                                   @RequestBody UseCaseRequestDTO requestDTO) {
+
+        logger.info("Submitting use case {} for approval", usecaseId);
+
+        try {
+            useCaseService.updateUseCaseBySuperAdmin(usecaseId, requestDTO);
+
+            return ResponseEntity.ok("Use case updated successfully by Super Admin");
+
+        } catch (CommonException e) {
+            logger.error("Exception occurred while updating use case: {}", e.getMessage(), e);
+
+            errorResponse.setErrorCode(e.getErrorCode());
+            errorResponse.setErrorDescription(e.getErrorDescription());
+
+            HttpStatus status;
+
+            try {
+                status = HttpStatus.valueOf(Integer.parseInt(e.getErrorCode()));
+            } catch (Exception ex) {
+                status = HttpStatus.INTERNAL_SERVER_ERROR;
+            }
+
+            return ResponseEntity.status(status).body(errorResponse.toString());
+        }
+    }
 
 }

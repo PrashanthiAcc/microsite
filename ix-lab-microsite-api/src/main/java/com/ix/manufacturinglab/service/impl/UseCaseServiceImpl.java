@@ -661,4 +661,108 @@ public class UseCaseServiceImpl implements UseCaseService {
                 ));
     }
 
+    @Override
+    @Transactional
+    public UseCaseResponseDTO updateUseCaseBySuperAdmin(Integer usecaseId,
+                                                        UseCaseRequestDTO requestDTO) {
+
+        logger.info(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
+
+        UseCase existingUseCase = useCaseRepository.findById(usecaseId)
+                .orElseThrow(() -> new CommonException(
+                        CommonExceptionConstants.NOT_FOUND,
+                        ManufacturingLabConstants.USE_CASE_NOT_FOUND + usecaseId));
+
+        String status = existingUseCase.getStatus();
+        Integer parentId = existingUseCase.getParentUsecaseId();
+
+        UseCase useCase;
+
+        if ("DRAFT".equalsIgnoreCase(status)) {
+
+            useCase = existingUseCase;
+        }
+
+        else if ("APPROVED".equalsIgnoreCase(status)) {
+
+            existingUseCase.setIsActive(false);
+            useCaseRepository.save(existingUseCase);
+
+            useCase = new UseCase();
+
+            useCase.setIndustryId(existingUseCase.getIndustryId());
+            useCase.setSubIndustryId(existingUseCase.getSubIndustryId());
+            useCase.setValueChainId(existingUseCase.getValueChainId());
+            useCase.setCreatorId(existingUseCase.getCreatorId());
+            useCase.setOwnerEid(existingUseCase.getOwnerEid());
+            useCase.setCreatedDate(LocalDateTime.now());
+            useCase.setParentUsecaseId(existingUseCase.getUsecaseId());
+            useCase.setApprovedDate(LocalDateTime.now());
+            useCase.setUpdatedDate(LocalDateTime.now());
+        }
+
+        else {
+            throw new CommonException(
+                    CommonExceptionConstants.CONFLICT,
+                    "Use case cannot be modified in current state"
+            );
+        }
+
+
+        useCase.setTitle(requestDTO.getTitle());
+        useCase.setValueChainId(requestDTO.getValueChainId());
+        useCase.setOwnerEid(String.valueOf(requestDTO.getOwnerEId()));
+        useCase.setApproverId(requestDTO.getCreatorId());
+        useCase.setCreatorId(requestDTO.getCreatorId());
+
+        useCase.setStatus("APPROVED");
+        useCase.setApprovedDate(LocalDateTime.now());
+
+        useCase.setIsActive(true);
+        useCase.setIsUpdatedUsecase(true);
+        useCase.setUpdatedDate(LocalDateTime.now());
+
+        useCase = useCaseRepository.save(useCase);
+
+        UseCaseContent content;
+
+        if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
+            content = useCaseContentRepository.findByUsecaseId(useCase.getUsecaseId())
+                    .orElse(new UseCaseContent());
+            content.setUsecaseId(useCase.getUsecaseId());
+        } else {
+            content = new UseCaseContent();
+            content.setUsecaseId(useCase.getUsecaseId());
+        }
+
+        content.setDescription(requestDTO.getDescription());
+        content.setBusinessProblem(requestDTO.getBusinessProblem());
+        content.setSolution(requestDTO.getSolutions());
+        content.setToolsAndTechnologies(requestDTO.getToolsAndTechnologies());
+        content.setKeyResults(requestDTO.getKeyResults());
+        content.setValueDelivered(requestDTO.getValueDelivered());
+        content.setDuration(requestDTO.getDuration());
+        content.setThumbnailUrl(requestDTO.getThumbnailImageUrl());
+        content.setBannerUrl(requestDTO.getBannerUrl());
+        content.setNarrationGuide(requestDTO.getNarrationGuide());
+
+        useCaseContentRepository.save(content);
+
+        if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
+            useCase.getTags().clear();
+            useCase.getSpeakers().clear();
+            useCase.getArtifacts().clear();
+            useCase.getFaqs().clear();
+        }
+
+        addTags(useCase, requestDTO);
+        addSpeakers(useCase, requestDTO);
+        addArtifacts(useCase, requestDTO);
+        addUseCaseFaqs(useCase, requestDTO);
+
+        useCaseRepository.save(useCase);
+
+        return buildResponseFromEntities(useCase, content);
+    }
+
 }
