@@ -185,7 +185,7 @@ select * from mfg.usecase_speakers
 
 select * from mfg.user_management
 
-select * from usecase_artifacts
+select * from mfg.usecase_artifacts
 
 --alter queries
 

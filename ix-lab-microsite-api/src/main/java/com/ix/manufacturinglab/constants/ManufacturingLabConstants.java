@@ -84,5 +84,6 @@ public final class ManufacturingLabConstants {
     public static final String PLATFORM_TRANSACTION_ID ="platform-transaction-Id";
     public static final String USER_ROLE = "user-role";
     public static final String USER_ROLE_ERROR = "User does not have a valid role";
+    public static final String USER_ALREADY_PRESENT = "User already present";
 
 }

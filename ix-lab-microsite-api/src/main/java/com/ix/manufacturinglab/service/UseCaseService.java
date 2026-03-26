@@ -74,7 +74,7 @@ public interface UseCaseService {
      * @param usecaseId  the use case ID
      * @return the success message
      */
-    void archiveUseCase(Integer usecaseId);
+    void archiveApprovedUseCase(Integer usecaseId);
 
     /**
      * Update an existing use case and its related data.
@@ -91,5 +91,14 @@ public interface UseCaseService {
      * @return the use cases response
      */
     Page<UseCaseResponseDTO> getAllArchiveUseCases(int page, int size);
+
+    /**
+     * Update an existing use case and its related data by super-admin.
+     *
+     * @param usecaseId  the use case ID
+     * @param requestDTO the update request
+     * @return the updated use case response with status APPROVED
+     */
+    UseCaseResponseDTO updateUseCaseBySuperAdmin(Integer usecaseId, UseCaseRequestDTO requestDTO);
 
 }
