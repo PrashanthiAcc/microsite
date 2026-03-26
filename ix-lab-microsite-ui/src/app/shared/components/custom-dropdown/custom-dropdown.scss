@@ -1,0 +1,76 @@
+.dropdown {
+  position: relative;
+  width: 220px;
+  font-family: 'Inter', sans-serif;
+  margin-bottom: 10px;
+}
+  label {
+    // font-size: 13px;
+    // color: #666;
+    // display: block;
+    // margin-bottom: 6px;
+    margin-bottom: 6px;
+    color: var(--Form-Label-Text-Color-Primary, #000);
+    font-feature-settings: 'liga' off, 'clig' off;
+
+    /* _Component/Form/Label/LG */
+    font-family: Graphik;
+    font-size: var(--Form-Label-Text-LG-Font-size, 20px);
+    font-style: normal;
+    font-weight: 600;
+    line-height: var(--Form-Label-Text-LG-Line-height, 28px);
+    /* 140% */
+    letter-spacing: var(--Form-Label-Text-LG-Letter-spacing, -0.16px);
+  }
+
+
+.dropdown__control {
+  height: 40px;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #8a2be2;
+  }
+}
+
+.arrow {
+  font-size: 14px;
+  transition: transform 0.3s ease;
+}
+
+.arrow.rotate {
+  transform: rotate(180deg);
+}
+
+.dropdown__menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  margin-top: 6px;
+  z-index: 100;
+  padding: 6px 0;
+}
+
+.dropdown__item {
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #f5f0ff;
+    color: #8a2be2;
+  }
+}

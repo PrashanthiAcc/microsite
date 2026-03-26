@@ -1,0 +1,235 @@
+<section class="stories">
+
+  <div class="stories-container">
+
+    <!-- BREADCRUMB & ACTION BUTTONS -->
+    <div class="stories__top-bar" *ngIf="showAdminControls">
+      <div class="breadcrumb">
+        <a href="#" class="breadcrumb-link">Admin</a>
+        <span class="breadcrumb-separator">›</span>
+        <a routerLink="/admin" class="breadcrumb-link">Configurations</a>
+        <span class="breadcrumb-separator">›</span>
+        <a href="#" class="breadcrumb-link active">Stories Configuration</a>
+      </div>
+
+      <div class="top-actions">
+        <button class="btn-outline" (click)="archivedStories()">Archived Stories</button>
+
+        <button class="btn-primary" routerLink="/add-story">
+          Add Story
+        </button>
+      </div>
+    </div>
+
+    <div class="filters">
+
+      <!-- Industry -->
+      <app-custom-dropdown label="Industry" [options]="industries" displayKey="industryName"
+        (optionSelected)="onIndustrySelected($event)">
+      </app-custom-dropdown>
+
+      <!-- Sub Industry -->
+      <app-custom-dropdown label="Sub-Industry" [options]="subIndustries" displayKey="subIndustryName"
+        (optionSelected)="onSubIndustrySelected($event)">
+      </app-custom-dropdown>
+
+      <!-- Value Chain -->
+      <app-custom-dropdown label="Value Chain" [options]="valueChains" displayKey="valueChainName">
+      </app-custom-dropdown>
+
+      <!-- Sort -->
+      <!-- <app-custom-dropdown label="Sort by" [options]="['Popular','New & Noteworthy']">
+      </app-custom-dropdown> -->
+      <app-toaster [title]="toastTitle" [message]="toastMessage" [show]="showToast">
+      </app-toaster>
+      <!-- Search -->
+      <div class="search">
+        <input type="text" placeholder="Search" />
+        <button>🔍</button>
+      </div>
+
+    </div>
+
+    <!---DRAFTS SECTION-->
+    <!-- new wrapper Drafts-->
+    <div class="stories__header">
+      <h1 class="stories__title" *ngIf="drafts.length">All Drafts ({{ drafts.length }})</h1>
+    </div>
+
+    <!-- GRID ALL DRAFTS------------ -->
+    <div class="stories__grid" *ngIf="drafts.length">
+
+      <div class="story-card" *ngFor="let draft of drafts" [routerLink]="['/stories', draft.usecaseId]">
+
+        <div class="story-card__media">
+          <img [src]="draft.thumbnailImageUrl" alt="">
+          <button class="card-menu-btn" (click)="$event.stopPropagation(); toggleMenu(draft, $event)">⋮</button>
+
+          <div class="card-menu" *ngIf="draft.showMenu" (click)="$event.stopPropagation()">
+
+            <button class="menu-item">
+              <img [src]="editIcon" alt="Edit" />
+              <span [routerLink]="['/stories', draft.usecaseId, 'edit']">Edit Story</span>
+            </button>
+            <button class="menu-item">
+              <img [src]="favoriteIcon" alt="Favorite" />
+              <span>Add to Favourites</span>
+            </button>
+            <button class="menu-item">
+              <img [src]="discardIcon" alt="Discard" />
+              <span (click)="discardDraft(draft.usecaseId)">Discard Draft</span>
+            </button>
+            <button class="menu-item" *ngIf="draft.status !== 'ARCHIVED'">
+              <img [src]="archiveIcon" alt="Archive" />
+              <span (click)="archiveStory(draft.usecaseId)">Archive Story</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="story-card__content">
+          <span class="category">{{ draft.category }}</span>
+
+          <h3>{{ draft.title }}</h3>
+
+          <p>{{ draft.description }}</p>
+
+          <div class="tags">
+            <span *ngFor="let tag of draft.tag">{{ tag }}</span>
+          </div>
+
+          <!-- Footer row for stories -->
+          <div class="story-card__footer">
+            <div class="footer-row">
+              <div class="footer-item">
+                <img [src]="user_logo" alt="user" />
+                <span>{{ draft.ownerName }}</span>
+              </div>
+              <div class="footer-item">
+                <img [src]="durationIcon" alt="time" />
+                <span>{{ draft.duration }} Min</span>
+              </div>
+            </div>
+            <div class="footer-row status">
+              <div class="footer-item">
+                <img [src]="reviewIcon" alt="status" />
+                <span>{{ draft.status }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+    <!---DRAFTS SECTION-->
+
+    <div></div>
+
+    <!-- new wrapper Stories -->
+    <div class="stories__header">
+      <h1 class="stories__title" *ngIf="stories.length">All Stories ({{ stories.length }})</h1>
+
+      <!-- <div class="stories__actions">
+        <a class="action-link" routerLink="/industry-overview">
+          <img src="assets/icons/industry-overview.png" alt="Industry overview" />
+          View industry overview
+        </a>
+        <a class="action-link" routerLink="/value-chain">
+          <img src="assets/icons/value-chain.png" alt="Value chain" />
+          View value chain
+        </a>
+      </div> -->
+    </div>
+
+    <!---ALL STORIES-------------------->
+    <div class="stories__grid" *ngIf="stories.length">
+
+      <div class="story-card" *ngFor="let story of stories" [routerLink]="['/stories', story.usecaseId]">
+
+        <div class="story-card__media">
+          <img [src]="story.thumbnailImageUrl" alt="">
+          <button class="card-menu-btn" (click)="$event.stopPropagation(); toggleMenu(story, $event)">⋮</button>
+
+          <div class="card-menu" *ngIf="story.showMenu" (click)="$event.stopPropagation()">
+
+            <button class="menu-item">
+              <img [src]="editIcon" alt="Edit" />
+              <span [routerLink]="['/stories', story.usecaseId, 'edit']">Edit Story</span>
+            </button>
+            <button class="menu-item">
+              <img [src]="favoriteIcon" alt="Favorite" />
+              <span>Add to Favourites</span>
+            </button>
+            <button class="menu-item" *ngIf="story.status === 'DRAFT'">
+              <img [src]="discardIcon" alt="Discard" />
+              <span (click)="discardDraft(story.usecaseId)">Discard Draft</span>
+            </button>
+            <button class="menu-item" *ngIf="story.status !== 'ARCHIVED'">
+              <img [src]="archiveIcon" alt="Archive" />
+              <span (click)="archiveStory(story.usecaseId)">Archive Story</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="story-card__content">
+          <span class="category">{{ story.category }}</span>
+
+          <h3>{{ story.title }}</h3>
+
+          <p>{{ story.description }}</p>
+
+          <div class="tags">
+            <span *ngFor="let tag of story.tag">{{ tag }}</span>
+          </div>
+
+          <!-- Footer row for stories -->
+          <div class="story-card__footer">
+            <div class="footer-row">
+              <div class="footer-item">
+                <img [src]="user_logo" alt="user" />
+                <span>{{ story.ownerName }}</span>
+              </div>
+              <div class="footer-item">
+                <img [src]="durationIcon" alt="time" />
+                <span>{{ story.duration }} Min</span>
+              </div>
+            </div>
+            <div class="footer-row status">
+              <div class="footer-item">
+                <img [src]="reviewIcon" alt="status" />
+                <span>{{ story.status }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- PAGINATION -->
+    <!-- <div class="pagination">
+      <span class="active">1</span>
+      <span>2</span>
+      <span>3</span>
+      <span>4</span>
+    </div> -->
+
+
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button (click)="loadAllStories(currentPage - 1)" [disabled]="currentPage === 1">
+        <img [src]="pagination_left" alt="Previous" />
+      </button>
+
+      <span *ngFor="let page of [].constructor(totalPages); let i = index" (click)="loadAllStories(i + 1)"
+        [class.active]="currentPage === i + 1">
+        {{ i + 1 }}
+      </span>
+
+      <button (click)="loadAllStories(currentPage + 1)" [disabled]="currentPage === totalPages">
+        <img [src]="pagination_right" alt="Next" />
+      </button>
+    </div>
+
+  </div>
+</section>

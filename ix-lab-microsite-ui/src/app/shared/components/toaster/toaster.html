@@ -1,0 +1,13 @@
+<div class="toaster" *ngIf="show">
+    <div class="toaster-icon">
+        <img src="assets/icons/user_logo.png" alt="icon" />
+    </div>
+
+    <div class="toaster-content">
+        <div class="toaster-header">
+            <h4 class="toaster-title">{{ title }}</h4>
+            <button class="toaster-close" (click)="closeToaster()">✕</button>
+        </div>
+        <p class="toaster-text">{{ message }}</p>
+    </div>
+</div>

@@ -1,0 +1,23 @@
+<section class="industries">
+  <div class="industries-header">
+    <h2 class="industries-title">Industries</h2>
+  </div>
+
+  <div class="grid">
+    <div class="card" *ngFor="let industry of industries">
+      <img [src]="'assets/' + industry.image" [alt]="industry.title" />
+      <div class="overlay">
+        <div class="card-content-vertical">
+          <div class="img-row">
+            <img *ngIf="industry.icon" class="top-icon" [src]="'assets/' + industry.icon" [alt]="industry.title + ' icon'" />
+          </div>
+          
+          <div class="title-row">
+            <div class="title">{{ industry.title }} <span class="count">({{ industry.count }})</span></div>
+            <div class="arrow">→</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

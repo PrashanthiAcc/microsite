@@ -1,0 +1,213 @@
+<!-- <div class="config">
+     <div class="breadcrumb">
+        <a href="#" class="breadcrumb-link">Admin</a>
+        <span class="breadcrumb-separator">›</span>
+        <a routerLink="/admin" class="breadcrumb-link active">Configurations</a>
+        <span class="breadcrumb-separator">›</span>
+        <a href="#" class="breadcrumb-link active">User Management</a>
+      </div>
+    <div class="title">
+        <h2 class="heading-md">User Management</h2>
+    </div>
+
+</div> -->
+
+<div class="config">
+    <div class="breadcrumb">
+        <a href="#" class="breadcrumb-link">Admin</a>
+        <span class="breadcrumb-separator">›</span>
+        <a routerLink="/admin" class="breadcrumb-link active">Configurations</a>
+        <span class="breadcrumb-separator">›</span>
+        <a href="#" class="breadcrumb-link active">User Management</a>
+    </div>
+    <div class="title">
+        <h2 class="heading-md">User Management</h2>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" data-tab="all-users" [class.active]="isActive('all-users')"
+            (click)="switchTab('all-users')">All Users</button>
+        <button class="tab" data-tab="new-requests" [class.active]="isActive('new-requests')"
+            (click)="switchTab('new-requests')">New Requests <span class="badge">2</span></button>
+        <button class="add-user" (click)="openModal()">+ Add New User</button>
+    </div>
+
+    <!-- All Users Table -->
+    <div class="table-container tab-content" [class.active]="isActive('all-users')" id="all-users">
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Enterprise ID</th>
+                    <th>Role</th>
+                    <th>Access Start Date</th>
+                    <th>Approved By</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Shashi Veeramalla</td>
+                    <td>shashi.veeramalla</td>
+                    <td>Super Admin</td>
+                    <td>16 Mar 2026</td>
+                    <td>gudluru.yashwanth</td>
+                    <td>
+                        <button class="btn edit">
+                          <img src="assets/icons/edit.png" alt="Edit" /> Edit
+                        </button>
+                        <button class="btn remove">
+                            Remove
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Yashwanth Gudluru</td>
+                    <td>gudluru.yashwanth</td>
+                    <td>Admin</td>
+                    <td>15 Mar 2026</td>
+                    <td>shashi.veeramalla</td>
+                    <td>
+                        <button class="btn edit">
+                           <img src="assets/icons/edit.png" alt="Edit" /> Edit
+                        </button>
+                        <button class="btn remove">
+                            Remove
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Ramanand Yadwadkar</td>
+                    <td>ramanand.yadwadkar</td>
+                    <td>Super Admin</td>
+                    <td>12 Mar 2026</td>
+                    <td>System</td>
+                    <td>
+                        <button class="btn edit">
+                            <img src="assets/icons/edit.png" alt="Edit" /> Edit
+                        </button>
+                        <button class="btn remove">
+                            Remove
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Sharavanth RS</td>
+                    <td>sharavanth.r.s</td>
+                    <td>Presenter</td>
+                    <td>28 Feb 2026</td>
+                    <td>gudluru.yashwanth</td>
+                    <td>
+                        <button class="btn edit">
+                           <img src="assets/icons/edit.png" alt="Edit" /> Edit
+                        </button>
+                        <button class="btn remove">
+                            Remove
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Afreen Syeda</td>
+                    <td>syeda.afreen</td>
+                    <td>Presenter</td>
+                    <td>03 Jan 2026</td>
+                    <td>gudluru.yashwanth</td>
+                    <td>
+                        <button class="btn edit">
+                            <img src="assets/icons/edit.png" alt="Edit" /> Edit
+                        </button>
+                         <button class="btn remove">
+                            Remove
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- New Requests Table -->
+    <div class="table-container tab-content" [class.active]="isActive('new-requests')" id="new-requests">
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Enterprise ID</th>
+                    <th>Role</th>
+                    <th>Requested On</th>
+                    <th>Reason</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Ashutosh Tripathi</td>
+                    <td>ashutosh.tripathi</td>
+                    <td>Presenter</td>
+                    <td>18 Mar 2026</td>
+                    <td>Client Visit</td>
+                    <td>
+                        <button class="btn accept">Accept</button>
+                        <button class="btn reject">Reject</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Ramanand Yadwadkar</td>
+                    <td>ramanand.yadwadkar</td>
+                    <td>Presenter</td>
+                    <td>12 Mar 2026</td>
+                    <td>Client Visit</td>
+                    <td>
+                        <button class="btn accept">Accept</button>
+                        <button class="btn reject">Reject</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Simple Text Modal -->
+<!-- <div class="modal" [class.show]="isModalOpen">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Information</h3>
+      <button class="close" (click)="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p>This is a simple modal with text only.</p>
+    </div>
+  </div>
+</div> -->
+
+<ng-container *ngIf="showModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Add New User</h3>
+      <span class="close-icon" (click)="closeModal()">×</span>
+    </div>
+
+    <div class="modal-body">
+      <label>Enterprise ID:</label>
+      <input type="text" placeholder="Type Enterprise ID"  />
+
+      <label>Select Role:</label>
+      <select >
+        <option value="" disabled>Select role</option>
+        <option value="Super Admin">Super Admin</option>
+        <option value="Admin">Admin</option>
+        <option value="Presenter">Presenter</option>
+      </select>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn cancel" (click)="closeModal()">Cancel</button>
+      <button class="btn save" >Save</button>
+    </div>
+  </div>
+</ng-container>
+
+
+</div>
+
+
+

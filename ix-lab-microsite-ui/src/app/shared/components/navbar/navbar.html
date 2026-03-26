@@ -1,0 +1,91 @@
+<header class="navbar">
+  <div class="navbar-left">
+    <img class="logo-icon" src="assets/Accenture Logo.png" alt="Accenture Logo" />
+    <div class="logo-text">
+      <div class="title">Industry X - Digital</div>
+      <div class="subtitle">Manufacturing Experience Zone</div>
+    </div>
+  </div>
+
+  <nav class="navbar-right">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+      Home
+    </a>
+
+    <a routerLink="/stories" routerLinkActive="active">
+      Stories
+    </a>
+
+    <a routerLink="/favourites" routerLinkActive="active">
+      Favourites
+    </a>
+
+    <!-- <div class="admin-menu" (click)="toggleAdminMenu()" tabindex="0" routerLinkActive="active"
+      >
+
+     
+      <a class="admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
+        Admin <span class="arrow">▾</span>
+      </a>
+
+      <ul class="admin-options" *ngIf="adminOpen">
+        <li>
+          <a routerLink="/admin">
+            <img src="assets/icons/configurations.png" alt="Configurations" />
+            <span>Configurations</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/dashboard">
+            <img src="assets/icons/dashboard.png" alt="Dashboard" />
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/favourites">
+            <img src="assets/icons/favourites.png" alt="Favourites" />
+            <span>Favourites</span>
+          </a>
+        </li>
+      </ul>
+    </div> -->
+
+<div class="admin-menu" tabindex="0">
+  <a 
+    routerLink="/admin"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{exact:false}"
+    class="admin"
+    (click)="$event.preventDefault(); toggleAdminMenu()"
+  >
+    Admin <span class="arrow">▾</span>
+  </a>
+
+  <ul class="admin-options" *ngIf="adminOpen">
+    <li>
+      <a routerLink="admin/configuration" (click)="$event.preventDefault(); toggleAdminMenu()">
+        <img src="assets/icons/configurations.png" alt="Configurations" />
+        <span>Configurations</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/dashboard">
+        <img src="assets/icons/dashboard.png" alt="Dashboard" />
+        <span>Dashboard</span>
+      </a>
+    </li>
+    <li>
+      <a routerLink="/favourites">
+        <img src="assets/icons/favourites.png" alt="Favourites" />
+        <span>Favourites</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+    <div class="profile">
+      <img src="assets/Avatar.png" alt="profile" />
+    </div>
+  </nav>
+</header>

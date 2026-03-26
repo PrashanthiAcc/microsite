@@ -1,0 +1,418 @@
+.config{
+opacity: 1;
+padding-top: 32px;
+padding-right: 80px;
+padding-bottom: 32px;
+padding-left: 80px;
+ 
+}
+.heading-md {
+  font-family: "Graphik", sans-serif;
+  font-weight: 600;
+  font-size: 48px;
+  line-height: 58px;
+  letter-spacing: 0;
+  border-bottom: 1.5px solid #A100FF;
+  display: inline-block;
+  margin-left: 20px;
+}
+.card-container {
+  display: flex;
+  gap: 24px;
+  padding: 20px;
+  width: 1760px;
+  height: 352px;
+  display: flex;
+  gap: 20px;
+  opacity: 1;
+}
+ 
+.config-card {
+  width: 320px;
+  height: 175px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  cursor: pointer;
+ 
+  border: 1px solid #e5e5e5;
+  box-shadow: 0px 2px 4px rgba(0,0,0,0.08);
+ 
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+ 
+  transition: all 0.2s ease;
+}
+ 
+.config-card:hover {
+  transform: translateY(-2px);
+}
+ 
+.config-card.active {
+  border: 2px solid #7B3FF2;
+}
+ 
+ 
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+
+  .breadcrumb-link {
+    color: #8a2be2;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &.active {
+      color: #8a2be2;
+      font-weight: 600;
+    }
+  }
+
+  .breadcrumb-separator {
+    color: #999;
+    margin: 0 4px;
+  }
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.tab {
+  background: none;
+  border: none;
+  font-family: "Graphik", sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 12px 20px;
+  cursor: pointer;
+  color: #555;
+}
+
+.tab.active {
+  border-bottom: 2px solid #A100FF;
+  color: #A100FF;
+  font-weight: 600;
+}
+
+.badge {
+  background: #A100FF;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 12px;
+  margin-left: 6px;
+}
+
+.add-user {
+  margin-left: auto;
+  background: #A100FF;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.add-user:hover {
+  background: #7B3FF2;
+}
+
+/* Table */
+.table-container {
+  margin-top: 20px;
+  overflow-x: auto;
+  display: none; /* hidden by default */
+}
+
+.table-container.active {
+  display: block; /* show active tab */
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Graphik", sans-serif;
+      border: 1px solid #CFCFCF;
+}
+
+.user-table th {
+  text-align: left;
+  padding: 12px;
+  background: #F1F1EF;
+  border-bottom: 2px solid #ddd;
+  font-weight: 600;
+  color: #7500C0;
+  font-size: 20px;
+  font-family: 'Graphik';
+}
+
+.user-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  color: #555;
+}
+
+.user-table tr:hover {
+  background: #f5f5ff;
+}
+
+.user-table a {
+  color: #A100FF;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.user-table a:hover {
+  text-decoration: underline;
+}
+
+/* Button base */
+.btn {
+  font-family: "Graphik", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  margin-right: 8px;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+/* Accept button */
+.btn.accept {
+  background-color: #E5FAF1; 
+  color: #167C61;
+}
+
+.btn.accept:hover {
+  background-color: #E5FAF1;
+  transform: translateY(-1px);
+}
+
+/* Reject button */
+.btn.reject {
+  background-color: #FFE3E3; 
+  color: #991B1B;
+}
+
+.btn.reject:hover {
+  background-color: #FFE3E3;
+  transform: translateY(-1px);
+}
+
+/* Base button */
+.btn {
+  font-family: "Graphik", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  margin-right: 8px;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+/* Edit button */
+.btn.edit {
+  background-color: #f5f0ff; 
+  color: #000;           
+}
+
+.btn.edit:hover {
+  background-color: #e6dbff;
+  transform: translateY(-1px);
+}
+
+/* Remove button */
+.btn.remove {
+  background-color: #FFE3E3; 
+  color: #991B1B;            
+}
+
+.btn.remove:hover {
+  background-color: #ffccd2;
+  transform: translateY(-1px);
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+/* Modal box */
+.modal {
+  background: #fff;
+  border-radius: 8px;
+  width: 400px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  animation: fadeIn 0.2s ease;
+}
+
+/* Header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.modal-header h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.close-icon {
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+}
+
+.close-icon:hover {
+  color: #333;
+}
+
+/* Body */
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-body label {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.modal-body input,
+.modal-body select {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* Footer */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn.cancel {
+  background: #f5f0ff;
+  color: #7B3FF2;
+}
+
+.btn.save {
+  background: #000;
+  color: #fff;
+}
+
+.btn.cancel:hover {
+  background: #e6dbff;
+}
+
+.btn.save:hover {
+  background: #333;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  justify-content: center;
+  align-items: center;
+
+  &.show {
+    display: flex;
+  }
+
+  .modal-content {
+    background: #fff;
+    padding: 1rem;
+    border-radius: 6px;
+    width: 300px;
+    text-align: center;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+}
+.modal-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;   /* backdrop sits below modal */
+}
+
+.modal {
+  position: relative;   /* ensure it layers above backdrop */
+  background: #fff;
+  border-radius: 8px;
+  width: 400px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  z-index: 1000;        /* higher than backdrop */
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 8px;
+  width: 400px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  position: fixed;   /* ✅ ensures it floats */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;     /* ✅ sits above everything */
+}

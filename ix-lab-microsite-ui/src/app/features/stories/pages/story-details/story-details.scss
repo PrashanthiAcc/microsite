@@ -1,0 +1,445 @@
+.hero {
+    position: relative;
+    height: 400px; // taller to give more purple space above cards
+    //background: url('/assets/featured5.jpg') top center/cover no-repeat;
+    background-position: top center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: flex-start;
+    padding: 0 40px;
+    overflow: visible;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(90deg,
+            rgba(123, 44, 255, 0.92) 0%,
+            rgba(123, 44, 255, 0.82) 35%,
+            rgba(123, 44, 255, 0.55) 60%,
+            rgba(123, 44, 255, 0.15) 100%);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    color: #ffffff;
+    //max-width: 720px;
+    margin-top: 100px; // lower the hero text further down
+    // margin-left: 24px;
+}
+
+.hero-content h1 {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 18px;
+}
+
+.subtitle {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 14px;
+}
+
+.description {
+    font-size: 16px;
+    opacity: 0.92;
+}
+
+/* Overview cards that sit on top of the hero image */
+.hero-overview {
+    position: absolute;
+    left: 120px;
+    right: 60px;
+    bottom: -48px;
+    display: flex;
+    gap: 18px;
+    z-index: 3;
+    align-items: stretch;
+    pointer-events: auto;
+}
+
+/* separate overlay for the title above cards, stays inside hero */
+.hero-title-overlay {
+    position: absolute;
+    left: 60px;
+    bottom: 80px;
+    /* sits just above the cards but inside hero */
+    z-index: 3;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.hero-overview .overview-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #0b1220;
+    margin-bottom: 12px;
+}
+
+.hero-overview .overview-card {
+    background: #ffffff;
+    padding: 18px 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 24px rgba(16, 24, 40, 0.08);
+    min-width: 180px;
+    flex: 0 0 auto;
+    color: #0b1220;
+}
+
+.hero-overview .overview-card .value {
+    font-weight: 700;
+    font-size: 24px;
+    border-bottom: 1px solid #7b2cff;
+}
+
+.hero-overview .overview-card .label {
+    font-size: 14px;
+    color: #6b7280;
+    margin-top: 6px;
+}
+
+
+
+
+
+/* Base */
+body {
+    font-family: Arial, sans-serif;
+    background: #F9FAFB;
+    margin: 0;
+    padding: 20px;
+}
+
+.story-form {
+    margin: auto;
+    background: #f5f5f7;
+    padding: 25px 60px;
+}
+
+/* Card */
+.card {
+    border: 1px solid #202020;
+    background: white;
+    padding: 25px 60px;
+    margin: 25px 0;
+    position: relative;
+    border-radius: 6px;
+}
+
+.divider {
+    height: 2px;
+    background: #E9D5FF;
+    margin: 10px 0 20px 0;
+}
+
+/* Headers */
+.label-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #7500C0;
+    font-weight: 600;
+    font-family: Graphik, Arial, sans-serif;
+    font-size: 28px;
+    line-height: 36px;
+    cursor: pointer;
+    position: relative;
+}
+
+.label-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.arrow {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Accordion */
+.accordion .accordion-body {
+    display: none;
+    padding: 10px 0;
+}
+
+.accordion.active .accordion-body {
+    display: block;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Highlight Section */
+.highlight {
+    background: #7500C0;
+    border: 1px solid #7500C0;
+    color: #fff;
+}
+
+.highlight .label-header {
+    color: #fff;
+}
+
+/* Lists */
+ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+ul li {
+    margin-bottom: 8px;
+    font-size: 16px;
+    color: #333;
+}
+
+/* FAQ */
+.faq-card {
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    padding: 20px;
+}
+
+.faq-item {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+}
+
+.faq-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.faq-question {
+    font-weight: 600;
+    font-size: 18px;
+    flex: 1;
+}
+
+
+.faq-item.active .faq-body {
+    display: block;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.accordion-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+/* Narration Guide */
+.accordion-body h4 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 12px;
+    color: #7500C0;
+}
+
+.accordion-body p {
+    font-size: 16px;
+    margin: 6px 0 12px;
+    color: #333;
+}
+
+/* Buttons */
+.button-group {
+    display: flex;
+    justify-content: flex-start;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.btn-draft {
+    background: #fff;
+    border: 2px solid lightgray;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-draft:hover {
+    background: #f0f0f0;
+}
+
+.btn-approve {
+    background: #A100FF;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-approve:hover {
+    background: #7500C0;
+}
+
+/* Button group layout */
+.button-group {
+    display: flex;
+    justify-content: flex-start;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+/* Existing button style */
+.btn-draft {
+    background: #fff;
+    border: 2px solid lightgray;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-weight: 600;
+    min-width: 160px;
+    text-align: center;
+}
+
+/* Checkbox styled like a button */
+.btn-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    //border: 2px solid lightgray;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-weight: 600;
+    //background: #fff;
+    min-width: 160px;
+    //border-radius: 4px;
+    margin-top: 20px;
+    margin-left: auto;
+}
+
+.btn-checkbox:hover {
+    background: #f0f0f0;
+}
+
+/* Hide native checkbox */
+.faq-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #A100FF;
+    border-radius: 4px;
+    position: relative;
+    cursor: pointer;
+}
+
+/* Checked state */
+.faq-checkbox:checked {
+    background-color: #A100FF;
+}
+
+.faq-checkbox:checked::after {
+    content: "✔";
+    color: #fff;
+    font-size: 14px;
+    position: absolute;
+    top: -2px;
+    left: 3px;
+}
+
+/* Icon + text */
+.checkbox-icon img {
+    width: 20px;
+    height: 20px;
+}
+
+.checkbox-text {
+    font-size: 16px;
+    color: #333;
+}
+
+.info-section {
+    margin: 25px 0;
+}
+
+.info-section .label-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #7500C0;
+    font-weight: 600;
+    font-family: Graphik, Arial, sans-serif;
+    font-size: 28px;
+    line-height: 36px;
+}
+
+.info-section .label-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.info-section .divider {
+    height: 2px;
+    background: #E9D5FF;
+    margin: 10px 0 20px 0;
+}
+
+.info-section .info-body ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.info-section .info-body li {
+    margin-bottom: 8px;
+    font-size: 16px;
+    color: #333;
+}
+
+.info-body {
+  white-space: pre-wrap;   // preserves line breaks and wraps text
+  word-wrap: break-word;   // breaks long words if needed
+  overflow-wrap: break-word;
+  line-height: 1.5;        // improves readability
+}
+
+.faq-item {
+  margin-bottom: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 1rem;
+}
+.faq-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+}
+.faq-body {
+  margin-top: 0.5rem;
+  color: #444;
+}
+.faq-body {
+    //display: none;
+    padding: 10px 0;
+    font-size: 16px;
+    color: #444;
+}
+
+.back-icon {
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    z-index: 999;
+    margin-top: 104px;
+    margin-right: 10px;
+}

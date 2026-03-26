@@ -1,0 +1,47 @@
+<section class="featured-section">
+  <div class="featured-header">
+    <h2>Featured Stories</h2>
+
+    <div class="controls">
+      <button class="arrow" (click)="prev()" [disabled]="currentIndex === 0">
+        ←
+      </button>
+
+      <span class="counter">
+        {{ currentIndex + 1 }}/{{ stories.length }}
+      </span>
+
+      <button class="arrow" (click)="next()" [disabled]="currentIndex === stories.length - 1">
+        →
+      </button>
+    </div>
+  </div>
+
+  <div class="featured-content">
+
+    <div class="text-section">
+      <h3 class="story-title">
+        {{ currentStory.title }}
+      </h3>
+
+      <div class="category">
+        {{ currentStory.category }}
+      </div>
+
+      <p class="description">
+        {{ currentStory.description }}
+      </p>
+<div class="link-container">
+      <a class="view-link">
+        View full story →
+      </a>
+      </div>
+    </div>
+
+    <div class="image-section">
+      <img [src]="currentStory.image" alt="story image" />
+    </div>
+
+  </div>
+</section>
+

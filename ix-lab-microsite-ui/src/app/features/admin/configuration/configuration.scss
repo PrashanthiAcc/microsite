@@ -1,0 +1,105 @@
+.config{
+opacity: 1;
+padding-top: 32px;
+padding-right: 80px;
+padding-bottom: 32px;
+padding-left: 80px;
+ 
+}
+.heading-md {
+  font-family: "Graphik", sans-serif;
+  font-weight: 600;
+  font-size: 48px;
+  line-height: 58px;
+  letter-spacing: 0;
+  border-bottom: 1.5px solid #A100FF;
+  display: inline-block;
+  margin-left: 20px;
+}
+.card-container {
+  display: flex;
+  gap: 24px;
+  padding: 20px;
+  width: 1760px;
+  height: 352px;
+  display: flex;
+  gap: 20px;
+  opacity: 1;
+}
+ 
+.config-card {
+  width: 320px;
+  height: 175px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  cursor: pointer;
+ 
+  border: 1px solid #e5e5e5;
+  box-shadow: 0px 2px 4px rgba(0,0,0,0.08);
+ 
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+ 
+  transition: all 0.2s ease;
+}
+ 
+.config-card:hover {
+  transform: translateY(-2px);
+}
+ 
+.config-card.active {
+  border: 2px solid #7B3FF2;
+}
+ 
+.icon {
+  color: #7B3FF2;
+//   width: 40px;
+// height: 40px;
+opacity: 1;
+top: 5.33px;
+left: 5.33px;
+margin-bottom: 5px;
+}
+ 
+.card-title {
+  font-family: "Graphik", sans-serif;
+  font-size: 16px;
+  color: #333;
+}
+ 
+.card-arrow {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  color: #6c6c6c;
+}
+ 
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+
+  .breadcrumb-link {
+    color: #8a2be2;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &.active {
+      color: #8a2be2;
+      font-weight: 600;
+    }
+  }
+
+  .breadcrumb-separator {
+    color: #999;
+    margin: 0 4px;
+  }
+}
