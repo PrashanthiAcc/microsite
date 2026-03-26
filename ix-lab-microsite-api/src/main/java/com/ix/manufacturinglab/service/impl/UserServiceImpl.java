@@ -3,13 +3,15 @@ package com.ix.manufacturinglab.service.impl;
 import com.ix.manufacturinglab.constants.CommonExceptionConstants;
 import com.ix.manufacturinglab.constants.ManufacturingLabConstants;
 import com.ix.manufacturinglab.dto.UserManagementDTO;
-import com.ix.manufacturinglab.dto.UserRequestDTO;
+import com.ix.manufacturinglab.dto.UserDTO;
 import com.ix.manufacturinglab.entity.UserManagement;
 import com.ix.manufacturinglab.enums.UserRole;
 import com.ix.manufacturinglab.exception.CommonException;
 import com.ix.manufacturinglab.repository.UserRepository;
 import com.ix.manufacturinglab.service.UserService;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -20,6 +22,8 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -49,7 +53,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void createUser(UserRequestDTO dto) {
+    public void createUser(UserDTO dto) {
 
         String action = dto.getActionType().trim().toUpperCase();
         String userEid = dto.getUserEid().trim();
@@ -61,7 +65,6 @@ public class UserServiceImpl implements UserService {
         }
 
         if ("REQUEST_ACCESS".equals(action)) {
-
 
             UserManagement user = UserManagement.builder()
                     .userEid(userEid)
@@ -107,6 +110,89 @@ public class UserServiceImpl implements UserService {
             userRepository.save(user);
         } else {
             throw new IllegalArgumentException("Invalid actionType");
+        }
+    }
+    @Override
+    @Transactional
+    public void acceptUser(String userEid, UserDTO dto) throws CommonException {
+        try {
+            UserManagement user = userRepository.findByUserEid(userEid.trim())
+                    .orElseThrow(() -> new CommonException(
+                            CommonExceptionConstants.NOT_FOUND,
+                            ManufacturingLabConstants.USER_NOT_FOUND));
+
+            UserManagement approver = userRepository.findByUserEid(dto.getApproverEid().trim())
+                    .orElseThrow(() -> new CommonException(
+                            CommonExceptionConstants.NOT_FOUND,
+                            ManufacturingLabConstants.APPROVER_NOT_FOUND));
+
+            user.setRole(dto.getRole().trim().toUpperCase());
+            user.setAccessStartDate(LocalDate.now());
+            user.setApprovedBy(approver);
+            user.setUpdatedBy(approver);
+            user.setIsActive(true);
+            user.setLastUpdated(LocalDateTime.now());
+
+            userRepository.save(user);
+
+        } catch (CommonException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Exception occurred while accepting user", e);
+            throw new CommonException(
+                    CommonExceptionConstants.BAD_REQUEST,
+                    ManufacturingLabConstants.ACCEPT_USER_GENERIC_ERROR_MESSAGE);
+        }
+    }
+    @Override
+    @Transactional
+    public void updateUser(String userEid, UserDTO dto) throws CommonException {
+        try {
+            UserManagement user = userRepository.findByUserEid(userEid.trim())
+                    .orElseThrow(() -> new CommonException(
+                            CommonExceptionConstants.NOT_FOUND,
+                            ManufacturingLabConstants.USER_NOT_FOUND));
+
+            UserManagement updater = userRepository.findByUserEid(dto.getUpdaterEid().trim())
+                    .orElseThrow(() -> new CommonException(
+                            CommonExceptionConstants.NOT_FOUND,
+                            ManufacturingLabConstants.UPDATER_NOT_FOUND));
+
+            user.setRole(dto.getRole().trim().toUpperCase());
+            user.setApprovedBy(updater);
+            user.setUpdatedBy(updater);
+            user.setLastUpdated(LocalDateTime.now());
+
+            userRepository.save(user);
+
+        } catch (CommonException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Exception occurred while updating user", e);
+            throw new CommonException(
+                    CommonExceptionConstants.BAD_REQUEST,
+                    ManufacturingLabConstants.UPDATE_USER_GENERIC_ERROR_MESSAGE);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(String userEid) throws CommonException {
+        try {
+            UserManagement user = userRepository.findByUserEid(userEid.trim())
+                    .orElseThrow(() -> new CommonException(
+                            CommonExceptionConstants.NOT_FOUND,
+                            ManufacturingLabConstants.USER_NOT_FOUND));
+
+            userRepository.delete(user);
+
+        } catch (CommonException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Exception occurred while deleting user", e);
+            throw new CommonException(
+                    CommonExceptionConstants.BAD_REQUEST,
+                    ManufacturingLabConstants.DELETE_USER_GENERIC_ERROR_MESSAGE);
         }
     }
 }

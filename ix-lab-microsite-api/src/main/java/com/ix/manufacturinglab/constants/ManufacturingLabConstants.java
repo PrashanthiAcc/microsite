@@ -24,6 +24,9 @@ public final class ManufacturingLabConstants {
     public static final String STATUS_ARCHIVED = "ARCHIVED";
 
     // Error Messages
+    public static final String USER_NOT_FOUND = "User not found";
+    public static final String APPROVER_NOT_FOUND = "Approver not found";
+    public static final String UPDATER_NOT_FOUND = "Updater not found";
     public static final String INDUSTRY_NOT_FOUND = "Industry not found";
     public static final String USE_CASE_NOT_FOUND = "Use case not found with id: ";
     public static final String USE_CASE_ALREADY_EXISTS = "Use case already exists with title: ";
@@ -56,9 +59,11 @@ public final class ManufacturingLabConstants {
     public static final String DELETE_USE_CASE_GENERIC_ERROR_MESSAGE = "An error occurred while deleting the Use case";
     public static final String SEARCH_USE_CASE_GENERIC_ERROR_MESSAGE = "An unexpected error occurred while searching Use case.";
     public static final String SEARCH_USER_GENERIC_ERROR_MESSAGE = "An unexpected error occurred while fetching user.";
-
+    public static final String CREATE_USER_GENERIC_ERROR_MESSAGE = "An Error occurred while creating User";
     public static final String CREATE_SUB_INDUSTRY_GENERIC_ERROR_MESSAGE = "An error occurred while creating the Sub - Industry";
-
+    public static final String ACCEPT_USER_GENERIC_ERROR_MESSAGE = "Error while accepting user";
+    public static final String DELETE_USER_GENERIC_ERROR_MESSAGE = "Error while deleting user";
+    public static final String UPDATE_USER_GENERIC_ERROR_MESSAGE = "Error while updating user";
     public static final String UPDATE_SUB_INDUSTRY_GENERIC_ERROR_MESSAGE = "An error occurred while updating the Sub - Industry";
 
     // Pagination Defaults

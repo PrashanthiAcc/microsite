@@ -231,7 +231,6 @@ public class MicrositeServiceImpl implements MicrositeService {
                     CommonExceptionConstants.CONFLICT, "Value chains are associated with this sub-industry");
         }
 
-        // ✅ Perform delete (or soft delete if needed)
         subIndustryRepository.delete(subIndustry);
     }
 

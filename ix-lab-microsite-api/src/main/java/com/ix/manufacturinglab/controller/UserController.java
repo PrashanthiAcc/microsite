@@ -4,7 +4,7 @@ import com.ix.manufacturinglab.constants.CommonExceptionConstants;
 import com.ix.manufacturinglab.constants.ManufacturingLabConstants;
 import com.ix.common.exception.CommonErrorManagement;
 import com.ix.manufacturinglab.dto.UserManagementDTO;
-import com.ix.manufacturinglab.dto.UserRequestDTO;
+import com.ix.manufacturinglab.dto.UserDTO;
 import com.ix.manufacturinglab.exception.CommonException;
 import com.ix.manufacturinglab.service.UserService;
 import org.slf4j.Logger;
@@ -50,8 +50,73 @@ public class UserController {
     }
 
     @PostMapping("/v1/create")
-    public ResponseEntity<String> createUser(@RequestBody UserRequestDTO dto) {
-        userService.createUser(dto);
-        return ResponseEntity.ok("User created successfully");
+    public ResponseEntity<Object> createUser(@RequestBody UserDTO dto) {
+
+        logger.info("Received request to create user.");
+        try {
+            userService.createUser(dto);
+            return ResponseEntity.status(HttpStatus.CREATED).body("User created successfully");
+        }catch (CommonException e) {
+            logger.error("Exception occurred while creating industry: {}", e.getMessage(), e);
+            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+            errorResponse.setErrorDescription(ManufacturingLabConstants.CREATE_USER_GENERIC_ERROR_MESSAGE);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+    @PutMapping("/v1/{userEid}/accept")
+    public ResponseEntity<Object> acceptUser(@PathVariable String userEid,
+                                             @RequestBody UserDTO dto) {
+        logger.info("Received request to accept user. userEid={}", userEid);
+        try {
+            userService.acceptUser(userEid, dto);
+            return ResponseEntity.ok("User accepted successfully");
+        } catch (CommonException e) {
+            logger.error("Exception occurred while accepting user: {}", e.getMessage(), e);
+            errorResponse.setErrorCode(e.getErrorCode());
+            errorResponse.setErrorDescription(e.getErrorDescription());
+
+            HttpStatus status;
+            try { status = HttpStatus.valueOf(Integer.parseInt(e.getErrorCode())); }
+            catch (Exception ex) { status = HttpStatus.INTERNAL_SERVER_ERROR; }
+
+            return ResponseEntity.status(status).body(errorResponse);
+        }
+    }
+    @PutMapping("/v1/{userEid}")
+    public ResponseEntity<Object> updateUser(@PathVariable String userEid,
+                                             @RequestBody UserDTO dto) {
+        logger.info("Received request to update user. userEid={}", userEid);
+        try {
+            userService.updateUser(userEid, dto);
+            return ResponseEntity.ok("User updated successfully");
+        } catch (CommonException e) {
+            logger.error("Exception occurred while updating user: {}", e.getMessage(), e);
+            errorResponse.setErrorCode(e.getErrorCode());
+            errorResponse.setErrorDescription(e.getErrorDescription());
+
+            HttpStatus status;
+            try { status = HttpStatus.valueOf(Integer.parseInt(e.getErrorCode())); }
+            catch (Exception ex) { status = HttpStatus.INTERNAL_SERVER_ERROR; }
+
+            return ResponseEntity.status(status).body(errorResponse);
+        }
+    }
+    @DeleteMapping("/v1/{userEid}/reject")
+    public ResponseEntity<Object> deleteUser(@PathVariable String userEid) {
+        logger.info("Received request to delete user. userEid={}", userEid);
+        try {
+            userService.deleteUser(userEid);
+            return ResponseEntity.ok("User deleted successfully");
+        } catch (CommonException e) {
+            logger.error("Exception occurred while deleting user: {}", e.getMessage(), e);
+            errorResponse.setErrorCode(e.getErrorCode());
+            errorResponse.setErrorDescription(e.getErrorDescription());
+
+            HttpStatus status;
+            try { status = HttpStatus.valueOf(Integer.parseInt(e.getErrorCode())); }
+            catch (Exception ex) { status = HttpStatus.INTERNAL_SERVER_ERROR; }
+
+            return ResponseEntity.status(status).body(errorResponse);
+        }
     }
 }

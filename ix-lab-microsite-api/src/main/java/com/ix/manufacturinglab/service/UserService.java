@@ -2,7 +2,7 @@ package com.ix.manufacturinglab.service;
 
 
 import com.ix.manufacturinglab.dto.UserManagementDTO;
-import com.ix.manufacturinglab.dto.UserRequestDTO;
+import com.ix.manufacturinglab.dto.UserDTO;
 
 
 import java.util.List;
@@ -10,6 +10,14 @@ import java.util.List;
 public interface UserService {
 
     List<UserManagementDTO> getAllActiveUsers();
-    void createUser(UserRequestDTO dto);
+
+    void createUser(UserDTO dto);
+
+    void acceptUser(String userEid, UserDTO dto);
+
+    void updateUser(String userEid, UserDTO dto);
+
+    void deleteUser(String userEid);
+
 
 }
