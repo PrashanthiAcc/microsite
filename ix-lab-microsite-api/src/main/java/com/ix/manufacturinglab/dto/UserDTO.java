@@ -1,6 +1,5 @@
 package com.ix.manufacturinglab.dto;
 
-import com.ix.manufacturinglab.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,11 +9,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserRequestDTO {
+public class UserDTO {
     private String actionType;
     private String userEid;
     private String name;
     private String role;
     private String reason;
     private String creatorEId;
+    private String approverEid;
+    private String updaterEid;
+
 }

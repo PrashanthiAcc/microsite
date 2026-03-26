@@ -209,6 +209,55 @@ ALTER TABLE mfg.usecase_content
 ADD narration_guide VARCHAR(MAX) NULL,
     banner_url VARCHAR(500) NOT NULL DEFAULT '';
 
+
+ALTER TABLE mfg.user_management
+DROP COLUMN
+    is_presenter,
+    is_admin,
+    is_superadmin;
+ALTER TABLE mfg.user_management
+ADD
+    name VARCHAR(256) NOT NULL,
+    role VARCHAR(50) NOT NULL
+        CONSTRAINT DF_user_management_role DEFAULT 'PRESENTER',
+    access_start_date DATE NULL,
+    requested_on DATE NULL,
+    approved_by INT NULL,
+    reason VARCHAR(100) NOT NULL
+        CONSTRAINT DF_user_management_reason
+        DEFAULT 'Approved by Admin or Super Admin',
+    updated_by INT NULL,
+    last_updated DATETIME2 NOT NULL
+        CONSTRAINT DF_user_management_last_updated
+        DEFAULT SYSUTCDATETIME();
+
+ ALTER TABLE mfg.user_management
+ ADD
+     name VARCHAR(256) NOT NULL
+         CONSTRAINT DF_user_management_name DEFAULT 'UNKNOWN'
+         WITH VALUES,
+
+     role VARCHAR(50) NOT NULL
+         CONSTRAINT DF_user_management_role DEFAULT 'PRESENTER'
+         WITH VALUES,
+
+     access_start_date DATE NULL,
+
+     requested_on DATE NULL,
+
+     approved_by INT NULL,
+
+     reason VARCHAR(100) NOT NULL
+         CONSTRAINT DF_user_management_reason
+         DEFAULT 'Approved by Admin or Super Admin'
+         WITH VALUES,
+
+     updated_by INT NULL,
+
+     last_updated DATETIME2 NOT NULL
+         CONSTRAINT DF_user_management_last_updated
+         DEFAULT SYSUTCDATETIME()
+         WITH VALUES;
 --max value
 ALTER TABLE mfg.usecase_content
 ALTER COLUMN narration_guide VARCHAR(MAX)
