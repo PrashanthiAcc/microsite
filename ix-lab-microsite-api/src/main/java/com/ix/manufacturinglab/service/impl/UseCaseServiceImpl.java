@@ -61,15 +61,13 @@ public class UseCaseServiceImpl implements UseCaseService {
         // 1. Build UseCase entity
         UseCase useCase = UseCase.builder()
                 .valueChainId(requestDTO.getValueChainId())
-                .industryId(requestDTO.getIndustryId())
-                .subIndustryId(requestDTO.getSubIndustryId())
                 .title(requestDTO.getTitle())
                 .ownerEid(requestDTO.getOwnerEId())
                 .status(requestDTO.getStatus() != null ? requestDTO.getStatus() : UseCaseStatus.DRAFT.name())
                 .approverId(requestDTO.getApproverId())
                 .isUpdatedUsecase(false)
                 .createdDate(LocalDateTime.now())
-                .isActive(requestDTO.getIsActive() != null ? requestDTO.getIsActive() : false)
+                .isActive(false)
                 .creatorId(requestDTO.getCreatorId())
                 .build();
 
@@ -115,15 +113,13 @@ public class UseCaseServiceImpl implements UseCaseService {
         // 1. Build UseCase entity
         UseCase useCase = UseCase.builder()
                 .valueChainId(requestDTO.getValueChainId())
-                .industryId(requestDTO.getIndustryId())
-                .subIndustryId(requestDTO.getSubIndustryId())
                 .title(requestDTO.getTitle())
                 .ownerEid(String.valueOf(requestDTO.getOwnerEId()))
                 .status(requestDTO.getStatus() != null ? requestDTO.getStatus() : UseCaseStatus.IN_REVIEW.name())
                 .approverId(requestDTO.getApproverId())
                 .isUpdatedUsecase(false)
                 .createdDate(LocalDateTime.now())
-                .isActive(requestDTO.getIsActive() != null ? requestDTO.getIsActive() : false)
+                .isActive(false)
                 .creatorId(requestDTO.getCreatorId())
                 .build();
 
@@ -223,8 +219,6 @@ public class UseCaseServiceImpl implements UseCaseService {
 
             useCase = new UseCase();
 
-            useCase.setIndustryId(existingUseCase.getIndustryId());
-            useCase.setSubIndustryId(existingUseCase.getSubIndustryId());
             useCase.setValueChainId(existingUseCase.getValueChainId());
             useCase.setCreatorId(existingUseCase.getCreatorId());
 
@@ -434,8 +428,6 @@ public class UseCaseServiceImpl implements UseCaseService {
     private UseCaseResponseDTO buildResponseFromEntities(UseCase useCase, UseCaseContent content) {
         UseCaseResponseDTO.UseCaseResponseDTOBuilder builder = UseCaseResponseDTO.builder()
                 .usecaseId(useCase.getUsecaseId())
-                .industryId(useCase.getIndustryId())
-                .subIndustryId((useCase.getSubIndustryId()))
                 .valueChainId(useCase.getValueChainId())
                 .title(useCase.getTitle())
                 .ownerEId(useCase.getOwnerEid())
@@ -580,8 +572,6 @@ public class UseCaseServiceImpl implements UseCaseService {
             useCase = new UseCase();
 
 
-            useCase.setIndustryId(existingUseCase.getIndustryId());
-            useCase.setSubIndustryId(existingUseCase.getSubIndustryId());
             useCase.setValueChainId(existingUseCase.getValueChainId());
             useCase.setCreatorId(existingUseCase.getCreatorId());
             useCase.setOwnerEid(existingUseCase.getOwnerEid());
@@ -697,8 +687,6 @@ public class UseCaseServiceImpl implements UseCaseService {
 
             useCase = new UseCase();
 
-            useCase.setIndustryId(existingUseCase.getIndustryId());
-            useCase.setSubIndustryId(existingUseCase.getSubIndustryId());
             useCase.setValueChainId(existingUseCase.getValueChainId());
             useCase.setCreatorId(existingUseCase.getCreatorId());
             useCase.setOwnerEid(existingUseCase.getOwnerEid());
