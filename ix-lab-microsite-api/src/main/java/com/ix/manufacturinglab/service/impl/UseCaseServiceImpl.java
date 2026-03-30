@@ -390,8 +390,6 @@ public class UseCaseServiceImpl implements UseCaseService {
     private UseCaseResponseDTO buildResponseDTO(UseCase useCase, UseCaseContent content, UseCaseRequestDTO requestDTO) {
         return UseCaseResponseDTO.builder()
                 .usecaseId(useCase.getUsecaseId())
-                .industryId(requestDTO.getIndustryId())
-                .subIndustryId(requestDTO.getSubIndustryId())
                 .valueChainId(useCase.getValueChainId())
                 .title(useCase.getTitle())
                 .thumbnailImageUrl(content.getThumbnailUrl())
