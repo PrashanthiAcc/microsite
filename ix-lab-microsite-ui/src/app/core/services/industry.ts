@@ -7,7 +7,6 @@ import { Observable } from 'rxjs';
 })
 export class IndustryService {
 
-  private baseUrl = 'http://localhost:8080';
 
   constructor(private http: HttpClient) {}
 
