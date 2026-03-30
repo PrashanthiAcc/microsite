@@ -6,7 +6,9 @@ package com.ix.manufacturinglab.enums;
 public enum UserRole {
     PRESENTER("Presenter"),
     ADMIN("Admin"),
-    SUPERADMIN("Super Admin");
+    SUPERADMIN("Super Admin"),
+
+    SYSTEM("System");
     private final String displayName;
 
     UserRole(String displayName) {
