@@ -424,6 +424,7 @@ public class UseCaseServiceImpl implements UseCaseService {
     }
 
     private UseCaseResponseDTO buildResponseFromEntities(UseCase useCase, UseCaseContent content) {
+
         UseCaseResponseDTO.UseCaseResponseDTOBuilder builder = UseCaseResponseDTO.builder()
                 .usecaseId(useCase.getUsecaseId())
                 .valueChainId(useCase.getValueChainId())
@@ -437,60 +438,70 @@ public class UseCaseServiceImpl implements UseCaseService {
                 .isActive(useCase.getIsActive())
                 .creatorId(useCase.getCreatorId());
 
-
         if (content != null) {
-            builder.description(content.getDescription())
+
+            builder
+                    .description(content.getDescription())
+                    .thumbnailImageUrl(content.getThumbnailUrl())
+                    .duration(content.getDuration())
                     .businessProblem(content.getBusinessProblem())
                     .solutions(content.getSolution())
-                    .toolsAndTechnologies(content.getToolsAndTechnologies())
-                    .keyResults(content.getKeyResults())
                     .valueDelivered(content.getValueDelivered())
-                    .duration(content.getDuration())
-                    .thumbnailImageUrl(content.getThumbnailUrl());
+                    .toolsAndTechnologies(content.getToolsAndTechnologies())
+                    .keyResults(content.getKeyResults());
+        } else {
+            logger.warn("usecase_content not found for usecaseId={}", useCase.getUsecaseId());
         }
 
-        List<UseCaseTag> tags = useCase.getTags();
-
-        if (tags != null && !tags.isEmpty()) {
-            List<String> tagList = tags.stream()
-                    .map(UseCaseTag::getTag)
-                    .toList();
-            builder.tag(tagList);
+        List<SpeakerDTO> speakerDTOs = new ArrayList<>();
+        if (useCase.getSpeakers() != null && !useCase.getSpeakers().isEmpty()) {
+            for (UseCaseSpeaker s : useCase.getSpeakers()) {
+                if (s != null && s.getSpeakerEid() != null && !s.getSpeakerEid().isBlank()) {
+                    SpeakerDTO sdto = new SpeakerDTO();
+                    sdto.setSpeakerEid(s.getSpeakerEid());
+                    sdto.setSpeakerType(s.getSpeakerType());
+                    speakerDTOs.add(sdto);
+                }
+            }
         }
+        builder.speakers(speakerDTOs);
 
-
-        if (useCase.getSpeakers() != null) {
-            builder.speakers(
-                    useCase.getSpeakers()
-                            .stream()
-                            .map(s -> new SpeakerDTO(s.getSpeakerEid(), s.getSpeakerType()))
-                            .toList()
-            );
+        List<String> tags = new ArrayList<>();
+        if (useCase.getTags() != null && !useCase.getTags().isEmpty()) {
+            for (UseCaseTag t : useCase.getTags()) {
+                if (t != null && t.getTag() != null && !t.getTag().isBlank()) {
+                    tags.add(t.getTag());
+                }
+            }
         }
+        builder.tag(tags);
 
-        // Artifacts
-        if (useCase.getArtifacts() != null) {
-            builder.artifacts(
-                    useCase.getArtifacts()
-                            .stream()
-                            .map(a -> new ArtifactDTO(a.getArtifactType(), a.getUrl(), a.getArtifactName()))
-                            .toList()
-            );
-        }
-
-        // FAQs
+        List<FaqDTO> faqDTOs = new ArrayList<>();
         if (useCase.getFaqs() != null && !useCase.getFaqs().isEmpty()) {
-            builder.faqs(
-                    useCase.getFaqs().stream()
-                            .map(f -> FaqDTO.builder()
-                                    .question(f.getQuestion())
-                                    .answer(f.getAnswer())
-                                    .updatedBy(f.getUpdatedBy())   // change to String.valueOf(...) if DTO expects String
-                                    .build()
-                            )
-                            .toList()
-            );
+            for (UseCaseFaq f : useCase.getFaqs()) {
+                if (f != null) {
+                    FaqDTO fdto = new FaqDTO();
+                    fdto.setQuestion(f.getQuestion());
+                    fdto.setAnswer(f.getAnswer());
+                    faqDTOs.add(fdto);
+                }
+            }
         }
+        builder.faqs(faqDTOs);
+
+        List<ArtifactDTO> artifactDTOs = new ArrayList<>();
+        if (useCase.getArtifacts() != null && !useCase.getArtifacts().isEmpty()) {
+            for (UseCaseArtifact a : useCase.getArtifacts()) {
+                if (a != null) {
+                    ArtifactDTO adto = new ArtifactDTO();
+                    adto.setArtifactName(a.getArtifactName());
+                    adto.setArtifactType(a.getArtifactType());
+                    adto.setUrl(a.getUrl());
+                    artifactDTOs.add(adto);
+                }
+            }
+        }
+        builder.artifacts(artifactDTOs);
 
         return builder.build();
     }
