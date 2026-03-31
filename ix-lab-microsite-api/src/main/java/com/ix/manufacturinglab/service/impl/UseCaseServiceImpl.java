@@ -1,11 +1,33 @@
 package com.ix.manufacturinglab.service.impl;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
-import com.ix.manufacturinglab.dto.*;
-import com.ix.manufacturinglab.entity.*;
-import com.ix.manufacturinglab.repository.*;
+import com.ix.manufacturinglab.dto.ArtifactDTO;
+import com.ix.manufacturinglab.dto.SpeakerDTO;
+import com.ix.manufacturinglab.dto.UseCaseRequestDTO;
+import com.ix.manufacturinglab.dto.UseCaseResponseDTO;
+import com.ix.manufacturinglab.dto.FaqDTO;
+import com.ix.manufacturinglab.entity.UseCase;
+import com.ix.manufacturinglab.entity.UseCaseArtifact;
+import com.ix.manufacturinglab.entity.UseCaseContent;
+import com.ix.manufacturinglab.entity.UseCaseSpeaker;
+import com.ix.manufacturinglab.entity.UseCaseTag;
+import com.ix.manufacturinglab.entity.UseCaseFaq;
+import com.ix.manufacturinglab.entity.ValueChain;
+import com.ix.manufacturinglab.entity.SubIndustry;
+import com.ix.manufacturinglab.entity.Industry;
+import com.ix.manufacturinglab.repository.UseCaseContentRepository;
+import com.ix.manufacturinglab.repository.UseCaseRepository;
+import com.ix.manufacturinglab.repository.UseCaseSpeakerRepository;
+import com.ix.manufacturinglab.repository.UseCaseArtifactRepository;
+import com.ix.manufacturinglab.repository.UseCaseTagRepository;
+import com.ix.manufacturinglab.repository.ValueChainRepository;
+import com.ix.manufacturinglab.repository.SubIndustryRepository;
+import com.ix.manufacturinglab.repository.IndustryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -234,7 +256,7 @@ public class UseCaseServiceImpl implements UseCaseService {
             useCase.setIsActive(false);
 
         } else {
-            throw new CommonException(CommonExceptionConstants.CONFLICT, "Use case cannot be modified in current state"
+            throw new CommonException(CommonExceptionConstants.CONFLICT, "Use case can't be modified in current state"
             );
         }
 
