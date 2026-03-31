@@ -530,7 +530,9 @@ public class UseCaseServiceImpl implements UseCaseService {
                     .keyResults(content.getKeyResults())
                     .valueDelivered(content.getValueDelivered())
                     .duration(content.getDuration())
-                    .thumbnailImageUrl(content.getThumbnailUrl());
+                    .thumbnailImageUrl(content.getThumbnailUrl())
+                    .narrationGuide(content.getNarrationGuide())
+                    .bannerUrl(content.getBannerUrl());
         }
 
         List<UseCaseTag> tags = useCase.getTags();

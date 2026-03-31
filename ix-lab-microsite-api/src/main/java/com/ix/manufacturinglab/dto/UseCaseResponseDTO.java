@@ -42,4 +42,6 @@ public class UseCaseResponseDTO {
     private LocalDateTime updatedDate;
     private Boolean isActive;
     private Integer creatorId;
+    private String narrationGuide;
+    private String bannerUrl;
 }
