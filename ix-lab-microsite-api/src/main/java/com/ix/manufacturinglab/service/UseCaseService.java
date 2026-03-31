@@ -48,9 +48,9 @@ public interface UseCaseService {
     /**
      * Get all active use cases.
      *
-     * @return list of active use case responses
+     * @return list of use case responses
      */
-    Page<UseCaseResponseDTO> getAllActiveUseCases(int page, int size);
+    Page<UseCaseResponseDTO> getAllUseCases(int page, int size);
 
     /**
      * Update an existing use case and its related data.
