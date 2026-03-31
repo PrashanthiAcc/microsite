@@ -16,7 +16,7 @@ import java.util.Optional;
 @Repository
 public interface UseCaseRepository extends JpaRepository<UseCase, Integer> {
 
-    Page<UseCase> findByIsActiveTrue(Pageable pageable);
+    Page<UseCase> findAll(Pageable pageable);
 
     Optional<UseCase> findByUsecaseIdAndStatus(Integer usecaseId, String status);
 

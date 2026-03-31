@@ -18,9 +18,8 @@ import java.util.List;
 public class UseCaseResponseDTO {
 
     private Integer usecaseId;
-    /*private Long industryId;
+    private Long industryId;
     private Long subIndustryId;
-     */
     private Integer valueChainId;
     private String title;
     private String thumbnailImageUrl;

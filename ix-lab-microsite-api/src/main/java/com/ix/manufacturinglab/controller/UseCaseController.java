@@ -114,17 +114,17 @@ public class UseCaseController {
     /**
      * Get all active use cases.
      *
-     * @return list of active use case responses
+     * @return list of use case responses
      */
     @GetMapping(value = "/v1/all")
-    public ResponseEntity<Object> getAllActiveUseCases(
+    public ResponseEntity<Object> getAllUseCases(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        logger.info("Received request to fetch all active use cases");
+        logger.info("Received request to fetch all use cases");
 
         try {
-            Page<UseCaseResponseDTO> responses = useCaseService.getAllActiveUseCases(page, size);
+            Page<UseCaseResponseDTO> responses = useCaseService.getAllUseCases(page, size);
             return new ResponseEntity<>(responses, HttpStatus.OK);
 
         } catch (CommonException e) {

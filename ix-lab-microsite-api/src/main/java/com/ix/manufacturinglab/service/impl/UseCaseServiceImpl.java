@@ -3,10 +3,31 @@ package com.ix.manufacturinglab.service.impl;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
+import java.util.HashSet;
 
-import com.ix.manufacturinglab.dto.*;
-import com.ix.manufacturinglab.entity.*;
+import com.ix.manufacturinglab.dto.ArtifactDTO;
+import com.ix.manufacturinglab.dto.SpeakerDTO;
+import com.ix.manufacturinglab.dto.UseCaseRequestDTO;
+import com.ix.manufacturinglab.dto.UseCaseResponseDTO;
+import com.ix.manufacturinglab.dto.FaqDTO;
+import com.ix.manufacturinglab.entity.UseCase;
+import com.ix.manufacturinglab.entity.UseCaseArtifact;
+import com.ix.manufacturinglab.entity.UseCaseContent;
+import com.ix.manufacturinglab.entity.UseCaseSpeaker;
+import com.ix.manufacturinglab.entity.UseCaseTag;
+import com.ix.manufacturinglab.entity.UseCaseFaq;
+import com.ix.manufacturinglab.entity.ValueChain;
+import com.ix.manufacturinglab.entity.SubIndustry;
+import com.ix.manufacturinglab.entity.Industry;
+import com.ix.manufacturinglab.repository.UseCaseContentRepository;
+import com.ix.manufacturinglab.repository.UseCaseRepository;
+import com.ix.manufacturinglab.repository.UseCaseSpeakerRepository;
+import com.ix.manufacturinglab.repository.UseCaseArtifactRepository;
+import com.ix.manufacturinglab.repository.UseCaseTagRepository;
+import com.ix.manufacturinglab.repository.ValueChainRepository;
+import com.ix.manufacturinglab.repository.SubIndustryRepository;
+import com.ix.manufacturinglab.repository.IndustryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -20,11 +41,6 @@ import com.ix.manufacturinglab.constants.CommonExceptionConstants;
 import com.ix.manufacturinglab.constants.ManufacturingLabConstants;
 import com.ix.manufacturinglab.enums.UseCaseStatus;
 import com.ix.manufacturinglab.exception.CommonException;
-import com.ix.manufacturinglab.repository.UseCaseContentRepository;
-import com.ix.manufacturinglab.repository.UseCaseRepository;
-import com.ix.manufacturinglab.repository.UseCaseSpeakerRepository;
-import com.ix.manufacturinglab.repository.UseCaseArtifactRepository;
-import com.ix.manufacturinglab.repository.UseCaseTagRepository;
 import com.ix.manufacturinglab.service.UseCaseService;
 
 /**
@@ -40,17 +56,25 @@ public class UseCaseServiceImpl implements UseCaseService {
     private final UseCaseSpeakerRepository useCaseSpeakerRepository;
     private final UseCaseArtifactRepository useCaseArtifactRepository;
     private final UseCaseTagRepository useCaseTagRepository;
-
+    private final ValueChainRepository valueChainRepository;
+    private final SubIndustryRepository subIndustryRepository;
+    private final IndustryRepository industryRepository;
     public UseCaseServiceImpl(UseCaseRepository useCaseRepository,
                               UseCaseContentRepository useCaseContentRepository,
                               UseCaseSpeakerRepository useCaseSpeakerRepository,
                               UseCaseArtifactRepository useCaseArtifactRepository,
-                              UseCaseTagRepository useCaseTagRepository) {
+                              UseCaseTagRepository useCaseTagRepository,
+                              ValueChainRepository valueChainRepository,
+                              SubIndustryRepository subIndustryRepository,
+                              IndustryRepository industryRepository) {
         this.useCaseRepository = useCaseRepository;
         this.useCaseContentRepository = useCaseContentRepository;
         this.useCaseSpeakerRepository = useCaseSpeakerRepository;
         this.useCaseArtifactRepository = useCaseArtifactRepository;
         this.useCaseTagRepository = useCaseTagRepository;
+        this.valueChainRepository = valueChainRepository;
+        this.subIndustryRepository = subIndustryRepository;
+        this.industryRepository = industryRepository;
     }
 
     @Override
@@ -173,13 +197,13 @@ public class UseCaseServiceImpl implements UseCaseService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<UseCaseResponseDTO> getAllActiveUseCases(int page, int size) {
+    public Page<UseCaseResponseDTO> getAllUseCases(int page, int size) {
 
-        logger.info("Fetching active use cases with pagination");
+        logger.info("Fetching use cases with pagination");
 
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        Page<UseCase> useCases = useCaseRepository.findByIsActiveTrue(pageable);
+        Page<UseCase> useCases = useCaseRepository.findAll(pageable);
 
         List<UseCaseResponseDTO> responses = new ArrayList<>();
 
@@ -232,7 +256,7 @@ public class UseCaseServiceImpl implements UseCaseService {
             useCase.setIsActive(false);
 
         } else {
-            throw new CommonException(CommonExceptionConstants.CONFLICT, "Use case cannot be modified in current state"
+            throw new CommonException(CommonExceptionConstants.CONFLICT, "Use case can't be modified in current state"
             );
         }
 
@@ -331,6 +355,23 @@ public class UseCaseServiceImpl implements UseCaseService {
 
         if (dto.getSpeakers() != null && !dto.getSpeakers().isEmpty()) {
 
+            Set<String> uniqueEids = new HashSet<>();
+
+            for (SpeakerDTO speakerDTO : dto.getSpeakers()) {
+
+                if (speakerDTO.getSpeakerEid() != null && !speakerDTO.getSpeakerEid().isBlank()) {
+
+                    boolean isAdded = uniqueEids.add(speakerDTO.getSpeakerEid());
+
+                    if (!isAdded) {
+                        throw new CommonException(
+                                CommonExceptionConstants.BAD_REQUEST,
+                                "Primary, Secondary, and Tertiary speaker EIDs must be unique"
+                        );
+                    }
+                }
+            }
+
             for (SpeakerDTO speakerDTO : dto.getSpeakers()) {
 
                 if (speakerDTO.getSpeakerEid() != null && !speakerDTO.getSpeakerEid().isBlank()) {
@@ -388,8 +429,29 @@ public class UseCaseServiceImpl implements UseCaseService {
     }
 
     private UseCaseResponseDTO buildResponseDTO(UseCase useCase, UseCaseContent content, UseCaseRequestDTO requestDTO) {
+        ValueChain valueChain = valueChainRepository.findById(useCase.getValueChainId().longValue()).orElse(null);
+
+        Long industryId = null;
+        Long subIndustryId = null;
+
+        if (valueChain != null) {
+
+            SubIndustry subIndustry = subIndustryRepository.findById(valueChain.getSubIndustryId()).orElse(null);
+
+            if (subIndustry != null) {
+                subIndustryId = subIndustry.getSubIndustryId();
+
+                Industry industry = industryRepository.findById(subIndustry.getIndustryId()).orElse(null);
+
+                if (industry != null) {
+                    industryId = industry.getIndustryId();
+                }
+            }
+        }
         return UseCaseResponseDTO.builder()
                 .usecaseId(useCase.getUsecaseId())
+                .industryId(industryId)
+                .subIndustryId(subIndustryId)
                 .valueChainId(useCase.getValueChainId())
                 .title(useCase.getTitle())
                 .thumbnailImageUrl(content.getThumbnailUrl())
@@ -424,8 +486,30 @@ public class UseCaseServiceImpl implements UseCaseService {
     }
 
     private UseCaseResponseDTO buildResponseFromEntities(UseCase useCase, UseCaseContent content) {
+        ValueChain valueChain = valueChainRepository.findById(useCase.getValueChainId().longValue()).orElse(null);
+
+        Long industryId = null;
+        Long subIndustryId = null;
+
+        if (valueChain != null) {
+
+            SubIndustry subIndustry = subIndustryRepository.findById(valueChain.getSubIndustryId()).orElse(null);
+
+            if (subIndustry != null) {
+                subIndustryId = subIndustry.getSubIndustryId();
+
+                Industry industry = industryRepository.findById(subIndustry.getIndustryId()).orElse(null);
+
+                if (industry != null) {
+                    industryId = industry.getIndustryId();
+                }
+            }
+        }
+
         UseCaseResponseDTO.UseCaseResponseDTOBuilder builder = UseCaseResponseDTO.builder()
                 .usecaseId(useCase.getUsecaseId())
+                .industryId(industryId)
+                .subIndustryId(subIndustryId)
                 .valueChainId(useCase.getValueChainId())
                 .title(useCase.getTitle())
                 .ownerEId(useCase.getOwnerEid())
