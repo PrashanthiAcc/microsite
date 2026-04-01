@@ -1,5 +1,6 @@
 package com.ix.manufacturinglab.service.impl;
 
+import com.azure.core.exception.ResourceNotFoundException;
 import com.ix.manufacturinglab.constants.CommonExceptionConstants;
 import com.ix.manufacturinglab.constants.ManufacturingLabConstants;
 import com.ix.manufacturinglab.dto.UserManagementDTO;
@@ -7,6 +8,7 @@ import com.ix.manufacturinglab.dto.UserDTO;
 import com.ix.manufacturinglab.entity.UserManagement;
 import com.ix.manufacturinglab.enums.UserRole;
 import com.ix.manufacturinglab.exception.CommonException;
+import com.ix.manufacturinglab.repository.UseCaseRepository;
 import com.ix.manufacturinglab.repository.UserRepository;
 import com.ix.manufacturinglab.service.UserService;
 import org.springframework.stereotype.Service;
@@ -22,11 +24,13 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UseCaseRepository useCaseRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, UseCaseRepository useCaseRepository ) {
         this.userRepository = userRepository;
+        this.useCaseRepository = useCaseRepository;
     }
 
     @Override
@@ -190,6 +194,31 @@ public class UserServiceImpl implements UserService {
             throw e;
         } catch (Exception e) {
             logger.error("Exception occurred while deleting user", e);
+            throw new CommonException(
+                    CommonExceptionConstants.BAD_REQUEST,
+                    ManufacturingLabConstants.DELETE_USER_GENERIC_ERROR_MESSAGE);
+        }
+    }
+
+    @Transactional
+    @Override
+    public void removeUser(Integer userId) {
+
+        try {
+            UserManagement user = userRepository.findById(userId)
+                    .orElseThrow(() -> new CommonException(
+                            CommonExceptionConstants.NOT_FOUND,
+                            ManufacturingLabConstants.USER_NOT_FOUND));
+
+            user.setIsActive(false);
+            userRepository.save(user);
+
+            useCaseRepository.archiveUseCasesByOwnerEid(user.getUserEid());
+
+        } catch (CommonException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Exception occurred while removing user", e);
             throw new CommonException(
                     CommonExceptionConstants.BAD_REQUEST,
                     ManufacturingLabConstants.DELETE_USER_GENERIC_ERROR_MESSAGE);

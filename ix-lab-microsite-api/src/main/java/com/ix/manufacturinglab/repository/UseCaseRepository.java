@@ -3,6 +3,9 @@ package com.ix.manufacturinglab.repository;
 import com.ix.manufacturinglab.entity.UseCase;
 import com.ix.manufacturinglab.enums.UseCaseStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
@@ -22,4 +25,8 @@ public interface UseCaseRepository extends JpaRepository<UseCase, Integer> {
 
     Optional<UseCase> findByParentUsecaseIdAndStatus(Integer parentUsecaseId, String status);
     Page<UseCase> findByStatus(String status, Pageable pageable);
+
+    @Modifying
+    @Query("UPDATE UseCase u SET u.status = 'ARCHIVED' WHERE u.ownerEid = :ownerEid")
+    void archiveUseCasesByOwnerEid(@Param("ownerEid") String ownerEid);
 }

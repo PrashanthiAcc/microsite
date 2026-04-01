@@ -19,5 +19,7 @@ public interface UserService {
 
     void deleteUser(String userEid);
 
+    void removeUser(Integer userId);
+
 
 }

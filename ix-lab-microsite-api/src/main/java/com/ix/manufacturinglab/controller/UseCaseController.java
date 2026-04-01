@@ -68,6 +68,33 @@ public class UseCaseController {
     }
 
     /**
+     * Save a use case as draft (minimal validation).
+     * Only title is required. Status is automatically set to DRAFT.
+     *
+     * @param requestDTO the use case request body
+     * @return the saved draft use case response
+     */
+    @PostMapping(value = "/v1/save-draft-withoutblob", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> createUseCaseAndSaveAsDraftWithoutBlob(@RequestBody UseCaseRequestDTO requestDTO) {
+
+        logger.info(ManufacturingLabConstants.LOG_SAVING_DRAFT, requestDTO.getTitle());
+        try {
+            if (requestDTO.getTitle() == null || requestDTO.getTitle().isBlank()) {
+                errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+                errorResponse.setErrorDescription(ManufacturingLabConstants.DRAFT_TITLE_REQUIRED);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+            }
+            UseCaseResponseDTO response = useCaseService.createUseCaseAndSaveAsDraftWithoutBlob(requestDTO);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (CommonException e) {
+            logger.error("Exception occurred while saving use case as draft: {}", e.getMessage(), e);
+            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+            errorResponse.setErrorDescription(ManufacturingLabConstants.SAVE_DRAFT_GENERIC_ERROR_MESSAGE);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    /**
      * Submit a use case for approval (full validation).
      * Status is automatically set to IN_REVIEW.
      *
