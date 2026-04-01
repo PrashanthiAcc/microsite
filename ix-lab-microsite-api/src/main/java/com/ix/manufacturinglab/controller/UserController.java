@@ -119,4 +119,30 @@ public class UserController {
             return ResponseEntity.status(status).body(errorResponse);
         }
     }
+
+    @DeleteMapping("v1/{userId}")
+    public ResponseEntity<?> removeUser(@PathVariable Integer userId) {
+
+        logger.info("Received request to delete user. userId={}", userId);
+
+        try {
+            userService.removeUser(userId);
+            return ResponseEntity.ok("User soft deleted and related use cases archived");
+
+        } catch (CommonException e) {
+            logger.error("Exception occurred while removing user: {}", e.getMessage(), e);
+
+            errorResponse.setErrorCode(e.getErrorCode());
+            errorResponse.setErrorDescription(e.getErrorDescription());
+
+            HttpStatus status;
+            try {
+                status = HttpStatus.valueOf(Integer.parseInt(e.getErrorCode()));
+            } catch (Exception ex) {
+                status = HttpStatus.INTERNAL_SERVER_ERROR;
+            }
+
+            return ResponseEntity.status(status).body(errorResponse);
+        }
+    }
 }

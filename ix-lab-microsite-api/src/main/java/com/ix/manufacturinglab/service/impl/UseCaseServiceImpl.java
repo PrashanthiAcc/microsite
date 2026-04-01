@@ -844,4 +844,56 @@ public class UseCaseServiceImpl implements UseCaseService {
         return buildResponseFromEntities(useCase, content);
     }
 
+    @Override
+    @Transactional
+    public UseCaseResponseDTO createUseCaseAndSaveAsDraftWithoutBlob(UseCaseRequestDTO requestDTO) {
+        logger.info(ManufacturingLabConstants.LOG_SAVING_DRAFT, requestDTO.getTitle());
+
+        // 1. Build UseCase entity
+        UseCase useCase = UseCase.builder()
+                .valueChainId(requestDTO.getValueChainId())
+                .title(requestDTO.getTitle())
+                .ownerEid(requestDTO.getOwnerEId())
+                .status(requestDTO.getStatus() != null ? requestDTO.getStatus() : UseCaseStatus.DRAFT.name())
+                .approverId(requestDTO.getApproverId())
+                .isUpdatedUsecase(false)
+                .createdDate(LocalDateTime.now())
+                .isActive(false)
+                .creatorId(requestDTO.getCreatorId())
+                .build();
+
+        // 2. Add tags (cascade will persist)
+        addTags(useCase, requestDTO);
+
+        // 3. Add speakers (cascade will persist)
+        addSpeakers(useCase, requestDTO);
+
+        // 4. Add artifacts (cascade will persist)
+        addArtifacts(useCase, requestDTO);
+
+        // 5. Add UseCaseFaqs(cascade will persist)
+        addUseCaseFaqs(useCase, requestDTO);
+
+        // 6. Save UseCase (cascade saves speakers, tags, artifacts)
+        useCase = useCaseRepository.save(useCase);
+
+        // 7. Save UseCaseContent separately
+        UseCaseContent content = UseCaseContent.builder()
+                .usecaseId(useCase.getUsecaseId())
+                .description(requestDTO.getDescription())
+                .businessProblem(requestDTO.getBusinessProblem())
+                .solution(requestDTO.getSolutions())
+                .toolsAndTechnologies(requestDTO.getToolsAndTechnologies())
+                .keyResults(requestDTO.getKeyResults())
+                .valueDelivered(requestDTO.getValueDelivered())
+                .duration(requestDTO.getDuration())
+                .thumbnailUrl(requestDTO.getThumbnailImageUrl())
+                .narrationGuide(requestDTO.getNarrationGuide())
+                .bannerUrl(requestDTO.getBannerUrl())
+                .build();
+        useCaseContentRepository.save(content);
+
+        return buildResponseDTO(useCase, content, requestDTO);
+    }
+
 }

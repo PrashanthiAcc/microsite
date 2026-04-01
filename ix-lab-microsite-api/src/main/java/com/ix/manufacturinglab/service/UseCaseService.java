@@ -101,4 +101,12 @@ public interface UseCaseService {
      */
     UseCaseResponseDTO updateUseCaseBySuperAdmin(Integer usecaseId, UseCaseRequestDTO requestDTO);
 
+    /**
+     * Saves a new use case as a draft and persists data across multiple related tables.
+     *
+     * @param requestDTO the use case draft request data
+     * @return the saved use case response containing draft details
+     */
+    UseCaseResponseDTO createUseCaseAndSaveAsDraftWithoutBlob(UseCaseRequestDTO requestDTO);
+
 }
