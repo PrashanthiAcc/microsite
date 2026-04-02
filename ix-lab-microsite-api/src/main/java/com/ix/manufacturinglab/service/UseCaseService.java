@@ -108,6 +108,12 @@ public interface UseCaseService {
      * @param requestDTO the use case draft request data
      * @return the saved use case response containing draft details
      */
-    UseCaseResponseDTO createUseCaseAndSaveAsDraftWithBlob(UseCaseRequestDTO requestDTO, MultipartFile clientTestimonials);
+    UseCaseResponseDTO createUseCaseAndSaveAsDraftWithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
+                                                           List<MultipartFile> demoVideos, List<MultipartFile> clientCredentials,
+                                                           MultipartFile thumbnailUrl,MultipartFile bannerUrl);
+
+    UseCaseResponseDTO createUseCaseAndSubmitForApprovalwithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
+                                                                 List<MultipartFile> demoVideos, List<MultipartFile> clientCredentials,
+                                                                 MultipartFile thumbnailUrl,MultipartFile bannerUrl);
 
 }

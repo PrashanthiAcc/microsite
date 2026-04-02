@@ -351,7 +351,11 @@ public class UseCaseController {
     @PostMapping(value = "/v1/save-draft-withblob", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Object> createUseCaseAndSaveAsDraftWithBlob(
             @RequestPart("useCaseRequest") String requestJson,
-            @RequestPart(value = "clientTestimonials", required = false) MultipartFile clientTestimonials) {
+            @RequestPart(value = "clientTestimonials", required = false) List<MultipartFile> clientTestimonials,
+            @RequestPart(value = "demoVideos", required = false) List<MultipartFile> demoVideos,
+            @RequestPart(value = "clientCredentials", required = false) List<MultipartFile> clientCredentials,
+            @RequestPart(value = "thumbnailUrl", required = false) MultipartFile thumbnailUrl,
+            @RequestPart(value = "bannerUrl", required = false) MultipartFile bannerUrl) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -366,7 +370,7 @@ public class UseCaseController {
             }
 
             UseCaseResponseDTO response =
-                    useCaseService.createUseCaseAndSaveAsDraftWithBlob(requestDTO, clientTestimonials);
+                    useCaseService.createUseCaseAndSaveAsDraftWithBlob(requestDTO, clientTestimonials, demoVideos, clientCredentials, thumbnailUrl, bannerUrl);
 
             return new ResponseEntity<>(response, HttpStatus.CREATED);
 
@@ -380,6 +384,41 @@ public class UseCaseController {
         }
     }
 
+    @PostMapping(value = "/v1/submit-for-approval-withblob", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> createUseCaseAndsubmitForApprovalwithBlob(
+            @RequestPart("useCaseRequest") String requestJson,
+            @RequestPart(value = "clientTestimonials", required = false) List<MultipartFile> clientTestimonials,
+            @RequestPart(value = "demoVideos", required = false) List<MultipartFile> demoVideos,
+            @RequestPart(value = "clientCredentials", required = false) List<MultipartFile> clientCredentials,
+            @RequestPart(value = "thumbnailUrl", required = false) MultipartFile thumbnailUrl,
+            @RequestPart(value = "bannerUrl", required = false) MultipartFile bannerUrl) {
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+
+            UseCaseRequestDTO requestDTO =
+                    mapper.readValue(requestJson, UseCaseRequestDTO.class);
+
+            if (requestDTO.getTitle() == null || requestDTO.getTitle().isBlank()) {
+                errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+                errorResponse.setErrorDescription(ManufacturingLabConstants.DRAFT_TITLE_REQUIRED);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+            }
+
+            UseCaseResponseDTO response =
+                    useCaseService.createUseCaseAndSubmitForApprovalwithBlob(requestDTO, clientTestimonials, demoVideos, clientCredentials, thumbnailUrl, bannerUrl);
+
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+
+        } catch (Exception e) {
+            logger.error("Error parsing request JSON", e);
+
+            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+            errorResponse.setErrorDescription("Invalid JSON format");
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
+    }
 
 
 
