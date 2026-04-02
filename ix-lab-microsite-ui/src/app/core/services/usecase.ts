@@ -27,7 +27,7 @@ export class UsecaseService {
   }
 
   saveAsDraft(payload: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/api/usecase/v1/save-draft`, payload);
+    return this.http.post(`${this.baseUrl}/api/usecase/v1/save-draft-withblob`, payload);
   }
 
   updateStorySendForApproval(storyId: string, payload: any): Observable<string> {
@@ -60,4 +60,8 @@ export class UsecaseService {
       { responseType: 'text' }
     );
   }
+
+  getFeaturedStories() {
+  return this.http.get<any>(`${environment.apiUrl}/api/usecase/v1/all?page=1&size=10`);
+}
 }

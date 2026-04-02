@@ -1,5 +1,5 @@
 <header class="navbar">
-  <div class="navbar-left">
+  <div class="navbar-left" [routerLink]="'/'" style="cursor: pointer;">
     <img class="logo-icon" src="assets/Accenture Logo.png" alt="Accenture Logo" />
     <div class="logo-text">
       <div class="title">Industry X - Digital</div>
@@ -50,20 +50,19 @@
       </ul>
     </div> -->
 
-<div class="admin-menu" tabindex="0">
-  <a 
-    routerLink="/admin"
+<div *ngIf="role === 'admin'" class="admin-menu" tabindex="0">
+  <a
     routerLinkActive="active"
     [routerLinkActiveOptions]="{exact:false}"
     class="admin"
-    (click)="$event.preventDefault(); toggleAdminMenu()"
+    (click)="$event.preventDefault(); toggleAdminMenu($event)"
   >
     Admin <span class="arrow">▾</span>
-  </a>
+</a>
 
   <ul class="admin-options" *ngIf="adminOpen">
     <li>
-      <a routerLink="admin/configuration" (click)="$event.preventDefault(); toggleAdminMenu()">
+      <a routerLink="admin/configuration" (click)="$event.preventDefault(); toggleAdminMenu($event)">
         <img src="assets/icons/configurations.png" alt="Configurations" />
         <span>Configurations</span>
       </a>

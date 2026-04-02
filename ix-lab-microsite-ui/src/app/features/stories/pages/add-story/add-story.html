@@ -354,11 +354,11 @@
 
       <div *ngIf="!faq.get('editing')?.value && faq.get('question')?.value" class="faq-header-row">
         <!-- Question text only when accordion is closed -->
-        <span class="faq-question" *ngIf="!faq.get('showAnswer')?.value">
+        <span class="faq-question" *ngIf="!faq.get('showAnswer')?.value" (click)="faq.get('showAnswer')?.setValue(!faq.get('showAnswer')?.value)">
           {{ faq.get('question')?.value }}
         </span>
         <!-- Empty span to reserve space when accordion is open -->
-        <span class="faq-question" *ngIf="faq.get('showAnswer')?.value"></span>
+        <span class="faq-question" *ngIf="faq.get('showAnswer')?.value" (click)="faq.get('showAnswer')?.setValue(!faq.get('showAnswer')?.value)"></span>
 
         <div class="faq-actions">
           <!-- Accordion toggle -->

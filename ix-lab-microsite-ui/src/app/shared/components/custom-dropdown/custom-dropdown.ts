@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, forwardRef, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 
@@ -25,6 +25,8 @@ export class CustomDropdownComponent implements ControlValueAccessor {
 
   isOpen = false;
   selected: any = null;
+
+  constructor(private eRef: ElementRef){}
 
   // ControlValueAccessor hooks
   onChange = (_: any) => {};
@@ -65,7 +67,8 @@ export class CustomDropdownComponent implements ControlValueAccessor {
     // optional: disable UI
   }
 
-  toggle() {
+  toggle(event: Event) {
+    event.stopPropagation();
     this.isOpen = !this.isOpen;
   }
 
@@ -90,6 +93,13 @@ export class CustomDropdownComponent implements ControlValueAccessor {
   this.onChange(id);              // formControl gets the ID
   this.optionSelected.emit(option); // parent still gets full object
   this.isOpen = false;
+}
+
+@HostListener('document: click', ['$event'])
+clickOutside(event: Event) {
+  if(!this.eRef.nativeElement.contains(event.target)){
+    this.isOpen = false;
+  }
 }
 
   selectAll() {

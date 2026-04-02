@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, HostListener } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterModule, NavigationEnd } from '@angular/router';
+import { EventManager } from '@angular/platform-browser';
+import { Router, RouterLink, RouterLinkActive, RouterModule, NavigationEnd, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
@@ -13,12 +14,29 @@ export class NavbarComponent {
 
   adminOpen = false;
   userPhotoUrl = 'assets/images/profile.png'; // existing value
+  isPresenter = false;
+  role: string = 'admin';
 
-  constructor(private elRef: ElementRef, private router: Router) {
+  constructor(private elRef: ElementRef, private router: Router, private route: ActivatedRoute) {
    
   }
 
-  toggleAdminMenu() {
+  ngOnInit() {
+    // this.updateRole();
+    // this.router.events.subscribe(() => {
+    //   this.updateRole();
+    // })
+    this.route.data.subscribe(data => {
+      this.role = data['role'] || 'admin'
+    });
+  }
+
+  // updateRole() {
+  //   this.isPresenter = this.router.url.startsWith('/presenter');
+  // }
+
+  toggleAdminMenu(event: Event) {
+    event.stopPropagation();
     this.adminOpen = !this.adminOpen;
   }
 

@@ -53,6 +53,13 @@ export class StoriesComponent implements OnInit {
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       this.showAdminControls = params['from'] === 'config';
+
+    this.route.queryParams.subscribe(params => {
+      const id = params['id'];
+      if(id) {
+        console.log("selected story Id:", id);
+      }
+    })
     });
 
     this.loadIndustries();

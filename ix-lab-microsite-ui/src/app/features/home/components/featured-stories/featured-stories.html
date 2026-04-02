@@ -21,27 +21,26 @@
 
     <div class="text-section">
       <h3 class="story-title">
-        {{ currentStory.title }}
+        {{ currentStory?.title }}
       </h3>
 
       <div class="category">
-        {{ currentStory.category }}
+        {{ currentStory?.category }}
       </div>
 
       <p class="description">
-        {{ currentStory.description }}
+        {{ currentStory?.description }}
       </p>
-<div class="link-container">
-      <a class="view-link">
-        View full story →
-      </a>
+      <div class="link-container">
+        <a class="view-link" [routerLink]="['/stories', currentStory?.usecaseId]">
+          View full story →
+        </a>
       </div>
     </div>
 
     <div class="image-section">
-      <img [src]="currentStory.image" alt="story image" />
+      <img [src]="currentStory?.thumbnailImageUrl" alt="story image" />
     </div>
 
   </div>
 </section>
-
