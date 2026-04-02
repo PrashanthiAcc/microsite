@@ -21,7 +21,6 @@
         <maven.compiler.target>17</maven.compiler.target>
         <sonar.coverage.jacoco.xmlReportPaths>ix-lab-microsite-api/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 
     <dependencies>
