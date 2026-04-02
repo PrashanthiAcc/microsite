@@ -3,6 +3,7 @@ package com.ix.manufacturinglab.service;
 import com.ix.manufacturinglab.dto.UseCaseRequestDTO;
 import com.ix.manufacturinglab.dto.UseCaseResponseDTO;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -107,6 +108,6 @@ public interface UseCaseService {
      * @param requestDTO the use case draft request data
      * @return the saved use case response containing draft details
      */
-    UseCaseResponseDTO createUseCaseAndSaveAsDraftWithoutBlob(UseCaseRequestDTO requestDTO);
+    UseCaseResponseDTO createUseCaseAndSaveAsDraftWithBlob(UseCaseRequestDTO requestDTO, MultipartFile clientTestimonials);
 
 }

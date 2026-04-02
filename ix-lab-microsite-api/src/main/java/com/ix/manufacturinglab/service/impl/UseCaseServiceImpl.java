@@ -28,8 +28,10 @@ import com.ix.manufacturinglab.repository.UseCaseTagRepository;
 import com.ix.manufacturinglab.repository.ValueChainRepository;
 import com.ix.manufacturinglab.repository.SubIndustryRepository;
 import com.ix.manufacturinglab.repository.IndustryRepository;
+import com.ix.manufacturinglab.storage.CloudStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -42,6 +44,7 @@ import com.ix.manufacturinglab.constants.ManufacturingLabConstants;
 import com.ix.manufacturinglab.enums.UseCaseStatus;
 import com.ix.manufacturinglab.exception.CommonException;
 import com.ix.manufacturinglab.service.UseCaseService;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Implementation of UseCaseService that persists data across multiple entity tables.
@@ -59,6 +62,10 @@ public class UseCaseServiceImpl implements UseCaseService {
     private final ValueChainRepository valueChainRepository;
     private final SubIndustryRepository subIndustryRepository;
     private final IndustryRepository industryRepository;
+    private final CloudStorageService cloudStorageService;
+    @Value("${storage.path.artifacts.client.testimonials}")
+    private String clientTestimonialsPath;
+
     public UseCaseServiceImpl(UseCaseRepository useCaseRepository,
                               UseCaseContentRepository useCaseContentRepository,
                               UseCaseSpeakerRepository useCaseSpeakerRepository,
@@ -66,7 +73,8 @@ public class UseCaseServiceImpl implements UseCaseService {
                               UseCaseTagRepository useCaseTagRepository,
                               ValueChainRepository valueChainRepository,
                               SubIndustryRepository subIndustryRepository,
-                              IndustryRepository industryRepository) {
+                              IndustryRepository industryRepository,
+                              CloudStorageService cloudStorageService) {
         this.useCaseRepository = useCaseRepository;
         this.useCaseContentRepository = useCaseContentRepository;
         this.useCaseSpeakerRepository = useCaseSpeakerRepository;
@@ -75,6 +83,7 @@ public class UseCaseServiceImpl implements UseCaseService {
         this.valueChainRepository = valueChainRepository;
         this.subIndustryRepository = subIndustryRepository;
         this.industryRepository = industryRepository;
+        this.cloudStorageService = cloudStorageService;
     }
 
     @Override
@@ -482,6 +491,10 @@ public class UseCaseServiceImpl implements UseCaseService {
                 .createdDate(useCase.getCreatedDate())
                 .updatedDate(useCase.getUpdatedDate())
                 .isActive(useCase.getIsActive())
+                .creatorId(useCase.getCreatorId())
+                .narrationGuide(content.getNarrationGuide())
+                .bannerUrl(content.getBannerUrl())
+                .creatorId(useCase.getCreatorId())
                 .build();
     }
 
@@ -649,9 +662,7 @@ public class UseCaseServiceImpl implements UseCaseService {
 
             useCase = existingUseCase;
 
-        }
-
-        else if ("APPROVED".equalsIgnoreCase(status) && parentId == null) {
+        } else if ("APPROVED".equalsIgnoreCase(status) && parentId == null) {
 
             useCase = new UseCase();
 
@@ -667,8 +678,7 @@ public class UseCaseServiceImpl implements UseCaseService {
             useCase.setStatus("IN_REVIEW");
             useCase.setIsUpdatedUsecase(true);
             useCase.setIsActive(false);
-        }
-        else {
+        } else {
             throw new CommonException(CommonExceptionConstants.CONFLICT, "Use case cannot be modified in current state"
             );
         }
@@ -762,9 +772,7 @@ public class UseCaseServiceImpl implements UseCaseService {
         if ("DRAFT".equalsIgnoreCase(status)) {
 
             useCase = existingUseCase;
-        }
-
-        else if ("APPROVED".equalsIgnoreCase(status)) {
+        } else if ("APPROVED".equalsIgnoreCase(status)) {
 
             existingUseCase.setIsActive(false);
             useCaseRepository.save(existingUseCase);
@@ -778,9 +786,7 @@ public class UseCaseServiceImpl implements UseCaseService {
             useCase.setParentUsecaseId(existingUseCase.getUsecaseId());
             useCase.setApprovedDate(LocalDateTime.now());
             useCase.setUpdatedDate(LocalDateTime.now());
-        }
-
-        else {
+        } else {
             throw new CommonException(
                     CommonExceptionConstants.CONFLICT,
                     "Use case cannot be modified in current state"
@@ -846,10 +852,9 @@ public class UseCaseServiceImpl implements UseCaseService {
 
     @Override
     @Transactional
-    public UseCaseResponseDTO createUseCaseAndSaveAsDraftWithoutBlob(UseCaseRequestDTO requestDTO) {
+    public UseCaseResponseDTO createUseCaseAndSaveAsDraftWithBlob(UseCaseRequestDTO requestDTO, MultipartFile clientTestimonials) {
         logger.info(ManufacturingLabConstants.LOG_SAVING_DRAFT, requestDTO.getTitle());
-
-        // 1. Build UseCase entity
+// 1. Build UseCase entity
         UseCase useCase = UseCase.builder()
                 .valueChainId(requestDTO.getValueChainId())
                 .title(requestDTO.getTitle())
@@ -861,23 +866,26 @@ public class UseCaseServiceImpl implements UseCaseService {
                 .isActive(false)
                 .creatorId(requestDTO.getCreatorId())
                 .build();
-
-        // 2. Add tags (cascade will persist)
+// 2. Add tags (cascade will persist)
         addTags(useCase, requestDTO);
-
-        // 3. Add speakers (cascade will persist)
+// 3. Add speakers (cascade will persist)
         addSpeakers(useCase, requestDTO);
-
-        // 4. Add artifacts (cascade will persist)
+// 4. Add artifacts (cascade will persist)
         addArtifacts(useCase, requestDTO);
-
-        // 5. Add UseCaseFaqs(cascade will persist)
+// 5. Add UseCaseFaqs(cascade will persist)
         addUseCaseFaqs(useCase, requestDTO);
-
-        // 6. Save UseCase (cascade saves speakers, tags, artifacts)
+// 6. Save UseCase (cascade saves speakers, tags, artifacts)
         useCase = useCaseRepository.save(useCase);
+// 6a. Upload client testimonials file to Azure Blob Storage
+        if (clientTestimonials != null && !clientTestimonials.isEmpty()) {
+            String blobPath = clientTestimonialsPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
+                    + "/" + clientTestimonials.getOriginalFilename();
+            logger.info("Uploading client testimonials to blob storage at path: {}", blobPath);
+            String blobUrl = cloudStorageService.uploadFile(clientTestimonials, blobPath);
+            logger.info("Client testimonials uploaded successfully. Blob URL: {}", blobUrl);
 
-        // 7. Save UseCaseContent separately
+        }
+// 7. Save UseCaseContent separately
         UseCaseContent content = UseCaseContent.builder()
                 .usecaseId(useCase.getUsecaseId())
                 .description(requestDTO.getDescription())
@@ -892,7 +900,6 @@ public class UseCaseServiceImpl implements UseCaseService {
                 .bannerUrl(requestDTO.getBannerUrl())
                 .build();
         useCaseContentRepository.save(content);
-
         return buildResponseDTO(useCase, content, requestDTO);
     }
 
