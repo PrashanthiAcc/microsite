@@ -1,0 +1,103 @@
+.hero {
+  position: relative;
+  height: 400px; // taller to give more purple space above cards
+  background: url('/assets/hero-bg.png') top center/cover no-repeat;
+  display: flex;
+  align-items: flex-start;
+  padding: 0 60px;
+  overflow: visible;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(123, 44, 255, 0.92) 0%,
+    rgba(123, 44, 255, 0.82) 35%,
+    rgba(123, 44, 255, 0.55) 60%,
+    rgba(123, 44, 255, 0.15) 100%
+  );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  color: #ffffff;
+  max-width: 720px;
+  margin-top: 100px; // lower the hero text further down
+ // margin-left: 24px;
+}
+
+.hero-content h1 {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 18px;
+}
+
+.subtitle {
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+
+.description {
+  font-size: 16px;
+  opacity: 0.92;
+}
+
+/* Overview cards that sit on top of the hero image */
+.hero-overview {
+  position: absolute;
+  left: 120px;
+  right: 60px;
+  bottom: -48px;
+  display: flex;
+  gap: 18px;
+  z-index: 3;
+  align-items: stretch;
+  pointer-events: auto;
+}
+
+/* separate overlay for the title above cards, stays inside hero */
+.hero-title-overlay {
+  position: absolute;
+  left: 60px;
+  bottom: 80px; /* sits just above the cards but inside hero */
+  z-index: 3;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.hero-overview .overview-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0b1220;
+  margin-bottom: 12px;
+}
+
+.hero-overview .overview-card {
+  background: #ffffff;
+  padding: 18px 20px;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(16, 24, 40, 0.08);
+  min-width: 180px;
+  flex: 0 0 auto;
+  color: #0b1220;
+}
+
+.hero-overview .overview-card .value {
+  font-weight: 700;
+  font-size: 24px;
+  border-bottom: 1px solid #7b2cff;
+}
+
+.hero-overview .overview-card .label {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 6px;
+}

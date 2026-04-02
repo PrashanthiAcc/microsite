@@ -1,0 +1,431 @@
+<form [formGroup]="storyForm" class="story-form">
+
+  <!-- BASIC DETAILS -->
+  <section class="card">
+    <h3 class="label-header" (click)="toggleBasicDetailsAccordion()">
+      <img [src]="documentIconPath" alt="document" class="label-icon">
+      Basic Details
+      <span class="arrow">
+        <i *ngIf="basicDetailsOpen"><img [src]="upArrowIconPath" alt="edit" /></i>
+        <i *ngIf="!basicDetailsOpen"><img [src]="downArrowIconPath" alt="edit" /></i>
+      </span>
+    </h3>
+    <div class="divider"></div>
+
+    <div class="accordion-body" *ngIf="basicDetailsOpen">
+      <div class="form-grid">
+        <div class="form-field">
+          <!-- <label>Industry</label>
+          <select formControlName="industry">
+            <option>Select Industry</option>
+            <option *ngFor="let industry of industries" [value]="industry">{{ industry }}</option>
+          </select> -->
+          <app-custom-dropdown label="Industry" [options]="industries" displayKey="industryName"
+            (optionSelected)="onIndustrySelected($event)" formControlName="industryId">
+          </app-custom-dropdown>
+        </div>
+        <div class="form-field">
+          <!-- <label>Sub-Industry</label>
+          <select formControlName="subIndustry">
+            <option>Select Sub-Industry</option>
+            <option *ngFor="let subIndustry of subIndustries" [value]="subIndustry">{{ subIndustry }}</option>
+          </select> -->
+          <app-custom-dropdown label="Sub-Industry" [options]="subIndustries" displayKey="subIndustryName"
+            (optionSelected)="onSubIndustrySelected($event)" formControlName="subIndustryId">
+          </app-custom-dropdown>
+        </div>
+        <div class="form-field">
+          <!-- <label>Value Chain Segment</label>
+          <select formControlName="valueChain">
+            <option>Select Value Chain</option>
+            <option *ngFor="let valueChain of valueChains" [value]="valueChain">{{ valueChain }}</option>
+          </select> -->
+          <app-custom-dropdown label="Value Chain" [options]="valueChains" displayKey="valueChainName"
+            (optionSelected)="onValueChainSelected($event)" formControlName="valueChainId">
+          </app-custom-dropdown>
+        </div>
+      </div>
+
+      <div class="form-field full-width">
+        <label>Title</label>
+        <input type="text" placeholder="Title..." formControlName="title">
+      </div>
+
+
+      <div class="upload-box">
+        <h4>Thumbnail Image</h4>
+        <div class="upload-row">
+          <button type="button" class="upload-btn" (click)="thumbnailInput.click()"> <img [src]="uploadIconPath"
+              alt="upload icon" class="upload-icon" /> Upload File</button>
+          <span class="file-name" *ngIf="storyForm.get('thumbnailImageUrl')?.value">
+            {{ storyForm.get('thumbnailImageUrl')?.value.name }}
+          </span>
+          <p>Supported files .png, .jpeg, .jpg, up to 5MB.</p>
+        </div>
+        <input type="file" #thumbnailInput hidden (change)="handleFileUpload($event, 'thumbnail')">
+      </div>
+
+      <div class="upload-box">
+        <h4>Banner Image</h4>
+        <div class="upload-row">
+          <button type="button" class="upload-btn" (click)="bannerInput.click()"> <img [src]="uploadIconPath"
+              alt="upload icon" class="upload-icon" /> Upload File</button>
+          <span class="file-name" *ngIf="storyForm.get('banner')?.value">
+            {{ storyForm.get('banner')?.value.name }}
+          </span>
+          <p>Supported files .png, .jpeg, .jpg, up to 5MB.</p>
+        </div>
+        <input type="file" #bannerInput hidden (change)="handleFileUpload($event, 'banner')">
+      </div>
+
+
+
+      <div class="form-field full-width">
+        <label>Description</label>
+        <textarea placeholder="Enter Description" formControlName="description"></textarea>
+      </div>
+
+
+      <label>Tags</label>
+      <div class="tags-row">
+
+        <!-- plus button -->
+        <button class="tag-add" type="button" (click)="toggleInput()">
+          <img src="assets/icons/plus.png">
+        </button>
+        <div class="tag" *ngFor="let tagCtrl of tagsArray.controls; let i = index">
+          {{ tagCtrl.value }}
+          <button type="button" (click)="removeTag(i)">×</button>
+        </div>
+        <!-- input comes AFTER the button -->
+        <input *ngIf="showInput" type="text" placeholder="Enter tag" #tagInput (keydown.enter)="addTag(tagInput)" />
+      </div>
+
+
+
+      <label>Duration</label>
+      <input type="text" placeholder="Enter Duration in Minutes" formControlName="duration">
+    </div>
+  </section>
+
+  <!-- POCs -->
+  <section class="card pocs-section">
+    <h3 class="label-header" (click)="togglePOCsAccordion()">
+      <img [src]="users_inside_circleIconPath" alt="users_inside_circle" class="label-icon">
+      POCs
+      <span class="arrow">
+        <i *ngIf="pocsOpen"><img [src]="upArrowIconPath" alt="edit" /></i>
+        <i *ngIf="!pocsOpen"><img [src]="downArrowIconPath" alt="edit" /></i>
+      </span>
+    </h3>
+    <div class="divider"></div>
+    <div class="accordion-body" *ngIf="pocsOpen">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="owner">Owner</label>
+          <select id="owner" formControlName="ownerId"
+            [ngStyle]="{'background-image': 'url(' + dropdownIconPath + ')'}">
+            <!-- <option>Select Owner</option> -->
+            <option *ngFor="let user of allUsers" [value]="user.userEid">
+              {{ user.userEid }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="primarySpeaker">Primary Speaker</label>
+          <select id="primarySpeaker" formControlName="primarySpeaker"
+            [ngStyle]="{'background-image': 'url(' + dropdownIconPath + ')'}">
+            <!-- <option>Select Primary Speaker</option> -->
+            <option *ngFor="let user of allUsers" [value]="user.userEid">
+              {{ user.userEid }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="secondarySpeaker">Secondary Speaker</label>
+          <select id="secondarySpeaker" formControlName="secondarySpeaker"
+            [ngStyle]="{'background-image': 'url(' + dropdownIconPath + ')'}">
+            <!-- <option>Select Secondary Speaker</option> -->
+            <option *ngFor="let user of allUsers" [value]="user.userEid">
+              {{ user.userEid }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="tertiarySpeaker">Tertiary Speaker</label>
+          <select id="tertiarySpeaker" formControlName="tertiarySpeaker"
+            [ngStyle]="{'background-image': 'url(' + dropdownIconPath + ')'}">
+            <!-- <option>Select Tertiary Speaker</option> -->
+            <option *ngFor="let user of allUsers" [value]="user.userEid">
+              {{ user.userEid }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ARTIFACTS -->
+  <section class="card artifacts">
+    <h3 class="label-header" (click)="toggleArtifactsAccordion()">
+      <img [src]="slideIconPath" alt="slide" class="label-icon">
+      Artifacts
+      <span class="arrow">
+        <i *ngIf="artifactsOpen"><img [src]="upArrowIconPath" alt="edit" /></i>
+        <i *ngIf="!artifactsOpen"><img [src]="downArrowIconPath" alt="edit" /></i>
+      </span>
+    </h3>
+    <div class="divider"></div>
+    <div class="accordion-body" *ngIf="artifactsOpen">
+      <!-- Client Credential -->
+      <section class="artifacts-card">
+        <div class="header-row">
+          <h4>Client Credential</h4>
+          <button type="button" class="btn-add" (click)="addField(clientCredentials)">+</button>
+        </div>
+        <div class="upload-box" *ngFor="let item of clientCredentials.controls; let i = index">
+          <div class="upload-row">
+            <label class="artifacts-label">Credential {{i+1}}</label>
+            <button type="button" class="upload-btn" (click)="credentialInput.click()"> <img [src]="uploadIconPath"
+                alt="upload icon" class="upload-icon" /> Upload File</button>
+            <span class="file-name" *ngIf="item.value">{{ item.value.name }}</span>
+            <p>Supported file .pptx up to 100MB.</p>
+            <button type="button" class="btn-delete" (click)="removeField(clientCredentials, i)">🗑</button>
+          </div>
+          <input type="file" #credentialInput hidden (change)="handleFileUpload($event, 'clientCredentials', i)">
+        </div>
+      </section>
+
+      <!-- Demo Videos -->
+      <section class="artifacts-card">
+        <div class="header-row">
+          <h4>Demo Videos</h4>
+          <button type="button" class="btn-add" (click)="addField(demoVideos)">+</button>
+        </div>
+        <div class="upload-box" *ngFor="let item of demoVideos.controls; let i = index">
+          <div class="upload-row">
+            <label class="artifacts-label">Video {{i+1}}</label>
+            <button type="button" class="upload-btn" (click)="videoInput.click()"> <img [src]="uploadIconPath"
+                alt="upload icon" class="upload-icon" /> Upload File</button>
+            <span class="file-name" *ngIf="item.value">{{ item.value.name }}</span>
+            <p>Supported file .mp4 up to 100MB.</p>
+            <button type="button" class="btn-delete" (click)="removeField(demoVideos, i)">🗑</button>
+          </div>
+          <input type="file" #videoInput hidden (change)="handleFileUpload($event, 'demoVideos', i)">
+        </div>
+      </section>
+
+      <!-- Client Testimonial -->
+      <section class="artifacts-card">
+        <div class="header-row">
+          <h4>Client Testimonial</h4>
+          <button type="button" class="btn-add" (click)="addField(clientTestimonials)">+</button>
+        </div>
+        <div class="upload-box" *ngFor="let item of clientTestimonials.controls; let i = index">
+          <div class="upload-row">
+            <label class="artifacts-label">Testimonial {{i+1}}</label>
+            <button type="button" class="upload-btn" (click)="testimonialInput.click()"> <img [src]="uploadIconPath"
+                alt="upload icon" class="upload-icon" /> Upload File</button>
+            <span class="file-name" *ngIf="item.value">{{ item.value.name }}</span>
+            <p>Supported files .pdf, .pptx, .mp4, .jpg, .png, .jpeg up to 100MB.</p>
+            <button type="button" class="btn-delete" (click)="removeField(clientTestimonials, i)">🗑</button>
+          </div>
+          <input type="file" #testimonialInput hidden (change)="handleFileUpload($event, 'clientTestimonials', i)">
+        </div>
+      </section>
+    </div>
+  </section>
+
+
+
+  <!-- STORY CONTENT -->
+  <section class="card">
+    <h3 class="label-header">
+      <img [src]="alertIconPath" alt="alert" class="label-icon">
+      Business Problem
+    </h3>
+    <div class="divider"></div>
+    <div class="editor">
+      <quill-editor formControlName="businessProblem" [modules]="editorConfig" class="custom-editor">
+      </quill-editor>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3 class="label-header">
+      <img [src]="solutionIconPath" alt="solution" class="label-icon">Solution
+    </h3>
+    <div class="divider"></div>
+    <div class="editor">
+      <quill-editor formControlName="solutions" [modules]="editorConfig" class="custom-editor">
+      </quill-editor>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3 class="label-header">
+      <img [src]="line_graphIconPath" alt="line graph" class="label-icon">Value Delivered
+    </h3>
+    <div class="divider"></div>
+    <div class="editor">
+      <quill-editor formControlName="valueDelivered" [modules]="editorConfig" class="custom-editor">
+      </quill-editor>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3 class="highlight" style="color: #fff;"><img [src]="caliperIconPath" alt="caliper" class="label-icon">Tools &
+      Technology
+    </h3>
+    <div class="divider"></div>
+    <div class="editor">
+      <quill-editor formControlName="toolsAndTechnologies" [modules]="editorConfig" class="custom-editor">
+      </quill-editor>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3 class="label-header">
+      <img [src]="targetIconPath" alt="target" class="label-icon">Key Results
+    </h3>
+    <div class="divider"></div>
+    <div class="editor">
+      <quill-editor formControlName="keyResults" [modules]="editorConfig" class="custom-editor">
+      </quill-editor>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3 class="label-header">
+      <img [src]="chequeIconPath" alt="cheque" class="label-icon">Narration Guide
+    </h3>
+    <div class="divider"></div>
+    <div class="editor">
+      <quill-editor formControlName="narrationGuide" [modules]="editorConfig" class="custom-editor">
+      </quill-editor>
+    </div>
+  </section>
+
+
+
+  <!----FAQ Section-->
+
+
+  <section class="card">
+    <!-- Top-most FAQ header (always visible) -->
+    <div class="header-row">
+      <h3 class="label-header">
+        <img [src]="locationIconPath" alt="faq" class="label-icon">FAQ
+      </h3>
+      <button type="button" class="btn-add" (click)="addFAQ()">+</button>
+    </div>
+    <div class="divider"></div>
+
+    <!-- FAQ Items -->
+    <section class="card faq-card" *ngFor="let faq of faqs.controls; let i = index" [formGroup]="faq">
+
+      <!-- Case 1: Editing mode -->
+      <div *ngIf="faq.get('editing')?.value">
+        <!-- Add FAQ header row with Cancel + Save -->
+        <div class="sub-header-row">
+          <h4 class="label-subheader">Add FAQ</h4>
+          <div class="faq-actions">
+            <button type="button" class="btn-cancel-faq" (click)="cancelFAQ(i)">Cancel</button>
+            <button type="button" class="btn-save-faq" (click)="saveFAQ(i)"><img [src]="saveIconPath" alt="save icon"
+                class="save-icon" /> Save</button>
+          </div>
+        </div>
+        <div class="divider"></div>
+
+        <!-- Editable form -->
+        <div class="faq-form">
+          <label>Question</label>
+          <input type="text" formControlName="question" placeholder="Type Question here" class="faq-input">
+
+          <label>Answer</label>
+          <textarea formControlName="answer" placeholder="Type Answer here" class="faq-input"></textarea>
+        </div>
+      </div>
+
+
+      <div *ngIf="!faq.get('editing')?.value && faq.get('question')?.value" class="faq-header-row">
+        <!-- Question text only when accordion is closed -->
+        <span class="faq-question" *ngIf="!faq.get('showAnswer')?.value" (click)="faq.get('showAnswer')?.setValue(!faq.get('showAnswer')?.value)">
+          {{ faq.get('question')?.value }}
+        </span>
+        <!-- Empty span to reserve space when accordion is open -->
+        <span class="faq-question" *ngIf="faq.get('showAnswer')?.value" (click)="faq.get('showAnswer')?.setValue(!faq.get('showAnswer')?.value)"></span>
+
+        <div class="faq-actions">
+          <!-- Accordion toggle -->
+          <button type="button" class="accordion-btn"
+            (click)="faq.get('showAnswer')?.setValue(!faq.get('showAnswer')?.value)">
+            <img [src]="faq.get('showAnswer')?.value ? upArrowIconPath : downArrowIconPath" alt="toggle answer" />
+          </button>
+          <!-- Pencil always visible -->
+          <button type="button" class="edit-btn" (click)="editFAQ(i)">
+            <img [src]="pencilIconPath" alt="edit" />
+          </button>
+        </div>
+      </div>
+
+      <!-- Read-only form (accordion open) -->
+      <div *ngIf="faq.get('showAnswer')?.value && !faq.get('editing')?.value" class="faq-form readonly">
+        <label>Question</label>
+        <input type="text" [value]="faq.get('question')?.value" class="faq-input" readonly>
+
+        <label>Answer</label>
+        <textarea class="faq-input" readonly>{{ faq.get('answer')?.value }}</textarea>
+      </div>
+
+    </section>
+  </section>
+
+
+  <!-- ACTION BUTTONS -->
+  <div class="button-group">
+    <button type="button" class="btn-cancel">Cancel</button>
+
+    <button type="button" class="btn-draft" (click)="openModal('draft')">
+      <img src="assets/icons/save.png" class="btn-icon" alt="draft">
+      Save as Draft
+    </button>
+
+    <button type="button" class="btn-approve" (click)="openModal('approval')">
+      <img src="assets/icons/leading.png" class="btn-icon" alt="approve">
+      Send for Approval
+    </button>
+  </div>
+
+</form>
+
+<div>
+
+
+</div>
+
+<!-- Approval Modal -->
+<div class="modal-backdrop" *ngIf="showApprovalModal">
+<div class="modal" *ngIf="showApprovalModal">
+  <div class="modal-header">
+    <h2>New Story</h2>
+    <button type="button" class="btn-close" (click)="closeApprovalModal()">
+      <img [src]="closeIconPath" alt="close icon" class="close-icon" />
+    </button>
+  </div>
+
+  <p class="modal-message">
+    {{ modalAction === 'approval' ? 'Send for Approval?' : 'Save as Draft?' }}
+  </p>
+
+  <div class="modal-actions">
+    <button type="button" class="btn-approve" (click)="confirmModalAction()">
+      Okay
+    </button>
+  </div>
+</div>
+</div>

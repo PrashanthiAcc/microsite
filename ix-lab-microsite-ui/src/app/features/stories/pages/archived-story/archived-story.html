@@ -1,0 +1,124 @@
+<section class="stories">
+
+  <div class="stories-container">
+
+    <!-- BREADCRUMB & ACTION BUTTONS -->
+    <div class="stories__top-bar" *ngIf="showAdminControls">
+      <div class="breadcrumb">
+        <a href="#" class="breadcrumb-link">Admin</a>
+        <span class="breadcrumb-separator">›</span>
+        <a routerLink="/admin" class="breadcrumb-link">Configurations</a>
+        <span class="breadcrumb-separator">›</span>
+        <a href="#" class="breadcrumb-link active">Stories Configuration</a>
+      </div>
+
+     
+    </div>
+
+    <div class="filters">
+
+      <!-- Industry -->
+      <app-custom-dropdown label="Industry" [options]="industries" displayKey="industryName"
+        (optionSelected)="onIndustrySelected($event)">
+      </app-custom-dropdown>
+
+      <!-- Sub Industry -->
+      <app-custom-dropdown label="Sub-Industry" [options]="subIndustries" displayKey="subIndustryName"
+        (optionSelected)="onSubIndustrySelected($event)">
+      </app-custom-dropdown>
+
+      <!-- Value Chain -->
+      <app-custom-dropdown label="Value Chain" [options]="valueChains" displayKey="valueChainName">
+      </app-custom-dropdown>
+
+      <!-- Sort -->
+      <!-- <app-custom-dropdown label="Sort by" [options]="['Popular','New & Noteworthy']">
+      </app-custom-dropdown> -->
+
+      <!-- Search -->
+      <div class="search">
+        <input type="text" placeholder="Search" />
+        <button>🔍</button>
+      </div>
+
+    </div>
+
+    <!---ARCHIVED STORIES SECTION-->
+    <!-- new wrapper Archived Stories-->
+    <div class="stories__header">
+      <h1 class="stories__title">All Archived ({{ archivedStories.length }})</h1>
+    </div>
+
+    <!-- GRID ALL ARCHIVED STORIES------------ -->
+    <div class="stories__grid">
+
+      <div class="story-card" *ngFor="let archived of archivedStories" [routerLink]="['/stories', archived.usecaseId]">
+
+        <div class="story-card__media">
+          <img [src]="archived.thumbnailImageUrl" alt="">
+          <button class="card-menu-btn" (click)="$event.stopPropagation(); toggleMenu(archived, $event)">⋮</button>
+         
+          <div class="card-menu" *ngIf="archived.showMenu" (click)="$event.stopPropagation()">
+            
+            <button class="menu-item">
+              <img src="assets/icons/edit.png" alt="Edit" />
+              <span [routerLink]="['/stories', archived.usecaseId, 'edit']">Edit Story</span>
+            </button>
+            <button class="menu-item">
+              <img src="assets/icons/favorite.png" alt="Favorite" />
+              <span>Add to Favourites</span>
+            </button>
+            <!-- <button class="menu-item">
+              <img src="assets/icons/archive.png" alt="Archive" />
+              <span >Archive Story</span>
+            </button> -->
+          </div>
+        </div>
+
+        <div class="story-card__content">
+          <span class="category">{{ archived.category }}</span>
+
+          <h3>{{ archived.title }}</h3>
+
+          <p>{{ archived.description }}</p>
+
+          <div class="tags">
+            <span *ngFor="let tag of archived.tag">{{ tag }}</span>
+          </div>
+
+          <!-- Footer row for stories -->
+          <div class="story-card__footer">
+            <div class="footer-row">
+              <div class="footer-item">
+                <img src="assets/icons/user_logo.png" alt="user" />
+                <span>{{ archived.ownerName }}</span>
+              </div>
+              <div class="footer-item">
+                <img src="assets/icons/time.png" alt="time" />
+                <span>{{ archived.duration }} Min</span>
+              </div>
+            </div>
+            <div class="footer-row status">
+              <div class="footer-item">
+                <img src="assets/icons/review.png" alt="status" />
+                <span>{{ archived.status }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+    <!---ARCHIVED STORIES SECTION-->
+
+    <!-- PAGINATION -->
+    <div class="pagination">
+      <span class="active">1</span>
+      <span>2</span>
+      <span>3</span>
+      <span>4</span>
+    </div>
+
+  </div>
+</section>

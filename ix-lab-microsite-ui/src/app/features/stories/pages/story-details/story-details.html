@@ -1,0 +1,200 @@
+<section class="story-form">
+
+
+    <!-- <form [formGroup]="storyForm" class="story-form"> -->
+
+    <!-- HEADER -->
+
+    <section class="hero" [ngStyle]="{'background-image': 'url(' + storyDetails.thumbnailImageUrl + ')'}">
+        <img [src]="leftArrowIconPath" alt="backtostories" class="back-icon" (click)="navigateBack()">
+        <div class="hero-overlay"></div>
+
+        <div class="hero-content">
+            <h1>
+                {{ storyDetails?.title }} <br />
+                <!-- Experience Zone -->
+            </h1>
+
+            <p class="subtitle">{{ storyDetails?.description }}</p>
+
+        </div>
+
+        <!-- <div class="hero-title-overlay">Digital Manufacturing Overview</div> -->
+
+        <!-- <div class="hero-overview" aria-label="Digital Manufacturing overview cards">
+
+    <div class="overview-card">
+      <div class="value">150+</div>
+      <div class="label">Client Stories</div>
+    </div>
+
+    <div class="overview-card">
+      <div class="value">50+</div>
+      <div class="label">MES/MOM solutions delivered</div>
+    </div>
+
+    <div class="overview-card">
+      <div class="value">124+</div>
+      <div class="label">Production Site support for Critical apps</div>
+    </div>
+
+    <div class="overview-card">
+      <div class="value">30+</div>
+      <div class="label">SAP EWM programs delivered</div>
+    </div>
+
+    <div class="overview-card">
+      <div class="value">30+</div>
+      <div class="label">SAP EWM programs delivered</div>
+    </div>
+  </div> -->
+    </section>
+
+
+
+    <div class="button-group">
+        <app-custom-dropdown label="Client Credential" [options]="clientCredentials" displayKey="artifactName"
+            (optionSelected)="onArtifactSelected($event, 'ELEVATOR_PITCH')" formControlName="clientCredential">
+        </app-custom-dropdown>
+
+        <app-custom-dropdown label="Demo Videos" [options]="demoVideos" displayKey="artifactName"
+            (optionSelected)="onArtifactSelected($event, 'DEMO_VIDEO')" formControlName="demoVideo">
+        </app-custom-dropdown>
+
+        <app-custom-dropdown label="Client Testimonials" [options]="clientTestimonials" displayKey="artifactName"
+            (optionSelected)="onArtifactSelected($event, 'CLIENT_TESTIMONIAL')" formControlName="clientTestimonial">
+        </app-custom-dropdown>
+
+
+        <label class="btn-checkbox">
+            <input type="checkbox" class="faq-checkbox" (change)="toggleFaqGuide($event)" />
+            <span class="checkbox-text">FAQ & Guide</span>
+        </label>
+    </div>
+
+    <!-- BUSINESS PROBLEM -->
+    <section class="info-section">
+        <h3 class="label-header">
+            <img [src]="alertIconPath" alt="alert" class="label-icon"> Business Problem
+        </h3>
+        <div class="divider"></div>
+        <div class="info-body">
+            {{ storyDetails.businessProblem }}
+
+            <!-- <ul>
+                <li>Process Variability in Lyo Operations</li>
+                <li>Scale-Up and Technology Transfer Complexity</li>
+                <li>Impact on Manufacturing Performance</li>
+            </ul> -->
+        </div>
+    </section>
+
+    <!-- SOLUTION -->
+    <section class="info-section">
+        <h3 class="label-header">
+            <img [src]="solutionIconPath" alt="solution" class="label-icon"> Solution
+        </h3>
+        <div class="divider"></div>
+        <div class="info-body">
+            {{ storyDetails?.solutions }}
+
+            <!-- <ul>
+                <li>LyoOmniTwin — physics-informed digital twin</li>
+                <li>Virtual process modeling before runs</li>
+                <li>Closed-loop learning during runs</li>
+                <li>Unified insights for Ops & QA</li>
+            </ul> -->
+        </div>
+    </section>
+
+    <!-- VALUE DELIVERED -->
+    <section class="info-section">
+        <h3 class="label-header">
+            <img [src]="line_graphIconPath" alt="value" class="label-icon"> Value Delivered
+        </h3>
+        <div class="divider"></div>
+        <div class="info-body"> {{ storyDetails?.valueDelivered }}
+            <!-- <ul>
+                <li>System Architecture (LyoOmniTwin)</li>
+                <li>Modeling & Validation</li>
+                <li>Technology Transfer & Compliance</li>
+                <li>Dashboards & KPIs</li>
+            </ul> -->
+        </div>
+    </section>
+
+
+    <!-- TOOLS & TECHNOLOGY -->
+    <section class="info-section highlight" *ngIf="storyDetails?.toolsAndTechnologies">
+        <h3 class="label-header" style="color:#fff;">
+            <img [src]="caliperIconPath" alt="tools" class="label-icon"> Tools & Technology
+        </h3>
+        <div class="divider"></div>
+        <div class="info-body"> {{ storyDetails?.toolsAndTechnologies }}
+            <!-- <ul>
+                <li style="color:#fff;">Digital Twin & Visualization: NVIDIA Omniverse</li>
+                <li style="color:#fff;">Physics-Based Modeling: Simulation engines</li>
+                <li style="color:#fff;">Real-Time Monitoring: Sensor networks + PAT</li>
+                <li style="color:#fff;">AI & Predictive Analytics: ML forecasting & failure prediction</li>
+            </ul> -->
+        </div>
+    </section>
+
+    <!-- KEY RESULTS -->
+    <section class="info-section" *ngIf="storyDetails?.keyResults">
+        <h3 class="label-header">
+            <img [src]="targetIconPath" alt="target" class="label-icon"> Key Results
+        </h3>
+        <div class="divider"></div>
+        <div class="info-body"> {{ storyDetails?.keyResults }}
+            <!-- <ul>
+                <li>De-risked batches via early excursion detection</li>
+                <li>Faster scale-up & tech-transfer with virtual DOE</li>
+                <li>Unified visibility for Ops/QA leadership</li>
+                <li>Foundation for software-defined manufacturing</li>
+            </ul> -->
+        </div>
+    </section>
+
+    <!-- NARRATION GUIDE -->
+    <section class="info-section" *ngIf="showNarrationGuideAndFAQ">
+        <h3 class="label-header">
+            <img [src]="chequeIconPath" alt="cheque" class="label-icon"> Narration Guide
+        </h3>
+        <div class="divider"></div>
+        <div class="info-body"> {{ storyDetails.businessProblem }}
+            <!-- <h4>Opening Context</h4>
+            <p>Biopharmaceutical manufacturing relies on lyophilization...</p>
+            <h4>Business Challenge</h4>
+            <p>Three challenges: variability, scale-up complexity, lack of visibility.</p>
+            <h4>Solution Overview</h4>
+            <p>LyoOmnifit™ simulates cycles, monitors runs, and unifies visibility.</p>
+            <h4>Value Delivered</h4>
+            <p>Prediction, monitoring, collaboration, faster decisions.</p> -->
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <!-- FAQ Section (View Mode with Toggle) -->
+    <section class="info-section" *ngIf="showNarrationGuideAndFAQ">
+        <h3 class="label-header">
+            <img [src]="locationIconPath" alt="faq" class="label-icon"> FAQ
+        </h3>
+        <div class="divider"></div>
+
+        <div class="faq-item" *ngFor="let faq of storyDetails?.faqs">
+            <div class="faq-header-row">
+                <span class="faq-question">{{ faq.question }}</span>
+                <button type="button" class="accordion-btn" (click)="faq.showAnswer = !faq.showAnswer">
+                    <img [src]="faq.showAnswer ? upArrowIconPath : downArrowIconPath" alt="toggle answer" />
+                </button>
+            </div>
+
+            <div class="faq-body" *ngIf="faq.showAnswer">
+                <p>{{ faq.answer }}</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- </form> -->
+</section>

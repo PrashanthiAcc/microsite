@@ -1,0 +1,76 @@
+{
+  "hash": "8e390f02",
+  "configHash": "e9049399",
+  "lockfileHash": "f8ce2630",
+  "browserHash": "a6f72db9",
+  "optimized": {
+    "@angular/common": {
+      "src": "../../../../../../node_modules/@angular/common/fesm2022/common.mjs",
+      "file": "@angular_common.js",
+      "fileHash": "3036cb36",
+      "needsInterop": false
+    },
+    "@angular/common/http": {
+      "src": "../../../../../../node_modules/@angular/common/fesm2022/http.mjs",
+      "file": "@angular_common_http.js",
+      "fileHash": "2719b720",
+      "needsInterop": false
+    },
+    "@angular/core": {
+      "src": "../../../../../../node_modules/@angular/core/fesm2022/core.mjs",
+      "file": "@angular_core.js",
+      "fileHash": "0078c009",
+      "needsInterop": false
+    },
+    "@angular/forms": {
+      "src": "../../../../../../node_modules/@angular/forms/fesm2022/forms.mjs",
+      "file": "@angular_forms.js",
+      "fileHash": "a690604f",
+      "needsInterop": false
+    },
+    "@angular/platform-browser": {
+      "src": "../../../../../../node_modules/@angular/platform-browser/fesm2022/platform-browser.mjs",
+      "file": "@angular_platform-browser.js",
+      "fileHash": "6b888d65",
+      "needsInterop": false
+    },
+    "@angular/router": {
+      "src": "../../../../../../node_modules/@angular/router/fesm2022/router.mjs",
+      "file": "@angular_router.js",
+      "fileHash": "23734983",
+      "needsInterop": false
+    },
+    "ngx-quill": {
+      "src": "../../../../../../node_modules/ngx-quill/fesm2022/ngx-quill.mjs",
+      "file": "ngx-quill.js",
+      "fileHash": "f9daf497",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-SQGGBGTC": {
+      "file": "chunk-SQGGBGTC.js"
+    },
+    "chunk-X4CJ56VS": {
+      "file": "chunk-X4CJ56VS.js"
+    },
+    "chunk-QODILDXW": {
+      "file": "chunk-QODILDXW.js"
+    },
+    "chunk-Y2PZUTQR": {
+      "file": "chunk-Y2PZUTQR.js"
+    },
+    "chunk-LJZYITKE": {
+      "file": "chunk-LJZYITKE.js"
+    },
+    "chunk-L5S25CH2": {
+      "file": "chunk-L5S25CH2.js"
+    },
+    "ngx-quill-quill-CUw8Q_m0-S5FYB6I7": {
+      "file": "ngx-quill-quill-CUw8Q_m0-S5FYB6I7.js"
+    },
+    "chunk-KWSTWQNB": {
+      "file": "chunk-KWSTWQNB.js"
+    }
+  }
+}

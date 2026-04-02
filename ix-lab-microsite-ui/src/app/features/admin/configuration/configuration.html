@@ -1,0 +1,31 @@
+<!-- <app-navbar></app-navbar> -->
+ 
+<div class="config">
+     <div class="breadcrumb">
+        <a href="#" class="breadcrumb-link">Admin</a>
+        <span class="breadcrumb-separator">›</span>
+        <a routerLink="/admin" class="breadcrumb-link active">Configurations</a>
+      </div>
+    <div class="title">
+        <h2 class="heading-md">Configurations</h2>
+    </div>
+<div class="card-container">
+  <div class="config-card" *ngFor="let card of cards" [class.active]="card.active">
+    <div>
+<div class="card-icon">
+<img class="icon" [src]="'assets/icons/' + card.icon + '.png'" />
+</div>
+<div class="card-title">
+      {{ card.title }}
+</div>
+</div>
+<div>
+<div class="card-arrow" (click)="navigateTo(card.route)">
+<img class="icon" src='assets/icons/arrow-right.png' />
+</div>
+</div>
+</div>
+</div>
+</div>
+
+ 
