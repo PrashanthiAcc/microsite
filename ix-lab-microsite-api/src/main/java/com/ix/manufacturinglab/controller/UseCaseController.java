@@ -384,7 +384,7 @@ public class UseCaseController {
         }
     }
 
-    @PostMapping(value = "/v1/submit-for-approval-withblob", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/v1/submit-for-approval-withblob", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Object> createUseCaseAndsubmitForApprovalwithBlob(
             @RequestPart("useCaseRequest") String requestJson,
             @RequestPart(value = "clientTestimonials", required = false) List<MultipartFile> clientTestimonials,
