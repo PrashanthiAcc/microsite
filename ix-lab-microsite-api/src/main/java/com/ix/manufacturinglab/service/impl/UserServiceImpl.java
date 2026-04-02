@@ -39,19 +39,22 @@ public class UserServiceImpl implements UserService {
         List<UserManagement> users = userRepository.findByIsActiveTrue();
 
         return users.stream()
-                .map(user -> new UserManagementDTO(
-                        user.getUserId(),
-                        user.getUserEid(),
-                        user.getName(),
-                        user.getRole() != null ? UserRole.valueOf(user.getRole().toUpperCase()) : null,
-                        user.getAccessStartDate(),
-                        user.getRequestedOn(),
-                        user.getApprovedBy() != null ? user.getApprovedBy().getUserId() : null,
-                        user.getReason(),
-                        user.getUpdatedBy() != null ? user.getUpdatedBy().getUserId() : null,
-                        user.getLastUpdated(),
-                        user.getIsActive()
-                ))
+                .map(user -> {
+                    UserManagementDTO dto = new UserManagementDTO();
+                    dto.setUserId(user.getUserId());
+                    dto.setUserEid(user.getUserEid());
+                    dto.setName(user.getName());
+                    dto.setRole(user.getRole() != null ? UserRole.valueOf(user.getRole().toUpperCase()) : null);
+                    dto.setAccessStartDate(user.getAccessStartDate());
+                    dto.setRequestedOn(user.getRequestedOn());
+                    dto.setApprovedBy(user.getApprovedBy() != null ? user.getApprovedBy().getUserId() : null);
+                    dto.setReason(user.getReason());
+                    dto.setUpdatedBy(user.getUpdatedBy() != null ? user.getUpdatedBy().getUserId() : null);
+                    dto.setLastUpdated(user.getLastUpdated());
+                    dto.setIsActive(user.getIsActive());
+                    dto.setApproverEid(user.getApprovedBy() != null ? user.getApprovedBy().getUserEid() : null);
+                    return dto;
+                })
                 .toList();
     }
 

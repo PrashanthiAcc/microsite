@@ -24,4 +24,5 @@ public class UserManagementDTO {
     private Integer updatedBy;
     private LocalDateTime lastUpdated;
     private Boolean isActive;
+    private String approverEid;
 }
