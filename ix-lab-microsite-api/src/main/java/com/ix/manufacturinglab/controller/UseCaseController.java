@@ -1,5 +1,6 @@
 package com.ix.manufacturinglab.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ix.common.exception.CommonErrorManagement;
 import com.ix.manufacturinglab.constants.CommonExceptionConstants;
 import com.ix.manufacturinglab.constants.ManufacturingLabConstants;
@@ -16,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
@@ -67,32 +69,6 @@ public class UseCaseController {
         }
     }
 
-    /**
-     * Save a use case as draft (minimal validation).
-     * Only title is required. Status is automatically set to DRAFT.
-     *
-     * @param requestDTO the use case request body
-     * @return the saved draft use case response
-     */
-    @PostMapping(value = "/v1/save-draft-withoutblob", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> createUseCaseAndSaveAsDraftWithoutBlob(@RequestBody UseCaseRequestDTO requestDTO) {
-
-        logger.info(ManufacturingLabConstants.LOG_SAVING_DRAFT, requestDTO.getTitle());
-        try {
-            if (requestDTO.getTitle() == null || requestDTO.getTitle().isBlank()) {
-                errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
-                errorResponse.setErrorDescription(ManufacturingLabConstants.DRAFT_TITLE_REQUIRED);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
-            }
-            UseCaseResponseDTO response = useCaseService.createUseCaseAndSaveAsDraftWithoutBlob(requestDTO);
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
-        } catch (CommonException e) {
-            logger.error("Exception occurred while saving use case as draft: {}", e.getMessage(), e);
-            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
-            errorResponse.setErrorDescription(ManufacturingLabConstants.SAVE_DRAFT_GENERIC_ERROR_MESSAGE);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
-        }
-    }
 
     /**
      * Submit a use case for approval (full validation).
@@ -371,5 +347,40 @@ public class UseCaseController {
             return ResponseEntity.status(status).body(errorResponse.toString());
         }
     }
+
+    @PostMapping(value = "/v1/save-draft-withblob", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> createUseCaseAndSaveAsDraftWithBlob(
+            @RequestPart("useCaseRequest") String requestJson,
+            @RequestPart(value = "clientTestimonials", required = false) MultipartFile clientTestimonials) {
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+
+            UseCaseRequestDTO requestDTO =
+                    mapper.readValue(requestJson, UseCaseRequestDTO.class);
+
+            if (requestDTO.getTitle() == null || requestDTO.getTitle().isBlank()) {
+                errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+                errorResponse.setErrorDescription(ManufacturingLabConstants.DRAFT_TITLE_REQUIRED);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+            }
+
+            UseCaseResponseDTO response =
+                    useCaseService.createUseCaseAndSaveAsDraftWithBlob(requestDTO, clientTestimonials);
+
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+
+        } catch (Exception e) {
+            logger.error("Error parsing request JSON", e);
+
+            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+            errorResponse.setErrorDescription("Invalid JSON format");
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
+    }
+
+
+
 
 }
