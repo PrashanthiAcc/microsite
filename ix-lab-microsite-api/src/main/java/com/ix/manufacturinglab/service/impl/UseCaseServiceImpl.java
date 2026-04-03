@@ -885,41 +885,33 @@ public class UseCaseServiceImpl implements UseCaseService {
 // 3. Add speakers (cascade will persist)
         addSpeakers(useCase, requestDTO);
 // 4. Add artifacts (cascade will persist)
-        addArtifacts(useCase, requestDTO);
+        // addArtifacts(useCase, requestDTO);
 // 5. Add UseCaseFaqs(cascade will persist)
         addUseCaseFaqs(useCase, requestDTO);
 // 6. Save UseCase (cascade saves speakers, tags, artifacts)
         useCase = useCaseRepository.save(useCase);
 
+        String thumbnailSasUrl = null;
+        String bannerSasUrl = null;
+
         if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
             String blobPath = thumbnailurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
                     + "/" + thumbnailUrl.getOriginalFilename();
             logger.info("Uploading thumbnailUrl to blob storage at path: {}", blobPath);
-            String blobUrl = cloudStorageService.uploadFile(thumbnailUrl, blobPath);
-            logger.info("thumbnailUrl uploaded successfully. Blob URL: {}", blobUrl);
+             thumbnailSasUrl = cloudStorageService.uploadFile(thumbnailUrl, blobPath);
+            logger.info("thumbnailUrl uploaded successfully. Blob URL: {}", thumbnailSasUrl);
 
         }
         if (bannerUrl != null && !bannerUrl.isEmpty()) {
             String blobPath = bannerurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
                     + "/" + bannerUrl.getOriginalFilename();
-            logger.info("Uploading thumbnailUrl to blob storage at path: {}", blobPath);
-            String blobUrl = cloudStorageService.uploadFile(bannerUrl, blobPath);
-            logger.info("thumbnailUrl uploaded successfully. Blob URL: {}", blobUrl);
-
+            logger.info("Uploading bannerUrl to blob storage at path: {}", blobPath);
+             bannerSasUrl = cloudStorageService.uploadFile(bannerUrl, blobPath);
+            logger.info("bannerUrl uploaded successfully. Blob URL: {}", bannerSasUrl);
         }
-
-// 6a. Upload client testimonials file to Azure Blob Storage
-        /*if (clientTestimonials != null && !clientTestimonials.isEmpty()) {
-            String blobPath = clientTestimonialsPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
-                    + "/" + clientTestimonials.getOriginalFilename();
-            logger.info("Uploading client testimonial to blob storage at path: {}", blobPath);
-            String blobUrl = cloudStorageService.uploadFile(clientTestimonials, blobPath);
-            logger.info("Client testimonial uploaded successfully. Blob URL: {}", blobUrl);
-
-        }
-         */
 
         if (clientTestimonials != null && !clientTestimonials.isEmpty()) {
+
             for (MultipartFile file : clientTestimonials) {
 
                 if (file.isEmpty()) continue;
@@ -928,48 +920,45 @@ public class UseCaseServiceImpl implements UseCaseService {
                         .replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
                         + "/" + file.getOriginalFilename();
 
-                logger.info("Uploading client testimonial: {}", blobPath);
+                String sasUrl = cloudStorageService.uploadFile(file, blobPath);
 
-                cloudStorageService.uploadFile(file, blobPath);
+                // ✅ SAVE TO DB
+                UseCaseArtifact artifact = UseCaseArtifact.builder()
+                        .useCase(useCase)
+                        .artifactType("CLIENT_TESTIMONIAL")
+                        .url(sasUrl)
+                        .artifactName(file.getOriginalFilename())
+                        .build();
+
+                useCase.getArtifacts().add(artifact);
             }
         }
-        /*
-        if (demoVideos != null && !demoVideos.isEmpty()) {
-            String blobPath = demoVideosPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
-                    + "/" + demoVideos.getOriginalFilename();
-            logger.info("Uploading demo video to blob storage at path: {}", blobPath);
-            String blobUrl = cloudStorageService.uploadFile(demoVideos, blobPath);
-            logger.info("Client demo video uploaded successfully. Blob URL: {}", blobUrl);
 
-        }
-         */
         if (demoVideos != null && !demoVideos.isEmpty()) {
-            for (MultipartFile video : demoVideos) {
 
-                if (video.isEmpty()) continue;
+            for (MultipartFile file : demoVideos) {
+
+                if (file.isEmpty()) continue;
 
                 String blobPath = demoVideosPath
                         .replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
-                        + "/" + video.getOriginalFilename();
+                        + "/" + file.getOriginalFilename();
 
-                logger.info("Uploading demo video to blob storage at path: {}", blobPath);
+                String sasUrl = cloudStorageService.uploadFile(file, blobPath);
 
-                String blobUrl = cloudStorageService.uploadFile(video, blobPath);
+                UseCaseArtifact artifact = UseCaseArtifact.builder()
+                        .useCase(useCase)
+                        .artifactType("DEMO_VIDEO")
+                        .url(sasUrl)
+                        .artifactName(file.getOriginalFilename())
+                        .build();
 
-                logger.info("Demo video uploaded successfully. Blob URL: {}", blobUrl);
+                useCase.getArtifacts().add(artifact);
             }
         }
-        /*
-        if (clientCredentials != null && !clientCredentials.isEmpty()) {
-            String blobPath = clientCredentialsPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
-                    + "/" + clientCredentials.getOriginalFilename();
-            logger.info("Uploading client credential to blob storage at path: {}", blobPath);
-            String blobUrl = cloudStorageService.uploadFile(clientCredentials, blobPath);
-            logger.info("Client credential uploaded successfully. Blob URL: {}", blobUrl);
 
-        }
-         */
         if (clientCredentials != null && !clientCredentials.isEmpty()) {
+
             for (MultipartFile file : clientCredentials) {
 
                 if (file.isEmpty()) continue;
@@ -978,13 +967,21 @@ public class UseCaseServiceImpl implements UseCaseService {
                         .replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
                         + "/" + file.getOriginalFilename();
 
-                logger.info("Uploading client credential to blob storage at path: {}", blobPath);
+                String sasUrl = cloudStorageService.uploadFile(file, blobPath);
 
-                String blobUrl = cloudStorageService.uploadFile(file, blobPath);
+                UseCaseArtifact artifact = UseCaseArtifact.builder()
+                        .useCase(useCase)
+                        .artifactType("CLIENT_CREDENTIAL")
+                        .url(sasUrl)
+                        .artifactName(file.getOriginalFilename())
+                        .build();
 
-                logger.info("Client credential uploaded successfully. Blob URL: {}", blobUrl);
+                useCase.getArtifacts().add(artifact);
             }
         }
+        useCase = useCaseRepository.save(useCase);
+
+
 
 // 7. Save UseCaseContent separately
         UseCaseContent content = UseCaseContent.builder()
@@ -996,9 +993,9 @@ public class UseCaseServiceImpl implements UseCaseService {
                 .keyResults(requestDTO.getKeyResults())
                 .valueDelivered(requestDTO.getValueDelivered())
                 .duration(requestDTO.getDuration())
-                .thumbnailUrl(requestDTO.getThumbnailImageUrl())
+                .thumbnailUrl(thumbnailSasUrl)
                 .narrationGuide(requestDTO.getNarrationGuide())
-                .bannerUrl(requestDTO.getBannerUrl())
+                .bannerUrl(bannerSasUrl)
                 .build();
         useCaseContentRepository.save(content);
         return buildResponseDTO(useCase, content, requestDTO);
@@ -1031,7 +1028,7 @@ public class UseCaseServiceImpl implements UseCaseService {
         addSpeakers(useCase, requestDTO);
 
         // 4. Add artifacts (cascade will persist)
-        addArtifacts(useCase, requestDTO);
+        //addArtifacts(useCase, requestDTO);
 
         // 5. Add UseCaseFaqs(cascade will persist)
         addUseCaseFaqs(useCase, requestDTO);
@@ -1039,25 +1036,27 @@ public class UseCaseServiceImpl implements UseCaseService {
         // 6. Save UseCase (cascade saves speakers, tags, artifacts)
         useCase = useCaseRepository.save(useCase);
 
+        String thumbnailSasUrl = null;
+        String bannerSasUrl = null;
+
         if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
             String blobPath = thumbnailurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
                     + "/" + thumbnailUrl.getOriginalFilename();
             logger.info("Uploading thumbnailUrl to blob storage at path: {}", blobPath);
-            String blobUrl = cloudStorageService.uploadFile(thumbnailUrl, blobPath);
-            logger.info("thumbnailUrl uploaded successfully. Blob URL: {}", blobUrl);
+            thumbnailSasUrl = cloudStorageService.uploadFile(thumbnailUrl, blobPath);
+            logger.info("thumbnailUrl uploaded successfully. Blob URL: {}", thumbnailSasUrl);
 
         }
         if (bannerUrl != null && !bannerUrl.isEmpty()) {
             String blobPath = bannerurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
                     + "/" + bannerUrl.getOriginalFilename();
-            logger.info("Uploading thumbnailUrl to blob storage at path: {}", blobPath);
-            String blobUrl = cloudStorageService.uploadFile(bannerUrl, blobPath);
-            logger.info("thumbnailUrl uploaded successfully. Blob URL: {}", blobUrl);
-
+            logger.info("Uploading bannerUrl to blob storage at path: {}", blobPath);
+            bannerSasUrl = cloudStorageService.uploadFile(bannerUrl, blobPath);
+            logger.info("bannerUrl uploaded successfully. Blob URL: {}", bannerSasUrl);
         }
 
-// 6a. Upload client testimonials file to Azure Blob Storage
         if (clientTestimonials != null && !clientTestimonials.isEmpty()) {
+
             for (MultipartFile file : clientTestimonials) {
 
                 if (file.isEmpty()) continue;
@@ -1066,28 +1065,45 @@ public class UseCaseServiceImpl implements UseCaseService {
                         .replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
                         + "/" + file.getOriginalFilename();
 
-                logger.info("Uploading client testimonial: {}", blobPath);
+                String sasUrl = cloudStorageService.uploadFile(file, blobPath);
 
-                cloudStorageService.uploadFile(file, blobPath);
+                // ✅ SAVE TO DB
+                UseCaseArtifact artifact = UseCaseArtifact.builder()
+                        .useCase(useCase)
+                        .artifactType("CLIENT_TESTIMONIAL")
+                        .url(sasUrl)
+                        .artifactName(file.getOriginalFilename())
+                        .build();
+
+                useCase.getArtifacts().add(artifact);
             }
         }
-        if (demoVideos != null && !demoVideos.isEmpty()) {
-            for (MultipartFile video : demoVideos) {
 
-                if (video.isEmpty()) continue;
+        if (demoVideos != null && !demoVideos.isEmpty()) {
+
+            for (MultipartFile file : demoVideos) {
+
+                if (file.isEmpty()) continue;
 
                 String blobPath = demoVideosPath
                         .replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
-                        + "/" + video.getOriginalFilename();
+                        + "/" + file.getOriginalFilename();
 
-                logger.info("Uploading demo video to blob storage at path: {}", blobPath);
+                String sasUrl = cloudStorageService.uploadFile(file, blobPath);
 
-                String blobUrl = cloudStorageService.uploadFile(video, blobPath);
+                UseCaseArtifact artifact = UseCaseArtifact.builder()
+                        .useCase(useCase)
+                        .artifactType("DEMO_VIDEO")
+                        .url(sasUrl)
+                        .artifactName(file.getOriginalFilename())
+                        .build();
 
-                logger.info("Demo video uploaded successfully. Blob URL: {}", blobUrl);
+                useCase.getArtifacts().add(artifact);
             }
         }
+
         if (clientCredentials != null && !clientCredentials.isEmpty()) {
+
             for (MultipartFile file : clientCredentials) {
 
                 if (file.isEmpty()) continue;
@@ -1096,13 +1112,19 @@ public class UseCaseServiceImpl implements UseCaseService {
                         .replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
                         + "/" + file.getOriginalFilename();
 
-                logger.info("Uploading client credential to blob storage at path: {}", blobPath);
+                String sasUrl = cloudStorageService.uploadFile(file, blobPath);
 
-                String blobUrl = cloudStorageService.uploadFile(file, blobPath);
+                UseCaseArtifact artifact = UseCaseArtifact.builder()
+                        .useCase(useCase)
+                        .artifactType("CLIENT_CREDENTIAL")
+                        .url(sasUrl)
+                        .artifactName(file.getOriginalFilename())
+                        .build();
 
-                logger.info("Client credential uploaded successfully. Blob URL: {}", blobUrl);
+                useCase.getArtifacts().add(artifact);
             }
         }
+        useCase = useCaseRepository.save(useCase);
 
         // 7. Save UseCaseContent separately
         UseCaseContent content = UseCaseContent.builder()
@@ -1114,9 +1136,9 @@ public class UseCaseServiceImpl implements UseCaseService {
                 .keyResults(requestDTO.getKeyResults())
                 .valueDelivered(requestDTO.getValueDelivered())
                 .duration(requestDTO.getDuration())
-                .thumbnailUrl(requestDTO.getThumbnailImageUrl())
+                .thumbnailUrl(thumbnailSasUrl)
                 .narrationGuide(requestDTO.getNarrationGuide())
-                .bannerUrl(requestDTO.getBannerUrl())
+                .bannerUrl(bannerSasUrl)
                 .build();
         useCaseContentRepository.save(content);
 
