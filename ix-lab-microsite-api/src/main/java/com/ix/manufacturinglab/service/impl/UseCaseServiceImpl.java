@@ -922,7 +922,7 @@ public class UseCaseServiceImpl implements UseCaseService {
 
                 String sasUrl = cloudStorageService.uploadFile(file, blobPath);
 
-                // ✅ SAVE TO DB
+
                 UseCaseArtifact artifact = UseCaseArtifact.builder()
                         .useCase(useCase)
                         .artifactType("CLIENT_TESTIMONIAL")
@@ -1067,7 +1067,6 @@ public class UseCaseServiceImpl implements UseCaseService {
 
                 String sasUrl = cloudStorageService.uploadFile(file, blobPath);
 
-                // ✅ SAVE TO DB
                 UseCaseArtifact artifact = UseCaseArtifact.builder()
                         .useCase(useCase)
                         .artifactType("CLIENT_TESTIMONIAL")
