@@ -120,7 +120,7 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("v1/{userId}")
+    @DeleteMapping("/v1/{userId}")
     public ResponseEntity<?> removeUser(@PathVariable Integer userId) {
 
         logger.info("Received request to delete user. userId={}", userId);
