@@ -95,7 +95,7 @@ export class EditStoryComponent {
       duration: [''],
 
       thumbnailImageUrl: [null],
-      banner: [null],
+      bannerUrl: [null],
 
       ownerId: 102,
       primarySpeaker: [''],
@@ -170,6 +170,12 @@ export class EditStoryComponent {
       thumbnailValue = { name: fileName };
     }
 
+    let bannerValue: any = null;
+    if (res.bannerUrl) {
+      const fileName = res.bannerUrl.split('/').pop();
+      bannerValue = { name: fileName };
+    }
+
     // ✅ Patch form values
     this.storyForm.patchValue({
       industryId: industryName,
@@ -190,7 +196,8 @@ export class EditStoryComponent {
       narrationGuide: res.narrationGuide,
       approverId: res.approverId,
       creatorId: res.creatorId,
-      thumbnailImageUrl: thumbnailValue
+      thumbnailImageUrl: thumbnailValue,
+      bannerUrl: bannerValue
     });
 
     // ✅ Tags
@@ -323,7 +330,7 @@ export class EditStoryComponent {
       if (field === 'thumbnail') {
         this.storyForm.patchValue({ thumbnailImageUrl: file });
       } else if (field === 'banner') {
-        this.storyForm.patchValue({ banner: file });
+        this.storyForm.patchValue({ bannerUrl: file });
       } else if (index !== undefined) {
         (this.storyForm.get(field) as FormArray).at(index).setValue(file);
       } else {
@@ -459,8 +466,8 @@ updateStoryForApproval() {
     subIndustryId: subIndustryObj ? subIndustryObj.subIndustryId : null,
     valueChainId: valueChainObj ? valueChainObj.valueChainId : null,
     title: formValue.title,
-    thumbnailImageUrl: "assets/Global_mes.png",
-    bannerUrl: "assets/Global_mes.png",
+    thumbnailImageUrl: formValue.thumbnailImageUrl,
+    bannerUrl: formValue.bannerUrl,
     description: formValue.description,
     duration: formValue.duration ? Number(formValue.duration) : null,
 
@@ -488,23 +495,7 @@ updateStoryForApproval() {
       answer: f.answer
     })),
 
-    artifacts: [
-      {
-        artifactType: "ELEVATOR_PITCH",
-        artifactName: "Elevator Pitch Deck",
-        url: "assets/Boehringer Ingelheim MES_Global Support Transformation Elevator Pitch.pptx"
-      },
-      {
-        artifactType: "DEMO_VIDEO",
-        artifactName: "Demo Video",
-        url: "assets/file_example_MP4_640_3MG.mp4"
-      },
-      {
-        artifactType: "CLIENT_TESTIMONIAL",
-        artifactName: "Client Testimonial",
-        url: "assets/featured5.jpg"
-      }
-    ]
+    artifacts: []
   };
 
   console.log('Payload for Update:', payload);
@@ -536,8 +527,8 @@ updateStorySaveDraft() {
     subIndustryId: subIndustryObj ? subIndustryObj.subIndustryId : null,
     valueChainId: valueChainObj ? valueChainObj.valueChainId : null,
     title: formValue.title,
-    thumbnailImageUrl: "assets/Global_mes.png",
-    bannerUrl: "assets/Global_mes.png",
+    thumbnailImageUrl: formValue.thumbnailImageUrl,
+    bannerUrl: formValue.bannerUrl,
     description: formValue.description,
     duration: formValue.duration ? Number(formValue.duration) : null,
 
@@ -565,23 +556,7 @@ updateStorySaveDraft() {
       answer: f.answer
     })),
 
-    artifacts: [
-      {
-        artifactType: "ELEVATOR_PITCH",
-        artifactName: "Elevator Pitch Deck",
-        url: "assets/Boehringer Ingelheim MES_Global Support Transformation Elevator Pitch.pptx"
-      },
-      {
-        artifactType: "DEMO_VIDEO",
-        artifactName: "Demo Video",
-        url: "assets/file_example_MP4_640_3MG.mp4"
-      },
-      {
-        artifactType: "CLIENT_TESTIMONIAL",
-        artifactName: "Client Testimonial",
-        url: "assets/featured5.jpg"
-      }
-    ]
+    artifacts: []
   };
 
   console.log('Payload for Update:', payload);
@@ -590,6 +565,34 @@ updateStorySaveDraft() {
     console.log('Story updated successfully', res);
     this.router.navigate(['/stories']);
   });
+}
+
+getCleanFileName(value: any, type: 'thumbnail' | 'banner'): string {
+  if (!value) return '';
+
+  if (value.name) return value.name;
+
+  try {
+    let decoded = decodeURIComponent(value);
+
+    decoded = decoded.split('?')[0];
+
+    const parts = decoded.split('/');
+
+    const fileName = parts[parts.length - 1];
+    const folderName = parts[parts.length - 3];
+
+    if (!fileName) return '';
+
+    const cleanFolder = folderName.replace(/\s+/g, '');
+
+    return `${cleanFolder}_${fileName}`;
+
+  } catch (e) {
+    return type === 'thumbnail'
+      ? 'ThumbnailURL_image.jpg'
+      : 'BannerURL_image.jpg';
+  }
 }
 
   

@@ -105,9 +105,12 @@ loadAllStories(page: number = 1, size: number = 10) {
       tags: story.tag,
       ownerName: this.getOwnerName(story.ownerEId)
     }));
+
     this.filteredStories = this.stories;
 
     if (this.showAdminControls) {
+    this.filteredStories = this.stories.filter((story: any) => story.status === 'IN_REVIEW');
+
     this.drafts = allStories
       .filter((story: any) => story.status === 'DRAFT')
       .map((draft: any) => ({

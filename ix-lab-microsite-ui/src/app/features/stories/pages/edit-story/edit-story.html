@@ -58,7 +58,7 @@
           <button type="button" class="upload-btn" (click)="thumbnailInput.click()"> <img [src]="uploadIconPath"
               alt="upload icon" class="upload-icon" /> Upload File</button>
           <span class="file-name" *ngIf="storyForm.get('thumbnailImageUrl')?.value">
-            {{ storyForm.get('thumbnailImageUrl')?.value.name }}
+            {{ getCleanFileName(storyForm.get('thumbnailImageUrl')?.value.name, 'thumbnail') }}
           </span>
           <p>Supported files .png, .jpeg, .jpg, up to 5MB.</p>
         </div>
@@ -70,8 +70,8 @@
         <div class="upload-row">
           <button type="button" class="upload-btn" (click)="bannerInput.click()"> <img [src]="uploadIconPath"
               alt="upload icon" class="upload-icon" /> Upload File</button>
-          <span class="file-name" *ngIf="storyForm.get('banner')?.value">
-            {{ storyForm.get('banner')?.value.name }}
+          <span class="file-name" *ngIf="storyForm.get('bannerUrl')?.value">
+            {{ getCleanFileName(storyForm.get('bannerUrl')?.value.name, 'banner') }}
           </span>
           <p>Supported files .png, .jpeg, .jpg, up to 5MB.</p>
         </div>
