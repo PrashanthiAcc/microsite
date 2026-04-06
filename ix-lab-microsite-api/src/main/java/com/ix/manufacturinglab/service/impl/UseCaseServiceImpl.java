@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Collections;
+import java.util.Map;
+import java.util.HashMap;
 
 import com.ix.manufacturinglab.dto.ArtifactDTO;
 import com.ix.manufacturinglab.dto.SpeakerDTO;
@@ -28,6 +31,7 @@ import com.ix.manufacturinglab.repository.UseCaseTagRepository;
 import com.ix.manufacturinglab.repository.ValueChainRepository;
 import com.ix.manufacturinglab.repository.SubIndustryRepository;
 import com.ix.manufacturinglab.repository.IndustryRepository;
+import com.ix.manufacturinglab.repository.UseCaseFaqRepository;
 import com.ix.manufacturinglab.storage.CloudStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +64,8 @@ public class UseCaseServiceImpl implements UseCaseService {
     private final UseCaseArtifactRepository useCaseArtifactRepository;
     private final UseCaseTagRepository useCaseTagRepository;
     private final ValueChainRepository valueChainRepository;
+
+    private final UseCaseFaqRepository useCaseFaqRepository;
     private final SubIndustryRepository subIndustryRepository;
     private final IndustryRepository industryRepository;
     private final CloudStorageService cloudStorageService;
@@ -86,6 +92,7 @@ public class UseCaseServiceImpl implements UseCaseService {
                               ValueChainRepository valueChainRepository,
                               SubIndustryRepository subIndustryRepository,
                               IndustryRepository industryRepository,
+                              UseCaseFaqRepository useCaseFaqRepository,
                               CloudStorageService cloudStorageService) {
         this.useCaseRepository = useCaseRepository;
         this.useCaseContentRepository = useCaseContentRepository;
@@ -95,13 +102,14 @@ public class UseCaseServiceImpl implements UseCaseService {
         this.valueChainRepository = valueChainRepository;
         this.subIndustryRepository = subIndustryRepository;
         this.industryRepository = industryRepository;
+        this.useCaseFaqRepository = useCaseFaqRepository;
         this.cloudStorageService = cloudStorageService;
     }
 
     @Override
     @Transactional
     public UseCaseResponseDTO createUseCaseAndSaveAsDraft(UseCaseRequestDTO requestDTO) {
-        logger.info(ManufacturingLabConstants.LOG_SAVING_DRAFT, requestDTO.getTitle());
+        logger.debug(ManufacturingLabConstants.LOG_SAVING_DRAFT, requestDTO.getTitle());
 
         // 1. Build UseCase entity
         UseCase useCase = UseCase.builder()
@@ -153,7 +161,7 @@ public class UseCaseServiceImpl implements UseCaseService {
     @Override
     @Transactional
     public UseCaseResponseDTO createUseCaseAndSubmitForApproval(UseCaseRequestDTO requestDTO) {
-        logger.info(ManufacturingLabConstants.LOG_SUBMITTING_FOR_APPROVAL, requestDTO.getTitle());
+        logger.debug(ManufacturingLabConstants.LOG_SUBMITTING_FOR_APPROVAL, requestDTO.getTitle());
 
         // 1. Build UseCase entity
         UseCase useCase = UseCase.builder()
@@ -205,7 +213,7 @@ public class UseCaseServiceImpl implements UseCaseService {
     @Override
     @Transactional(readOnly = true)
     public UseCaseResponseDTO getUseCaseById(Integer usecaseId) {
-        logger.info(ManufacturingLabConstants.LOG_FETCHING_USE_CASE, usecaseId);
+        logger.debug(ManufacturingLabConstants.LOG_FETCHING_USE_CASE, usecaseId);
 
         UseCase useCase = useCaseRepository.findById(usecaseId)
                 .orElseThrow(() -> new CommonException(CommonExceptionConstants.NOT_FOUND,
@@ -220,30 +228,75 @@ public class UseCaseServiceImpl implements UseCaseService {
     @Transactional(readOnly = true)
     public Page<UseCaseResponseDTO> getAllUseCases(int page, int size) {
 
-        logger.info("Fetching use cases with pagination");
+        logger.info("START getAllUseCases Service | page={}, size={}", page, size);
 
-        Pageable pageable = PageRequest.of(page - 1, size);
+            Pageable pageable = PageRequest.of(page - 1, size);
+            Page<UseCase> useCases = useCaseRepository.findAll(pageable);
+            List<UseCase> useCaseList = useCases.getContent();
 
-        Page<UseCase> useCases = useCaseRepository.findAll(pageable);
+            if (useCaseList.isEmpty()) {
+                return new PageImpl<>(Collections.emptyList(), pageable, 0);
+            }
 
-        List<UseCaseResponseDTO> responses = new ArrayList<>();
+            List<Integer> ids = useCaseList.stream().map(UseCase::getUsecaseId).toList();
 
-        for (UseCase useCase : useCases.getContent()) {
-            UseCaseContent content = useCaseContentRepository
-                    .findByUsecaseId(useCase.getUsecaseId())
-                    .orElse(null);
+            List<UseCaseContent> contents = useCaseContentRepository.findAllByUsecaseIdIn(ids);
+            List<UseCaseTag> tags = useCaseTagRepository.findAllByUseCase_UsecaseIdIn(ids);
+            List<UseCaseSpeaker> speakers = useCaseSpeakerRepository.findAllByUseCase_UsecaseIdIn(ids);
+            List<UseCaseArtifact> artifacts = useCaseArtifactRepository.findAllByUseCase_UsecaseIdIn(ids);
+            List<UseCaseFaq> faqs = useCaseFaqRepository.findAllByUseCase_UsecaseIdIn(ids);
 
-            responses.add(buildResponseFromEntities(useCase, content));
-        }
+            Map<Integer, UseCaseContent> contentMap = new HashMap<>();
+            for (UseCaseContent c : contents) {
+                contentMap.put(c.getUsecaseId(), c);
+            }
 
-        return new PageImpl<>(responses, pageable, useCases.getTotalElements());
+            Map<Integer, List<UseCaseTag>> tagMap = new HashMap<>();
+            for (UseCaseTag t : tags) {
+                Integer id = t.getUseCase().getUsecaseId();
+                tagMap.computeIfAbsent(id, k -> new ArrayList<>()).add(t);
+            }
+
+            Map<Integer, List<UseCaseSpeaker>> speakerMap = new HashMap<>();
+            for (UseCaseSpeaker s : speakers) {
+                Integer id = s.getUseCase().getUsecaseId();
+                speakerMap.computeIfAbsent(id, k -> new ArrayList<>()).add(s);
+            }
+
+            Map<Integer, List<UseCaseArtifact>> artifactMap = new HashMap<>();
+            for (UseCaseArtifact a : artifacts) {
+                Integer id = a.getUseCase().getUsecaseId();
+                artifactMap.computeIfAbsent(id, k -> new ArrayList<>()).add(a);
+            }
+
+            Map<Integer, List<UseCaseFaq>> faqMap = new HashMap<>();
+            for (UseCaseFaq f : faqs) {
+                Integer id = f.getUseCase().getUsecaseId();
+                faqMap.computeIfAbsent(id, k -> new ArrayList<>()).add(f);
+            }
+
+            List<UseCaseResponseDTO> responses = new ArrayList<>();
+
+            for (UseCase useCase : useCaseList) {
+
+                Integer id = useCase.getUsecaseId();
+
+                useCase.setTags(tagMap.getOrDefault(id, Collections.emptyList()));
+                useCase.setSpeakers(speakerMap.getOrDefault(id, Collections.emptyList()));
+                useCase.setArtifacts(artifactMap.getOrDefault(id, Collections.emptyList()));
+                useCase.setFaqs(faqMap.getOrDefault(id, Collections.emptyList()));
+
+                responses.add(buildResponseFromEntities(useCase, contentMap.get(id)));
+            }
+            return new PageImpl<>(responses, pageable, useCases.getTotalElements());
+
     }
 
     @Override
     @Transactional
     public UseCaseResponseDTO updateUseCaseandSaveasDraft(Integer usecaseId, UseCaseRequestDTO requestDTO) {
 
-        logger.info(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
+        logger.debug(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
 
         // Fetch existing record
         UseCase existingUseCase = useCaseRepository.findById(usecaseId)
@@ -335,12 +388,13 @@ public class UseCaseServiceImpl implements UseCaseService {
         useCaseRepository.save(useCase);
 
         return buildResponseFromEntities(useCase, content);
+
     }
 
     @Override
     @Transactional
     public void deleteUseCase(Integer usecaseId) {
-        logger.info(ManufacturingLabConstants.LOG_DELETING_USE_CASE, usecaseId);
+        logger.debug(ManufacturingLabConstants.LOG_DELETING_USE_CASE, usecaseId);
 
         UseCase useCase = useCaseRepository.findById(usecaseId)
                 .orElseThrow(() -> new CommonException(CommonExceptionConstants.NOT_FOUND,
@@ -510,7 +564,7 @@ public class UseCaseServiceImpl implements UseCaseService {
                 .build();
     }
 
-    private UseCaseResponseDTO buildResponseFromEntities(UseCase useCase, UseCaseContent content) {
+    private UseCaseResponseDTO buildResponseFromEntities(UseCase useCase, UseCaseContent content)  {
         ValueChain valueChain = valueChainRepository.findById(useCase.getValueChainId().longValue()).orElse(null);
 
         Long industryId = null;
@@ -530,6 +584,7 @@ public class UseCaseServiceImpl implements UseCaseService {
                 }
             }
         }
+        logger.info("Processing usecaseId={}", useCase.getUsecaseId());
 
         UseCaseResponseDTO.UseCaseResponseDTOBuilder builder = UseCaseResponseDTO.builder()
                 .usecaseId(useCase.getUsecaseId())
@@ -618,7 +673,7 @@ public class UseCaseServiceImpl implements UseCaseService {
     @Transactional
     public void archiveApprovedUseCase(Integer usecaseId) {
 
-        logger.info("Archiving use case with id {}", usecaseId);
+        logger.debug("Archiving use case with id {}", usecaseId);
 
         UseCase useCase = useCaseRepository.findById(usecaseId)
                 .orElseThrow(() -> new CommonException(
@@ -658,7 +713,7 @@ public class UseCaseServiceImpl implements UseCaseService {
     @Transactional
     public UseCaseResponseDTO updateUseCaseandsubmitForApproval(Integer usecaseId, UseCaseRequestDTO requestDTO) {
 
-        logger.info(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
+        logger.debug(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
 
         UseCase existingUseCase = useCaseRepository.findById(usecaseId)
                 .orElseThrow(() -> new CommonException(
@@ -769,7 +824,7 @@ public class UseCaseServiceImpl implements UseCaseService {
     public UseCaseResponseDTO updateUseCaseBySuperAdmin(Integer usecaseId,
                                                         UseCaseRequestDTO requestDTO) {
 
-        logger.info(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
+        logger.debug(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
 
         UseCase existingUseCase = useCaseRepository.findById(usecaseId)
                 .orElseThrow(() -> new CommonException(
@@ -867,7 +922,7 @@ public class UseCaseServiceImpl implements UseCaseService {
     public UseCaseResponseDTO createUseCaseAndSaveAsDraftWithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
                                                                   List<MultipartFile> demoVideos, List<MultipartFile> clientCredentials,
                                                                   MultipartFile thumbnailUrl,MultipartFile bannerUrl) {
-        logger.info(ManufacturingLabConstants.LOG_SAVING_DRAFT, requestDTO.getTitle());
+        logger.debug(ManufacturingLabConstants.LOG_SAVING_DRAFT, requestDTO.getTitle());
 // 1. Build UseCase entity
         UseCase useCase = UseCase.builder()
                 .valueChainId(requestDTO.getValueChainId())
@@ -897,17 +952,17 @@ public class UseCaseServiceImpl implements UseCaseService {
         if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
             String blobPath = thumbnailurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
                     + "/" + thumbnailUrl.getOriginalFilename();
-            logger.info("Uploading thumbnailUrl to blob storage at path: {}", blobPath);
+            logger.debug("Uploading thumbnailUrl to blob storage at path: {}", blobPath);
              thumbnailSasUrl = cloudStorageService.uploadFile(thumbnailUrl, blobPath);
-            logger.info("thumbnailUrl uploaded successfully. Blob URL: {}", thumbnailSasUrl);
+            logger.debug("thumbnailUrl uploaded successfully. Blob URL: {}", thumbnailSasUrl);
 
         }
         if (bannerUrl != null && !bannerUrl.isEmpty()) {
             String blobPath = bannerurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
                     + "/" + bannerUrl.getOriginalFilename();
-            logger.info("Uploading bannerUrl to blob storage at path: {}", blobPath);
+            logger.debug("Uploading bannerUrl to blob storage at path: {}", blobPath);
              bannerSasUrl = cloudStorageService.uploadFile(bannerUrl, blobPath);
-            logger.info("bannerUrl uploaded successfully. Blob URL: {}", bannerSasUrl);
+            logger.debug("bannerUrl uploaded successfully. Blob URL: {}", bannerSasUrl);
         }
 
         if (clientTestimonials != null && !clientTestimonials.isEmpty()) {
@@ -1006,7 +1061,7 @@ public class UseCaseServiceImpl implements UseCaseService {
     public UseCaseResponseDTO createUseCaseAndSubmitForApprovalwithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
                                                                         List<MultipartFile> demoVideos, List<MultipartFile> clientCredentials,
                                                                         MultipartFile thumbnailUrl,MultipartFile bannerUrl) {
-        logger.info(ManufacturingLabConstants.LOG_SUBMITTING_FOR_APPROVAL, requestDTO.getTitle());
+        logger.debug(ManufacturingLabConstants.LOG_SUBMITTING_FOR_APPROVAL, requestDTO.getTitle());
 
         // 1. Build UseCase entity
         UseCase useCase = UseCase.builder()
@@ -1042,17 +1097,17 @@ public class UseCaseServiceImpl implements UseCaseService {
         if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
             String blobPath = thumbnailurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
                     + "/" + thumbnailUrl.getOriginalFilename();
-            logger.info("Uploading thumbnailUrl to blob storage at path: {}", blobPath);
+            logger.debug("Uploading thumbnailUrl to blob storage at path: {}", blobPath);
             thumbnailSasUrl = cloudStorageService.uploadFile(thumbnailUrl, blobPath);
-            logger.info("thumbnailUrl uploaded successfully. Blob URL: {}", thumbnailSasUrl);
+            logger.debug("thumbnailUrl uploaded successfully. Blob URL: {}", thumbnailSasUrl);
 
         }
         if (bannerUrl != null && !bannerUrl.isEmpty()) {
             String blobPath = bannerurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
                     + "/" + bannerUrl.getOriginalFilename();
-            logger.info("Uploading bannerUrl to blob storage at path: {}", blobPath);
+            logger.debug("Uploading bannerUrl to blob storage at path: {}", blobPath);
             bannerSasUrl = cloudStorageService.uploadFile(bannerUrl, blobPath);
-            logger.info("bannerUrl uploaded successfully. Blob URL: {}", bannerSasUrl);
+            logger.debug("bannerUrl uploaded successfully. Blob URL: {}", bannerSasUrl);
         }
 
         if (clientTestimonials != null && !clientTestimonials.isEmpty()) {

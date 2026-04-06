@@ -44,7 +44,7 @@ public class AzureBlobStorageServiceImpl implements CloudStorageService {
             String sasToken = blobClient.generateSas(values);
             String sasUrl = blobClient.getBlobUrl() + "?" + sasToken;
 
-            logger.info("File uploaded & SAS generated: {}", blobPath);
+            logger.debug("File uploaded & SAS generated: {}", blobPath);
             return sasUrl;
 
         } catch (IOException e) {

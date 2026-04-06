@@ -48,7 +48,7 @@ public class MicrositeController {
     @GetMapping(value = "/v1/microsite/industries")
     public ResponseEntity<Object> getAllIndustries() {
 
-        logger.info("Received request to fetch all industries");
+        logger.debug("Received request to fetch all industries");
         try {
             List<Industry> industries = micrositeService.getAllIndustries();
             return new ResponseEntity<>(industries, HttpStatus.OK);
@@ -69,7 +69,7 @@ public class MicrositeController {
     @PostMapping(value = "/v1/microsite/create")
     public ResponseEntity<Object> createIndustry(@RequestBody Industry industry) {
 
-        logger.info("Received request to create industry");
+        logger.debug("Received request to create industry");
         try {
             Industry savedIndustry = micrositeService.createIndustry(industry);
             String message = savedIndustry.getIndustryName() + " industry created successfully";
@@ -94,7 +94,7 @@ public class MicrositeController {
     public ResponseEntity<Object> updateIndustry(@PathVariable Long id,
                                                  @RequestBody Industry industry) {
 
-        logger.info("Received request to update industry with id {}", id);
+        logger.debug("Received request to update industry with id {}", id);
         try {
             Industry updatedIndustry = micrositeService.updateIndustry(id, industry);
             String message = updatedIndustry.getIndustryName() + " industry updated successfully";
@@ -118,7 +118,7 @@ public class MicrositeController {
             @PathVariable Long id,
             @RequestHeader("UserId") Integer updatedById) {
 
-        logger.info("Received request to delete industry with id {}", id);
+        logger.debug("Received request to delete industry with id {}", id);
         try {
             String industryName = micrositeService.deleteIndustry(id, updatedById);
             String message = industryName + " industry deleted successfully";
@@ -141,7 +141,7 @@ public class MicrositeController {
     @GetMapping(value = "/v1/microsite/sub-industries")
     public ResponseEntity<Object> getAllSubIndustries() {
 
-        logger.info("Received request to fetch all sub-industries");
+        logger.debug("Received request to fetch all sub-industries");
         try {
             List<SubIndustry> subIndustries = micrositeService.getAllSubIndustries();
             return new ResponseEntity<>(subIndustries, HttpStatus.OK);
@@ -163,7 +163,7 @@ public class MicrositeController {
     public ResponseEntity<Object> getSubIndustriesByIndustryId(
             @PathVariable("industryId") Long industryId) {
 
-        logger.info("Received request to fetch sub-industries for industryId: {}", industryId);
+        logger.debug("Received request to fetch sub-industries for industryId: {}", industryId);
         try {
             List<SubIndustry> subIndustries = micrositeService.getSubIndustriesByIndustryId(industryId);
             return new ResponseEntity<>(subIndustries, HttpStatus.OK);
@@ -184,7 +184,7 @@ public class MicrositeController {
     @PostMapping(value = "/v1/microsite/sub-industries/create")
     public ResponseEntity<Object> createSubIndustry(@RequestBody SubIndustryDTO subIndustryDTO) {
 
-        logger.info("Received request to create sub-industry");
+        logger.debug("Received request to create sub-industry");
 
         try {
             SubIndustryDTO response = micrositeService.createSubIndustry(subIndustryDTO);
@@ -218,7 +218,7 @@ public class MicrositeController {
     @PutMapping("/v1/microsite/sub-industries/{subIndustryId}")
     public ResponseEntity<Object> updateSubIndustry(@PathVariable Long subIndustryId,
                                                     @RequestBody SubIndustryDTO subIndustryDTO) {
-        logger.info("Received request to update sub-industry");
+        logger.debug("Received request to update sub-industry");
         try {
             micrositeService.updateSubIndustry(subIndustryId, subIndustryDTO);
 
@@ -251,7 +251,7 @@ public class MicrositeController {
     @DeleteMapping("/v1/microsite/sub-industries/{subIndustryId}")
     public ResponseEntity<Object> deleteSubIndustry(@PathVariable Long subIndustryId) {
 
-        logger.info("Received request to delete sub-industry with id {}", subIndustryId);
+        logger.debug("Received request to delete sub-industry with id {}", subIndustryId);
         try {
 
             micrositeService.deleteSubIndustry(subIndustryId);
@@ -284,7 +284,7 @@ public class MicrositeController {
     @GetMapping(value = "/v1/microsite/value-chains")
     public ResponseEntity<Object> getAllValueChains() {
 
-        logger.info("Received request to fetch all value chains");
+        logger.debug("Received request to fetch all value chains");
         try {
             List<ValueChain> valueChains = micrositeService.getAllValueChains();
             return new ResponseEntity<>(valueChains, HttpStatus.OK);
@@ -308,7 +308,7 @@ public class MicrositeController {
             @RequestParam(name = "industryId", required = false) Long industryId,
             @RequestParam(name = "subIndustryId", required = false) Long subIndustryId) {
 
-        logger.info("Received request to fetch value chains for industryId: {} and subIndustryId: {}", industryId, subIndustryId);
+        logger.debug("Received request to fetch value chains for industryId: {} and subIndustryId: {}", industryId, subIndustryId);
         try {
             List<ValueChain> valueChains = micrositeService.getValueChainsByIndustryAndSubIndustry(industryId, subIndustryId);
             return new ResponseEntity<>(valueChains, HttpStatus.OK);
@@ -330,7 +330,7 @@ public class MicrositeController {
     @GetMapping(value = "/v1/all/data")
     public ResponseEntity<Object> getAllMicrositeData() {
 
-        logger.info("Received request to fetch all microsite data");
+        logger.debug("Received request to fetch all microsite data");
         try {
             MicrositeDataDTO micrositeData = micrositeService.getAllMicrositeData();
             return new ResponseEntity<>(micrositeData, HttpStatus.OK);
