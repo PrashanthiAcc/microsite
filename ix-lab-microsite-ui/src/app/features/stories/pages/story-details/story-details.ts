@@ -97,7 +97,7 @@ export class StoryDetailsComponent {
         this.storyDetails.faqs = (this.storyDetails.faqs ?? []).map(f => ({ ...f, showAnswer: false }));
 
         // Split artifacts by type
-        this.clientCredentials = this.storyDetails.artifacts.filter(a => a.artifactType === 'ELEVATOR_PITCH');
+        this.clientCredentials = this.storyDetails.artifacts.filter(a => a.artifactType === 'ELEVATORR_PITCH' || a.artifactType === 'DETAILEDD_CLIENT_STORY');
         this.demoVideos = this.storyDetails.artifacts.filter(a => a.artifactType === 'DEMO_VIDEO');
         this.clientTestimonials = this.storyDetails.artifacts.filter(a => a.artifactType === 'CLIENT_TESTIMONIAL');
 
@@ -106,8 +106,7 @@ export class StoryDetailsComponent {
     }
   }
 
-  onArtifactSelected(artifact: any, type: string) {
-    console.log(`Selected ${type}:`, artifact);
+  onArtifactSelected(artifact: any) {
     // Example: navigate or open file
     window.open(artifact.url, '_blank');
   }

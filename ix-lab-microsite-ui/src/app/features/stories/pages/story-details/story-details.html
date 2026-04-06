@@ -54,15 +54,15 @@
 
     <div class="button-group">
         <app-custom-dropdown label="Client Credential" [options]="clientCredentials" displayKey="artifactName"
-            (optionSelected)="onArtifactSelected($event, 'ELEVATOR_PITCH')" formControlName="clientCredential">
+            (optionSelected)="onArtifactSelected($event)" formControlName="clientCredential">
         </app-custom-dropdown>
 
         <app-custom-dropdown label="Demo Videos" [options]="demoVideos" displayKey="artifactName"
-            (optionSelected)="onArtifactSelected($event, 'DEMO_VIDEO')" formControlName="demoVideo">
+            (optionSelected)="onArtifactSelected($event)" formControlName="demoVideo">
         </app-custom-dropdown>
 
         <app-custom-dropdown label="Client Testimonials" [options]="clientTestimonials" displayKey="artifactName"
-            (optionSelected)="onArtifactSelected($event, 'CLIENT_TESTIMONIAL')" formControlName="clientTestimonial">
+            (optionSelected)="onArtifactSelected($event)" formControlName="clientTestimonial">
         </app-custom-dropdown>
 
 
@@ -183,9 +183,9 @@
         <div class="divider"></div>
 
         <div class="faq-item" *ngFor="let faq of storyDetails?.faqs">
-            <div class="faq-header-row">
+            <div class="faq-header-row" (click)="faq.showAnswer = !faq.showAnswer">
                 <span class="faq-question">{{ faq.question }}</span>
-                <button type="button" class="accordion-btn" (click)="faq.showAnswer = !faq.showAnswer">
+                <button type="button" class="accordion-btn" (click)="faq.showAnswer = !faq.showAnswer ; $event.stopPropagation()">
                     <img [src]="faq.showAnswer ? upArrowIconPath : downArrowIconPath" alt="toggle answer" />
                 </button>
             </div>

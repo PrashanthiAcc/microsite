@@ -44,7 +44,7 @@
       </app-toaster>
       <!-- Search -->
       <div class="search">
-        <input type="text" placeholder="Search" />
+        <input type="text" placeholder="Search" [(ngModel)]="searchText" (input)="onSearch()" />
         <button>🔍</button>
       </div>
 
@@ -91,7 +91,7 @@
 
           <h3>{{ draft.title }}</h3>
 
-          <p>{{ draft.description }}</p>
+          <p class="truncate-3-lines">{{ draft.description }}</p>
 
           <div class="tags">
             <span *ngFor="let tag of draft.tag">{{ tag }}</span>
@@ -144,7 +144,7 @@
     <!---ALL STORIES-------------------->
     <div class="stories__grid" *ngIf="stories.length">
 
-      <div class="story-card" *ngFor="let story of stories" [routerLink]="['/stories', story.usecaseId]">
+      <div class="story-card" *ngFor="let story of filteredStories" [routerLink]="['/stories', story.usecaseId]">
 
         <div class="story-card__media">
           <img [src]="story.thumbnailImageUrl" alt="">
@@ -160,11 +160,11 @@
               <img [src]="favoriteIcon" alt="Favorite" />
               <span>Add to Favourites</span>
             </button>
-            <button class="menu-item" *ngIf="story.status === 'DRAFT'">
+            <button class="menu-item" *ngIf="showAdminControls && story.status === 'DRAFT'">
               <img [src]="discardIcon" alt="Discard" />
               <span (click)="discardDraft(story.usecaseId)">Discard Draft</span>
             </button>
-            <button class="menu-item" *ngIf="story.status !== 'ARCHIVED'">
+            <button class="menu-item" *ngIf="showAdminControls && story.status !== 'ARCHIVED'">
               <img [src]="archiveIcon" alt="Archive" />
               <span (click)="archiveStory(story.usecaseId)">Archive Story</span>
             </button>
@@ -176,7 +176,7 @@
 
           <h3>{{ story.title }}</h3>
 
-          <p>{{ story.description }}</p>
+          <p class="truncate-3-lines">{{ story.description }}</p>
 
           <div class="tags">
             <span *ngFor="let tag of story.tag">{{ tag }}</span>
@@ -194,7 +194,7 @@
                 <span>{{ story.duration }} Min</span>
               </div>
             </div>
-            <div class="footer-row status">
+            <div *ngIf="showAdminControls" class="footer-row status">
               <div class="footer-item">
                 <img [src]="reviewIcon" alt="status" />
                 <span>{{ story.status }}</span>

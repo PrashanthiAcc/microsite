@@ -8,12 +8,13 @@ import { UsecaseService } from '../../../../core/services/usecase';
 import { UserService } from '../../../../core/services/users';
 import { ChangeDetectorRef } from '@angular/core';
 import { ToasterComponent } from '../../../../shared/components/toaster/toaster';
+import { FormsModule } from '@angular/forms';
 
 
 @Component({
   selector: 'app-stories',
   standalone: true,
-  imports: [CommonModule, CustomDropdownComponent, RouterModule, ToasterComponent],
+  imports: [CommonModule, CustomDropdownComponent, RouterModule, ToasterComponent, FormsModule],
   templateUrl: './stories.html',
   styleUrls: ['./stories.scss']
 })
@@ -26,6 +27,8 @@ export class StoriesComponent implements OnInit {
   allSubIndustries: any[] = [];
   allValueChains: any[] = [];
   stories: any[] = [];
+  filteredStories : any[] =[];
+  searchText: string = '';
   drafts: any[] = [];
   allUsers: any[] = [];
   showToast = false;
@@ -53,17 +56,14 @@ export class StoriesComponent implements OnInit {
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       this.showAdminControls = params['from'] === 'config';
-
-    this.route.queryParams.subscribe(params => {
       const id = params['id'];
       if(id) {
         console.log("selected story Id:", id);
       }
-    })
+      this.loadAllStories();
     });
 
     this.loadIndustries();
-    this.loadAllStories();
     this.getAllUsers();
     window.scrollTo({ top: 0 });
   }
@@ -94,14 +94,20 @@ export class StoriesComponent implements OnInit {
 
 loadAllStories(page: number = 1, size: number = 10) {
   this.usecaseService.getAllStories(page, size).subscribe((res: any) => {
-    const allStories = res.content || [];
+    let allStories = res.content || [];
+
+    if (!this.showAdminControls) {
+      allStories = allStories.filter((story: any) => story.isActive == true);
+    }
 
     this.stories = allStories.map((story: any) => ({
       ...story,
       tags: story.tag,
       ownerName: this.getOwnerName(story.ownerEId)
     }));
+    this.filteredStories = this.stories;
 
+    if (this.showAdminControls) {
     this.drafts = allStories
       .filter((story: any) => story.status === 'DRAFT')
       .map((draft: any) => ({
@@ -109,6 +115,7 @@ loadAllStories(page: number = 1, size: number = 10) {
         tags: draft.tag,
         ownerName: this.getOwnerName(draft.ownerEId)
       }));
+    }
 
     this.currentPage = res.number + 1;
     this.totalPages = res.totalPages;
@@ -269,4 +276,31 @@ loadAllStories(page: number = 1, size: number = 10) {
       }
     });
   }
+
+  onSearch() {
+  const value = this.searchText.trim().toLowerCase();
+
+  if (!value) {
+    this.filteredStories = this.stories;
+    return;
+  }
+
+  this.filteredStories = this.stories.filter((story: any) => {
+    
+    const title = (story.title || '').toLowerCase();
+    const description = (story.description || '').toLowerCase();
+    const ownerEId = (story.ownerEId || '').toLowerCase();
+    const ownerName = (story.ownerName || '').toLowerCase();
+
+    const tags = Array.isArray(story.tags)
+      ? story.tags.join(' ').toLowerCase()
+      : (story.tags || '').toLowerCase();
+
+    return (
+      title.includes(value) ||
+      description.includes(value) || ownerEId.includes(value) || ownerName.includes(value) ||
+      tags.includes(value)
+    );
+  });
+}
 }

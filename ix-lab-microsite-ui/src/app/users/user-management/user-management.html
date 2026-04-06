@@ -14,9 +14,9 @@
 
 <div class="config">
     <div class="breadcrumb">
-        <a href="#" class="breadcrumb-link">Admin</a>
+        <a [routerLink]="['/admin']" class="breadcrumb-link active">Admin</a>
         <span class="breadcrumb-separator">›</span>
-        <a routerLink="/admin" class="breadcrumb-link active">Configurations</a>
+        <a [routerLink]="['/admin/configuration']" class="breadcrumb-link active">Configurations</a>
         <span class="breadcrumb-separator">›</span>
         <a href="#" class="breadcrumb-link active">User Management</a>
     </div>
@@ -57,7 +57,7 @@
                     <td>{{ user.userEid }}</td>
                     <td>{{ user.role }}</td>
                     <td>{{ user.accessStartDate | date:'dd MMM yyyy' }}</td>
-                    <td>{{ user.approvedEid }}</td>
+                    <td>{{ user.approverEid }}</td>
                     <td>
                         <button class="btn edit" (click)="openEditUser(user)">
                             <img src="assets/icons/edit.png" alt="Edit" /> Edit
@@ -159,7 +159,7 @@
 
                         <!-- Enterprise ID -->
                         <label>Enterprise ID:</label>
-                        <input type="text" formControlName="userEid"/>
+                        <input type="text" formControlName="userEid" />
 
                         <div *ngIf="userForm.get('userEid')?.touched && userForm.get('userEid')?.invalid"
                             class="required-feild">
@@ -168,7 +168,7 @@
 
                         <!-- Name -->
                         <label>Name:</label>
-                        <input type="text" formControlName="name"/>
+                        <input type="text" formControlName="name" />
 
                         <div *ngIf="userForm.get('name')?.touched && userForm.get('name')?.invalid"
                             class="required-feild">

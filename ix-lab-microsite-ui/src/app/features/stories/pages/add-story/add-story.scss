@@ -811,3 +811,35 @@ input[type="text"] {
   font-weight: 600;
 
 }
+
+.upload-row-client-credential {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.upload-btn-client-credential {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #6c5ce7;
+  color: #6c5ce7;
+  padding: 6px 14px;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.btn-margin-left {
+  margin-left: 66px;
+}
+
+.btn-margin-bottom {
+  margin-bottom: 25px;
+}
+
+.upload-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}

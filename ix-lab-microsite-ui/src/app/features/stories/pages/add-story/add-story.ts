@@ -61,6 +61,8 @@ export class AddStoryComponent {
     thumbnail: ['image/png', 'image/jpeg', 'image/jpg'],
     banner: ['image/png', 'image/jpeg', 'image/jpg'],
     clientCredentials: ['application/vnd.openxmlformats-officedocument.presentationml.presentation'], // .pptx
+    elevatorPitch: ['application/vnd.openxmlformats-officedocument.presentationml.presentation'], // .pptx
+    clientStory: ['application/vnd.openxmlformats-officedocument.presentationml.presentation'], // .pptx
     demoVideos: ['video/mp4'],
     clientTestimonials: [
       'application/pdf',
@@ -77,6 +79,8 @@ export class AddStoryComponent {
     thumbnail: 5 * 1024 * 1024, // 5MB
     banner: 5 * 1024 * 1024,    // 5MB
     clientCredentials: 100 * 1024 * 1024, // 100MB
+    elevatorPitch: 100 * 1024 * 1024, // 100MB
+    clientStory: 100 * 1024 * 1024, // 100MB
     demoVideos: 100 * 1024 * 1024,        // 100MB
     clientTestimonials: 100 * 1024 * 1024 // 100MB
   };
@@ -85,10 +89,14 @@ export class AddStoryComponent {
   showToast = false;
   toastMessage = '';
   toastTitle = '';
+  elevatorFileName: string = '';
+  storyFileName: string = '';
 
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService) {
     this.storyForm = this.fb.group({
+      elevatorPitch: [null],
+      clientStory: [null],
       industryId: [''],
       subIndustryId: [''],
       valueChainId: [''],
@@ -215,10 +223,12 @@ export class AddStoryComponent {
   }
 
   // REMOVE FIELD
+  // removeField(array: FormArray, index: number) {
+  //     array.removeAt(index);
+  // }
+
   removeField(array: FormArray, index: number) {
-    if (array.length > 1) {
-      array.removeAt(index);
-    }
+    array.at(index).setValue(null);
   }
 
   // FILE UPLOAD (renamed to avoid duplicate)

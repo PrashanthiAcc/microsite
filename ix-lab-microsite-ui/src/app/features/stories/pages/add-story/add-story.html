@@ -182,7 +182,7 @@
     <div class="divider"></div>
     <div class="accordion-body" *ngIf="artifactsOpen">
       <!-- Client Credential -->
-      <section class="artifacts-card">
+      <!-- <section class="artifacts-card">
         <div class="header-row">
           <h4>Client Credential</h4>
           <button type="button" class="btn-add" (click)="addField(clientCredentials)">+</button>
@@ -198,6 +198,44 @@
           </div>
           <input type="file" #credentialInput hidden (change)="handleFileUpload($event, 'clientCredentials', i)">
         </div>
+      </section> -->
+
+      <section class="artifacts-card">
+        <div class="header-row">
+          <h4>Client Credential</h4>
+        </div>
+
+        <!-- Elevator Pitch -->
+        <div class="upload-row btn-margin-bottom">
+          <label class="artifacts-label">Elevator Pitch</label>
+
+          <button type="button" class="upload-btn btn-margin-left" (click)="elevatorInput.click()"> <img [src]="uploadIconPath"
+              alt="upload icon" class="upload-icon" /> Upload File</button>
+
+          <span class="file-name" *ngIf="storyForm.get('elevatorPitch')?.value as file">
+            {{ file.name }}
+          </span>
+
+          <p>Supported files .pptx up to 100MB.</p>
+
+          <input type="file" #elevatorInput hidden (change)="handleFileUpload($event, 'elevatorPitch')" />
+        </div>
+
+        <!-- Detailed Client Story -->
+        <div class="upload-row">
+          <label class="artifacts-label">Detailed Client Story</label>
+
+          <button type="button" class="upload-btn" (click)="storyInput.click()"> <img [src]="uploadIconPath"
+              alt="upload icon" class="upload-icon" /> Upload File</button>
+
+          <span class="file-name" *ngIf="storyForm.get('clentStory')?.value as file">
+            {{ file.name }}
+          </span>
+
+          <p>Supported files .pptx up to 100MB.</p>
+
+          <input type="file" #storyInput hidden (change)="handleFileUpload($event, 'clientStory')" />
+        </div>
       </section>
 
       <!-- Demo Videos -->
@@ -209,11 +247,11 @@
         <div class="upload-box" *ngFor="let item of demoVideos.controls; let i = index">
           <div class="upload-row">
             <label class="artifacts-label">Video {{i+1}}</label>
-            <button type="button" class="upload-btn" (click)="videoInput.click()"> <img [src]="uploadIconPath"
+            <button type="button" class="upload-btn" (click)="videoInput.click()" [disabled]="!!demoVideos.at(i).value"> <img [src]="uploadIconPath"
                 alt="upload icon" class="upload-icon" /> Upload File</button>
             <span class="file-name" *ngIf="item.value">{{ item.value.name }}</span>
             <p>Supported file .mp4 up to 100MB.</p>
-            <button type="button" class="btn-delete" (click)="removeField(demoVideos, i)">🗑</button>
+            <button type="button" class="btn-delete" *ngIf="demoVideos.at(i).value" (click)="removeField(demoVideos, i); videoInput.value=''">🗑</button>
           </div>
           <input type="file" #videoInput hidden (change)="handleFileUpload($event, 'demoVideos', i)">
         </div>
@@ -228,11 +266,12 @@
         <div class="upload-box" *ngFor="let item of clientTestimonials.controls; let i = index">
           <div class="upload-row">
             <label class="artifacts-label">Testimonial {{i+1}}</label>
-            <button type="button" class="upload-btn" (click)="testimonialInput.click()"> <img [src]="uploadIconPath"
+            <button type="button" class="upload-btn" (click)="testimonialInput.click()" [disabled]="!!clientTestimonials.at(i).value"> <img [src]="uploadIconPath"
                 alt="upload icon" class="upload-icon" /> Upload File</button>
             <span class="file-name" *ngIf="item.value">{{ item.value.name }}</span>
             <p>Supported files .pdf, .pptx, .mp4, .jpg, .png, .jpeg up to 100MB.</p>
-            <button type="button" class="btn-delete" (click)="removeField(clientTestimonials, i)">🗑</button>
+            <button type="button" class="btn-delete" *ngIf="clientTestimonials.at(i).value"
+              (click)="removeField(clientTestimonials, i); testimonialInput.value=''">🗑</button>
           </div>
           <input type="file" #testimonialInput hidden (change)="handleFileUpload($event, 'clientTestimonials', i)">
         </div>
@@ -354,11 +393,13 @@
 
       <div *ngIf="!faq.get('editing')?.value && faq.get('question')?.value" class="faq-header-row">
         <!-- Question text only when accordion is closed -->
-        <span class="faq-question" *ngIf="!faq.get('showAnswer')?.value" (click)="faq.get('showAnswer')?.setValue(!faq.get('showAnswer')?.value)">
+        <span class="faq-question" *ngIf="!faq.get('showAnswer')?.value"
+          (click)="faq.get('showAnswer')?.setValue(!faq.get('showAnswer')?.value)">
           {{ faq.get('question')?.value }}
         </span>
         <!-- Empty span to reserve space when accordion is open -->
-        <span class="faq-question" *ngIf="faq.get('showAnswer')?.value" (click)="faq.get('showAnswer')?.setValue(!faq.get('showAnswer')?.value)"></span>
+        <span class="faq-question" *ngIf="faq.get('showAnswer')?.value"
+          (click)="faq.get('showAnswer')?.setValue(!faq.get('showAnswer')?.value)"></span>
 
         <div class="faq-actions">
           <!-- Accordion toggle -->
@@ -410,22 +451,22 @@
 
 <!-- Approval Modal -->
 <div class="modal-backdrop" *ngIf="showApprovalModal">
-<div class="modal" *ngIf="showApprovalModal">
-  <div class="modal-header">
-    <h2>New Story</h2>
-    <button type="button" class="btn-close" (click)="closeApprovalModal()">
-      <img [src]="closeIconPath" alt="close icon" class="close-icon" />
-    </button>
-  </div>
+  <div class="modal" *ngIf="showApprovalModal">
+    <div class="modal-header">
+      <h2>New Story</h2>
+      <button type="button" class="btn-close" (click)="closeApprovalModal()">
+        <img [src]="closeIconPath" alt="close icon" class="close-icon" />
+      </button>
+    </div>
 
-  <p class="modal-message">
-    {{ modalAction === 'approval' ? 'Send for Approval?' : 'Save as Draft?' }}
-  </p>
+    <p class="modal-message">
+      {{ modalAction === 'approval' ? 'Send for Approval?' : 'Save as Draft?' }}
+    </p>
 
-  <div class="modal-actions">
-    <button type="button" class="btn-approve" (click)="confirmModalAction()">
-      Okay
-    </button>
+    <div class="modal-actions">
+      <button type="button" class="btn-approve" (click)="confirmModalAction()">
+        Okay
+      </button>
+    </div>
   </div>
-</div>
 </div>

@@ -3,11 +3,12 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
 import { UserService } from '../../core/services/users';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-user-management',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, QuillModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, QuillModule, RouterLink],
   templateUrl: './user-management.html',
   styleUrls: ['./user-management.scss'],
 })
@@ -130,12 +131,12 @@ export class UserManagementComponent implements OnInit {
     };
     this.userService.addUser(requestBody).subscribe({
       next: (res) => {
+        this.message = 'User Created successfully';
         this.loadUsers();
         this.closeModal();
-        this.cdr.detectChanges();
         setTimeout(() => {
-          this.message = 'User Created successfully';
-        },3000);
+          this.message = '';
+        }, 2000);
       },
     });
     this.showModal = false;
@@ -146,16 +147,17 @@ export class UserManagementComponent implements OnInit {
     const userEid = this.selectedUser?.userEid;
     const payload = {
       role: this.mapRole(selectedRole),
-      updaterEid: 'mukunda.ram.bhuyan' 
+      updaterEid: 'mukunda.ram.bhuyan'
     };
 
     this.userService.updateUser(userEid, payload).subscribe({
       next: () => {
+        this.message = 'User Updated successfully';
         this.loadUsers(); // refresh table
         this.closeModal();
         setTimeout(() => {
-          this.message = 'User Updated successfully';
-        },3000);
+          this.message = '';
+        }, 2000);
       }
     });
   }
@@ -196,22 +198,16 @@ export class UserManagementComponent implements OnInit {
   }
 
   deleteUser(user: any) {
-    const payload = {
-      userId: user.userId,
-    };
-
     const userId = user.userId;
-
-    this.userService.deleteUser(userId, payload).subscribe({
+    this.userService.deleteUser(userId).subscribe({
       next: () => {
         this.users = this.users.filter(u => u.id !== userId);
+        this.message = 'User Removed successfully.'
+        this.loadUsers();
         setTimeout(() => {
-          this.message = 'User Removed successfully.'
-        },3000);
+          this.message = ''
+        }, 2000);
       },
-      error: (err) => {
-        console.error(err);
-      }
     });
   }
 

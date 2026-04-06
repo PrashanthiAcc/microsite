@@ -25,17 +25,17 @@ getAllUsers() {
 }
 
 addUser(addUser: any) {
-  return this.http.post(`${environment.apiUrl}/api/users/v1/create`, addUser);
+  return this.http.post(`${environment.apiUrl}/api/users/v1/create`, addUser, {responseType: 'text'});
 }
 
 acceptUser(userEid: string, payload: any) {
   return this.http.put(`${environment.apiUrl}/api/users/v1/${userEid}/accept`, payload);
 }
 
-deleteUser(userId: string, payload: any) {
-  return this.http.delete(`${environment.apiUrl}/api/users/v1/${userId}`, payload);
-}
 
+deleteUser(userId: string) {
+  return this.http.delete(`${environment.apiUrl}/api/users/v1/${userId}`, {responseType: 'text'});
+}
 updateUser(userEid: string, payload: any) {
   return this.http.put(`${environment.apiUrl}/api/users/v1/${userEid}`, payload, {responseType: 'text'});
 }

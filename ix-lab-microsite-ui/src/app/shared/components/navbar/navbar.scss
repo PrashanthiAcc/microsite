@@ -119,3 +119,32 @@
   border-radius: 50%;
 }
 
+.nav-link {
+  position: relative;
+  cursor: pointer;
+  color: #333;
+  padding: 8px 12px;
+  transition: color 0.3s ease;
+}
+
+/* HOVER EFFECT */
+.nav-link:hover {
+  color: #6f42c1; /* your theme color */
+}
+
+/* OPTIONAL: underline animation */
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 2px;
+  background-color: #6f42c1;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+

@@ -3,20 +3,20 @@
     <img class="logo-icon" src="assets/Accenture Logo.png" alt="Accenture Logo" />
     <div class="logo-text">
       <div class="title">Industry X - Digital</div>
-      <div class="subtitle">Manufacturing Experience Zone</div>
+      <div class="title">Manufacturing Experience Zone</div>
     </div>
   </div>
 
   <nav class="navbar-right">
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+    <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
       Home
     </a>
 
-    <a routerLink="/stories" routerLinkActive="active">
+    <a class="nav-link" routerLink="/stories" routerLinkActive="active">
       Stories
     </a>
 
-    <a routerLink="/favourites" routerLinkActive="active">
+    <a class="nav-link" routerLink="/favourites" routerLinkActive="active">
       Favourites
     </a>
 
@@ -54,7 +54,7 @@
   <a
     routerLinkActive="active"
     [routerLinkActiveOptions]="{exact:false}"
-    class="admin"
+    class="admin nav-link"
     (click)="$event.preventDefault(); toggleAdminMenu($event)"
   >
     Admin <span class="arrow">▾</span>
