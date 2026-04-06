@@ -78,7 +78,7 @@ export class StoryDetailsComponent {
   clientCredentials: any[] = [];
   demoVideos: any[] = [];
   clientTestimonials: any[] = [];
-
+  fromPage: string = 'stories';
 
   constructor(private route: ActivatedRoute, private usecaseService: UsecaseService, private cdr: ChangeDetectorRef,
     private router: Router
@@ -86,6 +86,7 @@ export class StoryDetailsComponent {
 
   ngOnInit() {
     window.scrollTo({ top: 0 });
+    this, this.fromPage = this.route.snapshot.queryParams['from'] || 'stories';
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.usecaseService.getStoryDetailsById(id).subscribe(res => {
@@ -93,7 +94,7 @@ export class StoryDetailsComponent {
         console.log('Fetched story details:', this.storyDetails);
         // Initialize FAQ toggle state
         // this.storyDetails.faqs = this.storyDetails.faqs.map(f => ({ ...f, showAnswer: false }));
-       
+
         this.storyDetails.faqs = (this.storyDetails.faqs ?? []).map(f => ({ ...f, showAnswer: false }));
 
         // Split artifacts by type
@@ -118,7 +119,7 @@ export class StoryDetailsComponent {
   }
 
   navigateBack() {
-    this.router.navigate(['/stories']);
+    this.router.navigate(['/stories'], { queryParams: { from: this.fromPage } });
   }
 
 }

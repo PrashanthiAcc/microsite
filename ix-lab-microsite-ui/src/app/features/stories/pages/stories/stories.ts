@@ -47,6 +47,7 @@ export class StoriesComponent implements OnInit {
   discardIcon = "assets/icons/discard.png";
   favoriteIcon = "assets/icons/favorite.png";
   editIcon = "assets/icons/edit.png";
+  currentFrom: string ='stories';
 
   constructor(private router: Router, private http: HttpClient,
     private industryService: IndustryService, private cdr: ChangeDetectorRef, private route: ActivatedRoute,
@@ -56,6 +57,7 @@ export class StoriesComponent implements OnInit {
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       this.showAdminControls = params['from'] === 'config';
+      this.currentFrom = this.route.snapshot.queryParams['from'] || 'stroies';
       const id = params['id'];
       if(id) {
         console.log("selected story Id:", id);
@@ -67,29 +69,6 @@ export class StoriesComponent implements OnInit {
     this.getAllUsers();
     window.scrollTo({ top: 0 });
   }
-
-  // loadAllStories() {
-  //   this.usecaseService.getAllStories().subscribe((res: any) => {
-  //     const allStories = res.content || [];
-  //     // this.stories = res.content.map((story: any) => ({
-  //     //   ...story,
-  //     //   ownerName: this.getOwnerName(story.ownerEId)
-  //     // }));
-  //     this.stories = allStories.map((story: any) => ({
-  //       ...story,
-  //       ownerName: this.getOwnerName(story.ownerEId)
-  //     }));
-
-  //     this.drafts = allStories
-  //       .filter((story: any) => story.status === 'DRAFT')
-  //       .map((draft: any) => ({
-  //         ...draft,
-  //         ownerName: this.getOwnerName(draft.ownerEId)
-  //       }));
-  //     console.log("drafts::", this.drafts);
-  //     this.cdr.detectChanges();
-  //   });
-  // }
 
 
 loadAllStories(page: number = 1, size: number = 10) {

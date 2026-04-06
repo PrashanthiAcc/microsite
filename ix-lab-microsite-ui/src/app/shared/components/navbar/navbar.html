@@ -12,7 +12,7 @@
       Home
     </a>
 
-    <a class="nav-link" routerLink="/stories" routerLinkActive="active">
+    <a class="nav-link" [routerLink]="['/stories']" [queryParams]="{from : 'stories'}" routerLinkActive="active">
       Stories
     </a>
 

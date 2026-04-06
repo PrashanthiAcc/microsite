@@ -7,7 +7,7 @@
       <div class="breadcrumb">
         <a href="#" class="breadcrumb-link">Admin</a>
         <span class="breadcrumb-separator">›</span>
-        <a routerLink="/admin" class="breadcrumb-link">Configurations</a>
+        <a [routerLink]="['/admin/configuration']" class="breadcrumb-link">Configurations</a>
         <span class="breadcrumb-separator">›</span>
         <a href="#" class="breadcrumb-link active">Stories Configuration</a>
       </div>
@@ -59,7 +59,7 @@
     <!-- GRID ALL DRAFTS------------ -->
     <div class="stories__grid" *ngIf="drafts.length">
 
-      <div class="story-card" *ngFor="let draft of drafts" [routerLink]="['/stories', draft.usecaseId]">
+      <div class="story-card" *ngFor="let draft of drafts" [routerLink]="['/stories', draft.usecaseId]" [queryParams]="{from: currentFrom}">
 
         <div class="story-card__media">
           <img [src]="draft.thumbnailImageUrl" alt="">
@@ -145,7 +145,7 @@
     <!---ALL STORIES-------------------->
     <div class="stories__grid" *ngIf="stories.length">
 
-      <div class="story-card" *ngFor="let story of filteredStories" [routerLink]="['/stories', story.usecaseId]">
+      <div class="story-card" *ngFor="let story of filteredStories" [routerLink]="['/stories', story.usecaseId]" [queryParams]="{from: currentFrom}">
 
         <div class="story-card__media">
           <img [src]="story.thumbnailImageUrl" alt="">

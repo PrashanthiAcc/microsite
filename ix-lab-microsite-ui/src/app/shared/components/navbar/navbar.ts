@@ -6,7 +6,7 @@ import { Router, RouterLink, RouterLinkActive, RouterModule, NavigationEnd, Acti
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterModule, RouterLink, RouterLinkActive, RouterModule],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss'
 })
