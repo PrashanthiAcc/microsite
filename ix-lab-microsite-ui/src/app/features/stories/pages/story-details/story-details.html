@@ -95,9 +95,7 @@
             <img [src]="solutionIconPath" alt="solution" class="label-icon"> Solution
         </h3>
         <div class="divider"></div>
-        <div class="info-body">
-            {{ storyDetails?.solutions }}
-
+        <div class="info-body" [innerHTML]="storyDetails.solutions">
             <!-- <ul>
                 <li>LyoOmniTwin — physics-informed digital twin</li>
                 <li>Virtual process modeling before runs</li>
@@ -113,7 +111,7 @@
             <img [src]="line_graphIconPath" alt="value" class="label-icon"> Value Delivered
         </h3>
         <div class="divider"></div>
-        <div class="info-body"> {{ storyDetails?.valueDelivered }}
+        <div class="info-body" [innerHTML]="storyDetails.valueDelivered">
             <!-- <ul>
                 <li>System Architecture (LyoOmniTwin)</li>
                 <li>Modeling & Validation</li>
@@ -130,7 +128,7 @@
             <img [src]="caliperIconPath" alt="tools" class="label-icon"> Tools & Technology
         </h3>
         <div class="divider"></div>
-        <div class="info-body"> {{ storyDetails?.toolsAndTechnologies }}
+        <div class="info-body" [innerHTML]="storyDetails.toolsAndTechnologies">
             <!-- <ul>
                 <li style="color:#fff;">Digital Twin & Visualization: NVIDIA Omniverse</li>
                 <li style="color:#fff;">Physics-Based Modeling: Simulation engines</li>
@@ -146,7 +144,7 @@
             <img [src]="targetIconPath" alt="target" class="label-icon"> Key Results
         </h3>
         <div class="divider"></div>
-        <div class="info-body"> {{ storyDetails?.keyResults }}
+        <div class="info-body" [innerHTML]="storyDetails.keyResults">
             <!-- <ul>
                 <li>De-risked batches via early excursion detection</li>
                 <li>Faster scale-up & tech-transfer with virtual DOE</li>

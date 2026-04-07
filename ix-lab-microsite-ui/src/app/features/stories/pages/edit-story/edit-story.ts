@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators, FormsModule } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
 import { HttpClient } from '@angular/common/http';
@@ -23,6 +23,10 @@ export class EditStoryComponent {
   industries: any[] = [];
   subIndustries: any[] = [];
   valueChains: any[] = [];
+
+  originalFaqs: any[] = [];
+
+  faqBackup: any = {};
 
   allSubIndustries: any[] = [];
   allValueChains: any[] = [];
@@ -84,7 +88,7 @@ export class EditStoryComponent {
 
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService,
-    private route: ActivatedRoute) {
+    private route: ActivatedRoute, private location: Location) {
     this.storyForm = this.fb.group({
       industryId: [''],
       subIndustryId: [''],
@@ -132,7 +136,8 @@ export class EditStoryComponent {
         question: ['', Validators.required],
         answer: ['', Validators.required],
         editing: [true],
-        showAnswer: [false]
+        showAnswer: [false],
+        originalData: [null]
       })])
     });
   }
@@ -145,93 +150,95 @@ export class EditStoryComponent {
     this.loadUsecaseById(this.usecaseID)
   }
 
- loadUsecaseById(id: string | null) {
-  if (!id) return;
+  loadUsecaseById(id: string | null) {
+    if (!id) return;
 
-  this.usecaseService.getStoryDetailsById(id).subscribe((res: any) => {
-    // ✅ Find matching names for industry/subIndustry/valueChain
-    const industryName = this.industries.find(i => i.industryId === res.industryId)?.industryName || '';
-    const subIndustryName = this.allSubIndustries.find(si => si.subIndustryId === res.subIndustryId)?.subIndustryName || '';
-    const valueChainName = this.allValueChains.find(vc => vc.valueChainId === res.valueChainId)?.valueChainName || '';
+    this.usecaseService.getStoryDetailsById(id).subscribe((res: any) => {
+      // ✅ Find matching names for industry/subIndustry/valueChain
+      const industryName = this.industries.find(i => i.industryId === res.industryId)?.industryName || '';
+      const subIndustryName = this.allSubIndustries.find(si => si.subIndustryId === res.subIndustryId)?.subIndustryName || '';
+      const valueChainName = this.allValueChains.find(vc => vc.valueChainId === res.valueChainId)?.valueChainName || '';
 
-    // ✅ Owner patched with userEid string
-    const ownerUser = this.allUsers.find(u => u.userEid === res.ownerEId);
-    const ownerEid = ownerUser ? ownerUser.userEid : '';
+      // ✅ Owner patched with userEid string
+      const ownerUser = this.allUsers.find(u => u.userEid === res.ownerEId);
+      const ownerEid = ownerUser ? ownerUser.userEid : '';
 
-    // ✅ Speakers patched with userEid strings
-    const primarySpeakerEid = res.speakers.find((s: any) => s.speakerType === 'PRIMARY')?.speakerEid || '';
-    const secondarySpeakerEid = res.speakers.find((s: any) => s.speakerType === 'SECONDARY')?.speakerEid || '';
-    const tertiarySpeakerEid = res.speakers.find((s: any) => s.speakerType === 'TERTIARY')?.speakerEid || '';
+      // ✅ Speakers patched with userEid strings
+      const primarySpeakerEid = res.speakers.find((s: any) => s.speakerType === 'PRIMARY')?.speakerEid || '';
+      const secondarySpeakerEid = res.speakers.find((s: any) => s.speakerType === 'SECONDARY')?.speakerEid || '';
+      const tertiarySpeakerEid = res.speakers.find((s: any) => s.speakerType === 'TERTIARY')?.speakerEid || '';
 
-    // ✅ Thumbnail file name extraction
-    let thumbnailValue: any = null;
-    if (res.thumbnailImageUrl) {
-      const fileName = res.thumbnailImageUrl.split('/').pop();
-      thumbnailValue = { name: fileName };
-    }
-
-    let bannerValue: any = null;
-    if (res.bannerUrl) {
-      const fileName = res.bannerUrl.split('/').pop();
-      bannerValue = { name: fileName };
-    }
-
-    // ✅ Patch form values
-    this.storyForm.patchValue({
-      industryId: industryName,
-      subIndustryId: subIndustryName,
-      valueChainId: valueChainName,
-      title: res.title,
-      description: res.description,
-      duration: res.duration,
-      ownerId: ownerEid, // ✅ userEid string
-      primarySpeaker: primarySpeakerEid,
-      secondarySpeaker: secondarySpeakerEid,
-      tertiarySpeaker: tertiarySpeakerEid,
-      businessProblem: res.businessProblem,
-      solutions: res.solutions,
-      valueDelivered: res.valueDelivered,
-      toolsAndTechnologies: res.toolsAndTechnologies,
-      keyResults: res.keyResults,
-      narrationGuide: res.narrationGuide,
-      approverId: res.approverId,
-      creatorId: res.creatorId,
-      thumbnailImageUrl: thumbnailValue,
-      bannerUrl: bannerValue
-    });
-
-    // ✅ Tags
-    this.tagsArray.clear();
-    (res.tag || []).forEach((t: string) => {
-      this.tagsArray.push(this.fb.control(t));
-    });
-
-    // ✅ Artifacts
-    this.clientCredentials.clear();
-    this.demoVideos.clear();
-    this.clientTestimonials.clear();
-    (res.artifacts || []).forEach((a: any) => {
-      if (a.artifactType === 'ELEVATOR_PITCH') {
-        this.clientCredentials.push(this.fb.control({ name: a.artifactName, url: a.url }));
-      } else if (a.artifactType === 'DEMO_VIDEO') {
-        this.demoVideos.push(this.fb.control({ name: a.artifactName, url: a.url }));
-      } else if (a.artifactType === 'CLIENT_TESTIMONIAL') {
-        this.clientTestimonials.push(this.fb.control({ name: a.artifactName, url: a.url }));
+      // ✅ Thumbnail file name extraction
+      let thumbnailValue: any = null;
+      if (res.thumbnailImageUrl) {
+        const fileName = res.thumbnailImageUrl.split('/').pop();
+        thumbnailValue = { name: fileName };
       }
-    });
 
-    // ✅ FAQs
-    this.faqs.clear();
-    (res.faqs || []).forEach((f: any) => {
-      this.faqs.push(this.fb.group({
-        question: [f.question, Validators.required],
-        answer: [f.answer, Validators.required],
-        editing: [false],
-        showAnswer: [false]
-      }));
+      let bannerValue: any = null;
+      if (res.bannerUrl) {
+        const fileName = res.bannerUrl.split('/').pop();
+        bannerValue = { name: fileName };
+      }
+
+      // ✅ Patch form values
+      this.storyForm.patchValue({
+        industryId: industryName,
+        subIndustryId: subIndustryName,
+        valueChainId: valueChainName,
+        title: res.title,
+        description: res.description,
+        duration: res.duration,
+        ownerId: ownerEid, // ✅ userEid string
+        primarySpeaker: primarySpeakerEid,
+        secondarySpeaker: secondarySpeakerEid,
+        tertiarySpeaker: tertiarySpeakerEid,
+        businessProblem: res.businessProblem,
+        solutions: res.solutions,
+        valueDelivered: res.valueDelivered,
+        toolsAndTechnologies: res.toolsAndTechnologies,
+        keyResults: res.keyResults,
+        narrationGuide: res.narrationGuide,
+        approverId: res.approverId,
+        creatorId: res.creatorId,
+        thumbnailImageUrl: thumbnailValue,
+        bannerUrl: bannerValue
+      });
+
+      // ✅ Tags
+      this.tagsArray.clear();
+      (res.tag || []).forEach((t: string) => {
+        this.tagsArray.push(this.fb.control(t));
+      });
+
+      // ✅ Artifacts
+      this.clientCredentials.clear();
+      this.demoVideos.clear();
+      this.clientTestimonials.clear();
+      (res.artifacts || []).forEach((a: any) => {
+        if (a.artifactType === 'ELEVATOR_PITCH') {
+          this.clientCredentials.push(this.fb.control({ name: a.artifactName, url: a.url }));
+        } else if (a.artifactType === 'DEMO_VIDEO') {
+          this.demoVideos.push(this.fb.control({ name: a.artifactName, url: a.url }));
+        } else if (a.artifactType === 'CLIENT_TESTIMONIAL') {
+          this.clientTestimonials.push(this.fb.control({ name: a.artifactName, url: a.url }));
+        }
+      });
+
+      // ✅ FAQs
+      this.faqs.clear();
+      (res.faqs || []).forEach((f: any) => {
+        this.faqs.push(this.fb.group({
+          question: [f.question, Validators.required],
+          answer: [f.answer, Validators.required],
+          editing: [false],
+          showAnswer: [false]
+        }));
+      });
+
+      this.originalFaqs = this.faqs.value.map(faq => ({ ...faq }));
     });
-  });
-}
+  }
 
 
   getAllUsers() {
@@ -395,34 +402,36 @@ export class EditStoryComponent {
     }
   }
 
-  cancelFAQ(index: number) {
-    if (index === 0) {
-      this.faqs.at(index).reset({ question: '', answer: '', editing: true });
+  cancelFAQ(i: number) {
+    const faqGroup = this.faqs.at(i);
+    const original = this.faqBackup[i];
+
+    if (original) {
+      faqGroup.setValue({
+        question: original.question,
+        answer: original.answer,
+        editing: false,
+        showAnswer: false
+      });
     } else {
-      this.faqs.removeAt(index);
+      faqGroup.get('editing')?.setValue(false);
+      faqGroup.get('showAnswer')?.setValue(false);
     }
   }
 
-  editFAQ(index: number) {
-    this.faqs.at(index).patchValue({ editing: true });
+  editFAQ(i: number) {
+    const faqGroup = this.faqs.at(i);
+    this.faqBackup[i] = JSON.parse(JSON.stringify(faqGroup.value));
+
+    faqGroup.get('editing')?.setValue(true);
+    faqGroup.get('showAnswer')?.setValue(true);
   }
-
-  // toggleAccordion() {
-  //   this.isOpen = !this.isOpen;
-  // }
-
-  stripHtml(html: string): string {
-    const div = document.createElement('div');
-    div.innerHTML = html;
-    return div.textContent || div.innerText || '';
-  }
-
-
 
   openModal(action: 'draft' | 'approval') {
     this.modalAction = action;
     this.showApprovalModal = true;
   }
+
   closeApprovalModal() {
     this.showApprovalModal = false;
   }
@@ -445,155 +454,171 @@ export class EditStoryComponent {
 
   // ✅ Update existing story
 
-updateStoryForApproval() {
-  if (!this.usecaseID) {
-    console.error('No usecaseID found, cannot update story.');
-    return;
+  updateStoryForApproval() {
+    if (!this.usecaseID) {
+      console.error('No usecaseID found, cannot update story.');
+      return;
+    }
+
+    const formValue = this.storyForm.value;
+
+    // ✅ Map industry/subIndustry/valueChain names back to IDs
+    const industryObj = this.industries.find(i => i.industryName === formValue.industryId);
+    const subIndustryObj = this.allSubIndustries.find(si => si.subIndustryName === formValue.subIndustryId);
+    const valueChainObj = this.allValueChains.find(vc => vc.valueChainName === formValue.valueChainId);
+
+    // Owner and speakers already working fine (userEid strings)
+    const ownerUser = this.allUsers.find(u => u.userEid === formValue.ownerId);
+
+    const payload = {
+      industryId: industryObj ? industryObj.industryId : null,
+      subIndustryId: subIndustryObj ? subIndustryObj.subIndustryId : null,
+      valueChainId: valueChainObj ? valueChainObj.valueChainId : null,
+      title: formValue.title,
+      thumbnailImageUrl: formValue.thumbnailImageUrl,
+      bannerUrl: formValue.bannerUrl,
+      description: formValue.description,
+      duration: formValue.duration ? Number(formValue.duration) : null,
+
+      ownerEId: formValue.ownerId, // already userEid string
+      businessProblem: formValue.businessProblem,
+      solutions: formValue.solutions,
+      valueDelivered: formValue.valueDelivered,
+      toolsAndTechnologies: formValue.toolsAndTechnologies,
+      keyResults: formValue.keyResults,
+      narrationGuide: formValue.narrationGuide,
+
+      approverId: ownerUser ? ownerUser.userId : null,
+      creatorId: ownerUser ? ownerUser.userId : null,
+      isActive: true,
+
+      speakers: [
+        { speakerEid: formValue.primarySpeaker, speakerType: 'PRIMARY' },
+        { speakerEid: formValue.secondarySpeaker, speakerType: 'SECONDARY' },
+        { speakerEid: formValue.tertiarySpeaker, speakerType: 'TERTIARY' }
+      ].filter(s => s.speakerEid),
+
+      tags: (formValue.tags || []).map((t: any) => t),
+      faq: (formValue.faqs || []).map((f: any) => ({
+        question: f.question,
+        answer: f.answer
+      })),
+
+      artifacts: []
+    };
+
+    console.log('Payload for Update:', payload);
+
+    this.usecaseService.updateStorySendForApproval(this.usecaseID, payload).subscribe((res: any) => {
+      console.log('Story updated successfully', res);
+      this.router.navigate(['/stories']);
+    });
   }
 
-  const formValue = this.storyForm.value;
+  updateStorySaveDraft() {
+    if (!this.usecaseID) {
+      console.error('No usecaseID found, cannot update story.');
+      return;
+    }
 
-  // ✅ Map industry/subIndustry/valueChain names back to IDs
-  const industryObj = this.industries.find(i => i.industryName === formValue.industryId);
-  const subIndustryObj = this.allSubIndustries.find(si => si.subIndustryName === formValue.subIndustryId);
-  const valueChainObj = this.allValueChains.find(vc => vc.valueChainName === formValue.valueChainId);
+    const formValue = this.storyForm.value;
 
-  // Owner and speakers already working fine (userEid strings)
-  const ownerUser = this.allUsers.find(u => u.userEid === formValue.ownerId);
+    // ✅ Map industry/subIndustry/valueChain names back to IDs
+    const industryObj = this.industries.find(i => i.industryName === formValue.industryId);
+    const subIndustryObj = this.allSubIndustries.find(si => si.subIndustryName === formValue.subIndustryId);
+    const valueChainObj = this.allValueChains.find(vc => vc.valueChainName === formValue.valueChainId);
 
-  const payload = {
-    industryId: industryObj ? industryObj.industryId : null,
-    subIndustryId: subIndustryObj ? subIndustryObj.subIndustryId : null,
-    valueChainId: valueChainObj ? valueChainObj.valueChainId : null,
-    title: formValue.title,
-    thumbnailImageUrl: formValue.thumbnailImageUrl,
-    bannerUrl: formValue.bannerUrl,
-    description: formValue.description,
-    duration: formValue.duration ? Number(formValue.duration) : null,
+    // Owner and speakers already working fine (userEid strings)
+    const ownerUser = this.allUsers.find(u => u.userEid === formValue.ownerId);
 
-    ownerEId: formValue.ownerId, // already userEid string
-    businessProblem: this.stripHtml(formValue.businessProblem),
-    solutions: this.stripHtml(formValue.solutions),
-    valueDelivered: this.stripHtml(formValue.valueDelivered),
-    toolsAndTechnologies: this.stripHtml(formValue.toolsAndTechnologies),
-    keyResults: this.stripHtml(formValue.keyResults),
-    narrationGuide: this.stripHtml(formValue.narrationGuide),
+    const payload = {
+      industryId: industryObj ? industryObj.industryId : null,
+      subIndustryId: subIndustryObj ? subIndustryObj.subIndustryId : null,
+      valueChainId: valueChainObj ? valueChainObj.valueChainId : null,
+      title: formValue.title,
+      thumbnailImageUrl: this.extractValue(this.storyForm.get('thumbnailImageUrl')?.value),
+      bannerUrl: this.extractValue(this.storyForm.get('bannerUrl')?.value),
+      description: formValue.description,
+      duration: formValue.duration ? Number(formValue.duration) : null,
 
-    approverId: ownerUser ? ownerUser.userId : null,
-    creatorId: ownerUser ? ownerUser.userId : null,
-    isActive: true,
+      ownerEId: formValue.ownerId, // already userEid string
+      businessProblem: formValue.businessProblem,
+      solutions: formValue.solutions,
+      valueDelivered: formValue.valueDelivered,
+      toolsAndTechnologies: formValue.toolsAndTechnologies,
+      keyResults: formValue.keyResults,
+      narrationGuide: formValue.narrationGuide,
 
-    speakers: [
-      { speakerEid: formValue.primarySpeaker, speakerType: 'PRIMARY' },
-      { speakerEid: formValue.secondarySpeaker, speakerType: 'SECONDARY' },
-      { speakerEid: formValue.tertiarySpeaker, speakerType: 'TERTIARY' }
-    ].filter(s => s.speakerEid),
+      approverId: ownerUser ? ownerUser.userId : null,
+      creatorId: ownerUser ? ownerUser.userId : null,
+      isActive: true,
 
-    tags: (formValue.tags || []).map((t: any) => t),
-    faq: (formValue.faqs || []).map((f: any) => ({
-      question: f.question,
-      answer: f.answer
-    })),
+      speakers: [
+        { speakerEid: formValue.primarySpeaker, speakerType: 'PRIMARY' },
+        { speakerEid: formValue.secondarySpeaker, speakerType: 'SECONDARY' },
+        { speakerEid: formValue.tertiarySpeaker, speakerType: 'TERTIARY' }
+      ].filter(s => s.speakerEid),
 
-    artifacts: []
-  };
+      tags: (formValue.tags || []).map((t: any) => t),
+      faq: (formValue.faqs || []).map((f: any) => ({
+        question: f.question,
+        answer: f.answer
+      })),
 
-  console.log('Payload for Update:', payload);
+      artifacts: []
+    };
 
-  this.usecaseService.updateStorySendForApproval(this.usecaseID, payload).subscribe((res: any) => {
-    console.log('Story updated successfully', res);
-    this.router.navigate(['/stories']);
-  });
-}
+    console.log('Payload for Update:', payload);
 
-updateStorySaveDraft() {
-  if (!this.usecaseID) {
-    console.error('No usecaseID found, cannot update story.');
-    return;
+    this.usecaseService.updateStorySaveDraft(this.usecaseID, payload).subscribe((res: any) => {
+      console.log('Story updated successfully', res);
+      this.router.navigate(['/stories']);
+    });
   }
 
-  const formValue = this.storyForm.value;
+  extractValue(value: any) {
+    // Case 1: File (new upload)
+    if (value instanceof File) {
+      return value;
+    }
 
-  // ✅ Map industry/subIndustry/valueChain names back to IDs
-  const industryObj = this.industries.find(i => i.industryName === formValue.industryId);
-  const subIndustryObj = this.allSubIndustries.find(si => si.subIndustryName === formValue.subIndustryId);
-  const valueChainObj = this.allValueChains.find(vc => vc.valueChainName === formValue.valueChainId);
+    // Case 2: Object with name (your current issue)
+    if (value && typeof value === 'object' && value.name) {
+      return value.name; // ✅ FIX
+    }
 
-  // Owner and speakers already working fine (userEid strings)
-  const ownerUser = this.allUsers.find(u => u.userEid === formValue.ownerId);
-
-  const payload = {
-    industryId: industryObj ? industryObj.industryId : null,
-    subIndustryId: subIndustryObj ? subIndustryObj.subIndustryId : null,
-    valueChainId: valueChainObj ? valueChainObj.valueChainId : null,
-    title: formValue.title,
-    thumbnailImageUrl: formValue.thumbnailImageUrl,
-    bannerUrl: formValue.bannerUrl,
-    description: formValue.description,
-    duration: formValue.duration ? Number(formValue.duration) : null,
-
-    ownerEId: formValue.ownerId, // already userEid string
-    businessProblem: this.stripHtml(formValue.businessProblem),
-    solutions: this.stripHtml(formValue.solutions),
-    valueDelivered: this.stripHtml(formValue.valueDelivered),
-    toolsAndTechnologies: this.stripHtml(formValue.toolsAndTechnologies),
-    keyResults: this.stripHtml(formValue.keyResults),
-    narrationGuide: this.stripHtml(formValue.narrationGuide),
-
-    approverId: ownerUser ? ownerUser.userId : null,
-    creatorId: ownerUser ? ownerUser.userId : null,
-    isActive: true,
-
-    speakers: [
-      { speakerEid: formValue.primarySpeaker, speakerType: 'PRIMARY' },
-      { speakerEid: formValue.secondarySpeaker, speakerType: 'SECONDARY' },
-      { speakerEid: formValue.tertiarySpeaker, speakerType: 'TERTIARY' }
-    ].filter(s => s.speakerEid),
-
-    tags: (formValue.tags || []).map((t: any) => t),
-    faq: (formValue.faqs || []).map((f: any) => ({
-      question: f.question,
-      answer: f.answer
-    })),
-
-    artifacts: []
-  };
-
-  console.log('Payload for Update:', payload);
-
-  this.usecaseService.updateStorySaveDraft(this.usecaseID, payload).subscribe((res: any) => {
-    console.log('Story updated successfully', res);
-    this.router.navigate(['/stories']);
-  });
-}
-
-getCleanFileName(value: any, type: 'thumbnail' | 'banner'): string {
-  if (!value) return '';
-
-  if (value.name) return value.name;
-
-  try {
-    let decoded = decodeURIComponent(value);
-
-    decoded = decoded.split('?')[0];
-
-    const parts = decoded.split('/');
-
-    const fileName = parts[parts.length - 1];
-    const folderName = parts[parts.length - 3];
-
-    if (!fileName) return '';
-
-    const cleanFolder = folderName.replace(/\s+/g, '');
-
-    return `${cleanFolder}_${fileName}`;
-
-  } catch (e) {
-    return type === 'thumbnail'
-      ? 'ThumbnailURL_image.jpg'
-      : 'BannerURL_image.jpg';
+    // Case 3: Already string
+    return value;
   }
-}
 
-  
+  getCleanFileName(value: any, type: 'thumbnail' | 'banner'): string {
+    if (!value) return '';
+
+    if (value instanceof File) {
+      return value.name;
+    }
+
+    try {
+      let decoded = decodeURIComponent(value);
+      decoded = decoded.split('?')[0];
+
+      const parts = decoded.split('/');
+      const fileName = parts[parts.length - 1];
+      const folderName = parts[parts.length - 3];
+
+      if (!fileName) return '';
+
+      const cleanFolder = folderName.replace(/\s+/g, '');
+
+      return `${cleanFolder}_${fileName}`;
+    } catch {
+      return type === 'thumbnail'
+        ? 'ThumbnailURL_image.jpg'
+        : 'BannerURL_image.jpg';
+    }
+  }
+
+  onCancel() {
+    this.location.back();
+  }
 }

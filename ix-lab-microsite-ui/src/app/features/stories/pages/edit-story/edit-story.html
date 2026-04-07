@@ -58,7 +58,7 @@
           <button type="button" class="upload-btn" (click)="thumbnailInput.click()"> <img [src]="uploadIconPath"
               alt="upload icon" class="upload-icon" /> Upload File</button>
           <span class="file-name" *ngIf="storyForm.get('thumbnailImageUrl')?.value">
-            {{ getCleanFileName(storyForm.get('thumbnailImageUrl')?.value.name, 'thumbnail') }}
+            {{ getCleanFileName(storyForm.get('thumbnailImageUrl')?.value, 'thumbnail') }}
           </span>
           <p>Supported files .png, .jpeg, .jpg, up to 5MB.</p>
         </div>
@@ -71,7 +71,7 @@
           <button type="button" class="upload-btn" (click)="bannerInput.click()"> <img [src]="uploadIconPath"
               alt="upload icon" class="upload-icon" /> Upload File</button>
           <span class="file-name" *ngIf="storyForm.get('bannerUrl')?.value">
-            {{ getCleanFileName(storyForm.get('bannerUrl')?.value.name, 'banner') }}
+            {{ getCleanFileName(storyForm.get('bannerUrl')?.value, 'banner') }}
           </span>
           <p>Supported files .png, .jpeg, .jpg, up to 5MB.</p>
         </div>
@@ -388,7 +388,7 @@
 
   <!-- ACTION BUTTONS -->
   <div class="button-group">
-    <button type="button" class="btn-cancel">Cancel</button>
+    <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
 
     <button type="button" class="btn-draft" (click)="openModal('draft')">
       <img src="assets/icons/save.png" class="btn-icon" alt="draft">
