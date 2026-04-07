@@ -1,7 +1,6 @@
 package com.ix.manufacturinglab.storage;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 
 /**
  * Interface for cloud storage operations.

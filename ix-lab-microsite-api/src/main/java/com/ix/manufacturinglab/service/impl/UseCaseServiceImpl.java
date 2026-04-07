@@ -1,7 +1,5 @@
 package com.ix.manufacturinglab.service.impl;
 
-import java.net.URI;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,11 +8,8 @@ import java.util.HashSet;
 import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.UUID;
 
-import com.azure.core.http.rest.PagedIterable;
 import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.models.BlobItem;
 import com.ix.manufacturinglab.dto.ArtifactDTO;
 import com.ix.manufacturinglab.dto.SpeakerDTO;
 import com.ix.manufacturinglab.dto.UseCaseRequestDTO;
