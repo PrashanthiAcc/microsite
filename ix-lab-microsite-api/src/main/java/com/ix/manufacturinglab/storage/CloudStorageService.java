@@ -23,7 +23,6 @@ public interface CloudStorageService {
      */
     String updateFile(MultipartFile file, String blobPath);
 
-    // Delete all files in a given folder
     void deleteAllFilesInFolder(String folderPath);
 
 }
