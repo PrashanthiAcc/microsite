@@ -24,7 +24,7 @@
     <div class="filters">
 
       <!-- Industry -->
-      <app-custom-dropdown label="Industry" [options]="industries" displayKey="industryName"
+      <app-custom-dropdown label="Industry" [options]="industries" displayKey="industryName" [(ngModel)]="selectedIndustryId"
         (optionSelected)="onIndustrySelected($event)">
       </app-custom-dropdown>
 

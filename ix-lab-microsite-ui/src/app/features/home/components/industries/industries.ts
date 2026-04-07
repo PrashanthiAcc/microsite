@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-industries',
@@ -9,6 +10,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./industries.scss'],
 })
 export class Industries {
+  constructor(private router: Router){}
   industries = [
     { title: 'Consumer Package Goods', count: 15, image: 'CPG.png', icon: 'icons/icon-cpg.png' },
     { title: 'Life Sciences', count: 35, image: 'Life Sciences.png', icon: 'icons/icon-life.png' },
@@ -18,4 +20,8 @@ export class Industries {
     { title: 'Chemical and Natural Resources', count: 10, image: 'Chemical and Natural Resources.png', icon: 'icons/icon-chemicals.png' },
     { title: 'High Tech', count: 20, image: 'High Tech Industry.png', icon: 'icons/icon-hightech.png' }
   ];
+
+   goToStories(industryTitle: string) {
+    this.router.navigate(['/stories'], { queryParams: { from: 'config', title: industryTitle } });
+  }
 }

@@ -50,6 +50,10 @@ export class StoriesComponent implements OnInit {
   favoriteIcon = "assets/icons/favorite.png";
   editIcon = "assets/icons/edit.png";
   currentFrom: string = 'stories';
+  selectedIndustryId: number | null = null;
+  selectedSubIndustryId: number | null = null;
+  selectedValueChainId: number | null = null;
+  selectedIndustryObj: any = null;
 
   constructor(private router: Router, private http: HttpClient,
     private industryService: IndustryService, private cdr: ChangeDetectorRef, private route: ActivatedRoute,
@@ -80,7 +84,7 @@ export class StoriesComponent implements OnInit {
 
       if (!this.showAdminControls) {
         allStories = allStories.filter((story: any) => story.isActive == true);
-        if(allStories.length > 0) {
+        if (allStories.length > 0) {
           this.isLoading = true;
         } else {
           this.isLoading = false;
@@ -117,11 +121,33 @@ export class StoriesComponent implements OnInit {
       this.totalPages = res.totalPages;
       this.totalElements = res.totalElements;
       this.pageSize = res.size;
-
+      this.applyFilters();
       this.cdr.detectChanges();
       console.log('Stories loaded:', this.stories);
     });
   }
+
+ applyFilters() {
+  let filtered = [...this.stories];
+
+ 
+  if (this.selectedIndustryId) {
+    filtered = filtered.filter(story => story.industryId === this.selectedIndustryId);
+  }
+
+  
+  if (this.selectedSubIndustryId) {
+    filtered = filtered.filter(story => story.subIndustryId === this.selectedSubIndustryId);
+  }
+
+
+  if (this.selectedValueChainId) {
+    filtered = filtered.filter(story => story.valueChainId === this.selectedValueChainId);
+  }
+
+  this.filteredStories = filtered;
+  console.log("filtered stories::", this.filteredStories);
+}
 
 
   getAllUsers() {
@@ -190,12 +216,26 @@ export class StoriesComponent implements OnInit {
         ...this.allValueChains
       ];
 
+      const title = this.route.snapshot.queryParams['title'];
+      if (title) {
+        const selectedIndustryObj = this.industries.find(
+          ind => ind.industryName === title
+        );
+        if (selectedIndustryObj) {
+          this.selectedIndustryId = selectedIndustryObj.industryId;
+          this.applyFilters();
+        }
+      }
+
     });
   }
 
   onIndustrySelected(industry: any) {
 
     if (!industry || !industry.industryId) {
+      this.selectedIndustryId = null;
+      this.selectedSubIndustryId = null;
+      this.selectedValueChainId = null;
       this.subIndustries = [
         { subIndustryId: null, subIndustryName: 'All' },
         ...this.allSubIndustries
@@ -205,9 +245,14 @@ export class StoriesComponent implements OnInit {
         { valueChainId: null, valueChainName: 'All' },
         ...this.allValueChains
       ];
+
+      this.applyFilters();
       return;
     }
 
+    this.selectedIndustryId = industry.industryId;
+    this.selectedSubIndustryId = null;
+    this.selectedValueChainId = null;
     this.subIndustries = [
       { subIndustryId: null, subIndustryName: 'All' },
       ...this.allSubIndustries.filter(
@@ -218,24 +263,39 @@ export class StoriesComponent implements OnInit {
     this.valueChains = [
       { valueChainId: null, valueChainName: 'All' }
     ];
+    this.applyFilters();
   }
 
   onSubIndustrySelected(sub: any) {
 
     if (!sub || !sub.subIndustryId) {
+      this.selectedSubIndustryId = null;
+      this.selectedValueChainId = null;
       this.valueChains = [{ valueChainId: null, valueChainName: 'All' }, ...this.allValueChains];
+      this.applyFilters();
       return;
     }
-
+    this.selectedSubIndustryId = sub.subIndustryId;
+    this.selectedValueChainId = null;
     this.valueChains = [
       { valueChainId: null, valueChainName: 'All' },
       ...this.allValueChains.filter(
         vc => vc.subIndustryId === sub.subIndustryId
       )
     ];
-
+    this.applyFilters();
   }
 
+  onValueChainSelected(vc: any) {
+    if (!vc || !vc.valueChainId) {
+      this.selectedValueChainId = null;
+      this.applyFilters();
+      return;
+    }
+
+    this.selectedValueChainId = vc.valueChainId;
+    this.applyFilters();
+  }
 
   archiveStory(usecaseId: string) {
     this.usecaseService.archiveUsecase(usecaseId).subscribe({

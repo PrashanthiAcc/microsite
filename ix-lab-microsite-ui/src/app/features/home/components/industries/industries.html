@@ -14,7 +14,7 @@
           
           <div class="title-row">
             <div class="title">{{ industry.title }} <span class="count">({{ industry.count }})</span></div>
-            <div class="arrow">→</div>
+            <div class="arrow" (click)="goToStories(industry.title)">→</div>
           </div>
         </div>
       </div>
