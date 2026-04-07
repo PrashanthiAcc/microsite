@@ -185,18 +185,36 @@
       <section class="artifacts-card">
         <div class="header-row">
           <h4>Client Credential</h4>
-          <button type="button" class="btn-add" (click)="addField(clientCredentials)">+</button>
         </div>
-        <div class="upload-box" *ngFor="let item of clientCredentials.controls; let i = index">
-          <div class="upload-row">
-            <label class="artifacts-label">Credential {{i+1}}</label>
-            <button type="button" class="upload-btn" (click)="credentialInput.click()"> <img [src]="uploadIconPath"
-                alt="upload icon" class="upload-icon" /> Upload File</button>
-            <span class="file-name" *ngIf="item.value">{{ item.value.name }}</span>
-            <p>Supported file .pptx up to 100MB.</p>
-            <button type="button" class="btn-delete" (click)="removeField(clientCredentials, i)">🗑</button>
-          </div>
-          <input type="file" #credentialInput hidden (change)="handleFileUpload($event, 'clientCredentials', i)">
+
+        <div class="upload-row btn-margin-bottom">
+          <label class="artifacts-label">Elevator Pitch</label>
+
+          <button type="button" class="upload-btn btn-margin-left" (click)="elevatorInput.click()"> <img [src]="uploadIconPath"
+              alt="upload icon" class="upload-icon" /> Upload File</button>
+
+          <span class="file-name" *ngIf="storyForm.get('elevatorPitch')?.value as file">
+            {{ file.name }}
+          </span>
+
+          <p>Supported files .pptx up to 100MB.</p>
+
+          <input type="file" #elevatorInput hidden (change)="handleFileUpload($event, 'elevatorPitch')" />
+        </div>
+
+        <div class="upload-row">
+          <label class="artifacts-label">Detailed Client Story</label>
+
+          <button type="button" class="upload-btn" (click)="storyInput.click()"> <img [src]="uploadIconPath"
+              alt="upload icon" class="upload-icon" /> Upload File</button>
+
+          <span class="file-name" *ngIf="storyForm.get('clientStory')?.value as file">
+            {{ file.name }}
+          </span>
+
+          <p>Supported files .pptx up to 100MB.</p>
+
+          <input type="file" #storyInput hidden (change)="handleFileUpload($event, 'clientStory')" />
         </div>
       </section>
 

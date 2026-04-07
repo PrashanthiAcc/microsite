@@ -63,6 +63,8 @@ export class EditStoryComponent {
     thumbnail: ['image/png', 'image/jpeg', 'image/jpg'],
     banner: ['image/png', 'image/jpeg', 'image/jpg'],
     clientCredentials: ['application/vnd.openxmlformats-officedocument.presentationml.presentation'], // .pptx
+    elevatorPitch: ['application/vnd.openxmlformats-officedocument.presentationml.presentation'], // .pptx
+    clientStory: ['application/vnd.openxmlformats-officedocument.presentationml.presentation'], // .pptx
     demoVideos: ['video/mp4'],
     clientTestimonials: [
       'application/pdf',
@@ -79,17 +81,23 @@ export class EditStoryComponent {
     thumbnail: 5 * 1024 * 1024, // 5MB
     banner: 5 * 1024 * 1024,    // 5MB
     clientCredentials: 100 * 1024 * 1024, // 100MB
+    elevatorPitch: 100 * 1024 * 1024, // 100MB
+    clientStory: 100 * 1024 * 1024, // 100MB
     demoVideos: 100 * 1024 * 1024,        // 100MB
     clientTestimonials: 100 * 1024 * 1024 // 100MB
   };
   allUsers: any[] = [];
   modalAction: 'draft' | 'approval' | null = null;
   usecaseID: string | null = '';
+  elevatorFileName: string = '';
+  storyFileName: string = '';
 
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService,
     private route: ActivatedRoute, private location: Location) {
     this.storyForm = this.fb.group({
+      elevatorPitch: [null],
+      clientStory: [null],
       industryId: [''],
       subIndustryId: [''],
       valueChainId: [''],
@@ -475,8 +483,8 @@ export class EditStoryComponent {
       subIndustryId: subIndustryObj ? subIndustryObj.subIndustryId : null,
       valueChainId: valueChainObj ? valueChainObj.valueChainId : null,
       title: formValue.title,
-      thumbnailImageUrl: formValue.thumbnailImageUrl,
-      bannerUrl: formValue.bannerUrl,
+      thumbnailImageUrl: this.extractValue(this.storyForm.get('thumbnailImageUrl')?.value),
+      bannerUrl: this.extractValue(this.storyForm.get('bannerUrl')?.value),
       description: formValue.description,
       duration: formValue.duration ? Number(formValue.duration) : null,
 
@@ -511,7 +519,7 @@ export class EditStoryComponent {
 
     this.usecaseService.updateStorySendForApproval(this.usecaseID, payload).subscribe((res: any) => {
       console.log('Story updated successfully', res);
-      this.router.navigate(['/stories']);
+      this.location.back();
     });
   }
 
@@ -572,7 +580,7 @@ export class EditStoryComponent {
 
     this.usecaseService.updateStorySaveDraft(this.usecaseID, payload).subscribe((res: any) => {
       console.log('Story updated successfully', res);
-      this.router.navigate(['/stories']);
+      this.location.back();
     });
   }
 

@@ -20,21 +20,23 @@ import { FormsModule } from '@angular/forms';
 })
 export class StoriesComponent implements OnInit {
   showAdminControls = false;
+  isLoading = true;
   industries: any[] = [];
   subIndustries: any[] = [];
   valueChains: any[] = [];
 
+  allIndustries: any[] = [];
   allSubIndustries: any[] = [];
   allValueChains: any[] = [];
   stories: any[] = [];
-  filteredStories : any[] =[];
+  filteredStories: any[] = [];
   searchText: string = '';
   drafts: any[] = [];
   allUsers: any[] = [];
   showToast = false;
   toastMessage = '';
   toastTitle = '';
-  currentPage = 1;       
+  currentPage = 1;
   totalPages = 0;
   pageSize = 10;
   totalElements = 0;
@@ -47,7 +49,7 @@ export class StoriesComponent implements OnInit {
   discardIcon = "assets/icons/discard.png";
   favoriteIcon = "assets/icons/favorite.png";
   editIcon = "assets/icons/edit.png";
-  currentFrom: string ='stories';
+  currentFrom: string = 'stories';
 
   constructor(private router: Router, private http: HttpClient,
     private industryService: IndustryService, private cdr: ChangeDetectorRef, private route: ActivatedRoute,
@@ -57,9 +59,9 @@ export class StoriesComponent implements OnInit {
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       this.showAdminControls = params['from'] === 'config';
-      this.currentFrom = this.route.snapshot.queryParams['from'] || 'stroies';
+      this.currentFrom = this.route.snapshot.queryParams['from'] || 'stories';
       const id = params['id'];
-      if(id) {
+      if (id) {
         console.log("selected story Id:", id);
       }
       this.loadAllStories();
@@ -71,43 +73,55 @@ export class StoriesComponent implements OnInit {
   }
 
 
-loadAllStories(page: number = 1, size: number = 10) {
-  this.usecaseService.getAllStories(page, size).subscribe((res: any) => {
-    let allStories = res.content || [];
+  loadAllStories(page: number = 1, size: number = 10) {
+    this.isLoading = false;
+    this.usecaseService.getAllStories(page, size).subscribe((res: any) => {
+      let allStories = res.content || [];
 
-    if (!this.showAdminControls) {
-      allStories = allStories.filter((story: any) => story.isActive == true);
-    }
+      if (!this.showAdminControls) {
+        allStories = allStories.filter((story: any) => story.isActive == true);
+        if(allStories.length > 0) {
+          this.isLoading = true;
+        } else {
+          this.isLoading = false;
+        }
+      }
 
-    this.stories = allStories.map((story: any) => ({
-      ...story,
-      tags: story.tag,
-      ownerName: this.getOwnerName(story.ownerEId)
-    }));
+      this.isLoading = false;
 
-    this.filteredStories = this.stories;
-
-    if (this.showAdminControls) {
-    this.filteredStories = this.stories.filter((story: any) => story.status === 'IN_REVIEW');
-
-    this.drafts = allStories
-      .filter((story: any) => story.status === 'DRAFT')
-      .map((draft: any) => ({
-        ...draft,
-        tags: draft.tag,
-        ownerName: this.getOwnerName(draft.ownerEId)
+      this.stories = allStories.map((story: any) => ({
+        ...story,
+        tags: story.tag,
+        ownerName: this.getOwnerName(story.ownerEId),
+        industryName: this.getIndustryName(story.industryId),
+        subIndustryName: this.getSubIndustryName(story.subIndustryId)
       }));
-    }
 
-    this.currentPage = res.number + 1;
-    this.totalPages = res.totalPages;
-    this.totalElements = res.totalElements;
-    this.pageSize = res.size;
+      this.filteredStories = this.stories;
 
-    this.cdr.detectChanges();
-    console.log('Stories loaded:', this.stories);
-  });
-}
+      if (this.showAdminControls && this.currentFrom !== 'stories') {
+        this.filteredStories = this.stories.filter((story: any) => story.status === 'IN_REVIEW');
+
+        this.drafts = allStories
+          .filter((story: any) => story.status === 'DRAFT')
+          .map((draft: any) => ({
+            ...draft,
+            tags: draft.tag,
+            ownerName: this.getOwnerName(draft.ownerEId),
+            industryName: this.getIndustryName(draft.industryId),
+            subIndustryName: this.getSubIndustryName(draft.subIndustryId)
+          }));
+      }
+
+      this.currentPage = res.number + 1;
+      this.totalPages = res.totalPages;
+      this.totalElements = res.totalElements;
+      this.pageSize = res.size;
+
+      this.cdr.detectChanges();
+      console.log('Stories loaded:', this.stories);
+    });
+  }
 
 
   getAllUsers() {
@@ -156,43 +170,73 @@ loadAllStories(page: number = 1, size: number = 10) {
   loadIndustries() {
     this.industryService.getIndustries().subscribe((res: any) => {
 
-      this.industries = res.industries;
+      this.allIndustries = res.industries;
 
       this.allSubIndustries = res.subIndustries;
       this.allValueChains = res.valueChains;
+
+      this.industries = [
+        { industryId: null, industryName: 'All' },
+        ...this.allIndustries
+      ];
+
+      this.subIndustries = [
+        { subIndustryId: null, subIndustryName: 'All' },
+        ...this.allSubIndustries
+      ];
+
+      this.valueChains = [
+        { valueChainId: null, valueChainName: 'All' },
+        ...this.allValueChains
+      ];
 
     });
   }
 
   onIndustrySelected(industry: any) {
 
-    if (!industry) {
-      this.subIndustries = [];
-      this.valueChains = [];
+    if (!industry || !industry.industryId) {
+      this.subIndustries = [
+        { subIndustryId: null, subIndustryName: 'All' },
+        ...this.allSubIndustries
+      ];
+
+      this.valueChains = [
+        { valueChainId: null, valueChainName: 'All' },
+        ...this.allValueChains
+      ];
       return;
     }
 
-    this.subIndustries = this.allSubIndustries.filter(
-      sub => sub.industryId === industry.industryId
-    );
+    this.subIndustries = [
+      { subIndustryId: null, subIndustryName: 'All' },
+      ...this.allSubIndustries.filter(
+        sub => sub.industryId === industry.industryId
+      )
+    ];
 
-    this.valueChains = [];
+    this.valueChains = [
+      { valueChainId: null, valueChainName: 'All' }
+    ];
   }
 
   onSubIndustrySelected(sub: any) {
 
-    if (!sub) {
-      this.valueChains = [];
+    if (!sub || !sub.subIndustryId) {
+      this.valueChains = [{ valueChainId: null, valueChainName: 'All' }, ...this.allValueChains];
       return;
     }
 
-    this.valueChains = this.allValueChains.filter(
-      vc => vc.subIndustryId === sub.subIndustryId
-    );
+    this.valueChains = [
+      { valueChainId: null, valueChainName: 'All' },
+      ...this.allValueChains.filter(
+        vc => vc.subIndustryId === sub.subIndustryId
+      )
+    ];
 
   }
 
- 
+
   archiveStory(usecaseId: string) {
     this.usecaseService.archiveUsecase(usecaseId).subscribe({
       next: (res: string) => {
@@ -260,29 +304,39 @@ loadAllStories(page: number = 1, size: number = 10) {
   }
 
   onSearch() {
-  const value = this.searchText.trim().toLowerCase();
+    const value = this.searchText.trim().toLowerCase();
 
-  if (!value) {
-    this.filteredStories = this.stories;
-    return;
+    if (!value) {
+      this.filteredStories = this.stories;
+      return;
+    }
+
+    this.filteredStories = this.stories.filter((story: any) => {
+
+      const title = (story.title || '').toLowerCase();
+      const description = (story.description || '').toLowerCase();
+      const ownerEId = (story.ownerEId || '').toLowerCase();
+      const ownerName = (story.ownerName || '').toLowerCase();
+
+      const tags = Array.isArray(story.tags)
+        ? story.tags.join(' ').toLowerCase()
+        : (story.tags || '').toLowerCase();
+
+      return (
+        title.includes(value) ||
+        description.includes(value) || ownerEId.includes(value) || ownerName.includes(value) ||
+        tags.includes(value)
+      );
+    });
   }
 
-  this.filteredStories = this.stories.filter((story: any) => {
-    
-    const title = (story.title || '').toLowerCase();
-    const description = (story.description || '').toLowerCase();
-    const ownerEId = (story.ownerEId || '').toLowerCase();
-    const ownerName = (story.ownerName || '').toLowerCase();
+  getIndustryName(id: number): string {
+    const industry = this.allIndustries.find((i: any) => i.industryId === id);
+    return industry ? industry.industryName : '';
+  }
 
-    const tags = Array.isArray(story.tags)
-      ? story.tags.join(' ').toLowerCase()
-      : (story.tags || '').toLowerCase();
-
-    return (
-      title.includes(value) ||
-      description.includes(value) || ownerEId.includes(value) || ownerName.includes(value) ||
-      tags.includes(value)
-    );
-  });
-}
+  getSubIndustryName(id: number): string {
+    const subIndustry = this.allSubIndustries.find((s: any) => s.subIndustryId === id);
+    return subIndustry ? subIndustry.subIndustryName : '';
+  }
 }

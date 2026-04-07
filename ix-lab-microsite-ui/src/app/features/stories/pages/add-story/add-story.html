@@ -247,11 +247,11 @@
         <div class="upload-box" *ngFor="let item of demoVideos.controls; let i = index">
           <div class="upload-row">
             <label class="artifacts-label">Video {{i+1}}</label>
-            <button type="button" class="upload-btn" (click)="videoInput.click()" [disabled]="!!demoVideos.at(i).value"> <img [src]="uploadIconPath"
+            <button type="button" class="upload-btn" (click)="videoInput.click()"> <img [src]="uploadIconPath"
                 alt="upload icon" class="upload-icon" /> Upload File</button>
             <span class="file-name" *ngIf="item.value">{{ item.value.name }}</span>
             <p>Supported file .mp4 up to 100MB.</p>
-            <button type="button" class="btn-delete" *ngIf="demoVideos.at(i).value" (click)="removeField(demoVideos, i); videoInput.value=''">🗑</button>
+            <button type="button" class="btn-delete" (click)="removeField(demoVideos, i)">🗑</button>
           </div>
           <input type="file" #videoInput hidden (change)="handleFileUpload($event, 'demoVideos', i)">
         </div>
@@ -266,12 +266,12 @@
         <div class="upload-box" *ngFor="let item of clientTestimonials.controls; let i = index">
           <div class="upload-row">
             <label class="artifacts-label">Testimonial {{i+1}}</label>
-            <button type="button" class="upload-btn" (click)="testimonialInput.click()" [disabled]="!!clientTestimonials.at(i).value"> <img [src]="uploadIconPath"
+            <button type="button" class="upload-btn" (click)="testimonialInput.click()"> <img [src]="uploadIconPath"
                 alt="upload icon" class="upload-icon" /> Upload File</button>
             <span class="file-name" *ngIf="item.value">{{ item.value.name }}</span>
             <p>Supported files .pdf, .pptx, .mp4, .jpg, .png, .jpeg up to 100MB.</p>
-            <button type="button" class="btn-delete" *ngIf="clientTestimonials.at(i).value"
-              (click)="removeField(clientTestimonials, i); testimonialInput.value=''">🗑</button>
+            <button type="button" class="btn-delete"
+              (click)="removeField(clientTestimonials, i)">🗑</button>
           </div>
           <input type="file" #testimonialInput hidden (change)="handleFileUpload($event, 'clientTestimonials', i)">
         </div>
@@ -429,7 +429,7 @@
 
   <!-- ACTION BUTTONS -->
   <div class="button-group">
-    <button type="button" class="btn-cancel">Cancel</button>
+    <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
 
     <button type="button" class="btn-draft" (click)="openModal('draft')">
       <img src="assets/icons/save.png" class="btn-icon" alt="draft">

@@ -2,45 +2,56 @@
   <div class="featured-header">
     <h2>Featured Stories</h2>
 
-    <div class="controls">
-      <button class="arrow" (click)="prev()" [disabled]="currentIndex === 0">
-        ←
-      </button>
+    <ng-container *ngIf="stories.length > 0">
+      <div class="controls">
+        <button class="arrow" (click)="prev()" [disabled]="currentIndex === 0">
+          ←
+        </button>
 
-      <span class="counter">
-        {{ currentIndex + 1 }}/{{ stories.length }}
-      </span>
+        <span class="counter">
+          {{ currentIndex + 1 }}/{{ stories.length }}
+        </span>
 
-      <button class="arrow" (click)="next()" [disabled]="currentIndex === stories.length - 1">
-        →
-      </button>
-    </div>
+        <button class="arrow" (click)="next()" [disabled]="currentIndex === stories.length - 1">
+          →
+        </button>
+      </div>
+    </ng-container>
   </div>
 
-  <div class="featured-content">
+  <ng-container *ngIf="stories.length > 0">
+    <div class="featured-content">
 
+      <div class="text-section">
+        <h3 class="story-title">
+          {{ currentStory?.title }}
+        </h3>
+
+        <div class="category">
+          {{ currentStory?.category }}
+        </div>
+
+        <p class="description">
+          {{ currentStory?.description }}
+        </p>
+        <div class="link-container">
+          <a class="view-link" [routerLink]="['/stories', currentStory?.usecaseId]">
+            <span class="text">View full story</span><span class="arrow">→</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="image-section">
+        <img [src]="currentStory?.thumbnailImageUrl" alt="story image" />
+      </div>
+
+    </div>
+  </ng-container>
+  <ng-container *ngIf="stories.length == 0">
     <div class="text-section">
       <h3 class="story-title">
-        {{ currentStory?.title }}
+        No Active Stories
       </h3>
-
-      <div class="category">
-        {{ currentStory?.category }}
-      </div>
-
-      <p class="description">
-        {{ currentStory?.description }}
-      </p>
-      <div class="link-container">
-        <a class="view-link" [routerLink]="['/stories', currentStory?.usecaseId]">
-          <span class="text">View full story</span><span class="arrow">→</span>
-        </a>
-      </div>
     </div>
-
-    <div class="image-section">
-      <img [src]="currentStory?.thumbnailImageUrl" alt="story image" />
-    </div>
-
-  </div>
+  </ng-container>
 </section>

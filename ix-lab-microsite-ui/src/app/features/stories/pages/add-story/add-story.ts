@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators, FormsModule } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
 import { HttpClient } from '@angular/common/http';
@@ -92,7 +92,7 @@ export class AddStoryComponent {
   elevatorFileName: string = '';
   storyFileName: string = '';
 
-  constructor(private fb: FormBuilder, private router: Router, private http: HttpClient,
+  constructor(private fb: FormBuilder, private router: Router, private http: HttpClient, private location: Location,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService) {
     this.storyForm = this.fb.group({
       elevatorPitch: [null],
@@ -227,8 +227,14 @@ export class AddStoryComponent {
   //     array.removeAt(index);
   // }
 
+  // removeField(array: FormArray, index: number) {
+  //   array.at(index).setValue(null);
+  // }
+
   removeField(array: FormArray, index: number) {
-    array.at(index).setValue(null);
+    if (array.length > 1) {
+      array.removeAt(index);
+    }
   }
 
   // FILE UPLOAD (renamed to avoid duplicate)
@@ -363,13 +369,6 @@ export class AddStoryComponent {
   //   this.isOpen = !this.isOpen;
   // }
 
-  stripHtml(html: string): string {
-    const div = document.createElement('div');
-    div.innerHTML = html;
-    return div.textContent || div.innerText || '';
-  }
-
-
   // get approverName(): string {
   //   const ownerId = this.storyForm.get('ownerId')?.value;
   //   if (!ownerId) return 'Select Owner';
@@ -402,17 +401,17 @@ export class AddStoryComponent {
       subIndustryId: formValue.subIndustryId,
       valueChainId: formValue.valueChainId,
       title: formValue.title,
-      thumbnailImageUrl: "assets/Global_mes.png",
-      bannerUrl: "assets/Global_mes.png",
+      thumbnailImageUrl: this.extractValue(this.storyForm.get('thumbnailImageUrl')?.value),
+      bannerUrl: this.extractValue(this.storyForm.get('bannerUrl')?.value),
       description: formValue.description,
       duration: formValue.duration ? Number(formValue.duration) : null,
       ownerEId: formValue.ownerId,
-      businessProblem: this.stripHtml(formValue.businessProblem),
-      solutions: this.stripHtml(formValue.solutions),
-      valueDelivered: this.stripHtml(formValue.valueDelivered),
-      toolsAndTechnologies: this.stripHtml(formValue.toolsAndTechnologies),
-      keyResults: this.stripHtml(formValue.keyResults),
-      narrationGuide: this.stripHtml(formValue.narrationGuide),
+      businessProblem: formValue.businessProblem,
+      solutions: formValue.solutions,
+      valueDelivered: formValue.valueDelivered,
+      toolsAndTechnologies: formValue.toolsAndTechnologies,
+      keyResults: formValue.keyResults,
+      narrationGuide: formValue.narrationGuide,
 
       // static values
       approverId: numericId,
@@ -439,38 +438,7 @@ export class AddStoryComponent {
         answer: f.answer
       })),
       // artifacts unchanged
-      artifacts: [
-        {
-          artifactType: "ELEVATOR_PITCH",
-          artifactName: "Elevator Pitch Deck",
-          url: "assets/Boehringer Ingelheim MES_Global Support Transformation Elevator Pitch.pptx"
-        },
-        {
-          artifactType: "DETAILED_CLIENT_STORY",
-          artifactName: "Detailed Client Story",
-          url: "assets/Boehringer Ingelheim MES_Global Support Transformation Elevator Pitch.pptx"
-        },
-        {
-          artifactType: "DEMO_VIDEO",
-          artifactName: "Demo Video",
-          url: "assets/file_example_MP4_640_3MG.mp4"
-        },
-        {
-          artifactType: "CLIENT_TESTIMONIAL",
-          artifactName: "Client Testimonial",
-          url: "assets/Boehringer Ingelheim MES_Global Support Transformation Elevator Pitch.pdf"
-        },
-        {
-          artifactType: "CLIENT_TESTIMONIAL",
-          artifactName: "Client Testimonial",
-          url: "assets/featured5.jpg"
-        },
-        // {
-        //   artifactType: "NARRATION",
-        //   artifactName: "Narration Script",
-        //   url: "Boehringer Ingelheim MES_Global Support Transformation Elevator Pitch.pptx"
-        // }
-      ],
+      artifacts: [],
     };
 
     console.log('Payload for API:', payload);
@@ -481,9 +449,24 @@ export class AddStoryComponent {
       this.toastTitle = 'Story created and submitted for approval successfully';
       //this.toastMessage = res;
       this.showToast = true;
-      this.router.navigate(['/stories']);
+      this.location.back();
 
     });
+  }
+
+  extractValue(value: any) {
+    // Case 1: File (new upload)
+    if (value instanceof File) {
+      return value;
+    }
+
+    // Case 2: Object with name (your current issue)
+    if (value && typeof value === 'object' && value.name) {
+      return value.name; // ✅ FIX
+    }
+
+    // Case 3: Already string
+    return value;
   }
 
   saveDraft() {
@@ -497,17 +480,17 @@ export class AddStoryComponent {
       subIndustryId: formValue.subIndustryId,
       valueChainId: formValue.valueChainId,
       title: formValue.title,
-      thumbnailImageUrl: "assets/Global_mes.png",
-      bannerUrl: "assets/Global_mes.png",
+      thumbnailImageUrl: this.extractValue(this.storyForm.get('thumbnailImageUrl')?.value),
+      bannerUrl: this.extractValue(this.storyForm.get('bannerUrl')?.value),
       description: formValue.description,
       duration: formValue.duration ? Number(formValue.duration) : null,
       ownerEId: formValue.ownerId,
-      businessProblem: this.stripHtml(formValue.businessProblem),
-      solutions: this.stripHtml(formValue.solutions),
-      valueDelivered: this.stripHtml(formValue.valueDelivered),
-      toolsAndTechnologies: this.stripHtml(formValue.toolsAndTechnologies),
-      keyResults: this.stripHtml(formValue.keyResults),
-      narrationGuide: this.stripHtml(formValue.narrationGuide),
+      businessProblem: formValue.businessProblem,
+      solutions: formValue.solutions,
+      valueDelivered: formValue.valueDelivered,
+      toolsAndTechnologies: formValue.toolsAndTechnologies,
+      keyResults: formValue.keyResults,
+      narrationGuide: formValue.narrationGuide,
 
       // static values
       approverId: numericId,
@@ -534,38 +517,7 @@ export class AddStoryComponent {
         answer: f.answer
       })),
       // artifacts unchanged
-      artifacts: [
-        {
-          artifactType: "ELEVATOR_PITCH",
-          artifactName: "Elevator Pitch Deck",
-          url: "assets/Boehringer Ingelheim MES_Global Support Transformation Elevator Pitch.pptx"
-        },
-        {
-          artifactType: "DETAILED_CLIENT_STORY",
-          artifactName: "Detailed Client Story",
-          url: "assets/Boehringer Ingelheim MES_Global Support Transformation Elevator Pitch.pptx"
-        },
-        {
-          artifactType: "DEMO_VIDEO",
-          artifactName: "Demo Video",
-          url: "assets/file_example_MP4_640_3MG.mp4"
-        },
-        {
-          artifactType: "CLIENT_TESTIMONIAL",
-          artifactName: "Client Testimonial",
-          url: "assets/Boehringer Ingelheim MES_Global Support Transformation Elevator Pitch.pdf"
-        },
-        {
-          artifactType: "CLIENT_TESTIMONIAL",
-          artifactName: "Client Testimonial",
-          url: "assets/featured5.jpg"
-        },
-        // {
-        //   artifactType: "NARRATION",
-        //   artifactName: "Narration Script",
-        //   url: "Boehringer Ingelheim MES_Global Support Transformation Elevator Pitch.pptx"
-        // }
-      ],
+      artifacts: [],
     };
 
     console.log('Payload for API:', payload);
@@ -576,11 +528,15 @@ export class AddStoryComponent {
       this.toastTitle = 'Story Saved As Draft';
       //this.toastMessage = res;
       this.showToast = true;
-      this.router.navigate(['/stories']);
+      this.location.back();
 
     });
   }
   cancelForm() {
     this.storyForm.reset();
+  }
+
+  onCancel() {
+    this.location.back();
   }
 }

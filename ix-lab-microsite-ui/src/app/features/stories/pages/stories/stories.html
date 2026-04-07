@@ -52,6 +52,7 @@
 
     <!---DRAFTS SECTION-->
     <!-- new wrapper Drafts-->
+     <ng-container *ngIf="showAdminControls && this.currentFrom !== 'stories'">
     <div class="stories__header">
       <h1 class="stories__title" *ngIf="drafts.length">All Drafts ({{ drafts.length }})</h1>
     </div>
@@ -89,6 +90,8 @@
         <div class="story-card__content">
           <span class="category">{{ draft.category }}</span>
 
+          <span class="industry-subindustry-border-bottom">{{draft.industryName}} • {{draft.subIndustryName}}</span>
+
           <h3>{{ draft.title }}</h3>
 
           <p class="truncate-3-lines">{{ draft.description }}</p>
@@ -121,6 +124,7 @@
       </div>
 
     </div>
+    </ng-container>
     <!---DRAFTS SECTION-->
 
     <div></div>
@@ -143,7 +147,7 @@
     </div>
 
     <!---ALL STORIES-------------------->
-    <div class="stories__grid" *ngIf="stories.length">
+    <div class="stories__grid" *ngIf="!isLoading && stories.length > 0">
 
       <div class="story-card" *ngFor="let story of filteredStories" [routerLink]="['/stories', story.usecaseId]" [queryParams]="{from: currentFrom}">
 
@@ -174,6 +178,8 @@
 
         <div class="story-card__content">
           <span class="category">{{ story.category }}</span>
+
+          <span class="industry-subindustry-border-bottom">{{story.industryName}} • {{story.subIndustryName}}</span>
 
           <h3>{{ story.title }}</h3>
 
@@ -210,7 +216,7 @@
 
     <!---NO ACTIVE STORY SECTION-->
     <div class="stories__header" *ngIf="!showAdminControls">
-      <h1 class="stories__title" *ngIf="stories.length == 0">No Active Stories</h1>
+      <h1 class="stories__title" *ngIf="!isLoading && filteredStories.length === 0">No Active Stories</h1>
     </div>
 
     <!-- PAGINATION -->
@@ -222,20 +228,22 @@
     </div> -->
 
 
-    <div class="pagination" *ngIf="totalPages > 1">
-      <button (click)="loadAllStories(currentPage - 1)" [disabled]="currentPage === 1">
-        <img [src]="pagination_left" alt="Previous" />
-      </button>
-
-      <span *ngFor="let page of [].constructor(totalPages); let i = index" (click)="loadAllStories(i + 1)"
-        [class.active]="currentPage === i + 1">
-        {{ i + 1 }}
-      </span>
-
-      <button (click)="loadAllStories(currentPage + 1)" [disabled]="currentPage === totalPages">
-        <img [src]="pagination_right" alt="Next" />
-      </button>
-    </div>
+    <ng-container *ngIf="filteredStories.length > 0">
+      <div class="pagination" *ngIf="totalPages > 1">
+        <button (click)="loadAllStories(currentPage - 1)" [disabled]="currentPage === 1">
+          <img [src]="pagination_left" alt="Previous" />
+        </button>
+    
+        <span *ngFor="let page of [].constructor(totalPages); let i = index" (click)="loadAllStories(i + 1)"
+          [class.active]="currentPage === i + 1">
+          {{ i + 1 }}
+        </span>
+    
+        <button (click)="loadAllStories(currentPage + 1)" [disabled]="currentPage === totalPages">
+          <img [src]="pagination_right" alt="Next" />
+        </button>
+      </div>
+    </ng-container>
 
   </div>
 </section>
