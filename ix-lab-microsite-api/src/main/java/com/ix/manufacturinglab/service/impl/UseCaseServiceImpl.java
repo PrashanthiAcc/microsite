@@ -1,5 +1,7 @@
 package com.ix.manufacturinglab.service.impl;
 
+import java.net.URI;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +10,11 @@ import java.util.HashSet;
 import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.UUID;
 
+import com.azure.core.http.rest.PagedIterable;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobItem;
 import com.ix.manufacturinglab.dto.ArtifactDTO;
 import com.ix.manufacturinglab.dto.SpeakerDTO;
 import com.ix.manufacturinglab.dto.UseCaseRequestDTO;
@@ -69,6 +75,7 @@ public class UseCaseServiceImpl implements UseCaseService {
     private final SubIndustryRepository subIndustryRepository;
     private final IndustryRepository industryRepository;
     private final CloudStorageService cloudStorageService;
+    private final BlobContainerClient blobContainerClient;
     @Value("${storage.path.artifacts.client.testimonials}")
     private String clientTestimonialsPath;
 
@@ -93,7 +100,8 @@ public class UseCaseServiceImpl implements UseCaseService {
                               SubIndustryRepository subIndustryRepository,
                               IndustryRepository industryRepository,
                               UseCaseFaqRepository useCaseFaqRepository,
-                              CloudStorageService cloudStorageService) {
+                              CloudStorageService cloudStorageService,
+                              BlobContainerClient blobContainerClient) {
         this.useCaseRepository = useCaseRepository;
         this.useCaseContentRepository = useCaseContentRepository;
         this.useCaseSpeakerRepository = useCaseSpeakerRepository;
@@ -104,6 +112,7 @@ public class UseCaseServiceImpl implements UseCaseService {
         this.industryRepository = industryRepository;
         this.useCaseFaqRepository = useCaseFaqRepository;
         this.cloudStorageService = cloudStorageService;
+        this.blobContainerClient = blobContainerClient;
     }
 
     @Override
@@ -661,6 +670,7 @@ public class UseCaseServiceImpl implements UseCaseService {
         return builder.build();
     }
 
+
     private Integer parseInteger(String value) {
         try {
             return value != null ? Integer.parseInt(value) : null;
@@ -1199,4 +1209,276 @@ public class UseCaseServiceImpl implements UseCaseService {
         return buildResponseDTO(useCase, content, requestDTO);
     }
 
+    @Override
+    @Transactional
+    public UseCaseResponseDTO updateUseCaseandSaveasDraftWithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO,
+                                                                  List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos,
+                                                                  List<MultipartFile> clientCredentials, MultipartFile thumbnailUrl, MultipartFile bannerUrl) {
+
+        // Fetch existing use case
+        UseCase existingUseCase = useCaseRepository.findById(usecaseId)
+                .orElseThrow(() -> new CommonException(
+                        CommonExceptionConstants.NOT_FOUND,
+                        "Use case not found with id: " + usecaseId));
+
+        String status = existingUseCase.getStatus();
+        Integer parentId = existingUseCase.getParentUsecaseId();
+        UseCase useCase;
+
+        if ("DRAFT".equalsIgnoreCase(status) || ("IN_REVIEW".equalsIgnoreCase(status) && parentId == null)) {
+            useCase = existingUseCase;
+
+        } else if ("APPROVED".equalsIgnoreCase(status) && parentId == null) {
+            useCase = new UseCase();
+            useCase.setValueChainId(existingUseCase.getValueChainId());
+            useCase.setCreatorId(existingUseCase.getCreatorId());
+            useCase.setOwnerEid(existingUseCase.getOwnerEid());
+            useCase.setCreatedDate(LocalDateTime.now());
+            useCase.setParentUsecaseId(existingUseCase.getUsecaseId());
+            useCase.setStatus("DRAFT");
+            useCase.setIsUpdatedUsecase(true);
+            useCase.setIsActive(false);
+
+        } else {
+            throw new CommonException(CommonExceptionConstants.CONFLICT,
+                    "Use case can't be modified in current state");
+        }
+
+        useCase.setValueChainId(requestDTO.getValueChainId());
+        useCase.setTitle(requestDTO.getTitle());
+        useCase.setOwnerEid(String.valueOf(requestDTO.getOwnerEId()));
+        useCase.setCreatorId(requestDTO.getCreatorId());
+        useCase.setStatus("DRAFT");
+        useCase.setApproverId(requestDTO.getApproverId());
+        useCase.setIsUpdatedUsecase(true);
+        useCase.setUpdatedDate(LocalDateTime.now());
+        useCase.setIsActive(false);
+
+        useCase = useCaseRepository.save(useCase);
+
+        UseCaseContent content;
+        if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
+            content = useCaseContentRepository.findByUsecaseId(useCase.getUsecaseId())
+                    .orElse(UseCaseContent.builder().usecaseId(useCase.getUsecaseId()).build());
+        } else {
+            content = new UseCaseContent();
+            content.setUsecaseId(useCase.getUsecaseId());
+        }
+
+        String thumbnailFolder = thumbnailurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+        String bannerFolder = bannerurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+        String testimonialsFolder = clientTestimonialsPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+        String demoVideosFolder = demoVideosPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+        String credentialsFolder = clientCredentialsPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+
+
+        if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
+
+
+            String existingThumbnail = content.getThumbnailUrl();
+
+            if (existingThumbnail != null && !existingThumbnail.isEmpty()) {
+                cloudStorageService.deleteAllFilesInFolder(thumbnailFolder);
+            }
+            String blobPath = thumbnailFolder + "/" + thumbnailUrl.getOriginalFilename();
+            String thumbnaisasUrl = cloudStorageService.updateFile(thumbnailUrl, blobPath);
+            content.setThumbnailUrl(thumbnaisasUrl);
+        }
+
+        if (bannerUrl != null && !bannerUrl.isEmpty()) {
+            String existingBanner = content.getBannerUrl();
+
+            if (existingBanner != null && !existingBanner.isEmpty()) {
+                cloudStorageService.deleteAllFilesInFolder(bannerFolder);
+            }
+            String blobPath = bannerFolder + "/" + bannerUrl.getOriginalFilename();
+            String bannersasUrl = cloudStorageService.updateFile(bannerUrl, blobPath);
+            content.setBannerUrl(bannersasUrl);
+        }
+        if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
+            useCase.getTags().clear();
+            useCase.getSpeakers().clear();
+            useCase.getArtifacts().clear();
+            useCase.getFaqs().clear();
+        }
+
+        addArtifactsFromFiles(useCase, testimonialsFolder, clientTestimonials, "CLIENT_TESTIMONIAL");
+        addArtifactsFromFiles(useCase, demoVideosFolder, demoVideos, "DEMO_VIDEO");
+        addArtifactsFromFiles(useCase, credentialsFolder, clientCredentials, "CLIENT_CREDENTIAL");
+
+        content.setDescription(requestDTO.getDescription());
+        content.setBusinessProblem(requestDTO.getBusinessProblem());
+        content.setSolution(requestDTO.getSolutions());
+        content.setToolsAndTechnologies(requestDTO.getToolsAndTechnologies());
+        content.setKeyResults(requestDTO.getKeyResults());
+        content.setValueDelivered(requestDTO.getValueDelivered());
+        content.setDuration(requestDTO.getDuration());
+        content.setNarrationGuide(requestDTO.getNarrationGuide());
+
+        useCaseContentRepository.save(content);
+
+        addTags(useCase, requestDTO);
+        addSpeakers(useCase, requestDTO);
+        addUseCaseFaqs(useCase, requestDTO);
+
+        useCaseRepository.save(useCase);
+
+        return buildResponseFromEntities(useCase, content);
+    }
+
+    private void addArtifactsFromFiles(UseCase useCase, String folderPath, List<MultipartFile> files, String artifactType) {
+        if (files == null || files.isEmpty()) return;
+
+        cloudStorageService.deleteAllFilesInFolder(folderPath);
+
+        for (MultipartFile file : files) {
+            if (file.isEmpty()) continue;
+
+            String sasUrl = cloudStorageService.updateFile(file, folderPath + "/" + file.getOriginalFilename());
+
+            UseCaseArtifact artifact = UseCaseArtifact.builder()
+                    .useCase(useCase)
+                    .artifactType(artifactType)
+                    .url(sasUrl)
+                    .artifactName(file.getOriginalFilename())
+                    .build();
+
+            useCase.getArtifacts().add(artifact);
+
+            logger.debug("File {} uploaded for usecase {} -> {}", file.getOriginalFilename(), useCase.getUsecaseId(), sasUrl);
+        }
+    }
+
+    @Override
+    @Transactional
+    public UseCaseResponseDTO updateUseCaseAndSubmitForApprovalwithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
+                                                                        List<MultipartFile> demoVideos, List<MultipartFile> clientCredentials,
+                                                                        MultipartFile thumbnailUrl,MultipartFile bannerUrl) {
+
+        logger.debug(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
+
+        UseCase existingUseCase = useCaseRepository.findById(usecaseId)
+                .orElseThrow(() -> new CommonException(
+                        CommonExceptionConstants.NOT_FOUND,
+                        ManufacturingLabConstants.USE_CASE_NOT_FOUND + usecaseId));
+
+        String status = existingUseCase.getStatus();
+        Integer parentId = existingUseCase.getParentUsecaseId();
+
+        UseCase useCase;
+
+        if (("DRAFT".equalsIgnoreCase(status) || "IN_REVIEW".equalsIgnoreCase(status)) && parentId == null) {
+
+            useCase = existingUseCase;
+
+        } else if ("APPROVED".equalsIgnoreCase(status) && parentId == null) {
+
+            useCase = new UseCase();
+
+
+            useCase.setValueChainId(existingUseCase.getValueChainId());
+            useCase.setCreatorId(existingUseCase.getCreatorId());
+            useCase.setOwnerEid(existingUseCase.getOwnerEid());
+
+            useCase.setCreatedDate(LocalDateTime.now());
+            useCase.setCreatorId(existingUseCase.getCreatorId());
+
+            useCase.setParentUsecaseId(existingUseCase.getUsecaseId());
+            useCase.setStatus("IN_REVIEW");
+            useCase.setIsUpdatedUsecase(true);
+            useCase.setIsActive(false);
+        } else {
+            throw new CommonException(CommonExceptionConstants.CONFLICT, "Use case cannot be modified in current state"
+            );
+        }
+
+        useCase.setTitle(requestDTO.getTitle());
+        useCase.setValueChainId(requestDTO.getValueChainId());
+        useCase.setOwnerEid(String.valueOf(requestDTO.getOwnerEId()));
+        useCase.setApproverId(requestDTO.getApproverId());
+        useCase.setCreatorId(requestDTO.getCreatorId());
+        useCase.setStatus("IN_REVIEW");
+        useCase.setApproverId(requestDTO.getApproverId());
+
+        useCase.setIsActive(false);
+        useCase.setIsUpdatedUsecase(true);
+        useCase.setStatus("IN_REVIEW");
+        useCase.setUpdatedDate(LocalDateTime.now());
+
+        useCase = useCaseRepository.save(useCase);
+
+        UseCaseContent content;
+
+        if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
+            content = useCaseContentRepository.findByUsecaseId(useCase.getUsecaseId())
+                    .orElse(new UseCaseContent());
+            content.setUsecaseId(useCase.getUsecaseId());
+        } else {
+            content = new UseCaseContent();
+            content.setUsecaseId(useCase.getUsecaseId());
+        }
+
+        // Resolve paths from @Value properties
+        String thumbnailFolder = thumbnailurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+        String bannerFolder = bannerurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+        String testimonialsFolder = clientTestimonialsPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+        String demoVideosFolder = demoVideosPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+        String credentialsFolder = clientCredentialsPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+
+
+        if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
+
+
+            String existingThumbnail = content.getThumbnailUrl();
+
+            if (existingThumbnail != null && !existingThumbnail.isEmpty()) {
+                cloudStorageService.deleteAllFilesInFolder(thumbnailFolder);
+            }
+            String blobPath = thumbnailFolder + "/" + thumbnailUrl.getOriginalFilename();
+            String sasUrl = cloudStorageService.updateFile(thumbnailUrl, blobPath);
+            content.setThumbnailUrl(sasUrl);
+        }
+
+        if (bannerUrl != null && !bannerUrl.isEmpty()) {
+            String existingBanner = content.getBannerUrl();
+
+            if (existingBanner != null && !existingBanner.isEmpty()) {
+                cloudStorageService.deleteAllFilesInFolder(bannerFolder);
+            }
+            String blobPath = bannerFolder + "/" + bannerUrl.getOriginalFilename();
+            String sasUrl = cloudStorageService.updateFile(bannerUrl, blobPath);
+            content.setBannerUrl(sasUrl);
+        }
+
+        if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
+            useCase.getTags().clear();
+            useCase.getSpeakers().clear();
+            useCase.getArtifacts().clear();
+            useCase.getFaqs().clear();
+        }
+
+        // Upload artifacts
+        addArtifactsFromFiles(useCase, testimonialsFolder, clientTestimonials, "CLIENT_TESTIMONIAL");
+        addArtifactsFromFiles(useCase, demoVideosFolder, demoVideos, "DEMO_VIDEO");
+        addArtifactsFromFiles(useCase, credentialsFolder, clientCredentials, "CLIENT_CREDENTIAL");
+
+        content.setDescription(requestDTO.getDescription());
+        content.setBusinessProblem(requestDTO.getBusinessProblem());
+        content.setSolution(requestDTO.getSolutions());
+        content.setToolsAndTechnologies(requestDTO.getToolsAndTechnologies());
+        content.setKeyResults(requestDTO.getKeyResults());
+        content.setValueDelivered(requestDTO.getValueDelivered());
+        content.setDuration(requestDTO.getDuration());
+        content.setNarrationGuide(requestDTO.getNarrationGuide());
+
+        useCaseContentRepository.save(content);
+
+        addTags(useCase, requestDTO);
+        addSpeakers(useCase, requestDTO);
+        addUseCaseFaqs(useCase, requestDTO);
+
+        useCaseRepository.save(useCase);
+
+        return buildResponseFromEntities(useCase, content);
+    }
 }

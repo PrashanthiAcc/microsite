@@ -1,8 +1,11 @@
 package com.ix.manufacturinglab.storage;
 import java.io.IOException;
+import java.net.URI;
 import java.time.OffsetDateTime;
 
+import com.azure.core.http.rest.PagedIterable;
 import com.azure.storage.blob.models.BlobHttpHeaders;
+import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import org.slf4j.Logger;
@@ -37,7 +40,7 @@ public class AzureBlobStorageServiceImpl implements CloudStorageService {
             blobClient.setHttpHeaders(new BlobHttpHeaders().setContentType(contentType));
 
             BlobSasPermission permission = new BlobSasPermission().setReadPermission(true);
-            OffsetDateTime expiry = OffsetDateTime.now().plusHours(24);
+            OffsetDateTime expiry = OffsetDateTime.now().plusYears(1);
 
             BlobServiceSasSignatureValues values = new BlobServiceSasSignatureValues(expiry, permission).setContentDisposition("inline");
 
@@ -53,4 +56,42 @@ public class AzureBlobStorageServiceImpl implements CloudStorageService {
                     "Failed to upload file: " + file.getOriginalFilename());
         }
     }
+
+    @Override
+    public String updateFile(MultipartFile file, String blobPath) {
+        try {
+            String folderPath = blobPath.substring(0, blobPath.lastIndexOf("/") + 1);
+            deleteAllFilesInFolder(folderPath);
+
+            BlobClient blobClient = blobContainerClient.getBlobClient(blobPath);
+            blobClient.upload(file.getInputStream(), file.getSize(), true);
+
+            String contentType = ContentTypeUtil.getContentType(file.getOriginalFilename());
+            blobClient.setHttpHeaders(new BlobHttpHeaders().setContentType(contentType));
+
+            BlobSasPermission permission = new BlobSasPermission().setReadPermission(true);
+            OffsetDateTime expiry = OffsetDateTime.now().plusYears(1);
+            BlobServiceSasSignatureValues values = new BlobServiceSasSignatureValues(expiry, permission)
+                    .setContentDisposition("inline");
+
+            String sasToken = blobClient.generateSas(values);
+            String sasUrl = blobClient.getBlobUrl() + "?" + sasToken;
+
+            return sasUrl;
+
+        } catch (IOException e) {
+            logger.error("Failed to upload file '{}' to blob path {}: {}", file.getOriginalFilename(), blobPath, e.getMessage(), e);
+            throw new CommonException(CommonExceptionConstants.BAD_REQUEST,
+                    "Failed to upload file: " + file.getOriginalFilename());
+        }
+    }
+
+    @Override
+    public void deleteAllFilesInFolder(String folderPath) {
+        PagedIterable<BlobItem> blobItems = blobContainerClient.listBlobsByHierarchy(folderPath + "/");
+        for (BlobItem blobItem : blobItems) {
+            blobContainerClient.getBlobClient(blobItem.getName()).delete();
+        }
+    }
+
 }

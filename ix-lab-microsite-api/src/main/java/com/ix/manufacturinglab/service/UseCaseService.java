@@ -116,4 +116,12 @@ public interface UseCaseService {
                                                                  List<MultipartFile> demoVideos, List<MultipartFile> clientCredentials,
                                                                  MultipartFile thumbnailUrl,MultipartFile bannerUrl);
 
+    UseCaseResponseDTO updateUseCaseandSaveasDraftWithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
+                                                           List<MultipartFile> demoVideos, List<MultipartFile> clientCredentials,
+                                                           MultipartFile thumbnailUrl,MultipartFile bannerUrl);
+
+    UseCaseResponseDTO updateUseCaseAndSubmitForApprovalwithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
+                                                           List<MultipartFile> demoVideos, List<MultipartFile> clientCredentials,
+                                                           MultipartFile thumbnailUrl,MultipartFile bannerUrl);
+
 }
