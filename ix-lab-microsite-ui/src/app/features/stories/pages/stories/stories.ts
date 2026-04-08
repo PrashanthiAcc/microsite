@@ -104,7 +104,7 @@ export class StoriesComponent implements OnInit {
       }));
 
       this.filteredStories = this.stories;
-
+      this.applyFilters();
       if (this.showAdminControls && this.currentFrom !== 'stories') {
         this.filteredStories = this.stories.filter((story: any) => story.status === 'IN_REVIEW');
 
