@@ -122,7 +122,6 @@ export class StoriesComponent implements OnInit {
       this.totalPages = res.totalPages;
       this.totalElements = res.totalElements;
       this.pageSize = res.size;
-      this.applyFilters();
       this.cdr.detectChanges();
       console.log('Stories loaded:', this.stories);
     });
