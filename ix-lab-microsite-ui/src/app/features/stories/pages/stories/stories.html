@@ -131,7 +131,7 @@
 
     <!-- new wrapper Stories -->
     <div class="stories__header">
-      <h1 class="stories__title" *ngIf="filteredStories.length && !showAdminControls">All Stories ({{ stories.length }})</h1>
+      <h1 class="stories__title" *ngIf="filteredStories.length && !showAdminControls">{{cardCategoryTitle ?? 'All Stories'}} ({{ stories.length }})</h1>
       <h1 class="stories__title" *ngIf="filteredStories.length && showAdminControls">All In Review Stories ({{ filteredStories.length }})</h1>
 
       <!-- <div class="stories__actions">
@@ -228,7 +228,7 @@
     </div> -->
 
 
-   <ng-container *ngIf="filteredStories.length > 0">
+   <ng-container *ngIf="filteredStories.length > 0 && showAdminControls">
   <div class="pagination" *ngIf="totalPages > 1">
     <!-- Previous -->
     <button [routerLink]="['/stories']"
