@@ -13,7 +13,7 @@ export class UsecaseService {
   constructor(private http: HttpClient) {}
 
   submitForApproval(payload: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/api/usecase/v1/submit-for-approval`, payload);
+    return this.http.post(`${this.baseUrl}/api/usecase/v1/submit-for-approval-withblob`, payload);
   }
 
   getAllStories(page: number = 1, size: number = 10): Observable<any> {
@@ -32,7 +32,7 @@ export class UsecaseService {
 
   updateStorySendForApproval(storyId: string, payload: any): Observable<string> {
     return this.http.put(
-      `${this.baseUrl}/api/usecase/v1/${storyId}/submit-for-approval`,
+      `${this.baseUrl}/api/usecase/v1/${storyId}/submit-for-approval-withblob`,
       payload,
       { responseType: 'text' }
     );
@@ -40,7 +40,7 @@ export class UsecaseService {
 
   updateStorySaveDraft(storyId: string, payload: any): Observable<any> {
     return this.http.put(
-      `${this.baseUrl}/api/usecase/v1/${storyId}/save-draft`,
+      `${this.baseUrl}/api/usecase/v1/${storyId}/save-draft-withblob`,
       payload,
       { responseType: 'text' }
     );
