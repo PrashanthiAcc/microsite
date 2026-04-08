@@ -932,7 +932,7 @@ public class UseCaseServiceImpl implements UseCaseService {
         UseCase useCase = UseCase.builder()
                 .valueChainId(requestDTO.getValueChainId())
                 .title(requestDTO.getTitle())
-                .ownerEid(requestDTO.getOwnerEId())
+                .ownerEid(String.valueOf(requestDTO.getOwnerEId()))
                 .status(requestDTO.getStatus() != null ? requestDTO.getStatus() : UseCaseStatus.DRAFT.name())
                 .approverId(requestDTO.getApproverId())
                 .isUpdatedUsecase(false)
