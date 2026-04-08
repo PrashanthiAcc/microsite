@@ -626,6 +626,22 @@ export class EditStoryComponent {
     }
   }
 
+  deleteFAQ(index: number) {
+  if (this.faqs.length > 1) {
+    this.faqs.removeAt(index);
+  } else {
+    // If you want at least one FAQ always present, reset instead of removing
+    this.faqs.at(0).patchValue({
+      question: '',
+      answer: '',
+      editing: true,
+      showAnswer: false
+    });
+  }
+
+  this.originalFaqs = this.faqs.value.map(faq => ({ ...faq }));
+}
+
   onCancel() {
     this.location.back();
   }

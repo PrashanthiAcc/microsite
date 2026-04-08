@@ -1,6 +1,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule, ActivatedRoute } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CustomDropdownComponent } from '../../../../shared/components/custom-dropdown/custom-dropdown';
 import { IndustryService } from '../../../../core/services/industry';
@@ -64,11 +64,12 @@ export class StoriesComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       this.showAdminControls = params['from'] === 'config';
       this.currentFrom = this.route.snapshot.queryParams['from'] || 'stories';
+      this.currentPage = params['page'] ? +params['page'] : 1;
       const id = params['id'];
       if (id) {
         console.log("selected story Id:", id);
       }
-      this.loadAllStories();
+      this.loadAllStories(this.currentPage);
     });
 
     this.loadIndustries();
@@ -117,7 +118,7 @@ export class StoriesComponent implements OnInit {
           }));
       }
 
-      this.currentPage = res.number + 1;
+      this.currentPage = page;
       this.totalPages = res.totalPages;
       this.totalElements = res.totalElements;
       this.pageSize = res.size;

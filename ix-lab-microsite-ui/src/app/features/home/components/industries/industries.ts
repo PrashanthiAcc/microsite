@@ -22,6 +22,6 @@ export class Industries {
   ];
 
    goToStories(industryTitle: string) {
-    this.router.navigate(['/stories'], { queryParams: { from: 'config', title: industryTitle } });
+    this.router.navigate(['/stories'], { queryParams: { from: 'stories', title: industryTitle } });
   }
 }

@@ -60,7 +60,7 @@
     <!-- GRID ALL DRAFTS------------ -->
     <div class="stories__grid" *ngIf="drafts.length">
 
-      <div class="story-card" *ngFor="let draft of drafts" [routerLink]="['/stories', draft.usecaseId]" [queryParams]="{from: currentFrom}">
+      <div class="story-card" *ngFor="let draft of drafts" [routerLink]="['/stories', draft.usecaseId]" [queryParams]="{from: currentFrom,page: currentPage}">
 
         <div class="story-card__media">
           <img [src]="draft.thumbnailImageUrl" alt="">
@@ -131,7 +131,7 @@
 
     <!-- new wrapper Stories -->
     <div class="stories__header">
-      <h1 class="stories__title" *ngIf="stories.length && !showAdminControls">All Stories ({{ stories.length }})</h1>
+      <h1 class="stories__title" *ngIf="filteredStories.length && !showAdminControls">All Stories ({{ stories.length }})</h1>
       <h1 class="stories__title" *ngIf="filteredStories.length && showAdminControls">All In Review Stories ({{ filteredStories.length }})</h1>
 
       <!-- <div class="stories__actions">
@@ -147,9 +147,9 @@
     </div>
 
     <!---ALL STORIES-------------------->
-    <div class="stories__grid" *ngIf="!isLoading && stories.length > 0">
+    <div class="stories__grid" *ngIf="!isLoading && filteredStories.length > 0">
 
-      <div class="story-card" *ngFor="let story of filteredStories" [routerLink]="['/stories', story.usecaseId]" [queryParams]="{from: currentFrom}">
+      <div class="story-card" *ngFor="let story of filteredStories" [routerLink]="['/stories', story.usecaseId]" [queryParams]="{from: currentFrom, page: currentPage}">
 
         <div class="story-card__media">
           <img [src]="story.thumbnailImageUrl" alt="">
@@ -228,22 +228,33 @@
     </div> -->
 
 
-    <ng-container *ngIf="filteredStories.length > 0">
-      <div class="pagination" *ngIf="totalPages > 1">
-        <button (click)="loadAllStories(currentPage - 1)" [disabled]="currentPage === 1">
-          <img [src]="pagination_left" alt="Previous" />
-        </button>
-    
-        <span *ngFor="let page of [].constructor(totalPages); let i = index" (click)="loadAllStories(i + 1)"
+   <ng-container *ngIf="filteredStories.length > 0 && showAdminControls">
+  <div class="pagination" *ngIf="totalPages > 1">
+    <!-- Previous -->
+    <button [routerLink]="['/stories']"
+            [queryParams]="{ from: currentFrom, page: currentPage - 1 }"
+            [disabled]="currentPage === 1">
+      <img [src]="pagination_left" alt="Previous" />
+    </button>
+
+    <!-- Page numbers -->
+    <span *ngFor="let page of [].constructor(totalPages); let i = index"
+          [routerLink]="['/stories']"
+          [queryParams]="{ from: currentFrom, page: i + 1 }"
           [class.active]="currentPage === i + 1">
-          {{ i + 1 }}
-        </span>
-    
-        <button (click)="loadAllStories(currentPage + 1)" [disabled]="currentPage === totalPages">
-          <img [src]="pagination_right" alt="Next" />
-        </button>
-      </div>
-    </ng-container>
+      {{ i + 1 }}
+    </span>
+
+    <!-- Next -->
+    <button [routerLink]="['/stories']"
+            [queryParams]="{ from: currentFrom, page: currentPage + 1 }"
+            [disabled]="currentPage === totalPages">
+      <img [src]="pagination_right" alt="Next" />
+    </button>
+  </div>
+</ng-container>
+
+
 
   </div>
 </section>

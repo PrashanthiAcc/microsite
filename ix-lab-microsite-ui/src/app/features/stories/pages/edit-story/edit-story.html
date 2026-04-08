@@ -190,8 +190,8 @@
         <div class="upload-row btn-margin-bottom">
           <label class="artifacts-label">Elevator Pitch</label>
 
-          <button type="button" class="upload-btn btn-margin-left" (click)="elevatorInput.click()"> <img [src]="uploadIconPath"
-              alt="upload icon" class="upload-icon" /> Upload File</button>
+          <button type="button" class="upload-btn btn-margin-left" (click)="elevatorInput.click()"> <img
+              [src]="uploadIconPath" alt="upload icon" class="upload-icon" /> Upload File</button>
 
           <span class="file-name" *ngIf="storyForm.get('elevatorPitch')?.value as file">
             {{ file.name }}
@@ -388,6 +388,7 @@
           <button type="button" class="edit-btn" (click)="editFAQ(i)">
             <img [src]="pencilIconPath" alt="edit" />
           </button>
+          <button type="button" class="btn-delete" (click)="deleteFAQ(i)" style="margin-top: 24px; color: black;">🗑</button>
         </div>
       </div>
 
@@ -428,22 +429,22 @@
 
 <!-- Approval Modal -->
 <div class="modal-backdrop" *ngIf="showApprovalModal">
-<div class="modal" *ngIf="showApprovalModal">
-  <div class="modal-header">
-    <h2>New Story</h2>
-    <button type="button" class="btn-close" (click)="closeApprovalModal()">
-      <img [src]="closeIconPath" alt="close icon" class="close-icon" />
-    </button>
-  </div>
+  <div class="modal" *ngIf="showApprovalModal">
+    <div class="modal-header">
+      <h2>New Story</h2>
+      <button type="button" class="btn-close" (click)="closeApprovalModal()">
+        <img [src]="closeIconPath" alt="close icon" class="close-icon" />
+      </button>
+    </div>
 
-  <p class="modal-message">
-    {{ modalAction === 'approval' ? 'Send for Approval?' : 'Save as Draft?' }}
-  </p>
+    <p class="modal-message">
+      {{ modalAction === 'approval' ? 'Send for Approval?' : 'Save as Draft?' }}
+    </p>
 
-  <div class="modal-actions">
-    <button type="button" class="btn-approve" (click)="confirmModalAction()">
-      Okay
-    </button>
+    <div class="modal-actions">
+      <button type="button" class="btn-approve" (click)="confirmModalAction()">
+        Okay
+      </button>
+    </div>
   </div>
-</div>
 </div>

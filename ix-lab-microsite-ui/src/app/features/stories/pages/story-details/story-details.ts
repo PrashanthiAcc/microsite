@@ -118,8 +118,23 @@ export class StoryDetailsComponent {
     this.showNarrationGuideAndFAQ = input.checked;
   }
 
+  // navigateBack() {
+  //   this.router.navigate(['/stories'], { queryParams: { from: this.fromPage } });
+  // }
+
   navigateBack() {
-    this.router.navigate(['/stories'], { queryParams: { from: this.fromPage } });
-  }
+  const queryParams = this.route.snapshot.queryParams;
+
+  this.router.navigate(['/stories'], {
+    queryParams: {
+      from: queryParams['from'] || 'stories',
+      page: queryParams['page'] || 1,
+      search: queryParams['search'] || null,
+      industry: queryParams['industry'] || null,
+      subIndustry: queryParams['subIndustry'] || null,
+      valueChain: queryParams['valueChain'] || null
+    }
+  });
+}
 
 }
