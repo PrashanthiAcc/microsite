@@ -12,7 +12,7 @@ export class UsecaseService {
 
   constructor(private http: HttpClient) {}
 
-  submitForApproval(payload: any): Observable<any> {
+  submitForApproval(payload: FormData): Observable<any> {
     return this.http.post(`${this.baseUrl}/api/usecase/v1/submit-for-approval-withblob`, payload);
   }
 
@@ -26,11 +26,11 @@ export class UsecaseService {
     return this.http.get(`${this.baseUrl}/api/usecase/v1/${storyId}`);
   }
 
-  saveAsDraft(payload: any): Observable<any> {
+  saveAsDraft(payload: FormData): Observable<any> {
     return this.http.post(`${this.baseUrl}/api/usecase/v1/save-draft-withblob`, payload);
   }
 
-  updateStorySendForApproval(storyId: string, payload: any): Observable<string> {
+  updateStorySendForApproval(storyId: string, payload: FormData): Observable<string> {
     return this.http.put(
       `${this.baseUrl}/api/usecase/v1/${storyId}/submit-for-approval-withblob`,
       payload,
@@ -38,7 +38,7 @@ export class UsecaseService {
     );
   }
 
-  updateStorySaveDraft(storyId: string, payload: any): Observable<any> {
+  updateStorySaveDraft(storyId: string, payload: FormData): Observable<any> {
     return this.http.put(
       `${this.baseUrl}/api/usecase/v1/${storyId}/save-draft-withblob`,
       payload,

@@ -91,6 +91,8 @@ export class AddStoryComponent {
   toastTitle = '';
   elevatorFileName: string = '';
   storyFileName: string = '';
+  thumbnailFile : File | null = null;
+  bannerFile: File | null = null;
 
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient, private location: Location,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService) {
@@ -287,8 +289,10 @@ export class AddStoryComponent {
       // ✅ save file into correct form control
       if (field === 'thumbnail') {
         this.storyForm.patchValue({ thumbnailImageUrl: file });
+        this.thumbnailFile = file;
       } else if (field === 'banner') {
         this.storyForm.patchValue({ banner: file });
+        this.bannerFile = file;
       } else if (index !== undefined) {
         (this.storyForm.get(field) as FormArray).at(index).setValue(file);
       } else {
@@ -441,13 +445,43 @@ export class AddStoryComponent {
       artifacts: [],
     };
 
-    console.log('Payload for API:', payload);
+    const formData = new FormData();
+    formData.append('data', JSON.stringify(payload));
 
-    this.usecaseService.submitForApproval(payload).subscribe((res: any) => {
+    if(this.thumbnailFile) {
+      formData.append('thumbnailImage', this.thumbnailFile);
+    }
+
+    if(this.bannerFile) {
+      formData.append('bannerImage', this.bannerFile);
+    }
+
+    this.demoVideos.controls.forEach((control: any) => {
+      if (control.value instanceof File) {
+        formData.append('demoVideos', control.value);
+      }
+    });
+
+    this.clientTestimonials.controls.forEach((control: any) => {
+      if (control.value instanceof File) {
+        formData.append('clientTestimonials', control.value);
+      }
+    });
+
+    const elevatorPitch = this.storyForm.get('elevatorPitch')?.value;
+    if (elevatorPitch instanceof File) {
+      formData.append('elevatorPitch', elevatorPitch);
+    }
+
+    const clientStory = this.storyForm.get('clientStory')?.value;
+    if (clientStory instanceof File) {
+      formData.append('clientStory', clientStory);
+    }
+
+    this.usecaseService.submitForApproval(formData).subscribe((res: any) => {
 
       console.log('Response from API:', res);
       this.toastTitle = 'Story created and submitted for approval successfully';
-      //this.toastMessage = res;
       this.showToast = true;
       this.location.back();
 
@@ -520,9 +554,40 @@ export class AddStoryComponent {
       artifacts: [],
     };
 
-    console.log('Payload for API:', payload);
+    const formData = new FormData();
+    formData.append('data', JSON.stringify(payload));
 
-    this.usecaseService.saveAsDraft(payload).subscribe((res: any) => {
+    if(this.thumbnailFile) {
+      formData.append('thumbnailImage', this.thumbnailFile);
+    }
+
+    if(this.bannerFile) {
+      formData.append('bannerImage', this.bannerFile);
+    }
+
+    this.demoVideos.controls.forEach((control: any) => {
+      if (control.value instanceof File) {
+        formData.append('demoVideos', control.value);
+      }
+    });
+
+    this.clientTestimonials.controls.forEach((control: any) => {
+      if (control.value instanceof File) {
+        formData.append('clientTestimonials', control.value);
+      }
+    });
+
+    const elevatorPitch = this.storyForm.get('elevatorPitch')?.value;
+    if (elevatorPitch instanceof File) {
+      formData.append('elevatorPitch', elevatorPitch);
+    }
+
+    const clientStory = this.storyForm.get('clientStory')?.value;
+    if (clientStory instanceof File) {
+      formData.append('clientStory', clientStory);
+    }
+
+    this.usecaseService.saveAsDraft(formData).subscribe((res: any) => {
 
       console.log('Response from API:', res);
       this.toastTitle = 'Story Saved As Draft';
