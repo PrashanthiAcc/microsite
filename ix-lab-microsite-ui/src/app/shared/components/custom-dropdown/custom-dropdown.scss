@@ -74,3 +74,11 @@
     color: #8a2be2;
   }
 }
+
+.dropdown-option {
+  display: inline-block;
+  width: 25ch;          
+  white-space: nowrap;  
+  overflow: hidden;     
+  text-overflow: ellipsis; 
+}

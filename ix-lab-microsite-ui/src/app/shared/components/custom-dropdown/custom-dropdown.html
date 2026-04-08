@@ -3,7 +3,7 @@
   <label>{{ label }}</label>
 
   <div class="dropdown__control" (click)="toggle($event)">
-    <span>{{ selected || 'Select'}}</span>
+    <span class="dropdown-option">{{ selected || 'Select'}}</span>
     <span class="arrow" [class.rotate]="isOpen">▾</span>
   </div>
 

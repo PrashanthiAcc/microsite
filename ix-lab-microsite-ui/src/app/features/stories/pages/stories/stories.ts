@@ -54,6 +54,7 @@ export class StoriesComponent implements OnInit {
   selectedSubIndustryId: number | null = null;
   selectedValueChainId: number | null = null;
   selectedIndustryObj: any = null;
+  cardCategoryTitle: any;
 
   constructor(private router: Router, private http: HttpClient,
     private industryService: IndustryService, private cdr: ChangeDetectorRef, private route: ActivatedRoute,
@@ -216,6 +217,7 @@ export class StoriesComponent implements OnInit {
         ...this.allValueChains
       ];
 
+      this.cardCategoryTitle = this.route.snapshot.queryParams['title'];
       const title = this.route.snapshot.queryParams['title'];
       if (title) {
         const selectedIndustryObj = this.industries.find(
@@ -224,6 +226,7 @@ export class StoriesComponent implements OnInit {
         if (selectedIndustryObj) {
           this.selectedIndustryId = selectedIndustryObj.industryId;
           this.applyFilters();
+          this.cdr.detectChanges();
         }
       }
 
