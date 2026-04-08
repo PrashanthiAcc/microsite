@@ -78,7 +78,7 @@ export class StoriesComponent implements OnInit {
   }
 
 
-  loadAllStories(page: number = 1, size: number = 10) {
+  loadAllStories(page: number = 1, size: number = 8) {
     this.isLoading = false;
     this.usecaseService.getAllStories(page, size).subscribe((res: any) => {
       let allStories = res.content || [];
@@ -224,6 +224,7 @@ export class StoriesComponent implements OnInit {
         if (selectedIndustryObj) {
           this.selectedIndustryId = selectedIndustryObj.industryId;
           this.applyFilters();
+          this.cdr.detectChanges();
         }
       }
 
