@@ -75,6 +75,7 @@ export class StoriesComponent implements OnInit {
 
     this.loadIndustries();
     this.getAllUsers();
+    this.cdr.detectChanges();
     window.scrollTo({ top: 0 });
   }
 

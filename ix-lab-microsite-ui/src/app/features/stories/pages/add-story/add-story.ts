@@ -107,7 +107,7 @@ export class AddStoryComponent {
       tags: this.fb.array([]),
       duration: [''],
 
-      thumbnailImageUrl: [null],
+      thumbnail: [null],
       banner: [null],
 
       ownerId: [''],
@@ -288,7 +288,7 @@ export class AddStoryComponent {
 
       // ✅ save file into correct form control
       if (field === 'thumbnail') {
-        this.storyForm.patchValue({ thumbnailImageUrl: file });
+        this.storyForm.patchValue({ thumbnail: file });
         this.thumbnailFile = file;
       } else if (field === 'banner') {
         this.storyForm.patchValue({ banner: file });
@@ -446,14 +446,14 @@ export class AddStoryComponent {
     };
 
     const formData = new FormData();
-    formData.append('data', JSON.stringify(payload));
+    formData.append('useCaseRequest', JSON.stringify(payload));
 
     if(this.thumbnailFile) {
-      formData.append('thumbnailImage', this.thumbnailFile);
+      formData.append('thumbnailUrl', this.thumbnailFile);
     }
 
     if(this.bannerFile) {
-      formData.append('bannerImage', this.bannerFile);
+      formData.append('bannerUrl', this.bannerFile);
     }
 
     this.demoVideos.controls.forEach((control: any) => {
@@ -555,14 +555,14 @@ export class AddStoryComponent {
     };
 
     const formData = new FormData();
-    formData.append('data', JSON.stringify(payload));
+    formData.append('useCaseRequest', JSON.stringify(payload));
 
     if(this.thumbnailFile) {
-      formData.append('thumbnailImage', this.thumbnailFile);
+      formData.append('thumbnailUrl', this.thumbnailFile);
     }
 
     if(this.bannerFile) {
-      formData.append('bannerImage', this.bannerFile);
+      formData.append('bannerUrl', this.bannerFile);
     }
 
     this.demoVideos.controls.forEach((control: any) => {

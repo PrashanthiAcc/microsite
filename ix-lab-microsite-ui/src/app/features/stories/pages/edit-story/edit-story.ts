@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators, FormsModule } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
@@ -96,7 +96,7 @@ export class EditStoryComponent {
 
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService,
-    private route: ActivatedRoute, private location: Location) {
+    private route: ActivatedRoute, private location: Location, private cdr: ChangeDetectorRef) {
     this.storyForm = this.fb.group({
       elevatorPitch: [null],
       clientStory: [null],
@@ -108,7 +108,7 @@ export class EditStoryComponent {
       tags: this.fb.array([]),
       duration: [''],
 
-      thumbnailImageUrl: [null],
+      thumbnail: [null],
       bannerUrl: [null],
 
       ownerId: 102,
@@ -158,6 +158,7 @@ export class EditStoryComponent {
     this.getAllUsers();
     this.usecaseID = this.route.snapshot.paramMap.get('id');
     this.loadUsecaseById(this.usecaseID)
+    this.cdr.detectChanges();
   }
 
   loadUsecaseById(id: string | null) {
@@ -345,7 +346,7 @@ export class EditStoryComponent {
 
       // ✅ save file into correct form control
       if (field === 'thumbnail') {
-        this.storyForm.patchValue({ thumbnailImageUrl: file });
+        this.storyForm.patchValue({ thumbnail: file });
         this.thumbnailFile = file;
       } else if (field === 'banner') {
         this.storyForm.patchValue({ bannerUrl: file });
@@ -520,14 +521,14 @@ export class EditStoryComponent {
     };
 
     const formData = new FormData();
-    formData.append('data', JSON.stringify(payload));
+    formData.append('useCaseRequest', JSON.stringify(payload));
 
     if(this.thumbnailFile) {
-      formData.append('thumbnailImage', this.thumbnailFile);
+      formData.append('thumbnailUrl', this.thumbnailFile);
     }
 
     if(this.bannerFile) {
-      formData.append('bannerImage', this.bannerFile);
+      formData.append('bannerUrl', this.bannerFile);
     }
 
     this.demoVideos.controls.forEach((control: any) => {
@@ -614,14 +615,14 @@ export class EditStoryComponent {
     };
 
     const formData = new FormData();
-    formData.append('data', JSON.stringify(payload));
+    formData.append('useCaseRequest', JSON.stringify(payload));
 
     if(this.thumbnailFile) {
-      formData.append('thumbnailImage', this.thumbnailFile);
+      formData.append('thumbnailUrl', this.thumbnailFile);
     }
 
     if(this.bannerFile) {
-      formData.append('bannerImage', this.bannerFile);
+      formData.append('bannerUrl', this.bannerFile);
     }
 
     this.demoVideos.controls.forEach((control: any) => {

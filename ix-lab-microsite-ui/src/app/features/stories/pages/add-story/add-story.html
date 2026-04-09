@@ -57,8 +57,8 @@
         <div class="upload-row">
           <button type="button" class="upload-btn" (click)="thumbnailInput.click()"> <img [src]="uploadIconPath"
               alt="upload icon" class="upload-icon" /> Upload File</button>
-          <span class="file-name" *ngIf="storyForm.get('thumbnailImageUrl')?.value">
-            {{ storyForm.get('thumbnailImageUrl')?.value.name }}
+          <span class="file-name" *ngIf="storyForm.get('thumbnail')?.value">
+            {{ storyForm.get('thumbnail')?.value.name }}
           </span>
           <p>Supported files .png, .jpeg, .jpg, up to 5MB.</p>
         </div>
