@@ -18,36 +18,6 @@
             <p class="subtitle">{{ storyDetails?.description }}</p>
 
         </div>
-
-        <!-- <div class="hero-title-overlay">Digital Manufacturing Overview</div> -->
-
-        <!-- <div class="hero-overview" aria-label="Digital Manufacturing overview cards">
-
-    <div class="overview-card">
-      <div class="value">150+</div>
-      <div class="label">Client Stories</div>
-    </div>
-
-    <div class="overview-card">
-      <div class="value">50+</div>
-      <div class="label">MES/MOM solutions delivered</div>
-    </div>
-
-    <div class="overview-card">
-      <div class="value">124+</div>
-      <div class="label">Production Site support for Critical apps</div>
-    </div>
-
-    <div class="overview-card">
-      <div class="value">30+</div>
-      <div class="label">SAP EWM programs delivered</div>
-    </div>
-
-    <div class="overview-card">
-      <div class="value">30+</div>
-      <div class="label">SAP EWM programs delivered</div>
-    </div>
-  </div> -->
     </section>
 
 
@@ -80,12 +50,6 @@
         <div class="divider"></div>
         <div class="info-body">
             {{ storyDetails.businessProblem }}
-
-            <!-- <ul>
-                <li>Process Variability in Lyo Operations</li>
-                <li>Scale-Up and Technology Transfer Complexity</li>
-                <li>Impact on Manufacturing Performance</li>
-            </ul> -->
         </div>
     </section>
 
@@ -112,12 +76,6 @@
         </h3>
         <div class="divider"></div>
         <div class="info-body" [innerHTML]="storyDetails.valueDelivered">
-            <!-- <ul>
-                <li>System Architecture (LyoOmniTwin)</li>
-                <li>Modeling & Validation</li>
-                <li>Technology Transfer & Compliance</li>
-                <li>Dashboards & KPIs</li>
-            </ul> -->
         </div>
     </section>
 
@@ -129,12 +87,6 @@
         </h3>
         <div class="divider"></div>
         <div class="info-body" [innerHTML]="storyDetails.toolsAndTechnologies">
-            <!-- <ul>
-                <li style="color:#fff;">Digital Twin & Visualization: NVIDIA Omniverse</li>
-                <li style="color:#fff;">Physics-Based Modeling: Simulation engines</li>
-                <li style="color:#fff;">Real-Time Monitoring: Sensor networks + PAT</li>
-                <li style="color:#fff;">AI & Predictive Analytics: ML forecasting & failure prediction</li>
-            </ul> -->
         </div>
     </section>
 
@@ -145,12 +97,6 @@
         </h3>
         <div class="divider"></div>
         <div class="info-body" [innerHTML]="storyDetails.keyResults">
-            <!-- <ul>
-                <li>De-risked batches via early excursion detection</li>
-                <li>Faster scale-up & tech-transfer with virtual DOE</li>
-                <li>Unified visibility for Ops/QA leadership</li>
-                <li>Foundation for software-defined manufacturing</li>
-            </ul> -->
         </div>
     </section>
 
@@ -161,14 +107,6 @@
         </h3>
         <div class="divider"></div>
         <div class="info-body"> {{ storyDetails.businessProblem }}
-            <!-- <h4>Opening Context</h4>
-            <p>Biopharmaceutical manufacturing relies on lyophilization...</p>
-            <h4>Business Challenge</h4>
-            <p>Three challenges: variability, scale-up complexity, lack of visibility.</p>
-            <h4>Solution Overview</h4>
-            <p>LyoOmnifit™ simulates cycles, monitors runs, and unifies visibility.</p>
-            <h4>Value Delivered</h4>
-            <p>Prediction, monitoring, collaboration, faster decisions.</p> -->
         </div>
     </section>
 
@@ -183,7 +121,8 @@
         <div class="faq-item" *ngFor="let faq of storyDetails?.faqs">
             <div class="faq-header-row" (click)="faq.showAnswer = !faq.showAnswer">
                 <span class="faq-question">{{ faq.question }}</span>
-                <button type="button" class="accordion-btn" (click)="faq.showAnswer = !faq.showAnswer ; $event.stopPropagation()">
+                <button type="button" class="accordion-btn"
+                    (click)="faq.showAnswer = !faq.showAnswer ; $event.stopPropagation()">
                     <img [src]="faq.showAnswer ? upArrowIconPath : downArrowIconPath" alt="toggle answer" />
                 </button>
             </div>

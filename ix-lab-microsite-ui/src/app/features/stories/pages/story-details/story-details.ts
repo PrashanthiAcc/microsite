@@ -108,8 +108,20 @@ export class StoryDetailsComponent {
   }
 
   onArtifactSelected(artifact: any) {
-    // Example: navigate or open file
-    window.open(artifact.url, '_blank');
+    const fileName = artifact.artifactName?.toLowerCase() || '';
+    const cleanUrl = artifact.url;
+
+    if (fileName.endsWith('.ppt') || fileName.endsWith('.pptx')) {
+      const viewerUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(artifact.url)}`;
+
+      const newTab = window.open('', '_blank');
+
+      if (newTab) {
+        newTab.location.href = viewerUrl;
+      }
+    } else {
+      window.open(cleanUrl, '_blank');
+    }
   }
 
   toggleFaqGuide(event: Event): void {
@@ -117,10 +129,6 @@ export class StoryDetailsComponent {
     const input = event.target as HTMLInputElement;
     this.showNarrationGuideAndFAQ = input.checked;
   }
-
-  // navigateBack() {
-  //   this.router.navigate(['/stories'], { queryParams: { from: this.fromPage } });
-  // }
 
   navigateBack() {
   const queryParams = this.route.snapshot.queryParams;

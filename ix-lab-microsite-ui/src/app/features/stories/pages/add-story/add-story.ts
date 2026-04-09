@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators, FormsModule } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
@@ -93,9 +93,11 @@ export class AddStoryComponent {
   storyFileName: string = '';
   thumbnailFile: File | null = null;
   bannerFile: File | null = null;
+  thumbnailPreview: string | ArrayBuffer | null = null;
+  bannerPreview: string | ArrayBuffer | null = null;
 
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient, private location: Location,
-    private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService) {
+    private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService, private cd: ChangeDetectorRef) {
     this.storyForm = this.fb.group({
       elevatorPitch: [null],
       clientStory: [null],
@@ -298,6 +300,17 @@ export class AddStoryComponent {
       } else {
         this.storyForm.patchValue({ [field]: file });
       }
+
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        if (field === 'thumbnail') {
+          this.thumbnailPreview = e.target.result;
+        } else if (field === 'banner') {
+          this.bannerPreview = e.target.result;
+        }
+        this.cd.detectChanges();
+      };
+      reader.readAsDataURL(file);
     }
   }
 

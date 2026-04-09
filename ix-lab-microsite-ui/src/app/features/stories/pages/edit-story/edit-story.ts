@@ -26,6 +26,9 @@ export class EditStoryComponent {
 
   originalFaqs: any[] = [];
 
+  thumbnailPreview: string | ArrayBuffer | null = null;
+  bannerPreview: string | ArrayBuffer | null = null;
+
   faqBackup: any = {};
 
   allSubIndustries: any[] = [];
@@ -109,7 +112,7 @@ export class EditStoryComponent {
       duration: [''],
 
       thumbnail: [null],
-      bannerUrl: [null],
+      banner: [null],
 
       ownerId: 102,
       primarySpeaker: [''],
@@ -349,13 +352,24 @@ export class EditStoryComponent {
         this.storyForm.patchValue({ thumbnail: file });
         this.thumbnailFile = file;
       } else if (field === 'banner') {
-        this.storyForm.patchValue({ bannerUrl: file });
+        this.storyForm.patchValue({ banner: file });
         this.bannerFile = file;
       } else if (index !== undefined) {
         (this.storyForm.get(field) as FormArray).at(index).setValue(file);
       } else {
         this.storyForm.patchValue({ [field]: file });
       }
+
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        if (field === 'thumbnail') {
+          this.thumbnailPreview = e.target.result;
+        } else if (field === 'banner') {
+          this.bannerPreview = e.target.result;
+        }
+        this.cdr.detectChanges();
+      };
+      reader.readAsDataURL(file);
     }
   }
 

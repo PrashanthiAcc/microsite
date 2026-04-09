@@ -24,8 +24,8 @@
     <div class="filters">
 
       <!-- Industry -->
-      <app-custom-dropdown label="Industry" [options]="industries" displayKey="industryName" [(ngModel)]="selectedIndustryId"
-        (optionSelected)="onIndustrySelected($event)">
+      <app-custom-dropdown label="Industry" [options]="industries" displayKey="industryName"
+        [(ngModel)]="selectedIndustryId" (optionSelected)="onIndustrySelected($event)">
       </app-custom-dropdown>
 
       <!-- Sub Industry -->
@@ -52,78 +52,79 @@
 
     <!---DRAFTS SECTION-->
     <!-- new wrapper Drafts-->
-     <ng-container *ngIf="showAdminControls && this.currentFrom !== 'stories'">
-    <div class="stories__header">
-      <h1 class="stories__title" *ngIf="drafts.length">All Drafts ({{ drafts.length }})</h1>
-    </div>
+    <ng-container *ngIf="showAdminControls && this.currentFrom !== 'stories'">
+      <div class="stories__header">
+        <h1 class="stories__title" *ngIf="drafts.length">All Drafts ({{ drafts.length }})</h1>
+      </div>
 
-    <!-- GRID ALL DRAFTS------------ -->
-    <div class="stories__grid" *ngIf="drafts.length">
+      <!-- GRID ALL DRAFTS------------ -->
+      <div class="stories__grid" *ngIf="drafts.length">
 
-      <div class="story-card" *ngFor="let draft of drafts" [routerLink]="['/stories', draft.usecaseId]" [queryParams]="{from: currentFrom,page: currentPage}">
+        <div class="story-card" *ngFor="let draft of drafts" [routerLink]="['/stories', draft.usecaseId]"
+          [queryParams]="{from: currentFrom,page: currentPage}">
 
-        <div class="story-card__media">
-          <img [src]="draft.thumbnailImageUrl" alt="">
-          <button class="card-menu-btn" (click)="$event.stopPropagation(); toggleMenu(draft, $event)">⋮</button>
+          <div class="story-card__media">
+            <img [src]="draft.thumbnailImageUrl" alt="">
+            <button class="card-menu-btn" (click)="$event.stopPropagation(); toggleMenu(draft, $event)">⋮</button>
 
-          <div class="card-menu" *ngIf="draft.showMenu" (click)="$event.stopPropagation()">
+            <div class="card-menu" *ngIf="draft.showMenu" (click)="$event.stopPropagation()">
 
-            <button class="menu-item">
-              <img [src]="editIcon" alt="Edit" />
-              <span [routerLink]="['/stories', draft.usecaseId, 'edit']">Edit Story</span>
-            </button>
-            <button class="menu-item">
-              <img [src]="favoriteIcon" alt="Favorite" />
-              <span>Add to Favourites</span>
-            </button>
-            <button class="menu-item">
-              <img [src]="discardIcon" alt="Discard" />
-              <span (click)="discardDraft(draft.usecaseId)">Discard Draft</span>
-            </button>
-            <button class="menu-item" *ngIf="draft.status !== 'ARCHIVED'">
-              <img [src]="archiveIcon" alt="Archive" />
-              <span (click)="archiveStory(draft.usecaseId)">Archive Story</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="story-card__content">
-          <span class="category">{{ draft.category }}</span>
-
-          <span class="industry-subindustry-border-bottom">{{draft.industryName}} • {{draft.subIndustryName}}</span>
-
-          <h3>{{ draft.title }}</h3>
-
-          <p class="truncate-3-lines">{{ draft.description }}</p>
-
-          <div class="tags">
-            <span *ngFor="let tag of draft.tag">{{ tag }}</span>
-          </div>
-
-          <!-- Footer row for stories -->
-          <div class="story-card__footer">
-            <div class="footer-row">
-              <div class="footer-item">
-                <img [src]="user_logo" alt="user" />
-                <span>{{ draft.ownerName }}</span>
-              </div>
-              <div class="footer-item">
-                <img [src]="durationIcon" alt="time" />
-                <span>{{ draft.duration }} Min</span>
-              </div>
-            </div>
-            <div class="footer-row status">
-              <div class="footer-item">
-                <img [src]="reviewIcon" alt="status" />
-                <span>{{ draft.status }}</span>
-              </div>
+              <button class="menu-item">
+                <img [src]="editIcon" alt="Edit" />
+                <span [routerLink]="['/stories', draft.usecaseId, 'edit']">Edit Story</span>
+              </button>
+              <button class="menu-item">
+                <img [src]="favoriteIcon" alt="Favorite" />
+                <span>Add to Favourites</span>
+              </button>
+              <button class="menu-item">
+                <img [src]="discardIcon" alt="Discard" />
+                <span (click)="discardDraft(draft.usecaseId)">Discard Draft</span>
+              </button>
+              <button class="menu-item" *ngIf="draft.status !== 'ARCHIVED'">
+                <img [src]="archiveIcon" alt="Archive" />
+                <span (click)="archiveStory(draft.usecaseId)">Archive Story</span>
+              </button>
             </div>
           </div>
+
+          <div class="story-card__content">
+            <span class="category">{{ draft.category }}</span>
+
+            <span class="industry-subindustry-border-bottom">{{draft.industryName}} • {{draft.subIndustryName}}</span>
+
+            <h3>{{ draft.title }}</h3>
+
+            <p class="truncate-3-lines">{{ draft.description }}</p>
+
+            <div class="tags">
+              <span *ngFor="let tag of draft.tag">{{ tag }}</span>
+            </div>
+
+            <!-- Footer row for stories -->
+            <div class="story-card__footer">
+              <div class="footer-row">
+                <div class="footer-item">
+                  <img [src]="user_logo" alt="user" />
+                  <span>{{ draft.ownerName }}</span>
+                </div>
+                <div class="footer-item">
+                  <img [src]="durationIcon" alt="time" />
+                  <span>{{ draft.duration }} Min</span>
+                </div>
+              </div>
+              <div class="footer-row status">
+                <div class="footer-item">
+                  <img [src]="reviewIcon" alt="status" />
+                  <span>{{ draft.status }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
       </div>
-
-    </div>
     </ng-container>
     <!---DRAFTS SECTION-->
 
@@ -131,25 +132,17 @@
 
     <!-- new wrapper Stories -->
     <div class="stories__header">
-      <h1 class="stories__title" *ngIf="filteredStories.length && !showAdminControls">{{cardCategoryTitle ?? 'All Stories'}} ({{ stories.length }})</h1>
-      <h1 class="stories__title" *ngIf="filteredStories.length && showAdminControls">All In Review Stories ({{ filteredStories.length }})</h1>
-
-      <!-- <div class="stories__actions">
-        <a class="action-link" routerLink="/industry-overview">
-          <img src="assets/icons/industry-overview.png" alt="Industry overview" />
-          View industry overview
-        </a>
-        <a class="action-link" routerLink="/value-chain">
-          <img src="assets/icons/value-chain.png" alt="Value chain" />
-          View value chain
-        </a>
-      </div> -->
+      <h1 class="stories__title" *ngIf="filteredStories.length && !showAdminControls">{{cardCategoryTitle ?? 'All
+        Stories'}} ({{ stories.length }})</h1>
+      <h1 class="stories__title" *ngIf="filteredStories.length && showAdminControls">All In Review Stories ({{
+        filteredStories.length }})</h1>
     </div>
 
     <!---ALL STORIES-------------------->
     <div class="stories__grid" *ngIf="!isLoading && filteredStories.length > 0">
 
-      <div class="story-card" *ngFor="let story of filteredStories" [routerLink]="['/stories', story.usecaseId]" [queryParams]="{from: currentFrom, page: currentPage}">
+      <div class="story-card" *ngFor="let story of filteredStories" [routerLink]="['/stories', story.usecaseId]"
+        [queryParams]="{from: currentFrom, page: currentPage}">
 
         <div class="story-card__media">
           <img [src]="story.thumbnailImageUrl" alt="">
@@ -219,40 +212,28 @@
       <h1 class="stories__title" *ngIf="!isLoading && filteredStories.length === 0">No Active Stories</h1>
     </div> -->
 
-    <!-- PAGINATION -->
-    <!-- <div class="pagination">
-      <span class="active">1</span>
-      <span>2</span>
-      <span>3</span>
-      <span>4</span>
-    </div> -->
 
+    <ng-container *ngIf="filteredStories.length > 0 && showAdminControls">
+      <div class="pagination" *ngIf="totalPages > 1">
+        <!-- Previous -->
+        <button [routerLink]="['/stories']" [queryParams]="{ from: currentFrom, page: currentPage - 1 }"
+          [disabled]="currentPage === 1">
+          <img [src]="pagination_left" alt="Previous" />
+        </button>
 
-   <ng-container *ngIf="filteredStories.length > 0 && showAdminControls">
-  <div class="pagination" *ngIf="totalPages > 1">
-    <!-- Previous -->
-    <button [routerLink]="['/stories']"
-            [queryParams]="{ from: currentFrom, page: currentPage - 1 }"
-            [disabled]="currentPage === 1">
-      <img [src]="pagination_left" alt="Previous" />
-    </button>
+        <!-- Page numbers -->
+        <span *ngFor="let page of [].constructor(totalPages); let i = index" [routerLink]="['/stories']"
+          [queryParams]="{ from: currentFrom, page: i + 1 }" [class.active]="currentPage === i + 1">
+          {{ i + 1 }}
+        </span>
 
-    <!-- Page numbers -->
-    <span *ngFor="let page of [].constructor(totalPages); let i = index"
-          [routerLink]="['/stories']"
-          [queryParams]="{ from: currentFrom, page: i + 1 }"
-          [class.active]="currentPage === i + 1">
-      {{ i + 1 }}
-    </span>
-
-    <!-- Next -->
-    <button [routerLink]="['/stories']"
-            [queryParams]="{ from: currentFrom, page: currentPage + 1 }"
-            [disabled]="currentPage === totalPages">
-      <img [src]="pagination_right" alt="Next" />
-    </button>
-  </div>
-</ng-container>
+        <!-- Next -->
+        <button [routerLink]="['/stories']" [queryParams]="{ from: currentFrom, page: currentPage + 1 }"
+          [disabled]="currentPage === totalPages">
+          <img [src]="pagination_right" alt="Next" />
+        </button>
+      </div>
+    </ng-container>
 
 
 

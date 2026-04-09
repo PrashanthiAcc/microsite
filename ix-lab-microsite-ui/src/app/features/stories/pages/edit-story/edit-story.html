@@ -15,31 +15,16 @@
     <div class="accordion-body" *ngIf="basicDetailsOpen">
       <div class="form-grid">
         <div class="form-field">
-          <!-- <label>Industry</label>
-          <select formControlName="industry">
-            <option>Select Industry</option>
-            <option *ngFor="let industry of industries" [value]="industry">{{ industry }}</option>
-          </select> -->
           <app-custom-dropdown label="Industry" [options]="industries" displayKey="industryName"
             (optionSelected)="onIndustrySelected($event)" formControlName="industryId">
           </app-custom-dropdown>
         </div>
         <div class="form-field">
-          <!-- <label>Sub-Industry</label>
-          <select formControlName="subIndustry">
-            <option>Select Sub-Industry</option>
-            <option *ngFor="let subIndustry of subIndustries" [value]="subIndustry">{{ subIndustry }}</option>
-          </select> -->
           <app-custom-dropdown label="Sub-Industry" [options]="subIndustries" displayKey="subIndustryName"
             (optionSelected)="onSubIndustrySelected($event)" formControlName="subIndustryId">
           </app-custom-dropdown>
         </div>
         <div class="form-field">
-          <!-- <label>Value Chain Segment</label>
-          <select formControlName="valueChain">
-            <option>Select Value Chain</option>
-            <option *ngFor="let valueChain of valueChains" [value]="valueChain">{{ valueChain }}</option>
-          </select> -->
           <app-custom-dropdown label="Value Chain" [options]="valueChains" displayKey="valueChainName"
             (optionSelected)="onValueChainSelected($event)" formControlName="valueChainId">
           </app-custom-dropdown>
@@ -54,6 +39,7 @@
 
       <div class="upload-box">
         <h4>Thumbnail Image</h4>
+        <img *ngIf="thumbnailPreview" [src]="thumbnailPreview" class="thumbnail-preview" />
         <div class="upload-row">
           <button type="button" class="upload-btn" (click)="thumbnailInput.click()"> <img [src]="uploadIconPath"
               alt="upload icon" class="upload-icon" /> Upload File</button>
@@ -67,11 +53,12 @@
 
       <div class="upload-box">
         <h4>Banner Image</h4>
+        <img *ngIf="bannerPreview" [src]="bannerPreview" class="banner-preview" />
         <div class="upload-row">
           <button type="button" class="upload-btn" (click)="bannerInput.click()"> <img [src]="uploadIconPath"
               alt="upload icon" class="upload-icon" /> Upload File</button>
-          <span class="file-name" *ngIf="storyForm.get('bannerUrl')?.value">
-            {{ getCleanFileName(storyForm.get('bannerUrl')?.value, 'banner') }}
+          <span class="file-name" *ngIf="storyForm.get('banner')?.value">
+            {{ getCleanFileName(storyForm.get('banner')?.value, 'banner') }}
           </span>
           <p>Supported files .png, .jpeg, .jpg, up to 5MB.</p>
         </div>
@@ -388,7 +375,8 @@
           <button type="button" class="edit-btn" (click)="editFAQ(i)">
             <img [src]="pencilIconPath" alt="edit" />
           </button>
-          <button type="button" class="btn-delete" (click)="deleteFAQ(i)" style="margin-top: 24px; color: black;">🗑</button>
+          <button type="button" class="btn-delete" (click)="deleteFAQ(i)"
+            style="margin-top: 24px; color: black;">🗑</button>
         </div>
       </div>
 
