@@ -91,7 +91,7 @@ export class AddStoryComponent {
   toastTitle = '';
   elevatorFileName: string = '';
   storyFileName: string = '';
-  thumbnailFile : File | null = null;
+  thumbnailFile: File | null = null;
   bannerFile: File | null = null;
 
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient, private location: Location,
@@ -337,37 +337,99 @@ export class AddStoryComponent {
   }
 
 
+  // addFAQ() {
+  //   const faqGroup = this.fb.group({
+  //     question: ['', Validators.required],
+  //     answer: ['', Validators.required],
+  //     editing: [true],
+  //     showAnswer: [false]
+  //   });
+  //   //this.faqs.push(faqGroup);
+  //   this.faqs.insert(0, faqGroup);
+  // }
+
+  // saveFAQ(index: number) {
+  //   const faqGroup = this.faqs.at(index);
+  //   if (faqGroup.valid) {
+  //     faqGroup.patchValue({ editing: false }); // collapse view
+  //   } else {
+  //     alert('Please fill both Question and Answer before saving.');
+  //   }
+  // }
+
+  // cancelFAQ(index: number) {
+  //   if (index === 0) {
+  //     this.faqs.at(index).reset({ question: '', answer: '', editing: true });
+  //   } else {
+  //     this.faqs.removeAt(index);
+  //   }
+  // }
+
+
+  // deleteFAQ(index: number) {
+  //   if (this.faqs.length > 1) {
+  //     this.faqs.removeAt(index);
+  //   } else {
+  //     this.cancelFAQ(index);
+  //   }
+  // }
+
   addFAQ() {
     const faqGroup = this.fb.group({
       question: ['', Validators.required],
       answer: ['', Validators.required],
       editing: [true],
-      showAnswer: [false]
+      showAnswer: [false],
+      previousValue: this.fb.group({
+        question: [''],
+        answer: ['']
+      })
     });
-    //this.faqs.push(faqGroup);
     this.faqs.insert(0, faqGroup);
   }
 
   saveFAQ(index: number) {
     const faqGroup = this.faqs.at(index);
     if (faqGroup.valid) {
-      faqGroup.patchValue({ editing: false }); // collapse view
+      faqGroup.patchValue({ editing: false });
+      (faqGroup.get('previousValue') as FormGroup).patchValue({
+        question: faqGroup.get('question')?.value,
+        answer: faqGroup.get('answer')?.value
+      });
     } else {
       alert('Please fill both Question and Answer before saving.');
     }
   }
 
+  editFAQ(index: number) {
+    const faqGroup = this.faqs.at(index);
+    faqGroup.patchValue({ editing: true });
+  }
+
   cancelFAQ(index: number) {
-    if (index === 0) {
-      this.faqs.at(index).reset({ question: '', answer: '', editing: true });
+    const faqGroup = this.faqs.at(index);
+    const prev = faqGroup.get('previousValue') as FormGroup;
+
+    const savedQuestion = prev.get('question')?.value;
+    const savedAnswer = prev.get('answer')?.value;
+    const hasSaved = !!(savedQuestion || savedAnswer);
+
+    if (hasSaved) {
+      faqGroup.patchValue({
+        question: savedQuestion,
+        answer: savedAnswer,
+        editing: false,
+        showAnswer: false
+      });
     } else {
       this.faqs.removeAt(index);
     }
   }
 
-  editFAQ(index: number) {
-    this.faqs.at(index).patchValue({ editing: true });
+  deleteFAQ(index: number) {
+    this.faqs.removeAt(index);
   }
+
 
   // toggleAccordion() {
   //   this.isOpen = !this.isOpen;
@@ -448,11 +510,11 @@ export class AddStoryComponent {
     const formData = new FormData();
     formData.append('useCaseRequest', JSON.stringify(payload));
 
-    if(this.thumbnailFile) {
+    if (this.thumbnailFile) {
       formData.append('thumbnailUrl', this.thumbnailFile);
     }
 
-    if(this.bannerFile) {
+    if (this.bannerFile) {
       formData.append('bannerUrl', this.bannerFile);
     }
 
@@ -557,11 +619,11 @@ export class AddStoryComponent {
     const formData = new FormData();
     formData.append('useCaseRequest', JSON.stringify(payload));
 
-    if(this.thumbnailFile) {
+    if (this.thumbnailFile) {
       formData.append('thumbnailUrl', this.thumbnailFile);
     }
 
-    if(this.bannerFile) {
+    if (this.bannerFile) {
       formData.append('bannerUrl', this.bannerFile);
     }
 

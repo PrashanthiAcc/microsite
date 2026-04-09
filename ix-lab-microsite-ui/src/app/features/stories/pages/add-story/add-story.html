@@ -209,8 +209,8 @@
         <div class="upload-row btn-margin-bottom">
           <label class="artifacts-label">Elevator Pitch</label>
 
-          <button type="button" class="upload-btn btn-margin-left" (click)="elevatorInput.click()"> <img [src]="uploadIconPath"
-              alt="upload icon" class="upload-icon" /> Upload File</button>
+          <button type="button" class="upload-btn btn-margin-left" (click)="elevatorInput.click()"> <img
+              [src]="uploadIconPath" alt="upload icon" class="upload-icon" /> Upload File</button>
 
           <span class="file-name" *ngIf="storyForm.get('elevatorPitch')?.value as file">
             {{ file.name }}
@@ -270,8 +270,7 @@
                 alt="upload icon" class="upload-icon" /> Upload File</button>
             <span class="file-name" *ngIf="item.value">{{ item.value.name }}</span>
             <p>Supported files .pdf, .pptx, .mp4, .jpg, .png, .jpeg up to 100MB.</p>
-            <button type="button" class="btn-delete"
-              (click)="removeField(clientTestimonials, i)">🗑</button>
+            <button type="button" class="btn-delete" (click)="removeField(clientTestimonials, i)">🗑</button>
           </div>
           <input type="file" #testimonialInput hidden (change)="handleFileUpload($event, 'clientTestimonials', i)">
         </div>
@@ -355,7 +354,7 @@
 
 
   <section class="card">
-    <!-- Top-most FAQ header (always visible) -->
+    <!-- Top-most FAQ header -->
     <div class="header-row">
       <h3 class="label-header">
         <img [src]="locationIconPath" alt="faq" class="label-icon">FAQ
@@ -367,20 +366,21 @@
     <!-- FAQ Items -->
     <section class="card faq-card" *ngFor="let faq of faqs.controls; let i = index" [formGroup]="faq">
 
-      <!-- Case 1: Editing mode -->
+      <!-- Editing mode -->
       <div *ngIf="faq.get('editing')?.value">
-        <!-- Add FAQ header row with Cancel + Save -->
         <div class="sub-header-row">
           <h4 class="label-subheader">Add FAQ</h4>
           <div class="faq-actions">
             <button type="button" class="btn-cancel-faq" (click)="cancelFAQ(i)">Cancel</button>
-            <button type="button" class="btn-save-faq" (click)="saveFAQ(i)"><img [src]="saveIconPath" alt="save icon"
-                class="save-icon" /> Save</button>
+            <button type="button" class="btn-save-faq" (click)="saveFAQ(i)">
+              <img [src]="saveIconPath" alt="save icon" class="save-icon" /> Save
+            </button>
+            <button type="button" class="btn-delete" (click)="deleteFAQ(i)"
+              style="margin-top: 12px; color: black;">🗑</button>
           </div>
         </div>
         <div class="divider"></div>
 
-        <!-- Editable form -->
         <div class="faq-form">
           <label>Question</label>
           <input type="text" formControlName="question" placeholder="Type Question here" class="faq-input">
@@ -390,34 +390,30 @@
         </div>
       </div>
 
-
-      <div *ngIf="!faq.get('editing')?.value && faq.get('question')?.value" class="faq-header-row">
-        <!-- Question text only when accordion is closed -->
+      <!-- Header row when not editing -->
+      <div *ngIf="!faq.get('editing')?.value" class="faq-header-row">
         <span class="faq-question" *ngIf="!faq.get('showAnswer')?.value"
           (click)="faq.get('showAnswer')?.setValue(!faq.get('showAnswer')?.value)">
-          {{ faq.get('question')?.value }}
+          {{ faq.get('question')?.value || '(No question yet)' }}
         </span>
-        <!-- Empty span to reserve space when accordion is open -->
         <span class="faq-question" *ngIf="faq.get('showAnswer')?.value"
           (click)="faq.get('showAnswer')?.setValue(!faq.get('showAnswer')?.value)"></span>
 
         <div class="faq-actions">
-          <!-- Accordion toggle -->
           <button type="button" class="accordion-btn"
             (click)="faq.get('showAnswer')?.setValue(!faq.get('showAnswer')?.value)">
             <img [src]="faq.get('showAnswer')?.value ? upArrowIconPath : downArrowIconPath" alt="toggle answer" />
           </button>
-          <!-- Pencil always visible -->
           <button type="button" class="edit-btn" (click)="editFAQ(i)">
             <img [src]="pencilIconPath" alt="edit" />
           </button>
         </div>
       </div>
 
-      <!-- Read-only form (accordion open) -->
+      <!-- Read-only accordion open -->
       <div *ngIf="faq.get('showAnswer')?.value && !faq.get('editing')?.value" class="faq-form readonly">
         <label>Question</label>
-        <input type="text" [value]="faq.get('question')?.value" class="faq-input" readonly>
+        <input type="text" [value]="faq.get('question')?.value || '(No question yet)'" class="faq-input" readonly>
 
         <label>Answer</label>
         <textarea class="faq-input" readonly>{{ faq.get('answer')?.value }}</textarea>
@@ -425,6 +421,11 @@
 
     </section>
   </section>
+
+
+
+
+
 
 
   <!-- ACTION BUTTONS -->
