@@ -51,7 +51,7 @@ public class UseCaseContent {
     @Column(name = "duration")
     private Integer duration;
 
-    @Column(name = "thumbnail_url", length = 500)
+    @Column(name = "thumbnail_url", nullable = false, length = 500)
     private String thumbnailUrl;
 
     @Column(name = "narration_guide")
