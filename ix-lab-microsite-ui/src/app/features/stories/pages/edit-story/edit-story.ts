@@ -8,6 +8,14 @@ import { CustomDropdownComponent } from '../../../../shared/components/custom-dr
 import { IndustryService } from '../../../../core/services/industry';
 import { UsecaseService } from '../../../../core/services/usecase';
 import { UserService } from '../../../../core/services/users';
+import { forkJoin, Observable } from 'rxjs';
+interface IndustryResponse {
+  industries: any[];
+  subIndustries: any[];
+  valueChains: any[];
+}
+
+
 @Component({
   selector: 'app-edit-story',
   imports: [CommonModule, ReactiveFormsModule, FormsModule, QuillModule, CustomDropdownComponent],
@@ -94,7 +102,7 @@ export class EditStoryComponent {
   usecaseID: string | null = '';
   elevatorFileName: string = '';
   storyFileName: string = '';
-  thumbnailFile : File | null = null;
+  thumbnailFile: File | null = null;
   bannerFile: File | null = null;
 
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient,
@@ -157,13 +165,32 @@ export class EditStoryComponent {
     });
   }
 
+  // ngOnInit() {
+  //   window.scrollTo({ top: 0 });
+  //   this.loadIndustries();
+  //   this.getAllUsers();
+  //   this.usecaseID = this.route.snapshot.paramMap.get('id');
+  //   this.loadUsecaseById(this.usecaseID)
+  //   this.cdr.detectChanges();
+  // }
+
   ngOnInit() {
     window.scrollTo({ top: 0 });
-    this.loadIndustries();
-    this.getAllUsers();
     this.usecaseID = this.route.snapshot.paramMap.get('id');
-    this.loadUsecaseById(this.usecaseID)
-    this.cdr.detectChanges();
+    forkJoin({
+      industries: this.industryService.getIndustries() as Observable<IndustryResponse>,
+      users: this.userService.getAllUsers() as Observable<any[]>
+    }).subscribe(({ industries, users }) => {
+      this.industries = industries.industries;
+      this.allSubIndustries = industries.subIndustries;
+      this.allValueChains = industries.valueChains;
+      this.allUsers = users;
+      if (this.usecaseID) {
+        this.loadUsecaseById(this.usecaseID);
+      }
+      this.cdr.detectChanges();
+    });
+
   }
 
   loadUsecaseById(id: string | null) {
@@ -217,8 +244,8 @@ export class EditStoryComponent {
         narrationGuide: res.narrationGuide,
         approverId: res.approverId,
         creatorId: res.creatorId,
-        thumbnailImageUrl: thumbnailValue,
-        bannerUrl: bannerValue
+        thumbnail: thumbnailValue,
+        banner: bannerValue
       });
 
       // ✅ Tags
@@ -522,7 +549,7 @@ export class EditStoryComponent {
       subIndustryId: subIndustryObj ? subIndustryObj.subIndustryId : null,
       valueChainId: valueChainObj ? valueChainObj.valueChainId : null,
       title: formValue.title,
-      thumbnailImageUrl: this.extractValue(this.storyForm.get('thumbnailImageUrl')?.value),
+      thumbnailImageUrl: this.extractValue(this.storyForm.get('thumbnail')?.value),
       bannerUrl: this.extractValue(this.storyForm.get('bannerUrl')?.value),
       description: formValue.description,
       duration: formValue.duration ? Number(formValue.duration) : null,
@@ -557,11 +584,11 @@ export class EditStoryComponent {
     const formData = new FormData();
     formData.append('useCaseRequest', JSON.stringify(payload));
 
-    if(this.thumbnailFile) {
+    if (this.thumbnailFile) {
       formData.append('thumbnailUrl', this.thumbnailFile);
     }
 
-    if(this.bannerFile) {
+    if (this.bannerFile) {
       formData.append('bannerUrl', this.bannerFile);
     }
 
@@ -618,7 +645,7 @@ export class EditStoryComponent {
       subIndustryId: subIndustryObj ? subIndustryObj.subIndustryId : null,
       valueChainId: valueChainObj ? valueChainObj.valueChainId : null,
       title: formValue.title,
-      thumbnailImageUrl: this.extractValue(this.storyForm.get('thumbnailImageUrl')?.value),
+      thumbnailImageUrl: this.extractValue(this.storyForm.get('thumbnail')?.value),
       bannerUrl: this.extractValue(this.storyForm.get('bannerUrl')?.value),
       description: formValue.description,
       duration: formValue.duration ? Number(formValue.duration) : null,
@@ -653,11 +680,11 @@ export class EditStoryComponent {
     const formData = new FormData();
     formData.append('useCaseRequest', JSON.stringify(payload));
 
-    if(this.thumbnailFile) {
+    if (this.thumbnailFile) {
       formData.append('thumbnailUrl', this.thumbnailFile);
     }
 
-    if(this.bannerFile) {
+    if (this.bannerFile) {
       formData.append('bannerUrl', this.bannerFile);
     }
 
@@ -736,20 +763,20 @@ export class EditStoryComponent {
   }
 
   deleteFAQ(index: number) {
-  if (this.faqs.length > 1) {
-    this.faqs.removeAt(index);
-  } else {
-    // If you want at least one FAQ always present, reset instead of removing
-    this.faqs.at(0).patchValue({
-      question: '',
-      answer: '',
-      editing: true,
-      showAnswer: false
-    });
-  }
+    if (this.faqs.length > 1) {
+      this.faqs.removeAt(index);
+    } else {
+      // If you want at least one FAQ always present, reset instead of removing
+      this.faqs.at(0).patchValue({
+        question: '',
+        answer: '',
+        editing: true,
+        showAnswer: false
+      });
+    }
 
-  this.originalFaqs = this.faqs.value.map(faq => ({ ...faq }));
-}
+    this.originalFaqs = this.faqs.value.map(faq => ({ ...faq }));
+  }
 
   onCancel() {
     this.location.back();

@@ -49,6 +49,7 @@ interface StoryDetails {
   updatedDate: string | null;
   isActive: boolean;
   creatorId: number;
+  narrationGuide: string;
 }
 
 @Component({
