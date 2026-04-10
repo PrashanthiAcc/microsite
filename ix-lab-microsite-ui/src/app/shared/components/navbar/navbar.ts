@@ -22,18 +22,42 @@ export class NavbarComponent {
   }
 
   ngOnInit() {
-    // this.updateRole();
-    // this.router.events.subscribe(() => {
-    //   this.updateRole();
-    // })
-    this.route.data.subscribe(data => {
-      this.role = data['role'] || 'admin'
-    });
+    this.setRoleFromRoute();
+    this.router.events.subscribe(() => {
+      this.setRoleFromRoute();
+    })
   }
 
   // updateRole() {
-  //   this.isPresenter = this.router.url.startsWith('/presenter');
+  //   const url = this.router.url;
+  //   this.isPresenter = url.startsWith('/presenter') || url.startsWith('/stories');
+  //   this.role = this.isPresenter ? 'presenter' : 'admin'
   // }
+
+  setRoleFromRoute() {
+  let route = this.router.routerState.snapshot.root;
+
+  let role = 'admin'; // default
+
+  while (route) {
+    if (route.data && route.data['role']) {
+      role = route.data['role']; // 👈 overwrite if found
+    }
+    route = route.firstChild!;
+  }
+
+  this.role = role;
+}
+
+// else if condition for favourites is added for now, once roles are in place then else if is not required and component routing will take care of it 
+getRoute(path?: string) {
+  if (this.role === 'presenter' && path !== 'favourites') {
+    return path ? `/presenter/${path}` : '/presenter';
+  } else if (this.role === 'presenter' && path === 'favourites') {
+    return '/presenter';
+  }
+  return path ? `/${path}` : '/';
+}
 
   toggleAdminMenu(event: Event) {
     event.stopPropagation();

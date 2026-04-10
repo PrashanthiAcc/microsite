@@ -48,8 +48,7 @@
             <img [src]="alertIconPath" alt="alert" class="label-icon"> Business Problem
         </h3>
         <div class="divider"></div>
-        <div class="info-body">
-            {{ storyDetails.businessProblem }}
+        <div class="info-body" [innerHTML]="storyDetails.businessProblem">
         </div>
     </section>
 
@@ -60,12 +59,6 @@
         </h3>
         <div class="divider"></div>
         <div class="info-body" [innerHTML]="storyDetails.solutions">
-            <!-- <ul>
-                <li>LyoOmniTwin — physics-informed digital twin</li>
-                <li>Virtual process modeling before runs</li>
-                <li>Closed-loop learning during runs</li>
-                <li>Unified insights for Ops & QA</li>
-            </ul> -->
         </div>
     </section>
 
@@ -106,7 +99,7 @@
             <img [src]="chequeIconPath" alt="cheque" class="label-icon"> Narration Guide
         </h3>
         <div class="divider"></div>
-        <div class="info-body"> {{ storyDetails.businessProblem }}
+        <div class="info-body" [innerHTML]="storyDetails.businessProblem">
         </div>
     </section>
 

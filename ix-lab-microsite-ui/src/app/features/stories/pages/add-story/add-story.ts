@@ -60,7 +60,7 @@ export class AddStoryComponent {
   allowedFileTypes: { [key: string]: string[] } = {
     thumbnail: ['image/png', 'image/jpeg', 'image/jpg'],
     banner: ['image/png', 'image/jpeg', 'image/jpg'],
-    clientCredentials: ['application/vnd.openxmlformats-officedocument.presentationml.presentation'], // .pptx
+    // clientCredentials: ['application/vnd.openxmlformats-officedocument.presentationml.presentation'], // .pptx
     elevatorPitch: ['application/vnd.openxmlformats-officedocument.presentationml.presentation'], // .pptx
     clientStory: ['application/vnd.openxmlformats-officedocument.presentationml.presentation'], // .pptx
     demoVideos: ['video/mp4'],
@@ -78,7 +78,7 @@ export class AddStoryComponent {
   fileSizeLimits: { [key: string]: number } = {
     thumbnail: 5 * 1024 * 1024, // 5MB
     banner: 5 * 1024 * 1024,    // 5MB
-    clientCredentials: 100 * 1024 * 1024, // 100MB
+    // clientCredentials: 100 * 1024 * 1024, // 100MB
     elevatorPitch: 100 * 1024 * 1024, // 100MB
     clientStory: 100 * 1024 * 1024, // 100MB
     demoVideos: 100 * 1024 * 1024,        // 100MB
@@ -130,7 +130,7 @@ export class AddStoryComponent {
           speakerType: 'TERTIARY'
         }
       ],
-      clientCredentials: this.fb.array([this.createArtifact()]),
+      // clientCredentials: this.fb.array([this.createArtifact()]),
       demoVideos: this.fb.array([this.createArtifact()]),
       clientTestimonials: this.fb.array([this.createArtifact()]),
 
@@ -207,9 +207,9 @@ export class AddStoryComponent {
   get tagsArray(): FormArray {
     return this.storyForm.get('tags') as FormArray;
   }
-  get clientCredentials(): FormArray {
-    return this.storyForm.get('clientCredentials') as FormArray;
-  }
+  // get clientCredentials(): FormArray {
+  //   return this.storyForm.get('clientCredentials') as FormArray;
+  // }
   get demoVideos(): FormArray {
     return this.storyForm.get('demoVideos') as FormArray;
   }

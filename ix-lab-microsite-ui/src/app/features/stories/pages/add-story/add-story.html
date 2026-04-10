@@ -169,23 +169,6 @@
     <div class="divider"></div>
     <div class="accordion-body" *ngIf="artifactsOpen">
       <!-- Client Credential -->
-      <!-- <section class="artifacts-card">
-        <div class="header-row">
-          <h4>Client Credential</h4>
-          <button type="button" class="btn-add" (click)="addField(clientCredentials)">+</button>
-        </div>
-        <div class="upload-box" *ngFor="let item of clientCredentials.controls; let i = index">
-          <div class="upload-row">
-            <label class="artifacts-label">Credential {{i+1}}</label>
-            <button type="button" class="upload-btn" (click)="credentialInput.click()"> <img [src]="uploadIconPath"
-                alt="upload icon" class="upload-icon" /> Upload File</button>
-            <span class="file-name" *ngIf="item.value">{{ item.value.name }}</span>
-            <p>Supported file .pptx up to 100MB.</p>
-            <button type="button" class="btn-delete" (click)="removeField(clientCredentials, i)">🗑</button>
-          </div>
-          <input type="file" #credentialInput hidden (change)="handleFileUpload($event, 'clientCredentials', i)">
-        </div>
-      </section> -->
 
       <section class="artifacts-card">
         <div class="header-row">

@@ -8,15 +8,15 @@
   </div>
 
   <nav class="navbar-right">
-    <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+    <a class="nav-link" [routerLink]="getRoute()" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
       Home
     </a>
 
-    <a class="nav-link" [routerLink]="['/stories']" [queryParams]="{from : 'stories'}" routerLinkActive="active">
+    <a class="nav-link" [routerLink]="getRoute('stories')" [queryParams]="{from : 'stories'}" routerLinkActive="active">
       Stories
     </a>
 
-    <a class="nav-link" routerLink="/favourites" routerLinkActive="active">
+    <a class="nav-link" [routerLink]="getRoute('favourites')" routerLinkActive="active">
       Favourites
     </a>
 

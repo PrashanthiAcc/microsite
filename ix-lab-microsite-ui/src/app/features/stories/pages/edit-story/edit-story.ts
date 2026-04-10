@@ -65,7 +65,7 @@ export class EditStoryComponent {
   allowedFileTypes: { [key: string]: string[] } = {
     thumbnail: ['image/png', 'image/jpeg', 'image/jpg'],
     banner: ['image/png', 'image/jpeg', 'image/jpg'],
-    clientCredentials: ['application/vnd.openxmlformats-officedocument.presentationml.presentation'], // .pptx
+    // clientCredentials: ['application/vnd.openxmlformats-officedocument.presentationml.presentation'], // .pptx
     elevatorPitch: ['application/vnd.openxmlformats-officedocument.presentationml.presentation'], // .pptx
     clientStory: ['application/vnd.openxmlformats-officedocument.presentationml.presentation'], // .pptx
     demoVideos: ['video/mp4'],
@@ -83,7 +83,7 @@ export class EditStoryComponent {
   fileSizeLimits: { [key: string]: number } = {
     thumbnail: 5 * 1024 * 1024, // 5MB
     banner: 5 * 1024 * 1024,    // 5MB
-    clientCredentials: 100 * 1024 * 1024, // 100MB
+    // clientCredentials: 100 * 1024 * 1024, // 100MB
     elevatorPitch: 100 * 1024 * 1024, // 100MB
     clientStory: 100 * 1024 * 1024, // 100MB
     demoVideos: 100 * 1024 * 1024,        // 100MB
@@ -101,8 +101,8 @@ export class EditStoryComponent {
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService,
     private route: ActivatedRoute, private location: Location, private cdr: ChangeDetectorRef) {
     this.storyForm = this.fb.group({
-      elevatorPitch: [null],
-      clientStory: [null],
+      // elevatorPitch: [null],
+      // clientStory: [null],
       industryId: [''],
       subIndustryId: [''],
       valueChainId: [''],
@@ -132,8 +132,10 @@ export class EditStoryComponent {
           speakerType: 'TERTIARY'
         }
       ],
-      clientCredentials: this.fb.array([this.createArtifact()]),
+      // clientCredentials: this.fb.array([this.createArtifact()]),
       demoVideos: this.fb.array([this.createArtifact()]),
+      clientStory: this.fb.array([this.fb.control(null)]),
+      elevatorPitch: this.fb.array([this.fb.control(null)]),
       clientTestimonials: this.fb.array([this.createArtifact()]),
 
       businessProblem: [''],
@@ -226,18 +228,30 @@ export class EditStoryComponent {
       });
 
       // ✅ Artifacts
-      this.clientCredentials.clear();
+      // this.clientCredentials.clear();
+      this.elevatorPitch.clear();
+      this.clientStory.clear();
       this.demoVideos.clear();
       this.clientTestimonials.clear();
       (res.artifacts || []).forEach((a: any) => {
         if (a.artifactType === 'ELEVATOR_PITCH') {
-          this.clientCredentials.push(this.fb.control({ name: a.artifactName, url: a.url }));
+          this.elevatorPitch.push(this.fb.control({ name: a.artifactName, url: a.url }));
+        } else if (a.artifactType === 'DETAILED_CLIENT_STORY') {
+          this.clientStory.push(this.fb.control({ name: a.artifactName, url: a.url }));
         } else if (a.artifactType === 'DEMO_VIDEO') {
           this.demoVideos.push(this.fb.control({ name: a.artifactName, url: a.url }));
         } else if (a.artifactType === 'CLIENT_TESTIMONIAL') {
           this.clientTestimonials.push(this.fb.control({ name: a.artifactName, url: a.url }));
         }
       });
+
+      if (this.elevatorPitch.length === 0) {
+        this.elevatorPitch.push(this.fb.control(null));
+      }
+
+      if (this.clientStory.length === 0) {
+        this.clientStory.push(this.fb.control(null));
+      }
 
       // ✅ FAQs
       this.faqs.clear();
@@ -302,8 +316,14 @@ export class EditStoryComponent {
   get tagsArray(): FormArray {
     return this.storyForm.get('tags') as FormArray;
   }
-  get clientCredentials(): FormArray {
-    return this.storyForm.get('clientCredentials') as FormArray;
+  // get clientCredentials(): FormArray {
+  //   return this.storyForm.get('clientCredentials') as FormArray;
+  // }
+  get elevatorPitch(): FormArray {
+    return this.storyForm.get('elevatorPitch') as FormArray;
+  }
+  get clientStory(): FormArray {
+    return this.storyForm.get('clientStory') as FormArray;
   }
   get demoVideos(): FormArray {
     return this.storyForm.get('demoVideos') as FormArray;
@@ -557,15 +577,17 @@ export class EditStoryComponent {
       }
     });
 
-    const elevatorPitch = this.storyForm.get('elevatorPitch')?.value;
-    if (elevatorPitch instanceof File) {
-      formData.append('elevatorPitch', elevatorPitch);
-    }
+    this.elevatorPitch.controls.forEach((control: any) => {
+      if (control.value instanceof File) {
+        formData.append('elevatorPitch', control.value);
+      }
+    });
 
-    const clientStory = this.storyForm.get('clientStory')?.value;
-    if (clientStory instanceof File) {
-      formData.append('clientStory', clientStory);
-    }
+    this.clientStory.controls.forEach((control: any) => {
+      if (control.value instanceof File) {
+        formData.append('clientStory', control.value);
+      }
+    });
 
     console.log('Payload for Update:', payload);
 
@@ -651,15 +673,17 @@ export class EditStoryComponent {
       }
     });
 
-    const elevatorPitch = this.storyForm.get('elevatorPitch')?.value;
-    if (elevatorPitch instanceof File) {
-      formData.append('elevatorPitch', elevatorPitch);
-    }
+   this.elevatorPitch.controls.forEach((control: any) => {
+      if (control.value instanceof File) {
+        formData.append('elevatorPitch', control.value);
+      }
+    });
 
-    const clientStory = this.storyForm.get('clientStory')?.value;
-    if (clientStory instanceof File) {
-      formData.append('clientStory', clientStory);
-    }
+    this.clientStory.controls.forEach((control: any) => {
+      if (control.value instanceof File) {
+        formData.append('clientStory', control.value);
+      }
+    });
 
     console.log('Payload for Update:', payload);
 
