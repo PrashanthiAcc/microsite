@@ -263,7 +263,7 @@ export class EditStoryComponent {
       (res.artifacts || []).forEach((a: any) => {
         if (a.artifactType === 'ELEVATOR_PITCH') {
           this.elevatorPitch.push(this.fb.control({ name: a.artifactName, url: a.url }));
-        } else if (a.artifactType === 'DETAILED_CLIENT_STORY') {
+        } else if (a.artifactType === 'USER_STORY') {
           this.clientStory.push(this.fb.control({ name: a.artifactName, url: a.url }));
         } else if (a.artifactType === 'DEMO_VIDEO') {
           this.demoVideos.push(this.fb.control({ name: a.artifactName, url: a.url }));
