@@ -62,6 +62,7 @@ export class StoriesComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.loadIndustries();
     this.route.queryParams.subscribe(params => {
       this.showAdminControls = params['from'] === 'config';
       this.currentFrom = this.route.snapshot.queryParams['from'] || 'stories';
@@ -72,8 +73,6 @@ export class StoriesComponent implements OnInit {
       }
       this.loadAllStories(this.currentPage);
     });
-
-    this.loadIndustries();
     this.getAllUsers();
     this.cdr.detectChanges();
     window.scrollTo({ top: 0 });

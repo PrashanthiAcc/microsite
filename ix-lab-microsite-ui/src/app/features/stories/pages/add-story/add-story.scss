@@ -829,13 +829,12 @@ input[type="text"] {
    margin-top: 10px;
    margin-bottom: 10px;
    width: 150px;
-   border-radius: 6px;
 }
 
 .banner-preview {
-   margin-top: 10px;
+  margin-top: 10px;
    margin-bottom: 10px;
-   width: 150px;
+   width: 100%;
    max-height: 200px;
    object-fit: cover;
 }

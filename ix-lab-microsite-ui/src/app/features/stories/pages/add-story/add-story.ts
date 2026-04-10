@@ -550,7 +550,7 @@ export class AddStoryComponent {
 
     const clientStory = this.storyForm.get('clientStory')?.value;
     if (clientStory instanceof File) {
-      formData.append('clientStory', clientStory);
+      formData.append('userStory', clientStory);
     }
 
     this.usecaseService.submitForApproval(formData).subscribe((res: any) => {
@@ -659,7 +659,7 @@ export class AddStoryComponent {
 
     const clientStory = this.storyForm.get('clientStory')?.value;
     if (clientStory instanceof File) {
-      formData.append('clientStory', clientStory);
+      formData.append('userStory', clientStory);
     }
 
     this.usecaseService.saveAsDraft(formData).subscribe((res: any) => {

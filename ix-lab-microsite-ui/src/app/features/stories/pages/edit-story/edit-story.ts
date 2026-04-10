@@ -549,7 +549,7 @@ export class EditStoryComponent {
       subIndustryId: subIndustryObj ? subIndustryObj.subIndustryId : null,
       valueChainId: valueChainObj ? valueChainObj.valueChainId : null,
       title: formValue.title,
-      thumbnailImageUrl: this.extractValue(this.storyForm.get('thumbnail')?.value),
+      thumbnailImageUrl: this.extractValue(this.storyForm.get('thumbnailUrl')?.value),
       bannerUrl: this.extractValue(this.storyForm.get('bannerUrl')?.value),
       description: formValue.description,
       duration: formValue.duration ? Number(formValue.duration) : null,
@@ -612,7 +612,7 @@ export class EditStoryComponent {
 
     this.clientStory.controls.forEach((control: any) => {
       if (control.value instanceof File) {
-        formData.append('clientStory', control.value);
+        formData.append('userStory', control.value);
       }
     });
 
@@ -645,7 +645,7 @@ export class EditStoryComponent {
       subIndustryId: subIndustryObj ? subIndustryObj.subIndustryId : null,
       valueChainId: valueChainObj ? valueChainObj.valueChainId : null,
       title: formValue.title,
-      thumbnailImageUrl: this.extractValue(this.storyForm.get('thumbnail')?.value),
+      thumbnailImageUrl: this.extractValue(this.storyForm.get('thumbnailUrl')?.value),
       bannerUrl: this.extractValue(this.storyForm.get('bannerUrl')?.value),
       description: formValue.description,
       duration: formValue.duration ? Number(formValue.duration) : null,
@@ -708,7 +708,7 @@ export class EditStoryComponent {
 
     this.clientStory.controls.forEach((control: any) => {
       if (control.value instanceof File) {
-        formData.append('clientStory', control.value);
+        formData.append('userStory', control.value);
       }
     });
 
