@@ -1,0 +1,466 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #F9FAFB;
+    margin: 0;
+    padding: 20px;
+}
+
+.homePage-form {
+    margin: auto;
+    background: #f5f5f7;
+    padding: 25px 60px;
+}
+
+/* Card Layout */
+.card {
+    border: 1px solid #202020;
+    background: white;
+    padding: 25px 60px;
+    margin: 25px 0;
+    border-radius: 6px;
+}
+
+/* Section Headers */
+.label-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #7500C0;
+    font-weight: 600;
+    font-family: Graphik, Arial, sans-serif;
+    font-size: 32px;
+    line-height: 44px;
+    margin: 0;
+}
+
+.label-icon {
+    width: 36px;
+    height: 36px;
+}
+
+.divider {
+    height: 2px;
+    background: #E9D5FF;
+    margin: 10px 0 20px 0;
+}
+
+/* Form Grid */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.full-width {
+    grid-column: span 3;
+}
+
+label {
+    margin-bottom: 6px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #000;
+}
+
+input {
+    border: 1px solid #D1D5DB;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+input:focus {
+    border-color: #7500C0;
+    outline: none;
+    box-shadow: 0 0 0 2px #E9D5FF;
+}
+
+/* Upload Box */
+.upload-box {
+    margin-top: 20px;
+}
+
+.upload-box h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.upload-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.upload-btn {
+    background: #fff;
+    color: #000;
+    padding: 8px 16px;
+    border: 1px solid lightgray;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.file-name {
+    font-size: 12px;
+    color: #6B7280;
+}
+
+.banner-preview {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+}
+
+/* Overview Stats */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+}
+
+.stat-item {
+    background: #FFF;
+    padding: 20px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: 700;
+    color: #7500C0;
+}
+
+.stat-label {
+    font-size: 16px;
+    color: #333;
+    margin-top: 8px;
+}
+
+/* Industries Grid */
+.industries-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+.industry-item {
+    text-align: left;
+    /* labels and images left aligned */
+}
+
+.industry-item p {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #000;
+    text-align: left;
+}
+
+.industry-item img {
+    width: 378px;
+    height: 410px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    display: block;
+    /* ensures proper left alignment */
+}
+
+/* Center the Update button under each tile */
+.industry-item .upload-btn {
+    display: block;
+    width: 100%;
+    /* full width of the card/tile */
+    max-width: 378px;
+    /* optional: fix width to 378px if that's your card size */
+    margin: 10px 0;
+    /* spacing above/below */
+    text-align: center;
+    /* center the text inside the button */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+/* Featured Stories */
+.stories-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.story-card {
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    padding: 20px;
+    background: #F9FAFB;
+}
+
+.story-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 8px 0;
+}
+
+.story-desc {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 12px;
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.tag {
+    background-color: #460073;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.btn-delete {
+    background: none;
+    border: 1px solid #DC2626;
+    color: #DC2626;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.choose-story {
+    margin-top: 20px;
+}
+
+.choose-story h4 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.choose-story p {
+    font-size: 14px;
+    color: #555;
+    margin: 8px 0;
+}
+
+/* Key Capabilities */
+.capabilities-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.capability-item {
+    background: #F5F5F7;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.highlight-capability {
+    background: #7500C0;
+    color: white;
+    padding: 12px;
+    border-radius: 4px;
+    margin: 20px 0;
+    font-weight: 600;
+}
+
+/* Action Buttons */
+.button-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+    background: #f5f5f7;
+    padding: 25px 60px;
+}
+
+.btn-cancel,
+.btn-draft,
+.btn-approve {
+    height: 52px;
+    min-width: 120px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.btn-cancel {
+    border: 2px solid lightgray;
+    background: #fff;
+}
+
+.btn-draft {
+    border: 2px solid lightgray;
+    background: #fff;
+}
+
+.btn-approve {
+    background: #A100FF;
+    color: white;
+    border: none;
+}
+
+.btn-icon {
+    height: 24px !important;
+    width: 24px !important;
+    margin-bottom: 5px;
+    //margin-right: 6px;
+}
+
+/* Stats Grid Layout */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+/* Ensure last row has only 2 items aligned properly */
+.stats-grid .stat-item:nth-last-child(2),
+.stats-grid .stat-item:nth-last-child(1) {
+    grid-column: span 1;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-item label {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #000;
+    text-align: left;
+    /* left aligned labels */
+}
+
+/* Editable Box Style */
+.stat-item input {
+    background: #fff;
+    /* normal white background */
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    padding: 14px;
+    font-size: 20px;
+    font-weight: 600;
+    // text-align: center;
+    color: #7500C0;
+}
+
+/* Disabled field style (Client Stories only) */
+.stat-item input:disabled {
+    background: #A3A3A3;
+    /* deep grey background */
+    color: #fff;
+    /* white text for contrast */
+    cursor: not-allowed;
+}
+
+.stat-item input:focus {
+    border-color: #7500C0;
+    outline: none;
+    box-shadow: 0 0 0 2px #E9D5FF;
+}
+
+.accordion-body {
+    padding: 1rem;
+    transition: all 0.3s ease-in-out;
+}
+
+.label-header {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.accordion-icon {
+    font-weight: bold;
+    margin-left: auto;
+}
+
+.capabilities-image {
+    margin-bottom: 20px;
+}
+
+.config {
+    opacity: 1;
+    padding-top: 32px;
+    padding-right: 80px;
+    padding-bottom: 32px;
+}
+
+.config-card {
+    width: 320px;
+    height: 175px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    position: relative;
+    cursor: pointer;
+
+    border: 1px solid #e5e5e5;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    transition: all 0.2s ease;
+}
+
+.config-card:hover {
+    transform: translateY(-2px);
+}
+
+.config-card.active {
+    border: 2px solid #7B3FF2;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+
+  .breadcrumb-link {
+    color: #8a2be2;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &.active {
+      color: #8a2be2;
+      font-weight: 600;
+    }
+  }
+
+  .breadcrumb-separator {
+    color: #999;
+    margin: 0 4px;
+  }
+}

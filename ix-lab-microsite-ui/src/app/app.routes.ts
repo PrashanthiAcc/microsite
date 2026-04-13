@@ -57,7 +57,7 @@ export const routes: Routes = [
             .then(m => m.UserManagementComponent)
       },
       {
-        path: 'homepage-configuation',
+        path: 'homepage-configuration',
         loadComponent: () =>
           import('./features/home/pages/homepage-configurations/homepage-configurations')
             .then(m => m.HomepageConfigurationsComponent)

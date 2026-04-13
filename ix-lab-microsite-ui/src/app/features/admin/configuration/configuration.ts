@@ -17,7 +17,7 @@ export class ConfigurationComponent {
     {
       title: 'Home Page Configurations',
       icon: 'home',
-      route: '/home-config'
+      route: '/homepage-configuration'
     },
     {
       title: 'User Management',

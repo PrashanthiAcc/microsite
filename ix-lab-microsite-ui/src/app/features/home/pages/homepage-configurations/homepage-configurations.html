@@ -1,1 +1,252 @@
-<p>homepage-configurations works!</p>
+<form [formGroup]="homePageForm" class="homePage-form">
+    <div class="config">
+        <div class="breadcrumb">
+            <a [routerLink]="['/admin']" class="breadcrumb-link active">Admin</a>
+            <span class="breadcrumb-separator">›</span>
+            <a [routerLink]="['/admin/configuration']" class="breadcrumb-link active">Configurations</a>
+            <span class="breadcrumb-separator">›</span>
+            <a href="#" class="breadcrumb-link active">Home Page Configuration</a>
+        </div>
+    </div>
+    <!-- Hero Section Accordion -->
+    <section class="card hero-config">
+        <h3 class="label-header" (click)="toggleAccordion('hero')">
+            <img src="assets/icons/hexagon.png" alt="document" class="label-icon">
+            Hero Section Configuration
+            <span class="accordion-icon">
+                <img [src]="isAccordionOpen.hero ? upArrowIconPath : downArrowIconPath"
+                    [alt]="isAccordionOpen.hero ? 'collapse' : 'expand'" />
+            </span>
+        </h3>
+        <div class="divider"></div>
+
+        <div class="accordion-body" *ngIf="isAccordionOpen.hero">
+            <!-- Existing Hero Section Content -->
+            <div class="form-grid">
+                <div class="form-field full-width">
+                    <label>Application Name (Shown on Navbar)</label>
+                    <input type="text" placeholder="Industry X - Digital Manufacturing Experience Zone">
+                </div>
+                <div class="form-field full-width">
+                    <label>Title</label>
+                    <input type="text" placeholder="Industry X - Digital Manufacturing Experience Zone">
+                </div>
+                <div class="form-field full-width">
+                    <label>Subtitle</label>
+                    <input type="text" placeholder="Stories That Demonstrate Real-World Impact">
+                </div>
+            </div>
+
+            <div class="upload-box">
+                <h4>Hero Image</h4>
+                <img src="assets/hero-bg.png" class="banner-preview" alt="Hero Preview">
+                <div class="upload-row">
+                    <button type="button" class="upload-btn">
+                        <img src="assets/icons/upload.png" alt="upload icon" class="upload-icon" /> Update Image
+                    </button>
+                    <span class="file-name">Supported files .jpg, .jpeg, .png up to 1MB</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Digital Manufacturing Overview Accordion -->
+    <section class="card overview-config">
+        <h3 class="label-header" (click)="toggleAccordion('overview')">
+            <img src="assets/icons/change_history.png" alt="overview" class="label-icon">
+            Digital Manufacturing Overview Configuration
+            <span class="accordion-icon">
+                <img [src]="isAccordionOpen.overview  ? upArrowIconPath : downArrowIconPath"
+                    [alt]="isAccordionOpen.overview  ? 'collapse' : 'expand'" />
+            </span>
+        </h3>
+        <div class="divider"></div>
+
+        <div class="accordion-body" *ngIf="isAccordionOpen.overview">
+            <!-- Existing Overview Content -->
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <label>Client Stories</label>
+                    <input type="text" value="150+" disabled>
+                </div>
+                <div class="stat-item">
+                    <label>MES/MOM solutions delivered</label>
+                    <input type="text" value="50+" placeholder="Enter number">
+                </div>
+                <div class="stat-item">
+                    <label>Production Site support for Critical apps</label>
+                    <input type="text" value="124+" placeholder="Enter number">
+                </div>
+                <div class="stat-item">
+                    <label>SAP EWM programs delivered</label>
+                    <input type="text" value="30+" placeholder="Enter number">
+                </div>
+                <div class="stat-item">
+                    <label>SAP EWM programs delivered (TBD)</label>
+                    <input type="text" value="30+" placeholder="Enter number">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Industries Accordion -->
+    <section class="card industries-config">
+        <h3 class="label-header" (click)="toggleAccordion('industries')">
+            <img src="assets/icons/square.png" alt="industry" class="label-icon">
+            Industries Thumbnail Configuration
+            <span class="accordion-icon">
+                <img [src]="isAccordionOpen.industries  ? upArrowIconPath : downArrowIconPath"
+                    [alt]="isAccordionOpen.industries  ? 'collapse' : 'expand'" />
+            </span>
+        </h3>
+        <div class="divider"></div>
+
+        <div class="accordion-body" *ngIf="isAccordionOpen.industries">
+            <!-- Existing Industries Content -->
+            <div class="industries-grid">
+                <div class="industry-item">
+                    <p>Consumer Package Goods</p>
+                    <img src="assets/CPG.png" alt="Consumer Package Goods">
+                    <button class="upload-btn">
+                        <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" />
+                        Update
+                    </button>
+                </div>
+                <div class="industry-item">
+                    <p>Life Sciences</p>
+                    <img src="assets/Life Sciences.png" alt="Life Sciences">
+                    <button class="upload-btn">
+                        <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" />
+                        Update
+                    </button>
+                </div>
+                <div class="industry-item">
+                    <p>Industrials</p>
+                    <img src="assets/Industrials.png" alt="Industrials">
+                    <button class="upload-btn">
+                        <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" />
+                        Update
+                    </button>
+                </div>
+                <div class="industry-item">
+                    <p>Energy</p>
+                    <img src="assets/Energy.png" alt="Energy">
+                    <button class="upload-btn">
+                        <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" />
+                        Update
+                    </button>
+                </div>
+                <div class="industry-item">
+                    <p>Utilities</p>
+                    <img src="assets/Utilities.jpg" alt="Utilities">
+                    <button class="upload-btn">
+                        <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" />
+                        Update
+                    </button>
+                </div>
+                <div class="industry-item">
+                    <p>Chemicals & Natural Services</p>
+                    <img src="assets/Chemical and Natural Resources.png" alt="Chemicals & Natural Services">
+                    <button class="upload-btn">
+                        <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" />
+                        Update
+                    </button>
+                </div>
+                <div class="industry-item">
+                    <p>High Tech</p>
+                    <img src="assets/High Tech Industry.png" alt="High Tech">
+                    <button class="upload-btn">
+                        <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" />
+                        Update
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+
+    <!-- Featured Stories Configuration -->
+    <!-- <section class="card featured-config">
+    <h3 class="label-header">
+        <img src="assets/icons/change_history.png" alt="featured" class="label-icon">
+        Featured Stories Configuration
+    </h3>
+    <div class="divider"></div>
+
+    <div class="stories-grid">
+        <div class="story-card">
+            <h4>Life sciences • Pharma</h4>
+            <p class="story-title">Lyophilization Process Modeling for a Leading...</p>
+            <p class="story-desc">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
+            <div class="tags"><span class="tag">Digital Twin</span><span class="tag">Real Time Monitoring</span><span
+                    class="tag">Pharma Innovation</span><span class="tag">Plant Simulation</span></div>
+            <button class="btn-delete">Remove</button>
+        </div>
+        <div class="story-card">
+            <h4>Consumer Package Goods • Pharma</h4>
+            <p class="story-title">Lyophilization Process Modeling for a Leading...</p>
+            <p class="story-desc">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
+            <div class="tags"><span class="tag">Digital Twin</span><span class="tag">Real Time Monitoring</span><span
+                    class="tag">Pharma Innovation</span><span class="tag">Plant Simulation</span></div>
+            <button class="btn-delete">Remove</button>
+        </div>
+        <div class="story-card">
+            <h4>Industrial • Pharma</h4>
+            <p class="story-title">Lyophilization Process Modeling for a Leading...</p>
+            <p class="story-desc">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
+            <div class="tags"><span class="tag">Digital Twin</span><span class="tag">Real Time Monitoring</span><span
+                    class="tag">Pharma Innovation</span><span class="tag">Plant Simulation</span></div>
+            <button class="btn-delete">Remove</button>
+        </div>
+    </div>
+
+    <div class="choose-story">
+        <h4>Choose a Featured Story</h4>
+        <p>Select a story to highlight on your dashboard</p>
+        <button class="upload-btn">Select Story</button>
+    </div>
+</section> -->
+
+    <!-- Key Capabilities Configuration -->
+    <section class="card capabilities-config">
+        <h3 class="label-header" (click)="toggleAccordion('capabilities')">
+            <img src="assets/icons/change_history.png" alt="capabilities" class="label-icon">
+            Key Capabilities Configuration
+            <span class="accordion-icon">
+                <img [src]="isAccordionOpen.capabilities ? upArrowIconPath : downArrowIconPath"
+                    [alt]="isAccordionOpen.capabilities ? 'collapse' : 'expand'" />
+            </span>
+        </h3>
+        <div class="divider"></div>
+
+        <div class="accordion-body" *ngIf="isAccordionOpen.capabilities">
+            <!-- Replace grid with a single image -->
+            <p style="font-size: 24px; font-weight: 600;">Key Capability Image</p>
+            <img src="assets/cards.png" alt="Key Capabilities" class="capabilities-image" />
+
+            <div class="upload-row">
+                <button class="upload-btn">
+                    <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" />
+                    Update Image
+                </button>
+                <span class="file-name">Supported files .jpg, .jpeg, .png up to 1MB</span>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Action Buttons -->
+    <div class="button-group">
+        <button type="button" class="btn-cancel">Cancel</button>
+        <!-- <button type="button" class="btn-draft">
+        <img src="assets/icons/save.png" class="btn-icon" alt="draft"> Save
+    </button> -->
+        <button type="button" class="btn-approve">
+            <img src="assets/icons/save_white.png" class="btn-icon" alt="approve"> Save Changes
+        </button>
+    </div>
+
+</form>
