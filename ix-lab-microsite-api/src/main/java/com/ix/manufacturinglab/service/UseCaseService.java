@@ -73,7 +73,6 @@ public interface UseCaseService {
      * Archives an existing use case.
      *
      * @param usecaseId  the use case ID
-     * @return the success message
      */
     void archiveApprovedUseCase(Integer usecaseId);
 
@@ -102,26 +101,13 @@ public interface UseCaseService {
      */
     UseCaseResponseDTO updateUseCaseBySuperAdmin(Integer usecaseId, UseCaseRequestDTO requestDTO);
 
-    /**
-     * Saves a new use case as a draft and persists data across multiple related tables.
-     *
-     * @param requestDTO the use case draft request data
-     * @return the saved use case response containing draft details
-     */
-    UseCaseResponseDTO createUseCaseAndSaveAsDraftWithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
-                                                           List<MultipartFile> demoVideos, List<MultipartFile> clientCredentials,
-                                                           MultipartFile thumbnailUrl,MultipartFile bannerUrl);
+    UseCaseResponseDTO updateUseCaseAndSubmitForApprovalwithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory);
 
-    UseCaseResponseDTO createUseCaseAndSubmitForApprovalwithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
-                                                                 List<MultipartFile> demoVideos, List<MultipartFile> clientCredentials,
-                                                                 MultipartFile thumbnailUrl,MultipartFile bannerUrl);
+    UseCaseResponseDTO createUseCaseAndSubmitForApprovalwithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory);
 
-    UseCaseResponseDTO updateUseCaseandSaveasDraftWithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
-                                                           List<MultipartFile> demoVideos, List<MultipartFile> clientCredentials,
-                                                           MultipartFile thumbnailUrl,MultipartFile bannerUrl);
+    UseCaseResponseDTO updateUseCaseandSaveasDraftWithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory);
 
-    UseCaseResponseDTO updateUseCaseAndSubmitForApprovalwithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
-                                                           List<MultipartFile> demoVideos, List<MultipartFile> clientCredentials,
-                                                           MultipartFile thumbnailUrl,MultipartFile bannerUrl);
+    UseCaseResponseDTO createUseCaseAndSaveAsDraftWithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory);
 
+    String uploadDemoVideoInCheckMode(MultipartFile demoVideo);
 }
