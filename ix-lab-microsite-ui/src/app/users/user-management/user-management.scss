@@ -1,11 +1,12 @@
-.config{
-opacity: 1;
-padding-top: 32px;
-padding-right: 80px;
-padding-bottom: 32px;
-padding-left: 80px;
- 
+.config {
+  opacity: 1;
+  padding-top: 32px;
+  padding-right: 80px;
+  padding-bottom: 32px;
+  padding-left: 80px;
+
 }
+
 .heading-md {
   font-family: "Graphik", sans-serif;
   font-weight: 600;
@@ -16,6 +17,7 @@ padding-left: 80px;
   display: inline-block;
   margin-left: 20px;
 }
+
 .card-container {
   display: flex;
   gap: 24px;
@@ -26,7 +28,7 @@ padding-left: 80px;
   gap: 20px;
   opacity: 1;
 }
- 
+
 .config-card {
   width: 320px;
   height: 175px;
@@ -35,26 +37,26 @@ padding-left: 80px;
   padding: 20px;
   position: relative;
   cursor: pointer;
- 
+
   border: 1px solid #e5e5e5;
-  box-shadow: 0px 2px 4px rgba(0,0,0,0.08);
- 
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.08);
+
   display: flex;
   flex-direction: column;
   justify-content: space-between;
- 
+
   transition: all 0.2s ease;
 }
- 
+
 .config-card:hover {
   transform: translateY(-2px);
 }
- 
+
 .config-card.active {
   border: 2px solid #7B3FF2;
 }
- 
- 
+
+
 .breadcrumb {
   display: flex;
   align-items: center;
@@ -87,6 +89,7 @@ padding-left: 80px;
   display: flex;
   align-items: center;
   margin: 20px 0;
+  gap: 10px;
   border-bottom: 1px solid #ddd;
 }
 
@@ -117,7 +120,6 @@ padding-left: 80px;
 }
 
 .add-user {
-  margin-left: auto;
   background: #A100FF;
   color: #fff;
   border: none;
@@ -125,6 +127,7 @@ padding-left: 80px;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
+  margin-bottom: 10px;
 }
 
 .add-user:hover {
@@ -135,18 +138,20 @@ padding-left: 80px;
 .table-container {
   margin-top: 20px;
   overflow-x: auto;
-  display: none; /* hidden by default */
+  display: none;
+  /* hidden by default */
 }
 
 .table-container.active {
-  display: block; /* show active tab */
+  display: block;
+  /* show active tab */
 }
 
 .user-table {
   width: 100%;
   border-collapse: collapse;
   font-family: "Graphik", sans-serif;
-      border: 1px solid #CFCFCF;
+  border: 1px solid #CFCFCF;
 }
 
 .user-table th {
@@ -195,7 +200,7 @@ padding-left: 80px;
 
 /* Accept button */
 .btn.accept {
-  background-color: #E5FAF1; 
+  background-color: #E5FAF1;
   color: #167C61;
 }
 
@@ -206,7 +211,7 @@ padding-left: 80px;
 
 /* Reject button */
 .btn.reject {
-  background-color: #FFE3E3; 
+  background-color: #FFE3E3;
   color: #991B1B;
 }
 
@@ -230,8 +235,8 @@ padding-left: 80px;
 
 /* Edit button */
 .btn.edit {
-  background-color: #f5f0ff; 
-  color: #000;           
+  background-color: #f5f0ff;
+  color: #000;
 }
 
 .btn.edit:hover {
@@ -241,8 +246,8 @@ padding-left: 80px;
 
 /* Remove button */
 .btn.remove {
-  background-color: #FFE3E3; 
-  color: #991B1B;            
+  background-color: #FFE3E3;
+  color: #991B1B;
 }
 
 .btn.remove:hover {
@@ -257,7 +262,7 @@ padding-left: 80px;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -270,7 +275,7 @@ padding-left: 80px;
   border-radius: 8px;
   width: 400px;
   padding: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   animation: fadeIn 0.2s ease;
 }
 
@@ -346,15 +351,22 @@ padding-left: 80px;
 
 /* Animation */
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .modal {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   justify-content: center;
   align-items: center;
 
@@ -383,25 +395,31 @@ padding-left: 80px;
     cursor: pointer;
   }
 }
+
 .modal-backdrop {
   position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.4);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;   /* backdrop sits below modal */
+  z-index: 999;
+  /* backdrop sits below modal */
 }
 
 .modal {
-  position: relative;   /* ensure it layers above backdrop */
+  position: relative;
+  /* ensure it layers above backdrop */
   background: #fff;
   border-radius: 8px;
   width: 400px;
   padding: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  z-index: 1000;        /* higher than backdrop */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  /* higher than backdrop */
 }
 
 .modal-content {
@@ -409,12 +427,14 @@ padding-left: 80px;
   border-radius: 8px;
   width: 400px;
   padding: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  position: fixed;   /* ✅ ensures it floats */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  /* ✅ ensures it floats */
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 1000;     /* ✅ sits above everything */
+  z-index: 1000;
+  /* ✅ sits above everything */
 }
 
 .required-feild {
@@ -432,8 +452,10 @@ padding-left: 80px;
   align-items: center;
   gap: 10px;
 
-  max-width: 500px;       /* prevents too long stretching */
-  margin: 12px auto;      /* center aligned */
+  max-width: 500px;
+  /* prevents too long stretching */
+  margin: 12px auto;
+  /* center aligned */
   padding: 12px 16px;
 
   background: #e6f4ea;
@@ -447,7 +469,32 @@ padding-left: 80px;
   font-size: 14px;
   font-weight: 500;
 
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 
   animation: slideDown 0.3s ease;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  gap: 5px;
+  margin-bottom: 10px;
+
+  input {
+    height: 40px;
+    border: 1px solid #d9d9d9;
+    padding: 0 12px;
+    width: 220px;
+    border-right: none;
+  }
+
+  button {
+    height: 40px;
+    background: #8a2be2;
+    color: white;
+    border: none;
+    padding: 0 14px;
+    cursor: pointer;
+  }
 }

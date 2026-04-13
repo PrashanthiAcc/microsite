@@ -31,6 +31,11 @@
         <button class="tab" [class.disabled]="true" [disabled]="true" data-tab="newRequests"
             [class.active]="activeTab === 'newRequests'" (click)="switchTab('newRequests')">New Requests <span
                 class="badge">2</span></button>
+                 <!-- Search -->
+    <div class="search">
+        <input type="text" placeholder="Search" [(ngModel)]="searchText" (input)="onSearch()" />
+        <button>🔍</button>
+    </div>
         <button class="add-user" (click)="openModal()">+ Add New User</button>
     </div>
 
@@ -52,7 +57,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let user of users">
+                <tr *ngFor="let user of filteredUsers">
                     <td>{{ user.name }}</td>
                     <td>{{ user.userEid }}</td>
                     <td>{{ user.role }}</td>

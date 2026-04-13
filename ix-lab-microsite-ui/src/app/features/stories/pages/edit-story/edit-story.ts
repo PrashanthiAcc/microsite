@@ -66,6 +66,7 @@ export class EditStoryComponent {
   editorConfig = {
     toolbar: [
       ['bold', 'italic', 'underline'],
+      [{ list: 'ordered'}, { list: 'bullet'}],
       [{ align: [] }]
     ]
   };

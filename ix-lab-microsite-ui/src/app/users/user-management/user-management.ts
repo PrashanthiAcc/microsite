@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
@@ -9,6 +9,7 @@ import { RouterLink } from '@angular/router';
   selector: 'app-user-management',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, QuillModule, RouterLink],
+  providers: [DatePipe],
   templateUrl: './user-management.html',
   styleUrls: ['./user-management.scss'],
 })
@@ -21,6 +22,8 @@ export class UserManagementComponent implements OnInit {
   users: any[] = [];
   requests: any[] = [];
   message = '';
+  searchText: string = '';
+  filteredUsers: any[] = [];
   isEditMode = false;
   selectedUser: any = null;
   userModel = {
@@ -31,7 +34,7 @@ export class UserManagementComponent implements OnInit {
   };
 
   constructor(private userService: UserService,
-    private fb: FormBuilder, private cdr: ChangeDetectorRef
+    private fb: FormBuilder, private cdr: ChangeDetectorRef, private datePipe: DatePipe
   ) {
     this.userForm = this.fb.group(
       {
@@ -84,9 +87,11 @@ export class UserManagementComponent implements OnInit {
   }
 
   loadUsers() {
+    this.searchText = '';
     this.userService.getAllUsers().subscribe({
       next: (res: any) => {
         this.users = res;
+        this.filteredUsers = [...this.users];
         this.requests = this.users.filter(user => user.isActive === false && user.accessStartDate == null);
         this.cdr.detectChanges();
       },
@@ -232,6 +237,26 @@ export class UserManagementComponent implements OnInit {
 
     this.userForm.get('userEid')?.disable();
     this.userForm.get('name')?.disable();
+  }
+
+  onSearch() {
+    const search = this.searchText.toLowerCase();
+
+    this.filteredUsers = this.users.filter(user => {
+
+      const formattedDate = this.datePipe.transform(
+        user.accessStartDate,
+        'dd MMM yyyy'
+      )?.toLowerCase() || '';
+
+      return (
+        user.name?.toLowerCase().includes(search) ||
+        user.userEid?.toLowerCase().includes(search) ||
+        user.role?.toLowerCase().includes(search) ||
+        user.approverEid?.toLowerCase().includes(search) ||
+        formattedDate.includes(search)
+      );
+    });
   }
 
 }
