@@ -15,4 +15,6 @@ public interface UseCaseSpeakerRepository extends JpaRepository<UseCaseSpeaker, 
     List<UseCaseSpeaker> findByUseCase_UsecaseId(Integer usecaseId);
 
     void deleteByUseCase_UsecaseId(Integer usecaseId);
+
+    List<UseCaseSpeaker> findAllByUseCase_UsecaseIdIn(List<Integer> ids);
 }
