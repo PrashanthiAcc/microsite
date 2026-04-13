@@ -34,7 +34,7 @@ public class UserController {
     @GetMapping("/v1/all")
     public ResponseEntity<Object> getAllActiveUsers() {
 
-        logger.info("Received request to fetch all active users");
+        //logger.debug("Received request to fetch all active users");
 
         try {
             List<UserManagementDTO> users = userService.getAllActiveUsers();
@@ -52,7 +52,7 @@ public class UserController {
     @PostMapping("/v1/create")
     public ResponseEntity<Object> createUser(@RequestBody UserDTO dto) {
 
-        logger.info("Received request to create user.");
+        //logger.debug("Received request to create user.");
         try {
             userService.createUser(dto);
             return ResponseEntity.status(HttpStatus.CREATED).body("User created successfully");
@@ -66,7 +66,7 @@ public class UserController {
     @PutMapping("/v1/{userEid}/accept")
     public ResponseEntity<Object> acceptUser(@PathVariable String userEid,
                                              @RequestBody UserDTO dto) {
-        logger.info("Received request to accept user. userEid={}", userEid);
+        //logger.debug("Received request to accept user. userEid={}", userEid);
         try {
             userService.acceptUser(userEid, dto);
             return ResponseEntity.ok("User accepted successfully");
@@ -85,7 +85,7 @@ public class UserController {
     @PutMapping("/v1/{userEid}")
     public ResponseEntity<Object> updateUser(@PathVariable String userEid,
                                              @RequestBody UserDTO dto) {
-        logger.info("Received request to update user. userEid={}", userEid);
+        //logger.debug("Received request to update user. userEid={}", userEid);
         try {
             userService.updateUser(userEid, dto);
             return ResponseEntity.ok("User updated successfully");
@@ -103,7 +103,7 @@ public class UserController {
     }
     @DeleteMapping("/v1/{userEid}/reject")
     public ResponseEntity<Object> deleteUser(@PathVariable String userEid) {
-        logger.info("Received request to delete user. userEid={}", userEid);
+        //logger.debug("Received request to delete user. userEid={}", userEid);
         try {
             userService.deleteUser(userEid);
             return ResponseEntity.ok("User deleted successfully");
@@ -123,7 +123,7 @@ public class UserController {
     @DeleteMapping("/v1/{userId}")
     public ResponseEntity<?> removeUser(@PathVariable Integer userId) {
 
-        logger.info("Received request to delete user. userId={}", userId);
+        //logger.debug("Received request to delete user. userId={}", userId);
 
         try {
             userService.removeUser(userId);

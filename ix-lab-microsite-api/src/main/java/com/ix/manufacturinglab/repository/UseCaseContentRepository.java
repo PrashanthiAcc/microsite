@@ -4,6 +4,7 @@ import com.ix.manufacturinglab.entity.UseCaseContent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -15,4 +16,5 @@ public interface UseCaseContentRepository extends JpaRepository<UseCaseContent, 
     Optional<UseCaseContent> findByUsecaseId(Integer usecaseId);
 
     void deleteByUsecaseId(Integer usecaseId);
+    List<UseCaseContent> findAllByUsecaseIdIn(List<Integer> ids);
 }

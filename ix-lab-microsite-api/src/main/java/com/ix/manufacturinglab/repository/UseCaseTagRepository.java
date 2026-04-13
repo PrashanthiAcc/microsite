@@ -15,4 +15,6 @@ public interface UseCaseTagRepository extends JpaRepository<UseCaseTag, Integer>
     List<UseCaseTag> findByUseCase_UsecaseId(Integer usecaseId);
 
     void deleteByUseCase_UsecaseId(Integer usecaseId);
+
+    List<UseCaseTag> findAllByUseCase_UsecaseIdIn(List<Integer> ids);
 }

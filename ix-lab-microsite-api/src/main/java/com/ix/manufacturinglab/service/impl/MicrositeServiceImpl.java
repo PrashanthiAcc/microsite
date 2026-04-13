@@ -118,13 +118,13 @@ public class MicrositeServiceImpl implements MicrositeService {
 
     @Override
     public List<SubIndustry> getAllSubIndustries() {
-        logger.info("Fetching all sub-industries");
+        logger.debug("Fetching all sub-industries");
         return subIndustryRepository.findAllByActiveIndustry();
     }
 
     @Override
     public List<SubIndustry> getSubIndustriesByIndustryId(Long industryId) {
-        logger.info("Fetching sub-industries for industryId: {}", industryId);
+        logger.debug("Fetching sub-industries for industryId: {}", industryId);
 
         // Fetch sub-industries ONLY if industry is active
         List<SubIndustry> subIndustries = subIndustryRepository.findActiveSubIndustriesByIndustryId(industryId);
@@ -139,7 +139,7 @@ public class MicrositeServiceImpl implements MicrositeService {
     @Transactional
     public SubIndustryDTO createSubIndustry(SubIndustryDTO subIndustryDTO) {
 
-        logger.info("Creating sub-industry with name {}", subIndustryDTO.getSubIndustryName());
+        logger.debug("Creating sub-industry with name {}", subIndustryDTO.getSubIndustryName());
 
         Industry industry = industryRepository.findById(subIndustryDTO.getIndustryId())
                 .orElseThrow(() -> new CommonException(CommonExceptionConstants.NOT_FOUND,
@@ -173,7 +173,7 @@ public class MicrositeServiceImpl implements MicrositeService {
     @Transactional
     public SubIndustryDTO updateSubIndustry(Long subIndustryId, SubIndustryDTO subIndustryDTO) {
 
-        logger.info("Updating Sub-Industry with id {}", subIndustryId);
+        logger.debug("Updating Sub-Industry with id {}", subIndustryId);
 
         SubIndustry subIndustry = subIndustryRepository.findById(subIndustryId)
                 .orElseThrow(() -> new CommonException(
@@ -216,7 +216,7 @@ public class MicrositeServiceImpl implements MicrositeService {
     @Transactional
     public void deleteSubIndustry(Long subIndustryId) {
 
-        logger.info("Deleting sub-industry with id {}", subIndustryId);
+        logger.debug("Deleting sub-industry with id {}", subIndustryId);
 
         SubIndustry subIndustry = subIndustryRepository.findById(subIndustryId)
                 .orElseThrow(() -> new CommonException(
@@ -236,19 +236,19 @@ public class MicrositeServiceImpl implements MicrositeService {
 
     @Override
     public List<ValueChain> getAllValueChains() {
-        logger.info("Fetching all value chains");
+        logger.debug("Fetching all value chains");
         return valueChainRepository.findAllByActiveIndustry();
     }
 
     @Override
     public List<ValueChain> getValueChainsByIndustryAndSubIndustry(Long industryId, Long subIndustryId) {
-        logger.info("Fetching value chains for industryId: {} and subIndustryId: {}", industryId, subIndustryId);
+        logger.debug("Fetching value chains for industryId: {} and subIndustryId: {}", industryId, subIndustryId);
         return valueChainRepository.findFilteredValueChains(industryId, subIndustryId);
     }
 
     @Override
     public MicrositeDataDTO getAllMicrositeData() {
-        logger.info("Fetching all microsite data (industries, sub-industries, value chains)");
+        logger.debug("Fetching all microsite data (industries, sub-industries, value chains)");
         List<Industry> industries = industryRepository.findByIsActiveTrue();
         List<SubIndustry> subIndustries = subIndustryRepository.findAllByActiveIndustry();
         List<ValueChain> valueChains = valueChainRepository.findAllByActiveIndustry();
