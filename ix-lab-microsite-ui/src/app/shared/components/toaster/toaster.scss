@@ -9,18 +9,35 @@
 //   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 //   //animation: fadeInOut 3s forwards;
 // }
+// .toaster {
+//   display: flex;
+//   align-items: center;
+//   width: 440px;
+//   height: 80px;
+//   background: #fff;
+//   border: 1px solid #ddd;
+//   padding: 16px;
+//   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+//   position: absolute;
+//   right: 55px;
+//   margin-top: -118px;
+//   border-left: 5px solid #A100FF;
+// }
+
 .toaster {
+  position: fixed;       /* anchor to viewport */
+  top: 20px;             /* distance from top */
+  right: 60px;           /* distance from right */
+  z-index: 1000;         /* ensure it floats above other elements */
+
   display: flex;
   align-items: center;
   width: 440px;
-  height: 80px;
+  min-height: 80px;
   background: #fff;
   border: 1px solid #ddd;
   padding: 16px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  position: absolute;
-  right: 55px;
-  margin-top: -118px;
   border-left: 5px solid #A100FF;
 }
 

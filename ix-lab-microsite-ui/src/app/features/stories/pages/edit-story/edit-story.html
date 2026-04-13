@@ -404,6 +404,12 @@
 
 </form>
 
+<app-toaster 
+  [title]="toastTitle" 
+  [message]="toastMessage" 
+  [show]="showToast"
+  (closed)="showToast = false">
+</app-toaster>
 <div>
 
 

@@ -12,6 +12,7 @@ interface StoryDetails {
   valueChainId: number;
   title: string;
   thumbnailImageUrl: string;
+  bannerUrl: string
   tag: string[];
   description: string;
   duration: number;
