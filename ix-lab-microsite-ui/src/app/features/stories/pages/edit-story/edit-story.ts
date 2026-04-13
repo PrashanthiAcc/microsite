@@ -9,6 +9,7 @@ import { IndustryService } from '../../../../core/services/industry';
 import { UsecaseService } from '../../../../core/services/usecase';
 import { UserService } from '../../../../core/services/users';
 import { forkJoin, Observable } from 'rxjs';
+import { ToasterComponent } from '../../../../shared/components/toaster/toaster';
 interface IndustryResponse {
   industries: any[];
   subIndustries: any[];
@@ -18,7 +19,7 @@ interface IndustryResponse {
 
 @Component({
   selector: 'app-edit-story',
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, QuillModule, CustomDropdownComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, QuillModule, CustomDropdownComponent, ToasterComponent],
   templateUrl: './edit-story.html',
   styleUrls: ['./edit-story.scss'],
 })
@@ -105,6 +106,9 @@ export class EditStoryComponent {
   thumbnailFile: File | null = null;
   bannerFile: File | null = null;
 
+  showToast = false;
+  toastMessage = '';
+  toastTitle = '';
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService,
     private route: ActivatedRoute, private location: Location, private cdr: ChangeDetectorRef) {
@@ -618,9 +622,45 @@ export class EditStoryComponent {
 
     console.log('Payload for Update:', payload);
 
-    this.usecaseService.updateStorySendForApproval(this.usecaseID, formData).subscribe((res: any) => {
-      console.log('Story updated successfully', res);
-      this.location.back();
+    // this.usecaseService.updateStorySendForApproval(this.usecaseID, formData).subscribe((res: any) => {
+    //   console.log('Story updated successfully', res);
+    //   this.location.back();
+    // });
+
+    this.usecaseService.updateStorySendForApproval(this.usecaseID, formData).subscribe({
+      next: (res: any) => {
+        this.showToast = false;
+        console.log('Response from API:', res);
+        this.toastTitle = 'Story updated successfully';
+        // this.toastMessage = 'Your story has been submitted'; // ✅ add message
+        this.showToast = true;
+        this.cdr.detectChanges();
+        this.location.back();
+      },
+      error: (err: any) => {
+        this.showToast = false;
+        console.error('Error from API:', err);
+        //console.log('Error payload:', err.error);
+        let errorObj: any = {};
+        try {
+          errorObj = typeof err.error === 'string' ? JSON.parse(err.error) : err.error;
+        } catch {
+          errorObj = { errorDescription: err.message };
+        }
+        if (err.status === 400) {
+          this.toastTitle = errorObj.errorDescription || 'Bad Request';
+          //this.toastMessage = err.error?.errorDescription;
+        } else if (err.status === 500) {
+          this.toastTitle = errorObj.errorDescription || 'Bad Request';
+        } else {
+          this.toastTitle = 'An unexpected error occurred';
+          //this.toastMessage = err.error?.errorDescription || err.message;
+        }
+        this.showToast = true;
+        this.cdr.detectChanges();
+
+      }
+
     });
   }
 
@@ -700,7 +740,7 @@ export class EditStoryComponent {
       }
     });
 
-   this.elevatorPitch.controls.forEach((control: any) => {
+    this.elevatorPitch.controls.forEach((control: any) => {
       if (control.value instanceof File) {
         formData.append('elevatorPitch', control.value);
       }
@@ -714,9 +754,45 @@ export class EditStoryComponent {
 
     console.log('Payload for Update:', payload);
 
-    this.usecaseService.updateStorySaveDraft(this.usecaseID, formData).subscribe((res: any) => {
-      console.log('Story updated successfully', res);
-      this.location.back();
+    // this.usecaseService.updateStorySaveDraft(this.usecaseID, formData).subscribe((res: any) => {
+    //   console.log('Story updated successfully', res);
+    //   this.location.back();
+    // });
+
+    this.usecaseService.updateStorySaveDraft(this.usecaseID, formData).subscribe({
+      next: (res: any) => {
+        this.showToast = false;
+        console.log('Response from API:', res);
+        this.toastTitle = 'Story updated for draft';
+        // this.toastMessage = 'Your story has been submitted'; // ✅ add message
+        this.showToast = true;
+        this.cdr.detectChanges();
+        this.location.back();
+      },
+      error: (err: any) => {
+        this.showToast = false;
+        console.error('Error from API:', err);
+        console.log('Error payload:', err.error);
+        let errorObj: any = {};
+        try {
+          errorObj = typeof err.error === 'string' ? JSON.parse(err.error) : err.error;
+        } catch {
+          errorObj = { errorDescription: err.message };
+        }
+        if (err.status === 400) {
+          this.toastTitle = errorObj.errorDescription || 'Bad Request';
+          //this.toastMessage = err.error?.errorDescription;
+        } else if (err.status === 500) {
+          this.toastTitle = errorObj.errorDescription || 'Bad Request';
+        } else {
+          this.toastTitle = 'An unexpected error occurred';
+          //this.toastMessage = err.error?.errorDescription || err.message;
+        }
+        this.showToast = true;
+        this.cdr.detectChanges();
+
+      }
+
     });
   }
 

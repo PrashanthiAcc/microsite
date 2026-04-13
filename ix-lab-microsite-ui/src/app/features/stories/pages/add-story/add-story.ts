@@ -8,11 +8,12 @@ import { CustomDropdownComponent } from '../../../../shared/components/custom-dr
 import { IndustryService } from '../../../../core/services/industry';
 import { UsecaseService } from '../../../../core/services/usecase';
 import { UserService } from '../../../../core/services/users';
+import { ToasterComponent } from '../../../../shared/components/toaster/toaster';
 
 @Component({
   selector: 'app-add-story',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, QuillModule, CustomDropdownComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, QuillModule, CustomDropdownComponent, ToasterComponent],
   templateUrl: './add-story.html',
   styleUrls: ['./add-story.scss']
 })
@@ -553,14 +554,42 @@ export class AddStoryComponent {
       formData.append('userStory', clientStory);
     }
 
-    this.usecaseService.submitForApproval(formData).subscribe((res: any) => {
+    this.usecaseService.submitForApproval(formData).subscribe({
+      next: (res: any) => {
+        this.showToast = false;
+        console.log('Response from API:', res);
+        this.toastTitle = 'Story created and submitted for approval successfully';
+        // this.toastMessage = 'Your story has been submitted'; // ✅ add message
+        this.showToast = true;
+        this.cd.detectChanges();
+        this.location.back();
+      },
+      error: (err: any) => {
+        this.showToast = false;
+        console.error('Error from API:', err);
+        //console.log('Error payload:', err.error);
+        let errorObj: any = {};
+        try {
+          errorObj = typeof err.error === 'string' ? JSON.parse(err.error) : err.error;
+        } catch {
+          errorObj = { errorDescription: err.message };
+        }
+        if (err.status === 400) {
+          this.toastTitle = errorObj.errorDescription || 'Bad Request';
+          //this.toastMessage = err.error?.errorDescription;
+        } else if (err.status === 500) {
+          this.toastTitle = errorObj.errorDescription || 'Bad Request';
+        } else {
+          this.toastTitle = 'An unexpected error occurred';
+          //this.toastMessage = err.error?.errorDescription || err.message;
+        }
+        this.showToast = true;
+        this.cd.detectChanges();
 
-      console.log('Response from API:', res);
-      this.toastTitle = 'Story created and submitted for approval successfully';
-      this.showToast = true;
-      this.location.back();
+      }
 
     });
+
   }
 
   extractValue(value: any) {
@@ -662,15 +691,41 @@ export class AddStoryComponent {
       formData.append('userStory', clientStory);
     }
 
-    this.usecaseService.saveAsDraft(formData).subscribe((res: any) => {
+    this.usecaseService.saveAsDraft(formData).subscribe({
+      next: (res: any) => {
+        this.showToast = false;
+        console.log('Response from API:', res);
+        this.toastTitle = 'Story Saved As Draft';
+        this.showToast = true;
+        this.cd.detectChanges();
+        this.location.back();
+      },
+      error: (err: any) => {
+        this.showToast = false;
+        console.error('Error from API:', err);
+        //console.log('Error payload:', err.error);
+        let errorObj: any = {};
+        try {
+          errorObj = typeof err.error === 'string' ? JSON.parse(err.error) : err.error;
+        } catch {
+          errorObj = { errorDescription: err.message };
+        }
+        if (err.status === 400) {
+          this.toastTitle = errorObj.errorDescription || 'Bad Request';
+          //this.toastMessage = err.error?.errorDescription;
+        } else if (err.status === 500) {
+          this.toastTitle = errorObj.errorDescription || 'Bad Request';
+        } else {
+          this.toastTitle = 'An unexpected error occurred';
+          //this.toastMessage = err.error?.errorDescription || err.message;
+        }
+        this.showToast = true;
+        this.cd.detectChanges();
 
-      console.log('Response from API:', res);
-      this.toastTitle = 'Story Saved As Draft';
-      //this.toastMessage = res;
-      this.showToast = true;
-      this.location.back();
+      }
 
     });
+
   }
   cancelForm() {
     this.storyForm.reset();

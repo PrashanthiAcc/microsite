@@ -6,7 +6,7 @@ export const routes: Routes = [
   {
     path: '',
     component: LayoutComponent,
-    data: { role: 'admin'},
+    data: { role: 'admin' },
     children: [
       {
         path: '',
@@ -56,12 +56,19 @@ export const routes: Routes = [
           import('./users/user-management/user-management')
             .then(m => m.UserManagementComponent)
       },
+      {
+        path: 'homepage-configuation',
+        loadComponent: () =>
+          import('./features/home/pages/homepage-configurations/homepage-configurations')
+            .then(m => m.HomepageConfigurationsComponent)
+      }
+
     ]
   },
   {
     path: 'presenter',
     component: LayoutComponent,
-    data: { role: 'presenter'},
+    data: { role: 'presenter' },
     children: [
       {
         path: '',
@@ -111,6 +118,12 @@ export const routes: Routes = [
           import('./users/user-management/user-management')
             .then(m => m.UserManagementComponent)
       },
+      {
+        path: 'homepage-configuation',
+        loadComponent: () =>
+          import('./features/home/pages/homepage-configurations/homepage-configurations')
+            .then(m => m.HomepageConfigurationsComponent)
+      }
     ]
   },
   //  {
