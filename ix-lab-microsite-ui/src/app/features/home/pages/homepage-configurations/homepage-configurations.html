@@ -41,8 +41,8 @@
                 <h4>Hero Image</h4>
                 <img src="assets/hero-bg.png" class="banner-preview" alt="Hero Preview">
                 <div class="upload-row">
-                    <button type="button" class="upload-btn">
-                        <img src="assets/icons/upload.png" alt="upload icon" class="upload-icon" /> Update Image
+                    <button type="button" class="uploadImg-btn">
+                        <img [src]="exchangeIcon" alt="upload icon" class="upload-icon" /> Update Image
                     </button>
                     <span class="file-name">Supported files .jpg, .jpeg, .png up to 1MB</span>
                 </div>
@@ -166,48 +166,91 @@
 
 
 
-
     <!-- Featured Stories Configuration -->
-    <!-- <section class="card featured-config">
-    <h3 class="label-header">
-        <img src="assets/icons/change_history.png" alt="featured" class="label-icon">
-        Featured Stories Configuration
-    </h3>
-    <div class="divider"></div>
+    <section class="card featured-config">
+        <h3 class="label-header" (click)="toggleAccordion('featured')">
+            <img src="assets/icons/change_history.png" alt="featured" class="label-icon">
+            Featured Stories Configuration
+            <span class="accordion-icon">
+                <img [src]="isAccordionOpen.featured ? upArrowIconPath : downArrowIconPath"
+                    [alt]="isAccordionOpen.featured ? 'collapse' : 'expand'" />
+            </span>
+        </h3>
+        <div class="divider"></div>
 
-    <div class="stories-grid">
-        <div class="story-card">
-            <h4>Life sciences • Pharma</h4>
-            <p class="story-title">Lyophilization Process Modeling for a Leading...</p>
-            <p class="story-desc">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
-            <div class="tags"><span class="tag">Digital Twin</span><span class="tag">Real Time Monitoring</span><span
-                    class="tag">Pharma Innovation</span><span class="tag">Plant Simulation</span></div>
-            <button class="btn-delete">Remove</button>
-        </div>
-        <div class="story-card">
-            <h4>Consumer Package Goods • Pharma</h4>
-            <p class="story-title">Lyophilization Process Modeling for a Leading...</p>
-            <p class="story-desc">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
-            <div class="tags"><span class="tag">Digital Twin</span><span class="tag">Real Time Monitoring</span><span
-                    class="tag">Pharma Innovation</span><span class="tag">Plant Simulation</span></div>
-            <button class="btn-delete">Remove</button>
-        </div>
-        <div class="story-card">
-            <h4>Industrial • Pharma</h4>
-            <p class="story-title">Lyophilization Process Modeling for a Leading...</p>
-            <p class="story-desc">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
-            <div class="tags"><span class="tag">Digital Twin</span><span class="tag">Real Time Monitoring</span><span
-                    class="tag">Pharma Innovation</span><span class="tag">Plant Simulation</span></div>
-            <button class="btn-delete">Remove</button>
-        </div>
-    </div>
+        <div class="accordion-body" *ngIf="isAccordionOpen.featured">
+            <div class="stories-grid">
+                <!-- Card 1 -->
+                <div class="story-wrapper">
+                    <div class="story-card">
+                        <img src="assets/featured1.png" alt="Life sciences" class="story-image">
+                        <div class="story-content">
+                            <h4>Life sciences • Pharma</h4>
+                            <p class="story-title">Lyophilization Process Modeling for a Leading...</p>
+                            <p class="story-desc">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
+                            <div class="tags">
+                                <span class="tag">Digital Twin</span>
+                                <span class="tag">Real Time Monitoring</span>
+                                <span class="tag">Pharma Innovation</span>
+                                <span class="tag">Plant Simulation</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-delete"><span class="close-icon">✕</span> Remove</button>
+                </div>
 
-    <div class="choose-story">
-        <h4>Choose a Featured Story</h4>
-        <p>Select a story to highlight on your dashboard</p>
-        <button class="upload-btn">Select Story</button>
-    </div>
-</section> -->
+                <!-- Card 2 -->
+                <div class="story-wrapper">
+                    <div class="story-card">
+                        <img src="assets/featured4.png" alt="Consumer Package Goods" class="story-image">
+                        <div class="story-content">
+                            <h4>Consumer Package Goods • Pharma</h4>
+                            <p class="story-title">Lyophilization Process Modeling for a Leading...</p>
+                            <p class="story-desc">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
+                            <div class="tags">
+                                <span class="tag">Digital Twin</span>
+                                <span class="tag">Real Time Monitoring</span>
+                                <span class="tag">Pharma Innovation</span>
+                                <span class="tag">Plant Simulation</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-delete"><span class="close-icon">✕</span> Remove</button>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="story-wrapper">
+                    <div class="story-card">
+                        <img src="assets/featured2.jpg" alt="Industrial Pharma" class="story-image">
+                        <div class="story-content">
+                            <h4>Industrial • Pharma</h4>
+                            <p class="story-title">Lyophilization Process Modeling for a Leading...</p>
+                            <p class="story-desc">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
+                            <div class="tags">
+                                <span class="tag">Digital Twin</span>
+                                <span class="tag">Real Time Monitoring</span>
+                                <span class="tag">Pharma Innovation</span>
+                                <span class="tag">Plant Simulation</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-delete"><span class="close-icon">✕</span> Remove</button>
+                </div>
+
+                <!-- Card 4: Choose Story -->
+                <div class="story-wrapper">
+                    <div class="story-card choose-card">
+                        <div class="story-content centered">
+                            <h4>Choose a Featured Story</h4>
+                            <p>Select a story to highlight on your dashboard</p>
+                            <button class="select-btn" (click)="openStoryModal()">Select Story</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
 
     <!-- Key Capabilities Configuration -->
     <section class="card capabilities-config">
@@ -227,7 +270,7 @@
             <img src="assets/cards.png" alt="Key Capabilities" class="capabilities-image" />
 
             <div class="upload-row">
-                <button class="upload-btn">
+                <button class="uploadImg-btn">
                     <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" />
                     Update Image
                 </button>
@@ -250,3 +293,130 @@
     </div>
 
 </form>
+
+
+<!-- Modal Overlay -->
+<div class="modal-overlay" *ngIf="showStoryModal">
+    <div class="modal">
+
+        <div class="modal-header">
+            <h3>Select a Featured Story</h3>
+            <button class="close-btn" (click)="showStoryModal = false">✕</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="filters">
+            <app-custom-dropdown label="Industry" [options]="industries"
+                displayKey="industryName"></app-custom-dropdown>
+            <app-custom-dropdown label="Sub-Industry" [options]="subIndustries"
+                displayKey="subIndustryName"></app-custom-dropdown>
+            <app-custom-dropdown label="Value Chain" [options]="valueChains"
+                displayKey="valueChainName"></app-custom-dropdown>
+
+            <div class="search">
+                <input type="text" placeholder="Search" />
+                <button style="margin-bottom: 14px;">🔍</button>
+            </div>
+        </div>
+
+        <div class="stories__grid">
+            <div class="story-card">
+                <div class="story-card__media">
+                    <img src="assets/featured4.png" alt="Consumer Package Goods" />
+                </div>
+                <div class="story-card__content">
+                    <span class="industry-subindustry-border-bottom">Consumer Package Goods • Pharma</span>
+                    <h3>Lyophilization Process Modeling for a Leading...</h3>
+                    <p class="truncate-3-lines">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
+                    <div class="tags">
+                        <span>Digital Twin</span>
+                        <span>Real Time Monitoring</span>
+                        <span>Pharma Innovation</span>
+                        <span>Plant Simulation</span>
+                    </div>
+                    <!-- <div class="story-card__footer">
+            <button class="btn-primary">Select</button>
+          </div> -->
+                </div>
+            </div>
+            <div class="story-card">
+                <div class="story-card__media">
+                    <img src="assets/featured4.png" alt="Consumer Package Goods" />
+                </div>
+                <div class="story-card__content">
+                    <span class="industry-subindustry-border-bottom">Consumer Package Goods • Pharma</span>
+                    <h3>Lyophilization Process Modeling for a Leading...</h3>
+                    <p class="truncate-3-lines">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
+                    <div class="tags">
+                        <span>Digital Twin</span>
+                        <span>Real Time Monitoring</span>
+                        <span>Pharma Innovation</span>
+                        <span>Plant Simulation</span>
+                    </div>
+                    <!-- <div class="story-card__footer">
+            <button class="btn-primary">Select</button>
+          </div> -->
+                </div>
+            </div>
+            <div class="story-card">
+                <div class="story-card__media">
+                    <img src="assets/featured4.png" alt="Consumer Package Goods" />
+                </div>
+                <div class="story-card__content">
+                    <span class="industry-subindustry-border-bottom">Consumer Package Goods • Pharma</span>
+                    <h3>Lyophilization Process Modeling for a Leading...</h3>
+                    <p class="truncate-3-lines">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
+                    <div class="tags">
+                        <span>Digital Twin</span>
+                        <span>Real Time Monitoring</span>
+                        <span>Pharma Innovation</span>
+                        <span>Plant Simulation</span>
+                    </div>
+                    <!-- <div class="story-card__footer">
+            <button class="btn-primary">Select</button>
+          </div> -->
+                </div>
+            </div>
+            <div class="story-card">
+                <div class="story-card__media">
+                    <img src="assets/featured4.png" alt="Consumer Package Goods" />
+                </div>
+                <div class="story-card__content">
+                    <span class="industry-subindustry-border-bottom">Consumer Package Goods • Pharma</span>
+                    <h3>Lyophilization Process Modeling for a Leading...</h3>
+                    <p class="truncate-3-lines">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
+                    <div class="tags">
+                        <span>Digital Twin</span>
+                        <span>Real Time Monitoring</span>
+                        <span>Pharma Innovation</span>
+                        <span>Plant Simulation</span>
+                    </div>
+                    <!-- <div class="story-card__footer">
+            <button class="btn-primary">Select</button>
+          </div> -->
+                </div>
+            </div>
+            <div class="story-card">
+                <div class="story-card__media">
+                    <img src="assets/featured4.png" alt="Consumer Package Goods" />
+                </div>
+                <div class="story-card__content">
+                    <span class="industry-subindustry-border-bottom">Consumer Package Goods • Pharma</span>
+                    <h3>Lyophilization Process Modeling for a Leading...</h3>
+                    <p class="truncate-3-lines">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
+                    <div class="tags">
+                        <span>Digital Twin</span>
+                        <span>Real Time Monitoring</span>
+                        <span>Pharma Innovation</span>
+                        <span>Plant Simulation</span>
+                    </div>
+                    <!-- <div class="story-card__footer">
+            <button class="btn-primary">Select</button>
+          </div> -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

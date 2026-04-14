@@ -40,7 +40,7 @@
       <!-- Sort -->
       <!-- <app-custom-dropdown label="Sort by" [options]="['Popular','New & Noteworthy']">
       </app-custom-dropdown> -->
-      <app-toaster [title]="toastTitle" [message]="toastMessage" [show]="showToast">
+      <app-toaster [title]="toastTitle" [message]="toastMessage" [show]="showToast" (closed)="showToast = false">
       </app-toaster>
       <!-- Search -->
       <div class="search">

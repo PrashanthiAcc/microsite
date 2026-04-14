@@ -339,9 +339,9 @@ export class StoriesComponent implements OnInit {
     this.usecaseService.discardDraft(usecaseId).subscribe({
       next: (res: string) => {
         console.log('API success, response:', res);
-
+        this.showToast = false;
         this.toastTitle = 'Draft Discarded Successfully';
-        this.toastMessage = res;
+        //this.toastMessage = res;
         this.showToast = true;
 
         // ✅ Close the card menu for the discarded draft

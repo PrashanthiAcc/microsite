@@ -24,7 +24,10 @@ export class HomepageConfigurationsComponent {
 
 
   homePageForm: FormGroup;
-
+  industries: any[] = [];
+  subIndustries: any[] = [];
+  valueChains: any[] = [];
+  showStoryModal = false;
 
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService, private cdr: ChangeDetectorRef) {
@@ -38,19 +41,26 @@ export class HomepageConfigurationsComponent {
     hero: true,
     overview: false,
     industries: false,
+    featured: false,
     capabilities: false
   };
 
   // Toggle function with "only one open at a time" behavior
-  toggleAccordion(section: 'hero' | 'overview' | 'industries' | 'capabilities') {
+  toggleAccordion(section: 'hero' | 'overview' | 'industries' | 'featured' | 'capabilities') {
     const currentlyOpen = this.isAccordionOpen[section];
 
     // Close all
-    this.isAccordionOpen.hero = false;
-    this.isAccordionOpen.overview = false;
-    this.isAccordionOpen.industries = false;
+    // this.isAccordionOpen.hero = false;
+    // this.isAccordionOpen.overview = false;
+    // this.isAccordionOpen.industries = false;
+    // this.isAccordionOpen.featured = false;
+    // this.isAccordionOpen.capabilities = false;
 
     // Reopen only if it wasn’t already open
     this.isAccordionOpen[section] = !currentlyOpen;
   }
+
+  openStoryModal() {
+  this.showStoryModal = true;
+}
 }
