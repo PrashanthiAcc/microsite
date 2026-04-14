@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - develop
+      - feature/*
   pull_request:
     branches:
       - main
@@ -13,7 +14,7 @@ on:
 env:
   JAVA_VERSION: '17'
   APP_SERVICE_NAME: 'ix-lab-microsite-api'         # Replace with your Azure App Service name
-  RESOURCE_GROUP: 'your-resource-group'             # Replace with your resource group
+  RESOURCE_GROUP: 'CPS_RG'             # Replace with your resource group
   ARTIFACT_NAME: 'ix-lab-microsite-api'
  
 jobs:
