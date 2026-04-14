@@ -16,11 +16,11 @@
     inset: 0;
     z-index: 1;
     pointer-events: none;
-    // background: linear-gradient(90deg,
-    //         rgba(123, 44, 255, 0.92) 0%,
-    //         rgba(123, 44, 255, 0.82) 35%,
-    //         rgba(123, 44, 255, 0.55) 60%,
-    //         rgba(123, 44, 255, 0.15) 100%);
+    background: linear-gradient(90deg,
+            rgba(123, 44, 255, 0.92) 0%,
+            rgba(123, 44, 255, 0.82) 35%,
+            rgba(123, 44, 255, 0.55) 60%,
+            rgba(123, 44, 255, 0.15) 100%);
 }
 
 .hero-content {

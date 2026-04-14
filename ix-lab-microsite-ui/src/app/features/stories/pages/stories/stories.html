@@ -208,16 +208,16 @@
     </div>
 
     <!---NO ACTIVE STORY SECTION-->
-    <!-- <div class="stories__header" *ngIf="!showAdminControls">
+    <div class="stories__header" *ngIf="!showAdminControls">
       <h1 class="stories__title" *ngIf="!isLoading && filteredStories.length === 0">No Active Stories</h1>
-    </div> -->
+    </div>
 
 
     <ng-container *ngIf="filteredStories.length > 0 && showAdminControls">
       <div class="pagination" *ngIf="totalPages > 1">
         <!-- Previous -->
         <button [routerLink]="['/stories']" [queryParams]="{ from: currentFrom, page: currentPage - 1 }"
-          [disabled]="currentPage === 1">
+          [disabled]="currentPage === 1" style="border: none;">
           <img [src]="pagination_left" alt="Previous" />
         </button>
 
@@ -229,7 +229,7 @@
 
         <!-- Next -->
         <button [routerLink]="['/stories']" [queryParams]="{ from: currentFrom, page: currentPage + 1 }"
-          [disabled]="currentPage === totalPages">
+          [disabled]="currentPage === totalPages" style="border: none;">
           <img [src]="pagination_right" alt="Next" />
         </button>
       </div>
