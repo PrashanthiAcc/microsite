@@ -213,7 +213,7 @@
     </div>
 
 
-    <ng-container *ngIf="filteredStories.length > 0 && showAdminControls">
+    <ng-container *ngIf="showAdminControls">
       <div class="pagination" *ngIf="totalPages > 1">
         <!-- Previous -->
         <button [routerLink]="['/stories']" [queryParams]="{ from: currentFrom, page: currentPage - 1 }"
