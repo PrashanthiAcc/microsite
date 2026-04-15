@@ -375,10 +375,7 @@ public class UseCaseController {
             return new ResponseEntity<>(response, HttpStatus.CREATED);
 
         } catch (CommonException e) {
-                logger.error("Exception occurred while fetching use cases: {}", e.getMessage(), e);
-                errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
-                errorResponse.setErrorDescription("Invalid JSON format");
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+            throw e;
         } catch (Exception e) {
             logger.error("Error parsing request JSON", e);
             errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
@@ -414,14 +411,15 @@ public class UseCaseController {
 
             return new ResponseEntity<>(response, HttpStatus.CREATED);
 
+        } catch (CommonException e) {
+            throw e;
         } catch (Exception e) {
             logger.error("Error parsing request JSON", e);
-
             errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
             errorResponse.setErrorDescription("Invalid JSON format");
-
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
+
     }
 
 
@@ -450,14 +448,15 @@ public class UseCaseController {
                                                                                             demoVideos, thumbnailUrl, bannerUrl, elevatorPitch, userStory);
             return ResponseEntity.ok(response);
 
+        } catch (CommonException e) {
+            throw e;
         } catch (Exception e) {
             logger.error("Error parsing request JSON", e);
-
             errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
             errorResponse.setErrorDescription("Invalid JSON format");
-
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
+
     }
 
     @PutMapping(value = "/v1/{usecaseId}/submit-for-approval-withblob", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -484,14 +483,15 @@ public class UseCaseController {
                     demoVideos, thumbnailUrl, bannerUrl , elevatorPitch, userStory);
             return ResponseEntity.ok(response);
 
+        } catch (CommonException e) {
+            throw e;
         } catch (Exception e) {
             logger.error("Error parsing request JSON", e);
-
             errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
             errorResponse.setErrorDescription("Invalid JSON format");
-
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
+
     }
 
     @PostMapping(value = "/v1/upload-demo-video", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

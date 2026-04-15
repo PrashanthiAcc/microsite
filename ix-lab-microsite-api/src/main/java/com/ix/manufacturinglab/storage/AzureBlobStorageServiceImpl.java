@@ -2,14 +2,22 @@ package com.ix.manufacturinglab.storage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Collections;
+import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.storage.blob.models.BlobHttpHeaders;
 import com.azure.storage.blob.models.BlobItem;
+import com.azure.storage.blob.models.ListBlobsOptions;
 import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
@@ -33,7 +41,7 @@ public class AzureBlobStorageServiceImpl implements CloudStorageService {
     private final BlobContainerClient blobContainerClient;
 
     private final UseCaseArtifactRepository useCaseArtifactRepository;
-    private static final int CHUNK_SIZE = 4 * 1024 * 1024; // 4MB per block
+    private static final int CHUNK_SIZE = 8 * 1024 * 1024; // 8MB per block
     public AzureBlobStorageServiceImpl(BlobContainerClient blobContainerClient, UseCaseArtifactRepository useCaseArtifactRepository) {
         this.blobContainerClient = blobContainerClient;
         this.useCaseArtifactRepository = useCaseArtifactRepository;
@@ -113,90 +121,165 @@ public class AzureBlobStorageServiceImpl implements CloudStorageService {
         if (folderPath.endsWith("/")) {
             folderPath = folderPath.substring(0, folderPath.length() - 1);
         }
+
         String[] parts = folderPath.split("/");
 
         String lastPart = parts[parts.length - 1];
-        String artifactTypePart = parts[parts.length-2];
+        String artifactTypePart = parts[parts.length - 2];
 
-        Long usecaseId = null;
-        String artifactType = null;
-
-        try {
-            usecaseId = Long.valueOf(lastPart);
-            artifactType = artifactTypePart;
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(
-                    "Invalid folderPath: usecaseId not found in path -> " + folderPath);
-        }
-
+        Long usecaseId = Long.valueOf(lastPart);
+        String artifactType = mapArtifactType(artifactTypePart);
 
         String prefix = folderPath + "/";
 
-        PagedIterable<BlobItem> blobItems = blobContainerClient.listBlobsByHierarchy(prefix);
+        PagedIterable<BlobItem> blobItems = blobContainerClient.listBlobs(new ListBlobsOptions().setPrefix(prefix), null);
 
         for (BlobItem blobItem : blobItems) {
             String blobName = blobItem.getName();
-            try {
-                blobContainerClient.getBlobClient(blobName).deleteIfExists();
-                String fileName = blobName.substring(blobName.lastIndexOf("/") + 1);
-                useCaseArtifactRepository.deleteByUseCase_UsecaseIdAndArtifactTypeAndArtifactName(usecaseId, artifactType, fileName);
+            blobContainerClient.getBlobClient(blobName).deleteIfExists();
+        }
 
-            } catch (Exception e) {
-                logger.error("Failed to delete blob {}", blobName, e);
-                throw new RuntimeException("Delete failed for: " + blobName, e);
-            }
+        int deleted = useCaseArtifactRepository
+                .deleteByUseCase_UsecaseIdAndArtifactType(usecaseId, artifactType);
+
+        logger.info("Deleted {} DB records for usecaseId={}, artifactType={}",
+                deleted, usecaseId, artifactType);
+    }
+
+    private String mapArtifactType(String folderName) {
+        switch (folderName.trim().toLowerCase()) {
+            case "demo videos":
+                return "DEMO_VIDEO";
+            case "elevator_pitch":
+                return "ELEVATOR_PITCH";
+            case "user_story":
+                return "USER_STORY";
+            case "client testimonials":
+                return "CLIENT_TESTIMONIAL";
+            default:
+                throw new IllegalArgumentException("Unknown artifact type: " + folderName);
         }
     }
 
     @Override
     public String uploadFileChunked(MultipartFile file, String blobPath) {
+        int THREADS = 2;
+        int MAX_RETRIES = 3;
+
+        ExecutorService executor = Executors.newFixedThreadPool(THREADS);
+        List<String> blockIds = Collections.synchronizedList(new ArrayList<>());
+        List<Future<?>> futures = new ArrayList<>();
+
         try {
-            // Append the original file name to the blobPath
-            blobPath = blobPath.endsWith("/") ? blobPath + file.getOriginalFilename() : blobPath + "/" + file.getOriginalFilename();
+            blobPath = blobPath.endsWith("/")
+                    ? blobPath + file.getOriginalFilename()
+                    : blobPath + "/" + file.getOriginalFilename();
 
             BlobClient blobClient = blobContainerClient.getBlobClient(blobPath);
             BlockBlobClient blockBlobClient = blobClient.getBlockBlobClient();
 
             InputStream inputStream = file.getInputStream();
-            long fileSize = file.getSize();
-            List<String> blockIds = new ArrayList<>();
             byte[] buffer = new byte[CHUNK_SIZE];
+
             int blockNumber = 0;
             int bytesRead;
 
             while ((bytesRead = inputStream.read(buffer)) != -1) {
+
+                byte[] chunkData = Arrays.copyOf(buffer, bytesRead);
+
                 String blockId = Base64.getEncoder().encodeToString(
                         String.format("%06d", blockNumber).getBytes());
+
                 blockIds.add(blockId);
 
-                try (ByteArrayInputStream blockStream = new ByteArrayInputStream(buffer, 0, bytesRead)) {
-                    blockBlobClient.stageBlock(blockId, blockStream, bytesRead);
-                }
+                int currentBlock = blockNumber;
+
+                futures.add(executor.submit(() -> {
+                    int attempt = 0;
+                    boolean success = false;
+
+                    while (attempt < MAX_RETRIES && !success) {
+                        long start = System.currentTimeMillis();
+                        try (ByteArrayInputStream blockStream = new ByteArrayInputStream(chunkData)) {
+
+                            blockBlobClient.stageBlock(blockId, blockStream, chunkData.length);
+                            success = true;
+
+                        } catch (Exception e) {
+                            attempt++;
+                            logger.warn("Chunk {} failed (Attempt {}): {}",
+                                    currentBlock, attempt, e.getMessage());
+
+                            if (attempt >= MAX_RETRIES) {
+                                throw new RuntimeException("Chunk " + currentBlock + " failed after retries", e);
+                            }
+
+                            try {
+                                Thread.sleep(1000L * attempt);
+                            } catch (InterruptedException ie) {
+                                Thread.currentThread().interrupt();
+                            }
+                        }
+                    }
+                }));
 
                 blockNumber++;
-                logger.debug("Staged block {} ({} bytes) for: {}", blockNumber, bytesRead, blobPath);
             }
+
+            for (Future<?> future : futures) {
+                future.get();
+            }
+
+            executor.shutdown();
 
             String contentType = ContentTypeUtil.getContentType(file.getOriginalFilename());
             BlobHttpHeaders headers = new BlobHttpHeaders().setContentType(contentType);
+
             blockBlobClient.commitBlockListWithResponse(blockIds, headers, null, null, null, null, null);
 
             BlobSasPermission permission = new BlobSasPermission().setReadPermission(true);
             OffsetDateTime expiry = OffsetDateTime.now().plusYears(1);
-            BlobServiceSasSignatureValues values = new BlobServiceSasSignatureValues(expiry, permission)
-                    .setContentDisposition("inline");
 
-            String sasToken = blobClient.generateSas(values);
-            String sasUrl = blobClient.getBlobUrl() + "?" + sasToken;
+            BlobServiceSasSignatureValues values = new BlobServiceSasSignatureValues(expiry, permission).setContentDisposition("inline");
 
-            logger.info("Chunked upload complete: {} ({} blocks, {} bytes)", blobPath, blockNumber, fileSize);
+            String sasUrl = blobClient.getBlobUrl() + "?" + blobClient.generateSas(values);
+
+            logger.info("Parallel upload complete: {} ({} chunks)", blobPath, blockNumber);
+
             return sasUrl;
 
-        } catch (IOException e) {
-            logger.error("Chunked upload failed for blob path {}: {}", blobPath, e.getMessage(), e);
+        } catch (Exception e) {
+            logger.error("Parallel chunk upload failed: {}", e.getMessage(), e);
             throw new CommonException(CommonExceptionConstants.BAD_REQUEST,
-                    "Failed to upload file (chunked): " + file.getOriginalFilename());
+                    "Failed to upload file: " + file.getOriginalFilename());
+        } finally {
+            executor.shutdownNow();
         }
     }
+
+
+    public void deleteFileFromBlobPath(String fileUrl) {
+        try {
+            if (fileUrl == null || fileUrl.isEmpty()) return;
+
+            String cleanUrl = fileUrl.split("\\?")[0];
+
+            String containerName = blobContainerClient.getBlobContainerName();
+            String blobPath = cleanUrl.substring(cleanUrl.indexOf(containerName) + containerName.length() + 1);
+
+            blobPath = URLDecoder.decode(blobPath, StandardCharsets.UTF_8);
+
+            boolean deleted = blobContainerClient.getBlobClient(blobPath).deleteIfExists();
+
+            if (!deleted) {
+                logger.error("Blob not found: {}", blobPath);
+            }
+
+        } catch (Exception e) {
+            logger.error("Delete failed for URL: {}", fileUrl, e);
+        }
+    }
+
 
 }

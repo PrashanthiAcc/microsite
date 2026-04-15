@@ -1,13 +1,11 @@
 package com.ix.manufacturinglab.service.impl;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Collections;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -1168,7 +1166,7 @@ public class UseCaseServiceImpl implements UseCaseService {
         String elevatorPitchFolder = elevatorPitchPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
         String userStoryFolder = userStoryPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
 
-        if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
+        /*if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
             String thumbnaisasUrl = uploadFileToBlob(thumbnailUrl, thumbnailFolder, content.getThumbnailUrl());
             content.setThumbnailUrl(thumbnaisasUrl);
         }
@@ -1176,6 +1174,28 @@ public class UseCaseServiceImpl implements UseCaseService {
             String bannersasUrl = uploadFileToBlob(bannerUrl, bannerFolder, content.getBannerUrl());
             content.setBannerUrl(bannersasUrl);
         }
+
+         */
+        if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
+
+            if (content.getThumbnailUrl() != null && !content.getThumbnailUrl().isEmpty()) {
+                cloudStorageService.deleteFileFromBlobPath(content.getThumbnailUrl());
+            }
+            String blobPath = thumbnailFolder + "/" + thumbnailUrl.getOriginalFilename();
+            String thumbnailAsUrl = cloudStorageService.uploadFile(thumbnailUrl, blobPath);
+            content.setThumbnailUrl(thumbnailAsUrl);
+        }
+
+        if (bannerUrl != null && !bannerUrl.isEmpty()) {
+
+            if (content.getBannerUrl() != null && !content.getBannerUrl().isEmpty()) {
+                cloudStorageService.deleteFileFromBlobPath(content.getBannerUrl());
+            }
+            String blobPath = bannerFolder + "/" + bannerUrl.getOriginalFilename();
+            String bannersasUrl = cloudStorageService.uploadFile(bannerUrl, blobPath);
+            content.setBannerUrl(bannersasUrl);
+        }
+
         if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
             useCase.getTags().clear();
             useCase.getSpeakers().clear();
