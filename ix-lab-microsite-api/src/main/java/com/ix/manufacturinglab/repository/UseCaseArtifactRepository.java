@@ -18,4 +18,6 @@ public interface UseCaseArtifactRepository extends JpaRepository<UseCaseArtifact
 
     List<UseCaseArtifact> findAllByUseCase_UsecaseIdIn(List<Integer> ids);
 
+    void deleteByUseCase_UsecaseIdAndArtifactTypeAndArtifactName(Long usecaseId, String artifactType, String artifactName);
+
 }

@@ -52,7 +52,7 @@ public class UseCaseController {
     @PostMapping(value = "/v1/save-draft", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> createUseCaseAndSaveAsDraft(@RequestBody UseCaseRequestDTO requestDTO) {
 
-        //logger.debug(ManufacturingLabConstants.LOG_SAVING_DRAFT, requestDTO.getTitle());
+        logger.info(ManufacturingLabConstants.LOG_SAVING_DRAFT, requestDTO.getTitle());
         try {
             if (requestDTO.getTitle() == null || requestDTO.getTitle().isBlank()) {
                 errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
@@ -148,7 +148,7 @@ public class UseCaseController {
     public ResponseEntity<Object> updateUseCaseandSaveasDraft(@PathVariable("usecaseId") Integer usecaseId,
                                                               @Valid @RequestBody UseCaseRequestDTO requestDTO) {
 
-        //logger.debug(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
+        logger.info(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
         try {
             UseCaseResponseDTO response = useCaseService.updateUseCaseandSaveasDraft(usecaseId, requestDTO);
             return ResponseEntity.status(HttpStatus.OK).body("Use case Id " + usecaseId + " is updated successfully");
@@ -352,7 +352,8 @@ public class UseCaseController {
             @RequestPart("useCaseRequest") String requestJson,
             @RequestPart(value = "clientTestimonials", required = false) List<MultipartFile> clientTestimonials,
             @RequestPart(value = "demoVideos", required = false) List<MultipartFile> demoVideos,
-            @RequestPart(value = "clientCredentials", required = false) List<MultipartFile> clientCredentials,
+            @RequestPart(value = "elevatorPitch", required = false) List<MultipartFile> elevatorPitch,
+            @RequestPart(value = "userStory", required = false) List<MultipartFile> userStory,
             @RequestPart(value = "thumbnailUrl", required = false) MultipartFile thumbnailUrl,
             @RequestPart(value = "bannerUrl", required = false) MultipartFile bannerUrl) {
 
@@ -369,16 +370,19 @@ public class UseCaseController {
             }
 
             UseCaseResponseDTO response =
-                    useCaseService.createUseCaseAndSaveAsDraftWithBlob(requestDTO, clientTestimonials, demoVideos, clientCredentials, thumbnailUrl, bannerUrl);
+                    useCaseService.createUseCaseAndSaveAsDraftWithBlob(requestDTO, clientTestimonials, demoVideos,thumbnailUrl, bannerUrl,elevatorPitch, userStory);
 
             return new ResponseEntity<>(response, HttpStatus.CREATED);
 
+        } catch (CommonException e) {
+                logger.error("Exception occurred while fetching use cases: {}", e.getMessage(), e);
+                errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+                errorResponse.setErrorDescription("Invalid JSON format");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         } catch (Exception e) {
             logger.error("Error parsing request JSON", e);
-
             errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
             errorResponse.setErrorDescription("Invalid JSON format");
-
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
     }
@@ -388,9 +392,10 @@ public class UseCaseController {
             @RequestPart("useCaseRequest") String requestJson,
             @RequestPart(value = "clientTestimonials", required = false) List<MultipartFile> clientTestimonials,
             @RequestPart(value = "demoVideos", required = false) List<MultipartFile> demoVideos,
-            @RequestPart(value = "clientCredentials", required = false) List<MultipartFile> clientCredentials,
             @RequestPart(value = "thumbnailUrl", required = false) MultipartFile thumbnailUrl,
-            @RequestPart(value = "bannerUrl", required = false) MultipartFile bannerUrl) {
+            @RequestPart(value = "bannerUrl", required = false) MultipartFile bannerUrl,
+            @RequestPart(value = "elevatorPitch", required = false) List<MultipartFile> elevatorPitch,
+            @RequestPart(value = "userStory", required = false) List<MultipartFile> userStory) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -405,7 +410,7 @@ public class UseCaseController {
             }
 
             UseCaseResponseDTO response =
-                    useCaseService.createUseCaseAndSubmitForApprovalwithBlob(requestDTO, clientTestimonials, demoVideos, clientCredentials, thumbnailUrl, bannerUrl);
+                    useCaseService.createUseCaseAndSubmitForApprovalwithBlob(requestDTO, clientTestimonials, demoVideos, thumbnailUrl, bannerUrl, elevatorPitch, userStory);
 
             return new ResponseEntity<>(response, HttpStatus.CREATED);
 
@@ -426,9 +431,10 @@ public class UseCaseController {
             @RequestPart("useCaseRequest") String requestJson,
             @RequestPart(value = "clientTestimonials", required = false) List<MultipartFile> clientTestimonials,
             @RequestPart(value = "demoVideos", required = false) List<MultipartFile> demoVideos,
-            @RequestPart(value = "clientCredentials", required = false) List<MultipartFile> clientCredentials,
             @RequestPart(value = "thumbnailUrl", required = false) MultipartFile thumbnailUrl,
-            @RequestPart(value = "bannerUrl", required = false) MultipartFile bannerUrl) {
+            @RequestPart(value = "bannerUrl", required = false) MultipartFile bannerUrl,
+            @RequestPart(value = "elevatorPitch", required = false) List<MultipartFile> elevatorPitch,
+            @RequestPart(value = "userStory", required = false) List<MultipartFile> userStory) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -441,8 +447,7 @@ public class UseCaseController {
             }
 
             UseCaseResponseDTO response = useCaseService.updateUseCaseandSaveasDraftWithBlob(usecaseId, requestDTO, clientTestimonials,
-                                                                                            demoVideos, clientCredentials, thumbnailUrl,
-                                                                                            bannerUrl);
+                                                                                            demoVideos, thumbnailUrl, bannerUrl, elevatorPitch, userStory);
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -461,9 +466,10 @@ public class UseCaseController {
             @RequestPart("useCaseRequest") String requestJson,
             @RequestPart(value = "clientTestimonials", required = false) List<MultipartFile> clientTestimonials,
             @RequestPart(value = "demoVideos", required = false) List<MultipartFile> demoVideos,
-            @RequestPart(value = "clientCredentials", required = false) List<MultipartFile> clientCredentials,
             @RequestPart(value = "thumbnailUrl", required = false) MultipartFile thumbnailUrl,
-            @RequestPart(value = "bannerUrl", required = false) MultipartFile bannerUrl) {
+            @RequestPart(value = "bannerUrl", required = false) MultipartFile bannerUrl,
+            @RequestPart(value = "elevatorPitch", required = false) List<MultipartFile> elevatorPitch,
+            @RequestPart(value = "userStory", required = false) List<MultipartFile> userStory) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -472,12 +478,10 @@ public class UseCaseController {
             if (requestDTO.getTitle() == null || requestDTO.getTitle().isBlank()) {
                 errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
                 errorResponse.setErrorDescription(ManufacturingLabConstants.DRAFT_TITLE_REQUIRED);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
-            }
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);           }
 
             UseCaseResponseDTO response = useCaseService.updateUseCaseAndSubmitForApprovalwithBlob(usecaseId, requestDTO, clientTestimonials,
-                    demoVideos, clientCredentials, thumbnailUrl,
-                    bannerUrl);
+                    demoVideos, thumbnailUrl, bannerUrl , elevatorPitch, userStory);
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -490,4 +494,38 @@ public class UseCaseController {
         }
     }
 
+    @PostMapping(value = "/v1/upload-demo-video", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> uploadDemoVideo(@RequestPart("demoVideo") MultipartFile demoVideo) {
+        logger.info("Received request to upload demo video");
+
+        try {
+            // Validate file
+            if (demoVideo == null || demoVideo.isEmpty()) {
+                errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+                errorResponse.setErrorDescription("Demo video file is empty");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+            }
+
+            // Call service method
+            String sasUrl = useCaseService.uploadDemoVideoInCheckMode(demoVideo);
+
+            // Build response
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Demo video uploaded successfully");
+            response.put("sasUrl", sasUrl);
+
+            return ResponseEntity.ok(response);
+
+        } catch (CommonException e) {
+            logger.error("Error occurred while uploading demo video: {}", e.getMessage(), e);
+            errorResponse.setErrorCode(e.getErrorCode());
+            errorResponse.setErrorDescription(e.getErrorDescription());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        } catch (Exception e) {
+            logger.error("Unexpected error occurred while uploading demo video: {}", e.getMessage(), e);
+            errorResponse.setErrorCode(CommonExceptionConstants.INTERNAL_SERVER_ERROR);
+            errorResponse.setErrorDescription("An unexpected error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
 }

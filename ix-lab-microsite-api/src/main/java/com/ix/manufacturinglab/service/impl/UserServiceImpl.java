@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -64,14 +65,27 @@ public class UserServiceImpl implements UserService {
 
         String action = dto.getActionType().trim().toUpperCase();
         String userEid = dto.getUserEid().trim();
-
-        if (userRepository.existsByUserEid(userEid)) {
-            throw new CommonException(
-                    CommonExceptionConstants.BAD_REQUEST,
-                    ManufacturingLabConstants.USER_ALREADY_PRESENT);
-        }
+        Optional<UserManagement> existingUserOpt = userRepository.findByUserEid(userEid);
 
         if ("REQUEST_ACCESS".equals(action)) {
+
+            if (existingUserOpt.isPresent()) {
+
+                UserManagement existingUser = existingUserOpt.get();
+
+                if (Boolean.TRUE.equals(existingUser.getIsActive())) {
+                    throw new CommonException(CommonExceptionConstants.BAD_REQUEST, ManufacturingLabConstants.USER_ALREADY_PRESENT);
+                }
+
+                existingUser.setIsActive(false);
+                existingUser.setRole("PRESENTER");
+                existingUser.setRequestedOn(LocalDate.now());
+                existingUser.setReason(dto.getReason());
+                existingUser.setLastUpdated(LocalDateTime.now());
+
+                userRepository.save(existingUser);
+                return;
+            }
 
             UserManagement user = UserManagement.builder()
                     .userEid(userEid)
@@ -100,6 +114,28 @@ public class UserServiceImpl implements UserService {
 
             UserManagement creatorUser = userRepository.findByUserEid(creatorEid)
                     .orElseThrow(() -> new IllegalArgumentException("User not found: " + creatorEid));
+
+
+            if (existingUserOpt.isPresent()) {
+
+                UserManagement existingUser = existingUserOpt.get();
+
+                if (Boolean.TRUE.equals(existingUser.getIsActive())) {
+                    throw new CommonException(CommonExceptionConstants.BAD_REQUEST, ManufacturingLabConstants.USER_ALREADY_PRESENT);
+                }
+
+                existingUser.setIsActive(true);
+                existingUser.setRole(dto.getRole());
+                existingUser.setAccessStartDate(LocalDate.now());
+                existingUser.setApprovedBy(creatorUser);
+                existingUser.setUpdatedBy(creatorUser);
+                existingUser.setLastUpdated(LocalDateTime.now());
+                existingUser.setReason("Re-activated by " + creatorEid);
+
+                userRepository.save(existingUser);
+                return;
+            }
+
 
             UserManagement user = UserManagement.builder()
                     .userEid(userEid)

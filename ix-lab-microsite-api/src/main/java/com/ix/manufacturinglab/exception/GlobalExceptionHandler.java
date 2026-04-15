@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        logger.error("Validation error: {}", ex.getMessage());
+        logger.error("GlobalExceptionHandler Validation error: {}", ex.getMessage(), ex);
 
         Map<String, Object> errorBody = new HashMap<>();
         errorBody.put("errorCode", HttpStatus.BAD_REQUEST.value());
