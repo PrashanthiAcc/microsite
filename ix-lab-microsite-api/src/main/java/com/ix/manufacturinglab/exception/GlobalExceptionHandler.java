@@ -119,4 +119,17 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(errorBody, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(CommonException.class)
+    public ResponseEntity<Map<String, Object>> handleCommonException(CommonException ex) {
+
+        logger.warn("Business exception: {}", ex.getMessage());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", 400);
+        response.put("message", ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
 }

@@ -16,10 +16,10 @@ public class MultipartConfig {
         MultipartConfigFactory factory = new MultipartConfigFactory();
 
         // Set max file size (per file)
-        factory.setMaxFileSize(DataSize.ofMegabytes(100));
+        factory.setMaxFileSize(DataSize.ofMegabytes(200));
 
         // Set max request size (total request size including all files + JSON)
-        factory.setMaxRequestSize(DataSize.ofMegabytes(100));
+        factory.setMaxRequestSize(DataSize.ofMegabytes(200));
 
         return factory.createMultipartConfig();
     }
