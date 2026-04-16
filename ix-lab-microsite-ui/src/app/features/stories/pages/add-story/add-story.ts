@@ -576,10 +576,10 @@ export class AddStoryComponent {
           errorObj = { errorDescription: err.message };
         }
         if (err.status === 400) {
-          this.toastTitle = errorObj.errorDescription || 'Bad Request';
+          this.toastTitle = errorObj.errorDescription || errorObj.message || 'Bad Request';
           //this.toastMessage = err.error?.errorDescription;
         } else if (err.status === 500) {
-          this.toastTitle = errorObj.errorDescription || 'Bad Request';
+          this.toastTitle = errorObj.errorDescription || errorObj.message || 'Bad Request';
         } else {
           this.toastTitle = 'An unexpected error occurred';
           //this.toastMessage = err.error?.errorDescription || err.message;
@@ -712,10 +712,10 @@ export class AddStoryComponent {
           errorObj = { errorDescription: err.message };
         }
         if (err.status === 400) {
-          this.toastTitle = errorObj.errorDescription || 'Bad Request';
+          this.toastTitle = errorObj.errorDescription || errorObj.message || 'Bad Request';
           //this.toastMessage = err.error?.errorDescription;
         } else if (err.status === 500) {
-          this.toastTitle = errorObj.errorDescription || 'Bad Request';
+          this.toastTitle = errorObj.errorDescription || errorObj.message || 'Bad Request';
         } else {
           this.toastTitle = 'An unexpected error occurred';
           //this.toastMessage = err.error?.errorDescription || err.message;
