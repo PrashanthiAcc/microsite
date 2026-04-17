@@ -1,11 +1,7 @@
 package com.ix.manufacturinglab.service.impl;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -1391,18 +1387,24 @@ public class UseCaseServiceImpl implements UseCaseService {
         String elevatorFolder = elevatorPitchPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
         String userStoryFolder = userStoryPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
 
-        // Upload thumbnail
         if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
-            cloudStorageService.deleteAllFilesInFolder(thumbnailFolder);
+
+            if (content.getThumbnailUrl() != null && !content.getThumbnailUrl().isEmpty()) {
+                cloudStorageService.deleteFileFromBlobPath(content.getThumbnailUrl());
+            }
             String blobPath = thumbnailFolder + "/" + thumbnailUrl.getOriginalFilename();
-            content.setThumbnailUrl(cloudStorageService.updateFile(thumbnailUrl, blobPath));
+            String thumbnailAsUrl = cloudStorageService.uploadFile(thumbnailUrl, blobPath);
+            content.setThumbnailUrl(thumbnailAsUrl);
         }
 
-        // Upload banner
         if (bannerUrl != null && !bannerUrl.isEmpty()) {
-            cloudStorageService.deleteAllFilesInFolder(bannerFolder);
+
+            if (content.getBannerUrl() != null && !content.getBannerUrl().isEmpty()) {
+                cloudStorageService.deleteFileFromBlobPath(content.getBannerUrl());
+            }
             String blobPath = bannerFolder + "/" + bannerUrl.getOriginalFilename();
-            content.setBannerUrl(cloudStorageService.updateFile(bannerUrl, blobPath));
+            String bannersasUrl = cloudStorageService.uploadFile(bannerUrl, blobPath);
+            content.setBannerUrl(bannersasUrl);
         }
 
         // Clear collections only if updating the same use case
@@ -1439,5 +1441,27 @@ public class UseCaseServiceImpl implements UseCaseService {
         useCaseRepository.save(useCase);
 
         return buildResponseFromEntities(useCase, content);
+    }
+
+    public Map<String, Object> getApprovedActiveUseCaseCount() {
+
+        long count = useCaseRepository.countByStatusAndIsActive("APPROVED", true);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("Total Approved usecases", formatCount(count));
+
+        return response;
+    }
+    private String formatCount(long count) {
+        if (count < 10) {
+            return String.valueOf(count);
+        }
+
+        if (count % 10 == 0) {
+            return String.valueOf(count);
+        }
+
+        long rounded = (count / 10) * 10;
+        return rounded + "+";
     }
 }

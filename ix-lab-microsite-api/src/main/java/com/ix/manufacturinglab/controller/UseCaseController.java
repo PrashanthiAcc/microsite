@@ -528,4 +528,12 @@ public class UseCaseController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
+
+    @GetMapping("/v1/count")
+    public ResponseEntity<Map<String, Object>> getApprovedUseCaseCount() {
+
+        Map<String, Object> response = useCaseService.getApprovedActiveUseCaseCount();
+
+        return ResponseEntity.ok(response);
+    }
 }

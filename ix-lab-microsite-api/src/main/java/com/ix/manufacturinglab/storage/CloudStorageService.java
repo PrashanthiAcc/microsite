@@ -27,4 +27,6 @@ public interface CloudStorageService {
     String uploadFileChunked(MultipartFile file, String blobPath);
 
     void deleteFileFromBlobPath(String blobPath);
+
+    void deleteFileFromBlobforhomepage(String fileUrl);
 }
