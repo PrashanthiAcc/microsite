@@ -14,8 +14,7 @@
             <img src="assets/icons/hexagon.png" alt="document" class="label-icon">
             Hero Section Configuration
             <span class="accordion-icon">
-                <img [src]="isAccordionOpen.hero ? upArrowIconPath : downArrowIconPath"
-                    [alt]="isAccordionOpen.hero ? 'collapse' : 'expand'" />
+                <img [src]="isAccordionOpen.hero ? upArrowIconPath : downArrowIconPath" />
             </span>
         </h3>
         <div class="divider"></div>
@@ -25,26 +24,31 @@
             <div class="form-grid">
                 <div class="form-field full-width">
                     <label>Application Name (Shown on Navbar)</label>
-                    <input type="text" placeholder="Industry X - Digital Manufacturing Experience Zone">
+                    <input type="text" formControlName="applicationName"
+                        placeholder="Industry X - Digital Manufacturing Experience Zone">
                 </div>
                 <div class="form-field full-width">
                     <label>Title</label>
-                    <input type="text" placeholder="Industry X - Digital Manufacturing Experience Zone">
+                    <input type="text" formControlName="title"
+                        placeholder="Industry X - Digital Manufacturing Experience Zone">
                 </div>
                 <div class="form-field full-width">
                     <label>Subtitle</label>
-                    <input type="text" placeholder="Stories That Demonstrate Real-World Impact">
+                    <input type="text" formControlName="subtitle"
+                        placeholder="Stories That Demonstrate Real-World Impact">
                 </div>
             </div>
 
             <div class="upload-box">
                 <h4>Hero Image</h4>
-                <img src="assets/hero-bg.png" class="banner-preview" alt="Hero Preview">
+                <img [src]="imagePreviews['heroImage'] || 'assets/hero-bg.png'" class="banner-preview"
+                    alt="Hero Preview">
                 <div class="upload-row">
-                    <button type="button" class="uploadImg-btn">
+                    <button type="button" class="uploadImg-btn" (click)="updateImage('heroImage')">
                         <img [src]="exchangeIcon" alt="upload icon" class="upload-icon" /> Update Image
                     </button>
-                    <span class="file-name">Supported files .jpg, .jpeg, .png up to 1MB</span>
+                    <span class="file-name">{{ homePageForm.get('heroImage')?.value || 'Supported files .jpg, .jpeg,
+                        .png up to 1MB' }}</span>
                 </div>
             </div>
         </div>
@@ -56,8 +60,7 @@
             <img src="assets/icons/change_history.png" alt="overview" class="label-icon">
             Digital Manufacturing Overview Configuration
             <span class="accordion-icon">
-                <img [src]="isAccordionOpen.overview  ? upArrowIconPath : downArrowIconPath"
-                    [alt]="isAccordionOpen.overview  ? 'collapse' : 'expand'" />
+                <img [src]="isAccordionOpen.overview ? upArrowIconPath : downArrowIconPath" />
             </span>
         </h3>
         <div class="divider"></div>
@@ -67,47 +70,45 @@
             <div class="stats-grid">
                 <div class="stat-item">
                     <label>Client Stories</label>
-                    <input type="text" value="150+" disabled>
+                    <input type="text" formControlName="clientStories" value="150+">
                 </div>
                 <div class="stat-item">
                     <label>MES/MOM solutions delivered</label>
-                    <input type="text" value="50+" placeholder="Enter number">
+                    <input type="text" formControlName="mesMomSolutions" value="50+" placeholder="Enter number">
                 </div>
                 <div class="stat-item">
                     <label>Production Site support for Critical apps</label>
-                    <input type="text" value="124+" placeholder="Enter number">
+                    <input type="text" formControlName="productionSupport" value="124+" placeholder="Enter number">
                 </div>
                 <div class="stat-item">
                     <label>SAP EWM programs delivered</label>
-                    <input type="text" value="30+" placeholder="Enter number">
+                    <input type="text" formControlName="sapEwmPrograms" value="30+" placeholder="Enter number">
                 </div>
                 <div class="stat-item">
                     <label>SAP EWM programs delivered (TBD)</label>
-                    <input type="text" value="30+" placeholder="Enter number">
+                    <input type="text" formControlName="sapEwmProgramsTbd" value="30+" placeholder="Enter number">
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Industries Accordion -->
-    <section class="card industries-config">
+    <!-- <section class="card industries-config">
         <h3 class="label-header" (click)="toggleAccordion('industries')">
             <img src="assets/icons/square.png" alt="industry" class="label-icon">
             Industries Thumbnail Configuration
             <span class="accordion-icon">
-                <img [src]="isAccordionOpen.industries  ? upArrowIconPath : downArrowIconPath"
-                    [alt]="isAccordionOpen.industries  ? 'collapse' : 'expand'" />
+                <img [src]="isAccordionOpen.industries ? upArrowIconPath : downArrowIconPath" />
             </span>
         </h3>
         <div class="divider"></div>
 
         <div class="accordion-body" *ngIf="isAccordionOpen.industries">
-            <!-- Existing Industries Content -->
             <div class="industries-grid">
                 <div class="industry-item">
                     <p>Consumer Package Goods</p>
-                    <img src="assets/CPG.png" alt="Consumer Package Goods">
-                    <button class="upload-btn">
+                    <img [src]="imagePreviews['industriesCPG'] || 'assets/CPG.png'" alt="Consumer Package Goods">
+                    <button class="upload-btn" (click)="updateImage('industries')">
                         <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" />
                         Update
                     </button>
@@ -115,7 +116,7 @@
                 <div class="industry-item">
                     <p>Life Sciences</p>
                     <img src="assets/Life Sciences.png" alt="Life Sciences">
-                    <button class="upload-btn">
+                    <button class="upload-btn" (click)="updateImage('industries')">
                         <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" />
                         Update
                     </button>
@@ -123,7 +124,7 @@
                 <div class="industry-item">
                     <p>Industrials</p>
                     <img src="assets/Industrials.png" alt="Industrials">
-                    <button class="upload-btn">
+                    <button class="upload-btn" (click)="updateImage('industries')">
                         <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" />
                         Update
                     </button>
@@ -131,7 +132,7 @@
                 <div class="industry-item">
                     <p>Energy</p>
                     <img src="assets/Energy.png" alt="Energy">
-                    <button class="upload-btn">
+                    <button class="upload-btn" (click)="updateImage('industries')">
                         <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" />
                         Update
                     </button>
@@ -139,7 +140,7 @@
                 <div class="industry-item">
                     <p>Utilities</p>
                     <img src="assets/Utilities.jpg" alt="Utilities">
-                    <button class="upload-btn">
+                    <button class="upload-btn" (click)="updateImage('industries')">
                         <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" />
                         Update
                     </button>
@@ -147,7 +148,7 @@
                 <div class="industry-item">
                     <p>Chemicals & Natural Services</p>
                     <img src="assets/Chemical and Natural Resources.png" alt="Chemicals & Natural Services">
-                    <button class="upload-btn">
+                    <button class="upload-btn" (click)="updateImage('industries')">
                         <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" />
                         Update
                     </button>
@@ -155,10 +156,36 @@
                 <div class="industry-item">
                     <p>High Tech</p>
                     <img src="assets/High Tech Industry.png" alt="High Tech">
-                    <button class="upload-btn">
+                    <button class="upload-btn" (click)="updateImage('industries')">
                         <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" />
                         Update
                     </button>
+                </div>
+            </div>
+        </div>
+    </section> -->
+
+    <section class="card industries-config">
+        <h3 class="label-header" (click)="toggleAccordion('industries')">
+            <img src="assets/icons/square.png" alt="industry" class="label-icon">
+            Industries Thumbnail Configuration
+            <span class="accordion-icon">
+                <img [src]="isAccordionOpen.industries ? upArrowIconPath : downArrowIconPath" />
+            </span>
+        </h3>
+        <div class="divider"></div>
+
+        <div class="accordion-body" *ngIf="isAccordionOpen.industries">
+            <div class="industries-grid">
+                <div class="industry-item" *ngFor="let industry of industriesArray.controls; let i = index">
+                    <p>{{ industry.value.name }}</p>
+                    <img [src]="industryPreviews[i] || industry.value.defaultImage" [alt]="industry.value.name">
+                    <button class="upload-btn" (click)="updateImage('industries', i)">
+                        <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" /> Update
+                    </button>
+                    <span class="file-name">
+                        {{ industry.value.fileName || 'Supported files .jpg, .jpeg, .png up to 1MB' }}
+                    </span>
                 </div>
             </div>
         </div>
@@ -167,20 +194,19 @@
 
 
     <!-- Featured Stories Configuration -->
-    <!-- <section class="card featured-config">
+    <section class="card featured-config">
         <h3 class="label-header" (click)="toggleAccordion('featured')">
             <img src="assets/icons/change_history.png" alt="featured" class="label-icon">
             Featured Stories Configuration
             <span class="accordion-icon">
-                <img [src]="isAccordionOpen.featured ? upArrowIconPath : downArrowIconPath"
-                    [alt]="isAccordionOpen.featured ? 'collapse' : 'expand'" />
+                <img [src]="isAccordionOpen.featured ? upArrowIconPath : downArrowIconPath" />
             </span>
         </h3>
         <div class="divider"></div>
 
         <div class="accordion-body" *ngIf="isAccordionOpen.featured">
             <div class="stories-grid">
-                
+
                 <div class="story-wrapper">
                     <div class="story-card">
                         <img src="assets/featured1.png" alt="Life sciences" class="story-image">
@@ -199,7 +225,7 @@
                     <button class="btn-delete"><span class="close-icon">✕</span> Remove</button>
                 </div>
 
-                
+
                 <div class="story-wrapper">
                     <div class="story-card">
                         <img src="assets/featured4.png" alt="Consumer Package Goods" class="story-image">
@@ -218,7 +244,7 @@
                     <button class="btn-delete"><span class="close-icon">✕</span> Remove</button>
                 </div>
 
-               
+
                 <div class="story-wrapper">
                     <div class="story-card">
                         <img src="assets/featured2.jpg" alt="Industrial Pharma" class="story-image">
@@ -237,7 +263,7 @@
                     <button class="btn-delete"><span class="close-icon">✕</span> Remove</button>
                 </div>
 
-                
+
                 <div class="story-wrapper">
                     <div class="story-card choose-card">
                         <div class="story-content centered">
@@ -249,7 +275,7 @@
                 </div>
             </div>
         </div>
-    </section> -->
+    </section>
 
 
     <!-- Key Capabilities Configuration -->
@@ -258,8 +284,7 @@
             <img src="assets/icons/change_history.png" alt="capabilities" class="label-icon">
             Key Capabilities Configuration
             <span class="accordion-icon">
-                <img [src]="isAccordionOpen.capabilities ? upArrowIconPath : downArrowIconPath"
-                    [alt]="isAccordionOpen.capabilities ? 'collapse' : 'expand'" />
+                <img [src]="isAccordionOpen.capabilities ? upArrowIconPath : downArrowIconPath" />
             </span>
         </h3>
         <div class="divider"></div>
@@ -267,14 +292,17 @@
         <div class="accordion-body" *ngIf="isAccordionOpen.capabilities">
             <!-- Replace grid with a single image -->
             <p style="font-size: 24px; font-weight: 600;">Key Capability Image</p>
-            <img src="assets/cards.png" alt="Key Capabilities" class="capabilities-image" />
+            <img [src]="imagePreviews['keyCapabilitiesImage'] || 'assets/cards.png'" alt="Key Capabilities"
+                class="capabilities-image" />
 
             <div class="upload-row">
-                <button class="uploadImg-btn">
+                <button class="uploadImg-btn" (click)="updateImage('keyCapabilitiesImage')">
                     <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" />
                     Update Image
                 </button>
-                <span class="file-name">Supported files .jpg, .jpeg, .png up to 1MB</span>
+                <span class="file-name">{{ homePageForm.get('keyCapabilitiesImage')?.value || 'Supported files .jpg,
+                    .jpeg,
+                    .png up to 1MB' }}</span>
             </div>
         </div>
     </section>
@@ -287,7 +315,7 @@
         <!-- <button type="button" class="btn-draft">
         <img src="assets/icons/save.png" class="btn-icon" alt="draft"> Save
     </button> -->
-        <button type="button" class="btn-approve">
+        <button type="button" class="btn-approve" (click)="onSaveChanges()">
             <img src="assets/icons/save_white.png" class="btn-icon" alt="approve"> Save Changes
         </button>
     </div>
@@ -297,126 +325,59 @@
 
 <!-- Modal Overlay -->
 <div class="modal-overlay" *ngIf="showStoryModal">
-    <div class="modal">
+  <div class="modal">
 
-        <div class="modal-header">
-            <h3>Select a Featured Story</h3>
-            <button class="close-btn" (click)="showStoryModal = false">✕</button>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="filters">
-            <app-custom-dropdown label="Industry" [options]="industries"
-                displayKey="industryName"></app-custom-dropdown>
-            <app-custom-dropdown label="Sub-Industry" [options]="subIndustries"
-                displayKey="subIndustryName"></app-custom-dropdown>
-            <app-custom-dropdown label="Value Chain" [options]="valueChains"
-                displayKey="valueChainName"></app-custom-dropdown>
-
-            <div class="search">
-                <input type="text" placeholder="Search" />
-                <button style="margin-bottom: 14px;">🔍</button>
-            </div>
-        </div>
-
-        <div class="stories__grid">
-            <div class="story-card">
-                <div class="story-card__media">
-                    <img src="assets/featured4.png" alt="Consumer Package Goods" />
-                </div>
-                <div class="story-card__content">
-                    <span class="industry-subindustry-border-bottom">Consumer Package Goods • Pharma</span>
-                    <h3>Lyophilization Process Modeling for a Leading...</h3>
-                    <p class="truncate-3-lines">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
-                    <div class="tags">
-                        <span>Digital Twin</span>
-                        <span>Real Time Monitoring</span>
-                        <span>Pharma Innovation</span>
-                        <span>Plant Simulation</span>
-                    </div>
-                    <!-- <div class="story-card__footer">
-            <button class="btn-primary">Select</button>
-          </div> -->
-                </div>
-            </div>
-            <div class="story-card">
-                <div class="story-card__media">
-                    <img src="assets/featured4.png" alt="Consumer Package Goods" />
-                </div>
-                <div class="story-card__content">
-                    <span class="industry-subindustry-border-bottom">Consumer Package Goods • Pharma</span>
-                    <h3>Lyophilization Process Modeling for a Leading...</h3>
-                    <p class="truncate-3-lines">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
-                    <div class="tags">
-                        <span>Digital Twin</span>
-                        <span>Real Time Monitoring</span>
-                        <span>Pharma Innovation</span>
-                        <span>Plant Simulation</span>
-                    </div>
-                    <!-- <div class="story-card__footer">
-            <button class="btn-primary">Select</button>
-          </div> -->
-                </div>
-            </div>
-            <div class="story-card">
-                <div class="story-card__media">
-                    <img src="assets/featured4.png" alt="Consumer Package Goods" />
-                </div>
-                <div class="story-card__content">
-                    <span class="industry-subindustry-border-bottom">Consumer Package Goods • Pharma</span>
-                    <h3>Lyophilization Process Modeling for a Leading...</h3>
-                    <p class="truncate-3-lines">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
-                    <div class="tags">
-                        <span>Digital Twin</span>
-                        <span>Real Time Monitoring</span>
-                        <span>Pharma Innovation</span>
-                        <span>Plant Simulation</span>
-                    </div>
-                    <!-- <div class="story-card__footer">
-            <button class="btn-primary">Select</button>
-          </div> -->
-                </div>
-            </div>
-            <div class="story-card">
-                <div class="story-card__media">
-                    <img src="assets/featured4.png" alt="Consumer Package Goods" />
-                </div>
-                <div class="story-card__content">
-                    <span class="industry-subindustry-border-bottom">Consumer Package Goods • Pharma</span>
-                    <h3>Lyophilization Process Modeling for a Leading...</h3>
-                    <p class="truncate-3-lines">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
-                    <div class="tags">
-                        <span>Digital Twin</span>
-                        <span>Real Time Monitoring</span>
-                        <span>Pharma Innovation</span>
-                        <span>Plant Simulation</span>
-                    </div>
-                    <!-- <div class="story-card__footer">
-            <button class="btn-primary">Select</button>
-          </div> -->
-                </div>
-            </div>
-            <div class="story-card">
-                <div class="story-card__media">
-                    <img src="assets/featured4.png" alt="Consumer Package Goods" />
-                </div>
-                <div class="story-card__content">
-                    <span class="industry-subindustry-border-bottom">Consumer Package Goods • Pharma</span>
-                    <h3>Lyophilization Process Modeling for a Leading...</h3>
-                    <p class="truncate-3-lines">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
-                    <div class="tags">
-                        <span>Digital Twin</span>
-                        <span>Real Time Monitoring</span>
-                        <span>Pharma Innovation</span>
-                        <span>Plant Simulation</span>
-                    </div>
-                    <!-- <div class="story-card__footer">
-            <button class="btn-primary">Select</button>
-          </div> -->
-                </div>
-            </div>
-        </div>
-
+    <div class="modal-header">
+      <h3>Select a Featured Story</h3>
+      <button class="close-btn" (click)="showStoryModal = false">✕</button>
     </div>
+
+    <div class="divider"></div>
+
+    <div class="filters">
+      <!-- Industry -->
+      <app-custom-dropdown label="Industry" [options]="industries" displayKey="industryName"
+          [(ngModel)]="selectedIndustryId" (optionSelected)="onIndustrySelected($event)">
+      </app-custom-dropdown>
+
+      <!-- Sub Industry -->
+      <app-custom-dropdown label="Sub-Industry" [options]="subIndustries" displayKey="subIndustryName"
+          (optionSelected)="onSubIndustrySelected($event)">
+      </app-custom-dropdown>
+
+      <!-- Value Chain -->
+      <app-custom-dropdown label="Value Chain" [options]="valueChains" displayKey="valueChainName">
+      </app-custom-dropdown>
+
+      <div class="search">
+        <input type="text" placeholder="Search" [(ngModel)]="searchTerm" (input)="applyFilters()" />
+        <button style="margin-bottom: 14px;">🔍</button>
+      </div>
+    </div>
+ <!-- Empty state -->
+    <div class="stories__header" *ngIf="!isLoading && filteredStories.length === 0 && !showAdminControls">
+      <h1 class="stories__title">No Active Stories</h1>
+    </div>
+    <!-- Grid state -->
+    <div class="stories__grid">
+      <div class="story-card" *ngFor="let story of filteredStories">
+        <div class="story-card__media">
+          <img [src]="story.thumbnailImageUrl" [alt]="story.industryName" />
+        </div>
+        <div class="story-card__content">
+          <span class="industry-subindustry-border-bottom">
+            {{story.industryName}} • {{story.subIndustryName}}
+          </span>
+          <h3>{{ story.title }}</h3>
+          <p class="truncate-3-lines">{{ story.description }}</p>
+          <div class="tags">
+            <span *ngFor="let tag of story.tag">{{ tag }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+ 
 </div>
+
