@@ -56,6 +56,9 @@ export class StoriesComponent implements OnInit {
   selectedIndustryObj: any = null;
   cardCategoryTitle: any;
   filtered: any;
+  subIndustryName: any;
+  industryName: any;
+  valueChainName: any;
   constructor(private router: Router, private http: HttpClient,
     private industryService: IndustryService, private cdr: ChangeDetectorRef, private route: ActivatedRoute,
     private userService: UserService, private usecaseService: UsecaseService
@@ -255,7 +258,7 @@ export class StoriesComponent implements OnInit {
         ...this.allValueChains
       ];
 
-  
+
       this.selectedSubIndustryId = -1;
       this.selectedValueChainId = -1;
 
@@ -267,6 +270,9 @@ export class StoriesComponent implements OnInit {
         );
         if (selectedIndustryObj) {
           this.selectedIndustryId = selectedIndustryObj.industryId;
+          this.industryName = selectedIndustryObj.industryName;   // ✅ hydrate name
+          this.subIndustryName = null;                           // reset
+          this.valueChainName = null;
           this.applyFilters();
           this.cdr.detectChanges();
         }
@@ -279,6 +285,8 @@ export class StoriesComponent implements OnInit {
 
 
   onIndustrySelected(industry: any) {
+    this.industryName = industry.industryName;
+    console.log("industry name::", industry)
     if (!industry || industry.industryId === -1) {
       this.selectedIndustryId = -1;
       this.selectedSubIndustryId = -1;
@@ -308,20 +316,23 @@ export class StoriesComponent implements OnInit {
     ];
 
     this.valueChains = [
-      { valueChainId: -1, valueChainName: 'All' }
+      { valueChainId: -1, valueChainName: 'All' },
+      ...this.allValueChains.filter(vc => vc.industryId === industry.industryId)
     ];
 
     this.applyFilters();
   }
 
   onSubIndustrySelected(sub: any) {
+    this.subIndustryName = sub.subIndustryName;
+    console.log("sub industry name::", sub)
     if (!sub || sub.subIndustryId === -1) {
       this.selectedSubIndustryId = -1;
       this.selectedValueChainId = -1;
 
       this.valueChains = [
         { valueChainId: -1, valueChainName: 'All' },
-        ...this.allValueChains
+        ...this.allValueChains.filter(vc => vc.industryId === this.selectedIndustryId)
       ];
 
       this.applyFilters();
@@ -340,6 +351,8 @@ export class StoriesComponent implements OnInit {
   }
 
   onValueChainSelected(vc: any) {
+    this.valueChainName = vc.valueChainName;
+    console.log("value chain name::", vc)
     if (!vc || vc.valueChainId === -1) {
       this.selectedValueChainId = -1;
       this.applyFilters();
