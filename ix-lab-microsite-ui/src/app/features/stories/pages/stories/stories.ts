@@ -55,7 +55,7 @@ export class StoriesComponent implements OnInit {
   selectedValueChainId: number | null = null;
   selectedIndustryObj: any = null;
   cardCategoryTitle: any;
-
+  filtered: any;
   constructor(private router: Router, private http: HttpClient,
     private industryService: IndustryService, private cdr: ChangeDetectorRef, private route: ActivatedRoute,
     private userService: UserService, private usecaseService: UsecaseService
@@ -128,28 +128,29 @@ export class StoriesComponent implements OnInit {
     });
   }
 
- applyFilters() {
-  let filtered = [...this.stories];
 
- 
-  if (this.selectedIndustryId) {
-    filtered = filtered.filter(story => story.industryId === this.selectedIndustryId);
+  applyFilters() {
+    if (this.showAdminControls && this.currentFrom !== 'stories') {
+      this.filteredStories = this.stories.filter((story: any) => story.status === 'IN_REVIEW');
+      this.filtered = this.filteredStories;
+    } else {
+      this.filtered = [...this.stories];
+    }
+
+    if (this.selectedIndustryId !== -1) {
+      this.filtered = this.filtered.filter((story: any) => story.industryId === this.selectedIndustryId);
+    }
+
+    if (this.selectedSubIndustryId !== -1) {
+      this.filtered = this.filtered.filter((story: any) => story.subIndustryId === this.selectedSubIndustryId);
+    }
+
+    if (this.selectedValueChainId !== -1) {
+      this.filtered = this.filtered.filter((story: any) => story.valueChainId === this.selectedValueChainId);
+    }
+
+    this.filteredStories = this.filtered;
   }
-
-  
-  if (this.selectedSubIndustryId) {
-    filtered = filtered.filter(story => story.subIndustryId === this.selectedSubIndustryId);
-  }
-
-
-  if (this.selectedValueChainId) {
-    filtered = filtered.filter(story => story.valueChainId === this.selectedValueChainId);
-  }
-
-  this.filteredStories = filtered;
-  console.log("filtered stories::", this.filteredStories);
-}
-
 
   getAllUsers() {
     this.userService.getAllUsers().subscribe((res: any) => {
@@ -194,28 +195,69 @@ export class StoriesComponent implements OnInit {
     // TODO: Implement archiving logic
   }
 
+  // loadIndustries() {
+  //   this.industryService.getIndustries().subscribe((res: any) => {
+
+  //     this.allIndustries = res.industries;
+
+  //     this.allSubIndustries = res.subIndustries;
+  //     this.allValueChains = res.valueChains;
+
+  //     this.industries = [
+  //       { industryId: null, industryName: 'All' },
+  //       ...this.allIndustries
+  //     ];
+
+  //     this.subIndustries = [
+  //       { subIndustryId: null, subIndustryName: 'All' },
+  //       ...this.allSubIndustries
+  //     ];
+
+  //     this.valueChains = [
+  //       { valueChainId: null, valueChainName: 'All' },
+  //       ...this.allValueChains
+  //     ];
+
+  //     this.cardCategoryTitle = this.route.snapshot.queryParams['title'];
+  //     const title = this.route.snapshot.queryParams['title'];
+  //     if (title) {
+  //       const selectedIndustryObj = this.industries.find(
+  //         ind => ind.industryName === title
+  //       );
+  //       if (selectedIndustryObj) {
+  //         this.selectedIndustryId = selectedIndustryObj.industryId;
+  //         this.applyFilters();
+  //         this.cdr.detectChanges();
+  //       }
+  //     }
+
+  //   });
+  // }
+
   loadIndustries() {
     this.industryService.getIndustries().subscribe((res: any) => {
-
       this.allIndustries = res.industries;
-
       this.allSubIndustries = res.subIndustries;
       this.allValueChains = res.valueChains;
 
       this.industries = [
-        { industryId: null, industryName: 'All' },
+        { industryId: -1, industryName: 'All' },
         ...this.allIndustries
       ];
 
       this.subIndustries = [
-        { subIndustryId: null, subIndustryName: 'All' },
+        { subIndustryId: -1, subIndustryName: 'All' },
         ...this.allSubIndustries
       ];
 
       this.valueChains = [
-        { valueChainId: null, valueChainName: 'All' },
+        { valueChainId: -1, valueChainName: 'All' },
         ...this.allValueChains
       ];
+
+  
+      this.selectedSubIndustryId = -1;
+      this.selectedValueChainId = -1;
 
       this.cardCategoryTitle = this.route.snapshot.queryParams['title'];
       const title = this.route.snapshot.queryParams['title'];
@@ -228,24 +270,27 @@ export class StoriesComponent implements OnInit {
           this.applyFilters();
           this.cdr.detectChanges();
         }
+      } else {
+        // Default Industry also to "All"
+        this.selectedIndustryId = -1;
       }
-
     });
   }
 
-  onIndustrySelected(industry: any) {
 
-    if (!industry || !industry.industryId) {
-      this.selectedIndustryId = null;
-      this.selectedSubIndustryId = null;
-      this.selectedValueChainId = null;
+  onIndustrySelected(industry: any) {
+    if (!industry || industry.industryId === -1) {
+      this.selectedIndustryId = -1;
+      this.selectedSubIndustryId = -1;
+      this.selectedValueChainId = -1;
+
       this.subIndustries = [
-        { subIndustryId: null, subIndustryName: 'All' },
+        { subIndustryId: -1, subIndustryName: 'All' },
         ...this.allSubIndustries
       ];
 
       this.valueChains = [
-        { valueChainId: null, valueChainName: 'All' },
+        { valueChainId: -1, valueChainName: 'All' },
         ...this.allValueChains
       ];
 
@@ -254,44 +299,49 @@ export class StoriesComponent implements OnInit {
     }
 
     this.selectedIndustryId = industry.industryId;
-    this.selectedSubIndustryId = null;
-    this.selectedValueChainId = null;
+    this.selectedSubIndustryId = -1;
+    this.selectedValueChainId = -1;
+
     this.subIndustries = [
-      { subIndustryId: null, subIndustryName: 'All' },
-      ...this.allSubIndustries.filter(
-        sub => sub.industryId === industry.industryId
-      )
+      { subIndustryId: -1, subIndustryName: 'All' },
+      ...this.allSubIndustries.filter(sub => sub.industryId === industry.industryId)
     ];
 
     this.valueChains = [
-      { valueChainId: null, valueChainName: 'All' }
+      { valueChainId: -1, valueChainName: 'All' }
     ];
+
     this.applyFilters();
   }
 
   onSubIndustrySelected(sub: any) {
+    if (!sub || sub.subIndustryId === -1) {
+      this.selectedSubIndustryId = -1;
+      this.selectedValueChainId = -1;
 
-    if (!sub || !sub.subIndustryId) {
-      this.selectedSubIndustryId = null;
-      this.selectedValueChainId = null;
-      this.valueChains = [{ valueChainId: null, valueChainName: 'All' }, ...this.allValueChains];
+      this.valueChains = [
+        { valueChainId: -1, valueChainName: 'All' },
+        ...this.allValueChains
+      ];
+
       this.applyFilters();
       return;
     }
+
     this.selectedSubIndustryId = sub.subIndustryId;
-    this.selectedValueChainId = null;
+    this.selectedValueChainId = -1;
+
     this.valueChains = [
-      { valueChainId: null, valueChainName: 'All' },
-      ...this.allValueChains.filter(
-        vc => vc.subIndustryId === sub.subIndustryId
-      )
+      { valueChainId: -1, valueChainName: 'All' },
+      ...this.allValueChains.filter(vc => vc.subIndustryId === sub.subIndustryId)
     ];
+
     this.applyFilters();
   }
 
   onValueChainSelected(vc: any) {
-    if (!vc || !vc.valueChainId) {
-      this.selectedValueChainId = null;
+    if (!vc || vc.valueChainId === -1) {
+      this.selectedValueChainId = -1;
       this.applyFilters();
       return;
     }
@@ -369,12 +419,18 @@ export class StoriesComponent implements OnInit {
   onSearch() {
     const value = this.searchText.trim().toLowerCase();
 
+    if (this.showAdminControls && this.currentFrom !== 'stories') {
+      this.filteredStories = this.stories.filter((story: any) => story.status === 'IN_REVIEW');
+      this.filtered = this.filteredStories;
+    } else {
+      this.filtered = [...this.stories];
+    }
     if (!value) {
-      this.filteredStories = this.stories;
+      this.filteredStories = this.filtered;
       return;
     }
 
-    this.filteredStories = this.stories.filter((story: any) => {
+    this.filteredStories = this.filtered.filter((story: any) => {
 
       const title = (story.title || '').toLowerCase();
       const description = (story.description || '').toLowerCase();

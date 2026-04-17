@@ -30,11 +30,11 @@
 
       <!-- Sub Industry -->
       <app-custom-dropdown label="Sub-Industry" [options]="subIndustries" displayKey="subIndustryName"
-        (optionSelected)="onSubIndustrySelected($event)">
+        [(ngModel)]="selectedSubIndustryId" (optionSelected)="onSubIndustrySelected($event)">
       </app-custom-dropdown>
 
       <!-- Value Chain -->
-      <app-custom-dropdown label="Value Chain" [options]="valueChains" displayKey="valueChainName">
+      <app-custom-dropdown label="Value Chain" [options]="valueChains" displayKey="valueChainName" [(ngModel)]="selectedValueChainId">
       </app-custom-dropdown>
 
       <!-- Sort -->
