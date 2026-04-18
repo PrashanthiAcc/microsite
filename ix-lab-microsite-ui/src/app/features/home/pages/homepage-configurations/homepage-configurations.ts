@@ -9,10 +9,35 @@ import { IndustryService } from '../../../../core/services/industry';
 import { UsecaseService } from '../../../../core/services/usecase';
 import { UserService } from '../../../../core/services/users';
 import { HttpClient } from '@angular/common/http';
+import { NumericPlusDirective } from '../../../../shared/directives/numeric-plus';
+
+export interface Story {
+  usecaseId: number;
+  industryId: number;
+  subIndustryId: number;
+  valueChainId: number;
+  title: string;
+  thumbnailImageUrl: string;
+  description: string;
+  tags: string[];
+  industryName?: string;
+  subIndustryName?: string;
+}
+
+interface FeaturedStory {
+  usecaseId: number;
+}
+
+interface IndustryThumbnail {
+  industryId: number;
+}
+
 @Component({
   selector: 'app-homepage-configurations',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, QuillModule, CustomDropdownComponent, ToasterComponent, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, QuillModule, CustomDropdownComponent, ToasterComponent, RouterModule,
+    NumericPlusDirective
+  ],
   templateUrl: './homepage-configurations.html',
   styleUrls: ['./homepage-configurations.scss'],
 })
@@ -61,7 +86,7 @@ export class HomepageConfigurationsComponent {
   pagination_right = 'assets/icons/pagination_right.png';
   pagination_left = 'assets/icons/pagination_left.png';
   searchTerm: any;
-  featuredStories: any[] = [];
+  featuredStories: Story[] = [];
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService, private cdr: ChangeDetectorRef,
     private route: ActivatedRoute) {
@@ -72,7 +97,7 @@ export class HomepageConfigurationsComponent {
       subtitle: [''],
       heroImage: [''],
 
-      clientStories: [''],
+      clientStories: ['150+'],
       mesMomSolutions: [''],
       productionSupport: [''],
       sapEwmPrograms: [''],
@@ -107,25 +132,27 @@ export class HomepageConfigurationsComponent {
       this.loadAllStories(this.currentPage);
     });
     const industriesArray = this.homePageForm.get('industries') as any;
-    const industryNames = [
-      { name: 'Consumer Package Goods', defaultImage: 'assets/CPG.png' },
-      { name: 'Life Sciences', defaultImage: 'assets/Life Sciences.png' },
-      { name: 'Industrials', defaultImage: 'assets/Industrials.png' },
-      { name: 'Energy', defaultImage: 'assets/Energy.png' },
-      { name: 'Utilities', defaultImage: 'assets/Utilities.jpg' },
-      { name: 'Chemicals & Natural Services', defaultImage: 'assets/Chemical and Natural Resources.png' },
-      { name: 'High Tech', defaultImage: 'assets/High Tech Industry.png' }
-    ];
 
+    const industryNames = [
+      { industryId: 1, name: 'Consumer Package Goods', defaultImage: 'assets/CPG.png' },
+      { industryId: 2, name: 'Life Sciences', defaultImage: 'assets/Life Sciences.png' },
+      { industryId: 3, name: 'Energy', defaultImage: 'assets/Energy.png' },
+      { industryId: 4, name: 'Industrials', defaultImage: 'assets/Industrials.png' },
+      { industryId: 5, name: 'Utilities', defaultImage: 'assets/Utilities.jpg' },
+      { industryId: 6, name: 'Chemicals & Natural Services', defaultImage: 'assets/Chemical and Natural Resources.png' },
+      { industryId: 7, name: 'High Tech', defaultImage: 'assets/High Tech Industry.png' }
+    ];
 
     industryNames.forEach(ind => {
       industriesArray.push(this.fb.group({
+        industryId: [ind.industryId],
         name: [ind.name],
         fileName: [''],
         defaultImage: [ind.defaultImage]
       }));
     });
     this.loadIndustries();
+    this.homePageForm.get('clientStories')?.disable();
   }
 
 
@@ -149,8 +176,8 @@ export class HomepageConfigurationsComponent {
   }
 
 
-  get featuredSlots() {
-    const slots = [...this.featuredStories];
+  get featuredSlots(): (Story | null)[] {
+    const slots: (Story | null)[] = [...this.featuredStories];
     while (slots.length < 4) {
       slots.push(null);
     }
@@ -162,22 +189,23 @@ export class HomepageConfigurationsComponent {
     this.loadAllStories(this.currentPage);
   }
 
-  selectStory(story: any) {
-    const alreadySelected = this.featuredStories.some(
-      (s) => s.usecaseId === story.usecaseId
+  selectStory(story: Story): void {
+    const featuredStoriesArray = this.homePageForm.get('featuredStories') as FormArray;
+    const alreadySelected = featuredStoriesArray.value.some(
+      (s: any) => s.usecaseId === story.usecaseId
     );
-
     if (alreadySelected) {
       alert("This story is already selected!");
       return;
     }
 
-    if (this.featuredStories.length >= 4) {
+    if (featuredStoriesArray.length >= 4) {
       console.warn("You can only select up to 4 stories.");
       return;
     }
-
+    featuredStoriesArray.push(this.fb.group({ usecaseId: story.usecaseId }));
     this.featuredStories.push(story);
+    console.log("selected featured stories::", featuredStoriesArray.value);
     this.showStoryModal = false;
   }
 
@@ -336,6 +364,7 @@ export class HomepageConfigurationsComponent {
     this.selectedValueChainId = vc.valueChainId;
     this.applyFilters();
   }
+
   applyFilters() {
     let filtered = [...this.stories];
 
@@ -406,34 +435,53 @@ export class HomepageConfigurationsComponent {
   }
 
 
-  onSaveChanges() {
+  private stripPlus(val: string): string {
+    if (!val) return '';
+    return val.toString().replace('+', '');
+  }
+
+  onSaveChanges(): void {
     const payload = new FormData();
+    const homePageRequest = {
+      applicationName: this.homePageForm.value.applicationName,
+      title: this.homePageForm.value.title,
+      subTitle: this.homePageForm.value.subtitle,
+      mesMomSolDelivered: this.stripPlus(this.homePageForm.value.mesMomSolutions),
+      prodSiteCriticalSupport: this.stripPlus(this.homePageForm.value.productionSupport),
+      sapEwmPrgDelivered: this.stripPlus(this.homePageForm.value.sapEwmPrograms),
+      sapEwmProgramsTbd: this.stripPlus(this.homePageForm.value.sapEwmProgramsTbd),
+      updatedById: 101, // or from your context
+      featuredStories: (this.homePageForm.value.featuredStories || []).map((s: { usecaseId: number }) => ({
+        usecaseId: s.usecaseId
+      })),
+      // industryThumbnails: (this.industriesArray.controls || []).map((control: any) => ({
+      //   industryId: control.value.industryId
+      // }))
+      industryThumbnails: (this.industriesArray.controls || [])
+        .filter((control: any) => control.value.fileName)   // ✅ only include if user uploaded
+        .map((control: any) => ({
+          industryId: control.value.industryId
+        }))
 
-    // Add simple text fields
-    Object.keys(this.homePageForm.value).forEach(key => {
-      if (key !== 'industries' && key !== 'featuredStories') {
-        payload.append(key, this.homePageForm.value[key]);
-      }
-    });
+    };
 
-    // Add hero + keyCapabilities images
+    console.log("page request::", homePageRequest)
+    payload.append('homePageRequest', JSON.stringify(homePageRequest));
+
     if (this.imageBlobs.heroImage) {
-      payload.append('heroImage', this.imageBlobs.heroImage, this.homePageForm.value.heroImage);
+      payload.append('heroImageUrl', this.imageBlobs.heroImage, this.homePageForm.value.heroImage);
     }
     if (this.imageBlobs.keyCapabilitiesImage) {
-      payload.append('keyCapabilitiesImage', this.imageBlobs.keyCapabilitiesImage, this.homePageForm.value.keyCapabilitiesImage);
+      payload.append('keyCapConfigUrl', this.imageBlobs.keyCapabilitiesImage, this.homePageForm.value.keyCapabilitiesImage);
     }
 
-    // Add industries images
-    this.industriesArray.controls.forEach((control, i) => {
+    this.industriesArray.controls.forEach((control: any, i: number) => {
       if (this.industryBlobs[i]) {
-        payload.append(`industries[${i}].file`, this.industryBlobs[i], control.value.fileName);
+        payload.append(`industrythumbnailUrl[${i}]`, this.industryBlobs[i], control.value.fileName);
       }
-      payload.append(`industries[${i}].name`, control.value.name);
-      payload.append(`industries[${i}].defaultImage`, control.value.defaultImage);
     });
 
-    // ✅ Make FormData readable in console
+
     for (const [key, value] of payload.entries()) {
       if (value instanceof File) {
         console.log(`${key}: File -> name=${value.name}, size=${value.size} bytes, type=${value.type}`);
@@ -442,11 +490,12 @@ export class HomepageConfigurationsComponent {
       }
     }
 
-    // Example POST
+
     this.http.post('/api/homepage-config', payload).subscribe(res => {
       console.log('Saved successfully', res);
     });
   }
+
 
 
 
