@@ -61,6 +61,7 @@ export class HomepageConfigurationsComponent {
   pagination_right = 'assets/icons/pagination_right.png';
   pagination_left = 'assets/icons/pagination_left.png';
   searchTerm: any;
+  featuredStories: any[] = [];
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService, private cdr: ChangeDetectorRef,
     private route: ActivatedRoute) {
@@ -147,12 +148,42 @@ export class HomepageConfigurationsComponent {
     this.isAccordionOpen[section] = !currentlyOpen;
   }
 
-  openStoryModal() {
-    //this.showStoryModal = true;
-    //this.loadAllStories(this.currentPage);
+
+  get featuredSlots() {
+    const slots = [...this.featuredStories];
+    while (slots.length < 4) {
+      slots.push(null);
+    }
+    return slots;
   }
 
+  openStoryModal() {
+    this.showStoryModal = true;
+    this.loadAllStories(this.currentPage);
+  }
 
+  selectStory(story: any) {
+    const alreadySelected = this.featuredStories.some(
+      (s) => s.usecaseId === story.usecaseId
+    );
+
+    if (alreadySelected) {
+      alert("This story is already selected!");
+      return;
+    }
+
+    if (this.featuredStories.length >= 4) {
+      console.warn("You can only select up to 4 stories.");
+      return;
+    }
+
+    this.featuredStories.push(story);
+    this.showStoryModal = false;
+  }
+
+  removeStory(index: number) {
+    this.featuredStories.splice(index, 1);
+  }
   loadAllStories(page: number = 1, size: number = 10) {
     this.isLoading = false;
     this.usecaseService.getAllStories(page, size).subscribe((res: any) => {
@@ -239,7 +270,7 @@ export class HomepageConfigurationsComponent {
     });
   }
 
-   onIndustrySelected(industry: any) {
+  onIndustrySelected(industry: any) {
 
     if (!industry || !industry.industryId) {
       this.selectedIndustryId = null;
@@ -305,37 +336,37 @@ export class HomepageConfigurationsComponent {
     this.selectedValueChainId = vc.valueChainId;
     this.applyFilters();
   }
- applyFilters() {
-  let filtered = [...this.stories];
+  applyFilters() {
+    let filtered = [...this.stories];
 
-  // Industry filter
-  if (this.selectedIndustryId) {
-    filtered = filtered.filter(story => story.industryId === this.selectedIndustryId);
+    // Industry filter
+    if (this.selectedIndustryId) {
+      filtered = filtered.filter(story => story.industryId === this.selectedIndustryId);
+    }
+
+    // Sub-Industry filter
+    if (this.selectedSubIndustryId) {
+      filtered = filtered.filter(story => story.subIndustryId === this.selectedSubIndustryId);
+    }
+
+    // Value Chain filter
+    if (this.selectedValueChainId) {
+      filtered = filtered.filter(story => story.valueChainId === this.selectedValueChainId);
+    }
+
+    // Search filter (case-insensitive)
+    if (this.searchTerm && this.searchTerm.trim() !== '') {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(story =>
+        (story.title && story.title.toLowerCase().includes(term)) ||
+        (story.description && story.description.toLowerCase().includes(term)) ||
+        (story.tag && story.tag.some((t: any) => t.toLowerCase().includes(term)))
+      );
+    }
+
+    this.filteredStories = filtered;
+    console.log("filtered stories::", this.filteredStories);
   }
-
-  // Sub-Industry filter
-  if (this.selectedSubIndustryId) {
-    filtered = filtered.filter(story => story.subIndustryId === this.selectedSubIndustryId);
-  }
-
-  // Value Chain filter
-  if (this.selectedValueChainId) {
-    filtered = filtered.filter(story => story.valueChainId === this.selectedValueChainId);
-  }
-
-  // Search filter (case-insensitive)
-  if (this.searchTerm && this.searchTerm.trim() !== '') {
-    const term = this.searchTerm.toLowerCase();
-    filtered = filtered.filter(story =>
-      (story.title && story.title.toLowerCase().includes(term)) ||
-      (story.description && story.description.toLowerCase().includes(term)) ||
-      (story.tag && story.tag.some((t:any) => t.toLowerCase().includes(term)))
-    );
-  }
-
-  this.filteredStories = filtered;
-  console.log("filtered stories::", this.filteredStories);
-}
 
   updateImage(fieldName: 'heroImage' | 'keyCapabilitiesImage' | 'industries', index?: number) {
     const input = document.createElement('input');

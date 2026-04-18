@@ -310,6 +310,8 @@ export class StoriesComponent implements OnInit {
     this.selectedSubIndustryId = -1;
     this.selectedValueChainId = -1;
 
+    this.subIndustryName = null;
+    this.valueChainName = null;
     this.subIndustries = [
       { subIndustryId: -1, subIndustryName: 'All' },
       ...this.allSubIndustries.filter(sub => sub.industryId === industry.industryId)
@@ -329,7 +331,7 @@ export class StoriesComponent implements OnInit {
     if (!sub || sub.subIndustryId === -1) {
       this.selectedSubIndustryId = -1;
       this.selectedValueChainId = -1;
-
+      this.valueChainName = null;
       this.valueChains = [
         { valueChainId: -1, valueChainName: 'All' },
         ...this.allValueChains.filter(vc => vc.industryId === this.selectedIndustryId)
@@ -341,7 +343,7 @@ export class StoriesComponent implements OnInit {
 
     this.selectedSubIndustryId = sub.subIndustryId;
     this.selectedValueChainId = -1;
-
+    this.valueChainName = null;
     this.valueChains = [
       { valueChainId: -1, valueChainName: 'All' },
       ...this.allValueChains.filter(vc => vc.subIndustryId === sub.subIndustryId)
@@ -355,6 +357,7 @@ export class StoriesComponent implements OnInit {
     console.log("value chain name::", vc)
     if (!vc || vc.valueChainId === -1) {
       this.selectedValueChainId = -1;
+      this.valueChainName = null;
       this.applyFilters();
       return;
     }
@@ -471,4 +474,31 @@ export class StoriesComponent implements OnInit {
     const subIndustry = this.allSubIndustries.find((s: any) => s.subIndustryId === id);
     return subIndustry ? subIndustry.subIndustryName : '';
   }
+
+  getBreadcrumbTitle(): string {
+  // Case 1: all three are "All"
+  if (this.selectedIndustryId === -1 && this.selectedSubIndustryId === -1 && this.selectedValueChainId === -1) {
+    return 'All Stories';
+  }
+
+  let parts: string[] = [];
+
+  // Case 2: Industry = All, but others chosen
+  if (this.selectedIndustryId === -1) {
+    parts.push('All');
+  } else if (this.industryName && this.industryName !== 'All') {
+    parts.push(this.industryName);
+  }
+
+  if (this.selectedSubIndustryId !== -1 && this.subIndustryName && this.subIndustryName !== 'All') {
+    parts.push(this.subIndustryName);
+  }
+
+  if (this.selectedValueChainId !== -1 && this.valueChainName && this.valueChainName !== 'All') {
+    parts.push(this.valueChainName);
+  }
+
+  return parts.join(' > ') || 'All Stories';
+}
+
 }

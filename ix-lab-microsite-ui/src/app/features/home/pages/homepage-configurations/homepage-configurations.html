@@ -206,71 +206,36 @@
 
         <div class="accordion-body" *ngIf="isAccordionOpen.featured">
             <div class="stories-grid">
-
-                <div class="story-wrapper">
-                    <div class="story-card">
-                        <img src="assets/featured1.png" alt="Life sciences" class="story-image">
-                        <div class="story-content">
-                            <h4>Life sciences • Pharma</h4>
-                            <p class="story-title">Lyophilization Process Modeling for a Leading...</p>
-                            <p class="story-desc">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
-                            <div class="tags">
-                                <span class="tag">Digital Twin</span>
-                                <span class="tag">Real Time Monitoring</span>
-                                <span class="tag">Pharma Innovation</span>
-                                <span class="tag">Plant Simulation</span>
+                <div class="stories-grid">
+                    <div *ngFor="let story of featuredSlots; let i = index" class="story-wrapper">
+                        <!-- If story exists, render card -->
+                        <div *ngIf="story; else placeholder" class="story-card">
+                            <img [src]="story.thumbnailImageUrl" [alt]="" class="story-image">
+                            <div class="story-card__content">
+                                <span class="industry-subindustry-border-bottom">
+                                    {{story.industryName}} • {{story.subIndustryName}}
+                                </span>
+                                <h3>{{ story.title }}</h3>
+                                <p class="truncate-3-lines">{{ story.description }}</p>
+                                <div class="tags">
+                                    <span *ngFor="let tag of story.tags">{{ tag }}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <button class="btn-delete"><span class="close-icon">✕</span> Remove</button>
-                </div>
+                        <button *ngIf="story" class="btn-delete" (click)="removeStory(i)">
+                            <span class="close-icon">✕</span> Remove
+                        </button>
 
-
-                <div class="story-wrapper">
-                    <div class="story-card">
-                        <img src="assets/featured4.png" alt="Consumer Package Goods" class="story-image">
-                        <div class="story-content">
-                            <h4>Consumer Package Goods • Pharma</h4>
-                            <p class="story-title">Lyophilization Process Modeling for a Leading...</p>
-                            <p class="story-desc">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
-                            <div class="tags">
-                                <span class="tag">Digital Twin</span>
-                                <span class="tag">Real Time Monitoring</span>
-                                <span class="tag">Pharma Innovation</span>
-                                <span class="tag">Plant Simulation</span>
+                        <!-- Placeholder -->
+                        <ng-template #placeholder>
+                            <div class="story-card choose-card" (click)="openStoryModal()">
+                                <div class="story-content centered">
+                                    <h4>Choose a Featured Story</h4>
+                                    <p>Select a story to highlight on your dashboard</p>
+                                    <button class="select-btn">Select Story</button>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <button class="btn-delete"><span class="close-icon">✕</span> Remove</button>
-                </div>
-
-
-                <div class="story-wrapper">
-                    <div class="story-card">
-                        <img src="assets/featured2.jpg" alt="Industrial Pharma" class="story-image">
-                        <div class="story-content">
-                            <h4>Industrial • Pharma</h4>
-                            <p class="story-title">Lyophilization Process Modeling for a Leading...</p>
-                            <p class="story-desc">This Biotech Innovator makes pharma drugs using a freeze-dryin...</p>
-                            <div class="tags">
-                                <span class="tag">Digital Twin</span>
-                                <span class="tag">Real Time Monitoring</span>
-                                <span class="tag">Pharma Innovation</span>
-                                <span class="tag">Plant Simulation</span>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="btn-delete"><span class="close-icon">✕</span> Remove</button>
-                </div>
-
-
-                <div class="story-wrapper">
-                    <div class="story-card choose-card">
-                        <div class="story-content centered">
-                            <h4>Choose a Featured Story</h4>
-                            <p>Select a story to highlight on your dashboard</p>
-                            <button class="select-btn" (click)="openStoryModal()">Select Story</button>
-                        </div>
+                        </ng-template>
                     </div>
                 </div>
             </div>
@@ -325,59 +290,58 @@
 
 <!-- Modal Overlay -->
 <div class="modal-overlay" *ngIf="showStoryModal">
-  <div class="modal">
+    <div class="modal">
 
-    <div class="modal-header">
-      <h3>Select a Featured Story</h3>
-      <button class="close-btn" (click)="showStoryModal = false">✕</button>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="filters">
-      <!-- Industry -->
-      <app-custom-dropdown label="Industry" [options]="industries" displayKey="industryName"
-          [(ngModel)]="selectedIndustryId" (optionSelected)="onIndustrySelected($event)">
-      </app-custom-dropdown>
-
-      <!-- Sub Industry -->
-      <app-custom-dropdown label="Sub-Industry" [options]="subIndustries" displayKey="subIndustryName"
-          (optionSelected)="onSubIndustrySelected($event)">
-      </app-custom-dropdown>
-
-      <!-- Value Chain -->
-      <app-custom-dropdown label="Value Chain" [options]="valueChains" displayKey="valueChainName">
-      </app-custom-dropdown>
-
-      <div class="search">
-        <input type="text" placeholder="Search" [(ngModel)]="searchTerm" (input)="applyFilters()" />
-        <button style="margin-bottom: 14px;">🔍</button>
-      </div>
-    </div>
- <!-- Empty state -->
-    <div class="stories__header" *ngIf="!isLoading && filteredStories.length === 0 && !showAdminControls">
-      <h1 class="stories__title">No Active Stories</h1>
-    </div>
-    <!-- Grid state -->
-    <div class="stories__grid">
-      <div class="story-card" *ngFor="let story of filteredStories">
-        <div class="story-card__media">
-          <img [src]="story.thumbnailImageUrl" [alt]="story.industryName" />
+        <div class="modal-header">
+            <h3>Select a Featured Story</h3>
+            <button class="close-btn" (click)="showStoryModal = false">✕</button>
         </div>
-        <div class="story-card__content">
-          <span class="industry-subindustry-border-bottom">
-            {{story.industryName}} • {{story.subIndustryName}}
-          </span>
-          <h3>{{ story.title }}</h3>
-          <p class="truncate-3-lines">{{ story.description }}</p>
-          <div class="tags">
-            <span *ngFor="let tag of story.tag">{{ tag }}</span>
-          </div>
+
+        <div class="divider"></div>
+
+        <div class="filters">
+            <!-- Industry -->
+            <app-custom-dropdown label="Industry" [options]="industries" displayKey="industryName"
+                [(ngModel)]="selectedIndustryId" (optionSelected)="onIndustrySelected($event)">
+            </app-custom-dropdown>
+
+            <!-- Sub Industry -->
+            <app-custom-dropdown label="Sub-Industry" [options]="subIndustries" displayKey="subIndustryName"
+                (optionSelected)="onSubIndustrySelected($event)">
+            </app-custom-dropdown>
+
+            <!-- Value Chain -->
+            <app-custom-dropdown label="Value Chain" [options]="valueChains" displayKey="valueChainName">
+            </app-custom-dropdown>
+
+            <div class="search">
+                <input type="text" placeholder="Search" [(ngModel)]="searchTerm" (input)="applyFilters()" />
+                <button style="margin-bottom: 14px;">🔍</button>
+            </div>
         </div>
-      </div>
+        <!-- Empty state -->
+        <div class="stories__header" *ngIf="!isLoading && filteredStories.length === 0 && !showAdminControls">
+            <h1 class="stories__title">No Active Stories</h1>
+        </div>
+        <!-- Grid state -->
+        <div class="stories__grid">
+            <div class="story-card" *ngFor="let story of filteredStories" (click)="selectStory(story)">
+                <div class="story-card__media">
+                    <img [src]="story.thumbnailImageUrl" [alt]="story.industryName" />
+                </div>
+                <div class="story-card__content">
+                    <span class="industry-subindustry-border-bottom">
+                        {{story.industryName}} • {{story.subIndustryName}}
+                    </span>
+                    <h3>{{ story.title }}</h3>
+                    <p class="truncate-3-lines">{{ story.description }}</p>
+                    <div class="tags">
+                        <span *ngFor="let tag of story.tag">{{ tag }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-  </div>
- 
 </div>
-
