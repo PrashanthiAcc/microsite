@@ -121,6 +121,15 @@ export class HomepageConfigurationsComponent {
     featured: false,
     capabilities: false
   };
+  industryNames = [
+    { industryId: 1, name: 'Consumer Package Goods' },
+    { industryId: 2, name: 'Life Sciences' },
+    { industryId: 3, name: 'Energy' },
+    { industryId: 4, name: 'Industrials' },
+    { industryId: 5, name: 'Utilities' },
+    { industryId: 6, name: 'Chemicals & Natural Services' },
+    { industryId: 7, name: 'High Tech' }
+  ];
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
@@ -133,26 +142,18 @@ export class HomepageConfigurationsComponent {
       }
       this.loadAllStories(this.currentPage);
     });
-    const industriesArray = this.homePageForm.get('industries') as any;
 
-    const industryNames = [
-      { industryId: 1, name: 'Consumer Package Goods', defaultImage: 'assets/CPG.png' },
-      { industryId: 2, name: 'Life Sciences', defaultImage: 'assets/Life Sciences.png' },
-      { industryId: 3, name: 'Energy', defaultImage: 'assets/Energy.png' },
-      { industryId: 4, name: 'Industrials', defaultImage: 'assets/Industrials.png' },
-      { industryId: 5, name: 'Utilities', defaultImage: 'assets/Utilities.jpg' },
-      { industryId: 6, name: 'Chemicals & Natural Services', defaultImage: 'assets/Chemical and Natural Resources.png' },
-      { industryId: 7, name: 'High Tech', defaultImage: 'assets/High Tech Industry.png' }
-    ];
 
-    industryNames.forEach(ind => {
+    const industriesArray = this.homePageForm.get('industries') as FormArray;
+    this.industryNames.forEach(ind => {
       industriesArray.push(this.fb.group({
         industryId: [ind.industryId],
         name: [ind.name],
         fileName: [''],
-        defaultImage: [ind.defaultImage]
+        defaultImage: ['']   // keep blank
       }));
     });
+
     this.loadIndustries();
     this.homePageForm.get('clientStories')?.disable();
     this.getHomePageConfigDetails();
@@ -160,85 +161,79 @@ export class HomepageConfigurationsComponent {
   }
 
 
- getHomePageConfigDetails(): void {
-  this.homePageService.getHomePageData().subscribe({
-    next: (res: any) => {
-      console.log('fetched successfully', res);
+  getHomePageConfigDetails(): void {
+    this.homePageService.getHomePageData().subscribe({
+      next: (res: any) => {
+        console.log('fetched successfully', res);
 
-      // ✅ Patch text fields
-      this.homePageForm.patchValue({
-        applicationName: res.applicationName,
-        title: res.title,
-        subtitle: res.subTitle,
-        mesMomSolutions: res.mesMomSolDelivered,
-        productionSupport: res.prodSiteCriticalSupport,
-        sapEwmPrograms: res.sapEwmPrgDelivered,
-        sapEwmProgramsTbd: res.sapEwmProgramsTbd
-      });
-
-      // ✅ Images
-      this.imagePreviews['heroImage'] = res.heroImageUrl;
-      this.imagePreviews['keyCapabilitiesImage'] = res.keyCapabilityConfigurationImage;
-
-      // ✅ Industries — always 7 slots
-      const industriesArray = this.homePageForm.get('industries') as FormArray;
-      industriesArray.clear();
-      this.industryPreviews = [];
-
-      const industryNames = [
-        { industryId: 1, name: 'Consumer Package Goods', defaultImage: 'assets/CPG.png' },
-        { industryId: 2, name: 'Life Sciences', defaultImage: 'assets/Life Sciences.png' },
-        { industryId: 3, name: 'Energy', defaultImage: 'assets/Energy.png' },
-        { industryId: 4, name: 'Industrials', defaultImage: 'assets/Industrials.png' },
-        { industryId: 5, name: 'Utilities', defaultImage: 'assets/Utilities.jpg' },
-        { industryId: 6, name: 'Chemicals & Natural Services', defaultImage: 'assets/Chemical and Natural Resources.png' },
-        { industryId: 7, name: 'High Tech', defaultImage: 'assets/High Tech Industry.png' }
-      ];
-
-      industryNames.forEach((ind, i) => {
-        const backendThumb = res.industryThumbnails?.find((t: any) => t.industryId === ind.industryId);
-
-        industriesArray.push(this.fb.group({
-          industryId: ind.industryId,
-          name: ind.name,
-          defaultImage: ind.defaultImage,
-          //fileName: backendThumb ? backendThumb.industryThumbnailUrl : '' // keep URL or empty
-        }));
-
-        // ✅ Preview: backend URL if exists, else blank (UI shows default + upload msg)
-        this.industryPreviews[i] = backendThumb ? backendThumb.industryThumbnailUrl : '';
-      });
-
-      // ✅ Featured stories
-      const featuredStoriesArray = this.homePageForm.get('featuredStories') as FormArray;
-      featuredStoriesArray.clear();
-
-      if (res.featuredStories?.length > 0) {
-        res.featuredStories.forEach((story: any) => {
-          featuredStoriesArray.push(this.fb.group({ usecaseId: story.usecaseId }));
+        // ✅ Patch text fields
+        this.homePageForm.patchValue({
+          applicationName: res.applicationName,
+          title: res.title,
+          subtitle: res.subTitle,
+          mesMomSolutions: res.mesMomSolDelivered,
+          productionSupport: res.prodSiteCriticalSupport,
+          sapEwmPrograms: res.sapEwmPrgDelivered,
+          sapEwmProgramsTbd: res.sapEwmProgramsTbd
         });
 
-        // Example: hardcoded test with one ID
-        const storyRequests = [
-          this.usecaseService.getStoryDetailsById('10163')
-        ];
+        // ✅ Images
+        this.imagePreviews['heroImage'] = res.heroImageUrl;
+        this.imagePreviews['keyCapabilitiesImage'] = res.keyCapabilityConfigurationImage;
 
-        forkJoin(storyRequests).subscribe((stories: any[]) => {
-          this.featuredStories = stories.map(story => ({
-            ...story,
-            industryName: this.getIndustryName(story.industryId),
-            subIndustryName: this.getSubIndustryName(story.subIndustryId),
-            tags: story.tag || []
+        // ✅ Industries — always 7 slots
+        const industriesArray = this.homePageForm.get('industries') as FormArray;
+        industriesArray.clear();
+        this.industryPreviews = [];
+
+        this.industryNames.forEach((ind, i) => {
+          const backendThumb = res.industryThumbnails?.find((t: any) => t.industryId === ind.industryId);
+
+          industriesArray.push(this.fb.group({
+            industryId: ind.industryId,
+            name: ind.name,
+            fileName: [''],       // don’t patch filename from backend
+            defaultImage: ['']    // keep blank
           }));
-          this.cdr.detectChanges();
-        });
-      }
 
-      this.cdr.detectChanges();
-    },
-    error: err => console.error('Fetch failed', err)
-  });
-}
+          // ✅ Preview: backend URL if exists, else blank
+          this.industryPreviews[i] = backendThumb ? backendThumb.industryThumbnailUrl : '';
+        });
+
+
+        // ✅ Featured stories
+        const featuredStoriesArray = this.homePageForm.get('featuredStories') as FormArray;
+        featuredStoriesArray.clear();
+
+        if (res.featuredStories?.length > 0) {
+          res.featuredStories.forEach((story: any) => {
+            featuredStoriesArray.push(this.fb.group({ usecaseId: story.usecaseId }));
+          });
+
+          // Example: hardcoded test with one ID
+          // const storyRequests = [
+          //   this.usecaseService.getStoryDetailsById('10163')
+          // ];
+          const storyRequests = res.featuredStories.map((s: any) =>
+            this.usecaseService.getStoryDetailsById((s.usecaseId))
+          );
+          console.log("req::", storyRequests)
+          forkJoin<any[]>(storyRequests).subscribe((stories: any[]) => {
+            this.featuredStories = stories.map(story => ({
+              ...story,
+              industryName: this.getIndustryName(story.industryId),
+              subIndustryName: this.getSubIndustryName(story.subIndustryId),
+              tags: story.tag || []
+            }));
+            this.cdr.detectChanges();
+          });
+        }
+
+        this.cdr.detectChanges();
+      },
+      error: err => console.error('Fetch failed', err)
+    });
+  }
 
 
 
@@ -564,16 +559,14 @@ export class HomepageConfigurationsComponent {
       mesMomSolDelivered: this.stripPlus(this.homePageForm.value.mesMomSolutions),
       prodSiteCriticalSupport: this.stripPlus(this.homePageForm.value.productionSupport),
       sapEwmPrgDelivered: this.stripPlus(this.homePageForm.value.sapEwmPrograms),
-      sapEwmProgramsTbd: this.stripPlus(this.homePageForm.value.sapEwmProgramsTbd),
+      //sapEwmProgramsTbd: this.stripPlus(this.homePageForm.value.sapEwmProgramsTbd),
       updatedById: 101, // or from your context
       featuredStories: (this.homePageForm.value.featuredStories || []).map((s: { usecaseId: number }) => ({
         usecaseId: s.usecaseId
       })),
-      // industryThumbnails: (this.industriesArray.controls || []).map((control: any) => ({
-      //   industryId: control.value.industryId
-      // }))
+
       industryThumbnails: (this.industriesArray.controls || [])
-        .filter((control: any) => control.value.fileName)   // ✅ only include if user uploaded
+        .filter((control: any, i: number) => this.industryPreviews[i] || this.industryBlobs[i])
         .map((control: any) => ({
           industryId: control.value.industryId
         }))
@@ -611,8 +604,5 @@ export class HomepageConfigurationsComponent {
       error: err => console.error('Save failed', err)
     });
   }
-
-
-
 
 }

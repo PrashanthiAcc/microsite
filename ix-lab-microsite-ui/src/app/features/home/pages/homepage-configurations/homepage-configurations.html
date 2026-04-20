@@ -74,15 +74,18 @@
                 </div>
                 <div class="stat-item">
                     <label>MES/MOM solutions delivered</label>
-                    <input type="text" formControlName="mesMomSolutions" numericPlus  value="50+" placeholder="Enter number">
+                    <input type="text" formControlName="mesMomSolutions" numericPlus value="50+"
+                        placeholder="Enter number">
                 </div>
                 <div class="stat-item">
                     <label>Production Site support for Critical apps</label>
-                    <input type="text" formControlName="productionSupport" numericPlus  value="124+" placeholder="Enter number">
+                    <input type="text" formControlName="productionSupport" numericPlus value="124+"
+                        placeholder="Enter number">
                 </div>
                 <div class="stat-item">
                     <label>SAP EWM programs delivered</label>
-                    <input type="text" formControlName="sapEwmPrograms" numericPlus value="30+" placeholder="Enter number">
+                    <input type="text" formControlName="sapEwmPrograms" numericPlus value="30+"
+                        placeholder="Enter number">
                 </div>
                 <!-- <div class="stat-item">
                     <label>SAP EWM programs delivered (TBD)</label>
@@ -165,7 +168,7 @@
         </div>
     </section> -->
 
-   <section class="card industries-config">
+    <section class="card industries-config">
         <h3 class="label-header" (click)="toggleAccordion('industries')">
             <img src="assets/icons/square.png" alt="industry" class="label-icon">
             Industries Thumbnail Configuration
@@ -179,18 +182,38 @@
             <div class="industries-grid">
                 <div class="industry-item" *ngFor="let industry of industriesArray.controls; let i = index">
                     <p>{{ industry.value.name }}</p>
-                    <img [src]="industryPreviews[i] || industry.value.defaultImage" [alt]="industry.value.name">
+
+                    <!-- Show preview if available, else placeholder -->
+                    <ng-container *ngIf="industryPreviews[i]; else placeholder">
+                        <img [src]="industryPreviews[i]" [alt]="industry.value.name">
+                    </ng-container>
+
+                    <!-- Placeholder card when no image -->
+                    <ng-template #placeholder>
+                        <div class="story-card choose-card" (click)="updateImage('industries', i)">
+                            <div class="story-content centered">
+                                <h4>Add Industry Thumbnail</h4>
+                                <p>Upload an image to represent this industry</p>
+                            </div>
+                        </div>
+                    </ng-template>
+
+                    <!-- Conditional button: Add if no file, Update if file exists -->
                     <button class="upload-btn" (click)="updateImage('industries', i)">
-                        <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" /> Update
+                        <img [src]="exchangeIcon" alt="exchange icon" class="btn-icon" />
+                        {{ industry.value ? 'Update' : 'Add Image' }}
                     </button>
+
+                    <!-- File name or placeholder -->
                     <span class="file-name">
                         {{ industry.value.fileName || 'Supported files .jpg, .jpeg, .png up to 1MB' }}
                     </span>
                 </div>
             </div>
         </div>
-        
     </section>
+
+
 
 
 
