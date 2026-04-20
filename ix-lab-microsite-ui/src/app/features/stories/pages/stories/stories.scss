@@ -397,7 +397,7 @@
 
 .modal {
   position: relative;
-  width: 62%;
+  //width: 62%;
   max-width: 1000px;
   border-radius: 8px;
   overflow-y: auto;
@@ -443,6 +443,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  border-bottom: none;
 }
 
 .close-btn {
@@ -450,8 +451,16 @@
   background: none;
 }
 
+// .modal_img {
+//   width: 1000px;
+//   height: 550px;
+//   padding: 2px 0px 2px 0px;
+// }
 .modal_img {
-  width: 1000px;
-  height: 550px;
-  padding: 2px 0px 2px 0px;
+  width: 100%;          /* take full modal width */
+  height: auto;         /* scale height automatically */
+  max-height: 80vh;     /* prevent overflow vertically */
+  object-fit: contain;  /* fit inside without cropping */
+  display: block;
+  margin: 0 auto;       /* center horizontally */
 }

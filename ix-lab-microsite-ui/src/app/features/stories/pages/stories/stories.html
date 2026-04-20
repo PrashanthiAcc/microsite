@@ -264,26 +264,19 @@
 <!--Modal-->
 <div class="modal-overlay" *ngIf="showIndustryOverview">
   <div class="modal">
+
     <div class="modal-header">
-      <h3></h3>
+      <img [src]="getIndustryImage()" class="modal_img" />
       <button class="close-btn" (click)="showIndustryOverview = false">✕</button>
     </div>
-    <!-- <div class="divider"></div> -->
-    <span>
-      <img [src]="getIndustryImage()" class="modal_img" />
-    </span>
   </div>
 </div>
 
 <div class="modal-overlay" *ngIf="showValueChain">
   <div class="modal">
     <div class="modal-header">
-      <h3></h3>
+      <img [src]="getValueChainImage()" class="modal_img" />
       <button class="close-btn" (click)="showValueChain = false">✕</button>
     </div>
-    <!-- <div class="divider"></div> -->
-    <span>
-      <img [src]="getValueChainImage()" class="modal_img" />
-    </span>
   </div>
 </div>
