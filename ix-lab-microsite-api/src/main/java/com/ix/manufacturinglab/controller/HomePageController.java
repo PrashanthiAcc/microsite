@@ -6,7 +6,6 @@ import com.ix.manufacturinglab.dto.HomePageRequestDTO;
 import com.ix.manufacturinglab.dto.HomePageResponseDTO;
 import com.ix.manufacturinglab.exception.CommonException;
 import com.ix.manufacturinglab.service.HomePageService;
-import com.ix.manufacturinglab.service.MicrositeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.ix.common.exception.CommonErrorManagement;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 
 
@@ -41,7 +39,7 @@ public class HomePageController {
     public ResponseEntity<Object> create(@RequestPart("homePageRequest") String  requestJson,
                                          @RequestPart(value = "heroImageUrl", required = false) MultipartFile heroImageUrl,
                                          @RequestPart(value = "keyCapConfigUrl", required = false) MultipartFile keyCapConfigUrl,
-                                         @RequestPart(value = "industrythumbnailUrl", required = false) MultipartFile industryThumbnailUrl) {
+                                         @RequestPart(value = "industrythumbnailUrl", required = false) List<MultipartFile> industryThumbnailUrl) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
