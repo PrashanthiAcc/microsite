@@ -67,7 +67,7 @@ export class EditStoryComponent {
   editorConfig = {
     toolbar: [
       ['bold', 'italic', 'underline'],
-      [{ list: 'ordered'}, { list: 'bullet'}],
+      [{ list: 'ordered' }, { list: 'bullet' }],
       [{ align: [] }]
     ]
   };
@@ -145,7 +145,6 @@ export class EditStoryComponent {
           speakerType: 'TERTIARY'
         }
       ],
-      // clientCredentials: this.fb.array([this.createArtifact()]),
       demoVideos: this.fb.array([this.createArtifact()]),
       clientStory: this.fb.array([this.fb.control(null)]),
       elevatorPitch: this.fb.array([this.fb.control(null)]),
@@ -341,7 +340,12 @@ export class EditStoryComponent {
 
   // Create artifact control (file or null)
   createArtifact() {
-    return this.fb.control(null);
+    return this.fb.control({
+      file: null,
+      name: null,
+      url: null,
+      isDeleted: false
+    });
   }
 
   // GETTERS
@@ -375,7 +379,11 @@ export class EditStoryComponent {
 
   // REMOVE FIELD
   removeField(array: FormArray, index: number) {
-    if (array.length > 1) {
+    const control = array.at(index);
+
+    if (control.value?.url) {
+      control.patchValue({ isDeleted: true });
+    } else {
       array.removeAt(index);
     }
   }
@@ -407,17 +415,18 @@ export class EditStoryComponent {
         this.storyForm.patchValue({ banner: file });
         this.bannerFile = file;
       } else if (index !== undefined) {
-        (this.storyForm.get(field) as FormArray).at(index).setValue(file);
+        // (this.storyForm.get(field) as FormArray).at(index).setValue(file);
 
-        // const control = (this.storyForm.get(field) as FormArray).at(index);
+        const control = (this.storyForm.get(field) as FormArray).at(index);
 
-        // const existingValue = control.value;
+        const existingValue = control.value;
 
-        // control.setValue({
-        //   file: file,
-        //   name: file.name,
-        //   url: existingValue?.url || null
-        // });
+        control.setValue({
+          file: file,
+          name: file.name,
+          url: existingValue?.url || null,
+          isDeleted: false
+        });
       } else {
         this.storyForm.patchValue({ [field]: file });
       }
@@ -613,46 +622,77 @@ export class EditStoryComponent {
       formData.append('bannerUrl', this.bannerFile);
     }
 
-    this.demoVideos.controls.forEach((control: any) => {
-      if (control.value instanceof File) {
-        formData.append('demoVideos', control.value);
+    // Elevator Pitch section for Payload
+    this.elevatorPitch.controls.forEach((control: any) => {
+      const value = control.value;
+
+      if (value?.file instanceof File) {
+        formData.append('elevatorPitch', value.file);
+      } else if (value?.url) {
+        formData.append('elevatorPitchUrls', value.url);
       }
     });
+
+    // Detailed client story section for Payload
+    this.clientStory.controls.forEach((control: any) => {
+      const value = control.value;
+
+      if (value?.file instanceof File) {
+        formData.append('userStory', value.file);
+      } else if (value?.url) {
+        formData.append('userStoryUrls', value.url);
+      }
+    });
+
+    // Demo Video section for Payload
+    let hasDemoVideos = false;
+    let hasDemoVideoControl = this.demoVideos.controls.length > 0;
+
+    this.demoVideos.controls.forEach((control: any) => {
+      const value = control.value;
+
+      if (!value || (!value.file && !value.url)) return;
+
+      if (value.isDeleted) return;
+
+      hasDemoVideos = true;
+
+      if (value.file instanceof File) {
+        formData.append('demoVideos', value.file);
+      } else if (value.url) {
+        formData.append('demoVideosUrls', value.url);
+      }
+    });
+
+    if (hasDemoVideoControl && !hasDemoVideos) {
+      formData.append('demoVideosUrls', '');
+    }
+
+    // Client Testimonial section for Payload
+    let hasTestimonials = false;
+    let hasClientTestimonialControl = this.clientTestimonials.controls.length > 0;
 
     this.clientTestimonials.controls.forEach((control: any) => {
-      if (control.value instanceof File) {
-        formData.append('clientTestimonials', control.value);
+      const value = control.value;
+
+      if (!value || (!value.file && !value.url)) return;
+
+      if (value.isDeleted) return;
+
+      hasTestimonials = true;
+
+      if (value.file instanceof File) {
+        formData.append('clientTestimonials', value.file);
+      } else if (value.url) {
+        formData.append('clientTestimonialsUrls', value.url);
       }
     });
 
-    // this.clientTestimonials.controls.forEach((control: any) => {
-    //   const value = control.value;
-
-    //   if (value?.file instanceof File) {
-    //     formData.append('clientTestimonials', value.file);
-    //   } else if (value?.url) {
-    //     formData.append('clientTestimonials', value.url);
-    //   }
-    // });
-
-    this.elevatorPitch.controls.forEach((control: any) => {
-      if (control.value instanceof File) {
-        formData.append('elevatorPitch', control.value);
-      }
-    });
-
-    this.clientStory.controls.forEach((control: any) => {
-      if (control.value instanceof File) {
-        formData.append('userStory', control.value);
-      }
-    });
+    if (hasClientTestimonialControl && !hasTestimonials) {
+      formData.append('clientTestimonialsUrls', '');
+    }
 
     console.log('Payload for Update:', payload);
-
-    // this.usecaseService.updateStorySendForApproval(this.usecaseID, formData).subscribe((res: any) => {
-    //   console.log('Story updated successfully', res);
-    //   this.location.back();
-    // });
 
     this.usecaseService.updateStorySendForApproval(this.usecaseID, formData).subscribe({
       next: (res: any) => {
@@ -755,36 +795,76 @@ export class EditStoryComponent {
       formData.append('bannerUrl', this.bannerFile);
     }
 
-    this.demoVideos.controls.forEach((control: any) => {
-      if (control.value instanceof File) {
-        formData.append('demoVideos', control.value);
+    // Elevator Pitch section for Payload
+    this.elevatorPitch.controls.forEach((control: any) => {
+      const value = control.value;
+
+      if (value?.file instanceof File) {
+        formData.append('elevatorPitch', value.file);
+      } else if (value?.url) {
+        formData.append('elevatorPitchUrls', value.url);
       }
     });
+
+    // Detailed client story section for Payload
+    this.clientStory.controls.forEach((control: any) => {
+      const value = control.value;
+
+      if (value?.file instanceof File) {
+        formData.append('userStory', value.file);
+      } else if (value?.url) {
+        formData.append('userStoryUrls', value.url);
+      }
+    });
+
+    // Demo Video section for Payload
+    let hasDemoVideos = false;
+    let hasDemoVideoControl = this.demoVideos.controls.length > 0;
+
+    this.demoVideos.controls.forEach((control: any) => {
+      const value = control.value;
+      if (!value || (!value.file && !value.url)) return;
+
+      if (value.isDeleted) return;
+
+      hasDemoVideos = true;
+
+      if (value.file instanceof File) {
+        formData.append('demoVideos', value.file);
+      } else if (value.url) {
+        formData.append('demoVideosUrls', value.url);
+      }
+    });
+
+    if (hasDemoVideoControl && !hasDemoVideos) {
+      formData.append('demoVideosUrls', '');
+    }
+
+    // Client Testimonial section for Payload
+    let hasTestimonials = false;
+    let hasClientTestimonialControl = this.clientTestimonials.controls.length > 0;
 
     this.clientTestimonials.controls.forEach((control: any) => {
-      if (control.value instanceof File) {
-        formData.append('clientTestimonials', control.value);
+      const value = control.value;
+
+      if (!value || (!value.file && !value.url)) return;
+
+      if (value.isDeleted) return;
+
+      hasTestimonials = true;
+
+      if (value.file instanceof File) {
+        formData.append('clientTestimonials', value.file);
+      } else if (value.url) {
+        formData.append('clientTestimonialsUrls', value.url);
       }
     });
 
-    this.elevatorPitch.controls.forEach((control: any) => {
-      if (control.value instanceof File) {
-        formData.append('elevatorPitch', control.value);
-      }
-    });
-
-    this.clientStory.controls.forEach((control: any) => {
-      if (control.value instanceof File) {
-        formData.append('userStory', control.value);
-      }
-    });
+    if (hasClientTestimonialControl && !hasTestimonials) {
+      formData.append('clientTestimonialsUrls', '');
+    }
 
     console.log('Payload for Update:', payload);
-
-    // this.usecaseService.updateStorySaveDraft(this.usecaseID, formData).subscribe((res: any) => {
-    //   console.log('Story updated successfully', res);
-    //   this.location.back();
-    // });
 
     this.usecaseService.updateStorySaveDraft(this.usecaseID, formData).subscribe({
       next: (res: any) => {
