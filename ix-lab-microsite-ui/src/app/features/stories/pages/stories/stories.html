@@ -142,7 +142,7 @@
         filteredStories.length }})</h1>
 
 
-      <div class="stories__actions">
+      <div class="stories__actions" *ngIf="!showAdminControls && this.currentFrom == 'stories'">
         <a class="action-link" (click)="openIndustryModal()" [class.disabled]="!industryName || industryName === 'All'">
           <img src="assets/icons/industry-overview.png" alt="Industry overview" />
           View Industry Overview
