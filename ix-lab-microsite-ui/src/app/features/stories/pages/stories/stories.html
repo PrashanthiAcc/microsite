@@ -30,12 +30,14 @@
 
       <!-- Sub Industry -->
       <app-custom-dropdown label="Sub-Industry" [options]="subIndustries" displayKey="subIndustryName"
-        [(ngModel)]="selectedSubIndustryId" [disabled]="selectedIndustryId === -1" (optionSelected)="onSubIndustrySelected($event)">
+        [(ngModel)]="selectedSubIndustryId" [disabled]="selectedIndustryId === -1"
+        (optionSelected)="onSubIndustrySelected($event)">
       </app-custom-dropdown>
 
       <!-- Value Chain -->
       <app-custom-dropdown label="Value Chain" [options]="valueChains" displayKey="valueChainName"
-        [(ngModel)]="selectedValueChainId" [disabled]="selectedSubIndustryId === -1" (optionSelected)="onValueChainSelected($event)">
+        [(ngModel)]="selectedValueChainId" [disabled]="selectedSubIndustryId === -1"
+        (optionSelected)="onValueChainSelected($event)">
       </app-custom-dropdown>
 
       <!-- Sort -->
@@ -138,6 +140,21 @@
         Stories'}} ({{ stories.length }})</h1>
       <h1 class="stories__title" *ngIf="filteredStories.length && showAdminControls">All In Review Stories ({{
         filteredStories.length }})</h1>
+
+
+      <div class="stories__actions">
+        <a class="action-link" (click)="openIndustryModal()" [class.disabled]="!industryName || industryName === 'All'">
+          <img src="assets/icons/industry-overview.png" alt="Industry overview" />
+          View Industry Overview
+        </a>
+
+        <a class="action-link" (click)="openValueChainModal()"
+          [class.disabled]="!subIndustryName || subIndustryName === 'All'">
+          <img src="assets/icons/value-chain.png" alt="Value chain" />
+          View Value Chain
+        </a>
+      </div>
+
     </div>
 
     <!---ALL STORIES-------------------->
@@ -241,3 +258,32 @@
 
   </div>
 </section>
+
+
+
+<!--Modal-->
+<div class="modal-overlay" *ngIf="showIndustryOverview">
+  <div class="modal">
+    <div class="modal-header">
+      <h3></h3>
+      <button class="close-btn" (click)="showIndustryOverview = false">✕</button>
+    </div>
+    <!-- <div class="divider"></div> -->
+    <span>
+      <img [src]="getIndustryImage()" class="modal_img" />
+    </span>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showValueChain">
+  <div class="modal">
+    <div class="modal-header">
+      <h3></h3>
+      <button class="close-btn" (click)="showValueChain = false">✕</button>
+    </div>
+    <!-- <div class="divider"></div> -->
+    <span>
+      <img [src]="getValueChainImage()" class="modal_img" />
+    </span>
+  </div>
+</div>
