@@ -59,6 +59,15 @@ export class StoriesComponent implements OnInit {
   subIndustryName: any;
   industryName: any;
   valueChainName: any;
+  showIndustryOverview: boolean = false;
+  showValueChain: boolean = false;
+  viewIndustryOverview = [
+      { name: 'Life Sciences', defaultImage: 'assets/LifeScience Industry Overview.png' },
+    ];
+  viewValueChain = [
+      { name: 'Pharmaceuticals', defaultImage: 'assets/Pharmaceuticals Value Chain.png' },
+      //{ name: 'Med Tech', defaultImage: 'assets/Life Sciences.png' },
+    ];
   constructor(private router: Router, private http: HttpClient,
     private industryService: IndustryService, private cdr: ChangeDetectorRef, private route: ActivatedRoute,
     private userService: UserService, private usecaseService: UsecaseService
@@ -79,6 +88,7 @@ export class StoriesComponent implements OnInit {
     this.getAllUsers();
     this.cdr.detectChanges();
     window.scrollTo({ top: 0 });
+
   }
 
 
@@ -475,30 +485,50 @@ export class StoriesComponent implements OnInit {
     return subIndustry ? subIndustry.subIndustryName : '';
   }
 
+  getIndustryImage(){
+    const name = this.industryName;
+    const industry = this.viewIndustryOverview.find(item => item.name === name);
+    return industry ? industry.defaultImage : 'assets/cards.png';
+  }
+
+  getValueChainImage(){
+    const name = this.subIndustryName;
+    const chain = this.viewValueChain.find(item => item.name === name);
+    return chain ? chain.defaultImage : 'assets/cards.png';
+  }
+
   getBreadcrumbTitle(): string {
-  // Case 1: all three are "All"
-  if (this.selectedIndustryId === -1 && this.selectedSubIndustryId === -1 && this.selectedValueChainId === -1) {
-    return 'All Stories';
+    // Case 1: all three are "All"
+    if (this.selectedIndustryId === -1 && this.selectedSubIndustryId === -1 && this.selectedValueChainId === -1) {
+      return 'All Stories';
+    }
+
+    let parts: string[] = [];
+
+    // Case 2: Industry = All, but others chosen
+    if (this.selectedIndustryId === -1) {
+      parts.push('All');
+    } else if (this.industryName && this.industryName !== 'All') {
+      parts.push(this.industryName);
+    }
+
+    if (this.selectedSubIndustryId !== -1 && this.subIndustryName && this.subIndustryName !== 'All') {
+      parts.push(this.subIndustryName);
+    }
+
+    if (this.selectedValueChainId !== -1 && this.valueChainName && this.valueChainName !== 'All') {
+      parts.push(this.valueChainName);
+    }
+
+    return parts.join(' > ') || 'All Stories';
   }
 
-  let parts: string[] = [];
-
-  // Case 2: Industry = All, but others chosen
-  if (this.selectedIndustryId === -1) {
-    parts.push('All');
-  } else if (this.industryName && this.industryName !== 'All') {
-    parts.push(this.industryName);
+  openIndustryModal() {
+    console.log("clicked chchchc")
+    this.showIndustryOverview = true;
   }
 
-  if (this.selectedSubIndustryId !== -1 && this.subIndustryName && this.subIndustryName !== 'All') {
-    parts.push(this.subIndustryName);
+  openValueChainModal() {
+    this.showValueChain = true;
   }
-
-  if (this.selectedValueChainId !== -1 && this.valueChainName && this.valueChainName !== 'All') {
-    parts.push(this.valueChainName);
-  }
-
-  return parts.join(' > ') || 'All Stories';
-}
-
 }
