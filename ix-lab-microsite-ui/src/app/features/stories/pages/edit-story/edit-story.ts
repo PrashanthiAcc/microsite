@@ -94,10 +94,10 @@ export class EditStoryComponent {
     thumbnail: 5 * 1024 * 1024, // 5MB
     banner: 5 * 1024 * 1024,    // 5MB
     // clientCredentials: 100 * 1024 * 1024, // 100MB
-    elevatorPitch: 100 * 1024 * 1024, // 100MB
-    clientStory: 100 * 1024 * 1024, // 100MB
-    demoVideos: 100 * 1024 * 1024,        // 100MB
-    clientTestimonials: 100 * 1024 * 1024 // 100MB
+    elevatorPitch: 200 * 1024 * 1024, // 100MB
+    clientStory: 200 * 1024 * 1024, // 100MB
+    demoVideos: 200 * 1024 * 1024,        // 100MB
+    clientTestimonials: 200 * 1024 * 1024 // 100MB
   };
   allUsers: any[] = [];
   modalAction: 'draft' | 'approval' | null = null;
@@ -675,10 +675,10 @@ export class EditStoryComponent {
           errorObj = { errorDescription: err.message };
         }
         if (err.status === 400) {
-          this.toastTitle = errorObj.errorDescription || 'Bad Request';
+          this.toastTitle = errorObj.errorDescription || errorObj.message || 'Bad Request';
           //this.toastMessage = err.error?.errorDescription;
         } else if (err.status === 500) {
-          this.toastTitle = errorObj.errorDescription || 'Bad Request';
+          this.toastTitle = errorObj.errorDescription || errorObj.message || 'Bad Request';
         } else {
           this.toastTitle = 'An unexpected error occurred';
           //this.toastMessage = err.error?.errorDescription || err.message;
@@ -807,10 +807,10 @@ export class EditStoryComponent {
           errorObj = { errorDescription: err.message };
         }
         if (err.status === 400) {
-          this.toastTitle = errorObj.errorDescription || 'Bad Request';
+          this.toastTitle = errorObj.errorDescription || errorObj.message || 'Bad Request';
           //this.toastMessage = err.error?.errorDescription;
         } else if (err.status === 500) {
-          this.toastTitle = errorObj.errorDescription || 'Bad Request';
+          this.toastTitle = errorObj.errorDescription || errorObj.message || 'Bad Request';
         } else {
           this.toastTitle = 'An unexpected error occurred';
           //this.toastMessage = err.error?.errorDescription || err.message;

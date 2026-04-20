@@ -789,3 +789,10 @@ input:focus {
     font-size: 14px;
     font-weight: 600;
 }
+
+.stories__header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px; /* ensures some vertical space */
+}

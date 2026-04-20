@@ -30,11 +30,12 @@
 
       <!-- Sub Industry -->
       <app-custom-dropdown label="Sub-Industry" [options]="subIndustries" displayKey="subIndustryName"
-        (optionSelected)="onSubIndustrySelected($event)">
+        [(ngModel)]="selectedSubIndustryId" [disabled]="selectedIndustryId === -1" (optionSelected)="onSubIndustrySelected($event)">
       </app-custom-dropdown>
 
       <!-- Value Chain -->
-      <app-custom-dropdown label="Value Chain" [options]="valueChains" displayKey="valueChainName">
+      <app-custom-dropdown label="Value Chain" [options]="valueChains" displayKey="valueChainName"
+        [(ngModel)]="selectedValueChainId" [disabled]="selectedSubIndustryId === -1" (optionSelected)="onValueChainSelected($event)">
       </app-custom-dropdown>
 
       <!-- Sort -->
@@ -132,6 +133,7 @@
 
     <!-- new wrapper Stories -->
     <div class="stories__header">
+      <!-- <h1 class="stories__title" *ngIf="filteredStories.length && !showAdminControls">{{ getBreadcrumbTitle() }} ({{ stories.length }})</h1> -->
       <h1 class="stories__title" *ngIf="filteredStories.length && !showAdminControls">{{cardCategoryTitle ?? 'All
         Stories'}} ({{ stories.length }})</h1>
       <h1 class="stories__title" *ngIf="filteredStories.length && showAdminControls">All In Review Stories ({{
