@@ -125,6 +125,49 @@ CREATE TABLE mfg.usecase_faq (
     CONSTRAINT FK_usecase_faq_usecase FOREIGN KEY (usecase_id) REFERENCES mfg.usecase (usecase_id)
 );
 
+CREATE TABLE mfg.home_page_configuration (
+    id BIGINT IDENTITY(1,1) NOT NULL,
+    application_name VARCHAR(255) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    subtitle VARCHAR(255) NOT NULL,
+    hero_image_url VARCHAR(500) NOT NULL,
+    mes_mom_sol_delivered VARCHAR(50) NOT NULL,
+    prod_site_critical_support VARCHAR(50) NOT NULL,
+    sap_ewm_prg_delivered VARCHAR(50) NOT NULL,
+    key_cap_conf_url VARCHAR(500) NOT NULL,
+
+    last_updated DATETIME2(7) NOT NULL,
+    updated_by_id INT NOT NULL,
+
+    CONSTRAINT pk_home_page_configuration PRIMARY KEY (id),
+    CONSTRAINT uk_home_page_application UNIQUE (application_name)
+);
+ALTER TABLE mfg.home_page_configuration
+ADD CONSTRAINT df_home_page_last_updated
+DEFAULT SYSUTCDATETIME() FOR last_updated;
+
+
+CREATE TABLE mfg.featured_stories (
+    feature_story_id BIGINT IDENTITY(1,1) NOT NULL,
+    usecase_id BIGINT NOT NULL,
+
+    CONSTRAINT pk_featured_stories PRIMARY KEY (feature_story_id),
+    CONSTRAINT uk_featured_usecase UNIQUE (usecase_id)
+);
+
+CREATE TABLE mfg.industry_thumbnails (
+    industry_thumbnail_id BIGINT IDENTITY(1,1) NOT NULL,
+    industry_id BIGINT NOT NULL,
+    industry_thumbnail_url VARCHAR(500) NOT NULL,
+
+    CONSTRAINT pk_industry_thumbnails PRIMARY KEY (industry_thumbnail_id),
+
+    CONSTRAINT fk_industry_thumbnails
+        FOREIGN KEY (industry_id)
+        REFERENCES mfg.industry(industry_id)
+);
+
+
 -- /*insert query for industry table*/
 
 INSERT INTO mfg.industry (industry_name) VALUES ('Consumer Package Goods'), ('Life Sciences'),

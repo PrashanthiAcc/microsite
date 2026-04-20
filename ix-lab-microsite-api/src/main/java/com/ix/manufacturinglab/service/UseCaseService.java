@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Service interface for Use Case CRUD operations.
@@ -110,4 +111,6 @@ public interface UseCaseService {
     UseCaseResponseDTO createUseCaseAndSaveAsDraftWithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory);
 
     String uploadDemoVideoInCheckMode(MultipartFile demoVideo);
+
+    Map<String, Object> getApprovedActiveUseCaseCount();
 }

@@ -2,6 +2,7 @@ package com.ix.manufacturinglab.storage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
@@ -278,6 +279,68 @@ public class AzureBlobStorageServiceImpl implements CloudStorageService {
 
         } catch (Exception e) {
             logger.error("Delete failed for URL: {}", fileUrl, e);
+        }
+    }
+
+    public void deleteFileFromBlobforhomepage(String fileUrl) {
+        try {
+
+            if (fileUrl == null || fileUrl.isBlank()) {
+                logger.warn("File URL is null/empty, skipping delete");
+                return;
+            }
+
+            String cleanUrl = fileUrl.split("\\?")[0];
+
+            URI uri = URI.create(cleanUrl);
+            String fullPath = uri.getPath();
+
+            String containerName = blobContainerClient.getBlobContainerName();
+            String prefix = "/" + containerName + "/";
+
+            if (!fullPath.startsWith(prefix)) {
+                logger.error("Invalid blob URL format: {}", fileUrl);
+                return;
+            }
+
+            String blobPath = URLDecoder.decode(
+                    fullPath.substring(prefix.length()),
+                    StandardCharsets.UTF_8
+            );
+
+            String folder = blobPath.split("/")[0];
+
+            switch (folder) {
+
+                case "hero-image":
+                    logger.debug("Deleting HERO IMAGE blob: {}", blobPath);
+                    break;
+
+                case "key-capacity":
+                    logger.debug("Deleting KEY CAPACITY blob: {}", blobPath);
+                    break;
+
+                case "industry-thumbnail":
+                    logger.debug("Deleting INDUSTRY THUMBNAIL blob: {}", blobPath);
+                    break;
+
+                default:
+                    logger.warn("Unknown blob folder type: {}", folder);
+                    break;
+            }
+
+            boolean deleted = blobContainerClient
+                    .getBlobClient(blobPath)
+                    .deleteIfExists();
+
+            if (deleted) {
+                logger.info("Blob deleted successfully: {}", blobPath);
+            } else {
+                logger.warn("Blob not found or already deleted: {}", blobPath);
+            }
+
+        } catch (Exception ex) {
+            logger.error("Failed to delete blob: {}", fileUrl, ex);
         }
     }
 

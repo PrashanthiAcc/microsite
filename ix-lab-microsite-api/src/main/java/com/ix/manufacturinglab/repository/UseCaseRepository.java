@@ -29,4 +29,6 @@ public interface UseCaseRepository extends JpaRepository<UseCase, Integer> {
     @Modifying
     @Query("UPDATE UseCase u SET u.status = 'ARCHIVED' WHERE u.ownerEid = :ownerEid")
     void archiveUseCasesByOwnerEid(@Param("ownerEid") String ownerEid);
+
+    long countByStatusAndIsActive(String status, boolean isActive);
 }
