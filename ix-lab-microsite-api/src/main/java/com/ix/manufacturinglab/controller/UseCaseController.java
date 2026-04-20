@@ -432,7 +432,11 @@ public class UseCaseController {
             @RequestPart(value = "thumbnailUrl", required = false) MultipartFile thumbnailUrl,
             @RequestPart(value = "bannerUrl", required = false) MultipartFile bannerUrl,
             @RequestPart(value = "elevatorPitch", required = false) List<MultipartFile> elevatorPitch,
-            @RequestPart(value = "userStory", required = false) List<MultipartFile> userStory) {
+            @RequestPart(value = "userStory", required = false) List<MultipartFile> userStory,
+            @RequestParam(value = "clientTestimonialsUrls", required = false) List<String> clientTestimonialsUrls,
+            @RequestParam(value = "demoVideosUrls", required = false) List<String> demoVideosUrls,
+            @RequestParam(value = "elevatorPitchUrls", required = false) List<String> elevatorPitchUrls,
+            @RequestParam(value = "userStoryUrls", required = false) List<String> userStoryUrls) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -444,8 +448,8 @@ public class UseCaseController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
             }
 
-            UseCaseResponseDTO response = useCaseService.updateUseCaseandSaveasDraftWithBlob(usecaseId, requestDTO, clientTestimonials,
-                                                                                            demoVideos, thumbnailUrl, bannerUrl, elevatorPitch, userStory);
+            //UseCaseResponseDTO response = useCaseService.updateUseCaseandSaveasDraftWithBlob(usecaseId, requestDTO, clientTestimonials,demoVideos, thumbnailUrl, bannerUrl, elevatorPitch, userStory);
+            UseCaseResponseDTO response =  useCaseService.updateUseCaseandSaveasDraftWithBlob(usecaseId, requestDTO,clientTestimonials,demoVideos,thumbnailUrl,bannerUrl, elevatorPitch, userStory, clientTestimonialsUrls, demoVideosUrls, elevatorPitchUrls, userStoryUrls);
             return ResponseEntity.ok(response);
 
         } catch (CommonException e) {
@@ -468,7 +472,11 @@ public class UseCaseController {
             @RequestPart(value = "thumbnailUrl", required = false) MultipartFile thumbnailUrl,
             @RequestPart(value = "bannerUrl", required = false) MultipartFile bannerUrl,
             @RequestPart(value = "elevatorPitch", required = false) List<MultipartFile> elevatorPitch,
-            @RequestPart(value = "userStory", required = false) List<MultipartFile> userStory) {
+            @RequestPart(value = "userStory", required = false) List<MultipartFile> userStory,
+            @RequestParam(value = "clientTestimonialsUrls", required = false) List<String> clientTestimonialsUrls,
+            @RequestParam(value = "demoVideosUrls", required = false) List<String> demoVideosUrls,
+            @RequestParam(value = "elevatorPitchUrls", required = false) List<String> elevatorPitchUrls,
+            @RequestParam(value = "userStoryUrls", required = false) List<String> userStoryUrls) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -480,7 +488,7 @@ public class UseCaseController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);           }
 
             UseCaseResponseDTO response = useCaseService.updateUseCaseAndSubmitForApprovalwithBlob(usecaseId, requestDTO, clientTestimonials,
-                    demoVideos, thumbnailUrl, bannerUrl , elevatorPitch, userStory);
+                    demoVideos, thumbnailUrl, bannerUrl , elevatorPitch, userStory, clientTestimonialsUrls, demoVideosUrls, elevatorPitchUrls, userStoryUrls);
             return ResponseEntity.ok(response);
 
         } catch (CommonException e) {

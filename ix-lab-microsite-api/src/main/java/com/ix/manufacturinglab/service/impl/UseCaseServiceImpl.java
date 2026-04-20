@@ -1,5 +1,7 @@
 package com.ix.manufacturinglab.service.impl;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -7,6 +9,7 @@ import java.util.HashSet;
 import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -1017,7 +1020,79 @@ public class UseCaseServiceImpl implements UseCaseService {
             logger.debug("File {} uploaded for usecase {} -> {}", file.getOriginalFilename(), useCase.getUsecaseId(), sasUrl);
         }
     }
+    @Transactional
+    private void handleArtifacts(UseCase useCase, String folderPath, String artifactType, List<String> incomingUrls, List<MultipartFile> newFiles) {
 
+        if (incomingUrls == null) {
+            //logger.info("Incoming URLs is null → skipping deletion for type: {}", artifactType);
+        } else {
+
+            if (incomingUrls.size() == 1 && incomingUrls.get(0).isBlank()) {
+                incomingUrls = Collections.emptyList();
+            }
+
+            Set<String> incomingPaths = incomingUrls.stream()
+                    .map(this::extractBlobPath)
+                    .map(String::trim)
+                    .collect(Collectors.toSet());
+
+            Iterator<UseCaseArtifact> iterator = useCase.getArtifacts().iterator();
+
+            while (iterator.hasNext()) {
+
+                UseCaseArtifact artifact = iterator.next();
+
+                if (!artifactType.equalsIgnoreCase(artifact.getArtifactType())) {
+                    continue;
+                }
+
+                String dbPath = extractBlobPath(artifact.getUrl()).trim();
+
+                if (incomingPaths.isEmpty() || !incomingPaths.contains(dbPath)) {
+
+                    cloudStorageService.deleteFile(dbPath);
+                    iterator.remove();
+                    useCaseArtifactRepository.deleteById(artifact.getArtifactId());
+                }
+            }
+        }
+
+        if (newFiles != null) {
+            for (MultipartFile file : newFiles) {
+
+                if (file.isEmpty()) continue;
+
+                validateFileSize(file);
+
+                String sasUrl = cloudStorageService.uploadFileChunked(file, folderPath);
+
+                UseCaseArtifact newArtifact = UseCaseArtifact.builder()
+                        .useCase(useCase)
+                        .artifactType(artifactType)
+                        .url(sasUrl)
+                        .artifactName(file.getOriginalFilename())
+                        .build();
+
+                useCase.getArtifacts().add(newArtifact);
+            }
+        }
+    }
+
+    private String extractBlobPath(String url) {
+        if (url == null) return null;
+
+        String cleanUrl = url.split("\\?")[0];
+
+        String path = cleanUrl.substring(cleanUrl.indexOf(".net/") + 5);
+
+        path = URLDecoder.decode(path, StandardCharsets.UTF_8).trim();
+
+        if (path.startsWith("ixmicrositelab/")) {
+            path = path.substring("ixmicrositelab/".length());
+        }
+
+        return path;
+    }
     @Override
     @Transactional
     public UseCaseResponseDTO createUseCaseAndSubmitForApprovalwithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory) {
@@ -1109,8 +1184,13 @@ public class UseCaseServiceImpl implements UseCaseService {
 
     @Override
     @Transactional
-    public UseCaseResponseDTO updateUseCaseandSaveasDraftWithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory) {
-        // Fetch existing use case
+    public UseCaseResponseDTO updateUseCaseandSaveasDraftWithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
+                                                                  List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl,
+                                                                  List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
+                                                                  List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls){
+
+
+    // Fetch existing use case
         UseCase existingUseCase = useCaseRepository.findById(usecaseId)
                 .orElseThrow(() -> new CommonException(
                         CommonExceptionConstants.NOT_FOUND,
@@ -1162,10 +1242,10 @@ public class UseCaseServiceImpl implements UseCaseService {
 
         String thumbnailFolder = thumbnailurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
         String bannerFolder = bannerurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
-        String testimonialsFolder = clientTestimonialsPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
-        String demoVideosFolder = demoVideosPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
-        String elevatorPitchFolder = elevatorPitchPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
-        String userStoryFolder = userStoryPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+        //String testimonialsFolder = clientTestimonialsPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+        //String demoVideosFolder = demoVideosPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+        //String elevatorPitchFolder = elevatorPitchPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+        //String userStoryFolder = userStoryPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
 
         /*if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
             String thumbnaisasUrl = uploadFileToBlob(thumbnailUrl, thumbnailFolder, content.getThumbnailUrl());
@@ -1204,10 +1284,15 @@ public class UseCaseServiceImpl implements UseCaseService {
             useCase.getFaqs().clear();
         }
 
-        addArtifactsFromFiles(useCase, testimonialsFolder, clientTestimonials, "CLIENT_TESTIMONIAL");
-        addArtifactsFromFiles(useCase, demoVideosFolder, demoVideos, "DEMO_VIDEO");
-        addArtifactsFromFiles(useCase, elevatorPitchFolder, elevatorPitch, "ELEVATOR_PITCH");
-        addArtifactsFromFiles(useCase, userStoryFolder, userStory, "USER_STORY");
+        //addArtifactsFromFiles(useCase, testimonialsFolder, clientTestimonials, "CLIENT_TESTIMONIAL");
+        //addArtifactsFromFiles(useCase, demoVideosFolder, demoVideos, "DEMO_VIDEO");
+        //addArtifactsFromFiles(useCase, elevatorPitchFolder, elevatorPitch, "ELEVATOR_PITCH");
+        //addArtifactsFromFiles(useCase, userStoryFolder, userStory, "USER_STORY");
+        handleArtifacts(useCase, "usecase/artifacts/Client Testimonials/" + usecaseId, "CLIENT_TESTIMONIAL", clientTestimonialsUrls, clientTestimonials);
+        handleArtifacts(useCase, "usecase/artifacts/Demo Videos/" + usecaseId, "DEMO_VIDEO", demoVideosUrls, demoVideos);
+        handleArtifacts(useCase, "usecase/artifacts/Client Credentials/user_story/" + usecaseId, "USER_STORY", userStoryUrls, userStory);
+        handleArtifacts(useCase, "usecase/artifacts/Client Credentials/elevator_pitch/" + usecaseId, "ELEVATOR_PITCH", elevatorPitchUrls, elevatorPitch);
+
 
         content.setDescription(requestDTO.getDescription());
         content.setBusinessProblem(requestDTO.getBusinessProblem());
@@ -1339,7 +1424,10 @@ public class UseCaseServiceImpl implements UseCaseService {
         }
     }
     @Override
-    public UseCaseResponseDTO updateUseCaseAndSubmitForApprovalwithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory) {
+    public UseCaseResponseDTO updateUseCaseAndSubmitForApprovalwithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
+                                                                        List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl,
+                                                                        List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
+                                                                        List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls) {
         logger.debug(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
 
         UseCase existingUseCase = useCaseRepository.findById(usecaseId)
@@ -1387,10 +1475,10 @@ public class UseCaseServiceImpl implements UseCaseService {
         // Resolve paths from @Value properties
         String thumbnailFolder = thumbnailurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
         String bannerFolder = bannerurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
-        String testimonialsFolder = clientTestimonialsPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
-        String demoVideosFolder = demoVideosPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
-        String elevatorFolder = elevatorPitchPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
-        String userStoryFolder = userStoryPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+        //String testimonialsFolder = clientTestimonialsPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+        //String demoVideosFolder = demoVideosPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+        //String elevatorFolder = elevatorPitchPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+        //String userStoryFolder = userStoryPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
 
         if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
 
@@ -1421,10 +1509,15 @@ public class UseCaseServiceImpl implements UseCaseService {
         }
 
         // Upload artifacts
-        addArtifactsFromFiles(useCase, testimonialsFolder, clientTestimonials, "CLIENT_TESTIMONIAL");
-        addArtifactsFromFiles(useCase, demoVideosFolder, demoVideos, "DEMO_VIDEO");
-        addArtifactsFromFiles(useCase, elevatorFolder, elevatorPitch, "ELEVATOR_PITCH");
-        addArtifactsFromFiles(useCase, userStoryFolder, userStory, "USER_STORY");
+        //addArtifactsFromFiles(useCase, testimonialsFolder, clientTestimonials, "CLIENT_TESTIMONIAL");
+        //addArtifactsFromFiles(useCase, demoVideosFolder, demoVideos, "DEMO_VIDEO");
+        //addArtifactsFromFiles(useCase, elevatorFolder, elevatorPitch, "ELEVATOR_PITCH");
+        //addArtifactsFromFiles(useCase, userStoryFolder, userStory, "USER_STORY");
+
+        handleArtifacts(useCase, "usecase/artifacts/Client Testimonials/" + usecaseId, "CLIENT_TESTIMONIAL", clientTestimonialsUrls, clientTestimonials);
+        handleArtifacts(useCase, "usecase/artifacts/Demo Videos/" + usecaseId, "DEMO_VIDEO", demoVideosUrls, demoVideos);
+        handleArtifacts(useCase, "usecase/artifacts/Client Credentials/user_story/" + usecaseId, "USER_STORY", userStoryUrls, userStory);
+        handleArtifacts(useCase, "usecase/artifacts/Client Credentials/elevator_pitch/" + usecaseId, "ELEVATOR_PITCH", elevatorPitchUrls, elevatorPitch);
 
         // Update content details
         content.setDescription(requestDTO.getDescription());
