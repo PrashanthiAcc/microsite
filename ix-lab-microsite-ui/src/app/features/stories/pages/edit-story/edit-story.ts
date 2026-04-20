@@ -408,6 +408,16 @@ export class EditStoryComponent {
         this.bannerFile = file;
       } else if (index !== undefined) {
         (this.storyForm.get(field) as FormArray).at(index).setValue(file);
+
+        // const control = (this.storyForm.get(field) as FormArray).at(index);
+
+        // const existingValue = control.value;
+
+        // control.setValue({
+        //   file: file,
+        //   name: file.name,
+        //   url: existingValue?.url || null
+        // });
       } else {
         this.storyForm.patchValue({ [field]: file });
       }
@@ -531,9 +541,15 @@ export class EditStoryComponent {
     }
   }
 
+  // async urlToFile(url: string, fileName: string): Promise<File> {
+  //   const response = await fetch(url);
+  //   const blob = await response.blob();
+  //   return new File([blob], fileName, { type: blob.type });
+  // }
+
   // ✅ Update existing story
 
-  updateStoryForApproval() {
+  async updateStoryForApproval() {
     if (!this.usecaseID) {
       console.error('No usecaseID found, cannot update story.');
       return;
@@ -556,15 +572,15 @@ export class EditStoryComponent {
       title: formValue.title,
       thumbnailImageUrl: this.extractValue(this.storyForm.get('thumbnailUrl')?.value),
       bannerUrl: this.extractValue(this.storyForm.get('bannerUrl')?.value),
-      description: formValue.description,
+      description: formValue.description.replace(/-/g, '&#8209'),
       duration: formValue.duration ? Number(formValue.duration) : null,
 
       ownerEId: formValue.ownerId, // already userEid string
-      businessProblem: formValue.businessProblem,
-      solutions: formValue.solutions,
-      valueDelivered: formValue.valueDelivered,
-      toolsAndTechnologies: formValue.toolsAndTechnologies,
-      keyResults: formValue.keyResults,
+      businessProblem: formValue.businessProblem.replace(/-/g, '&#8209'),
+      solutions: formValue.solutions.replace(/-/g, '&#8209'),
+      valueDelivered: formValue.valueDelivered.replace(/-/g, '&#8209'),
+      toolsAndTechnologies: formValue.toolsAndTechnologies.replace(/-/g, '&#8209'),
+      keyResults: formValue.keyResults.replace(/-/g, '&#8209'),
       narrationGuide: formValue.narrationGuide,
 
       approverId: ownerUser ? ownerUser.userId : null,
@@ -608,6 +624,16 @@ export class EditStoryComponent {
         formData.append('clientTestimonials', control.value);
       }
     });
+
+    // this.clientTestimonials.controls.forEach((control: any) => {
+    //   const value = control.value;
+
+    //   if (value?.file instanceof File) {
+    //     formData.append('clientTestimonials', value.file);
+    //   } else if (value?.url) {
+    //     formData.append('clientTestimonials', value.url);
+    //   }
+    // });
 
     this.elevatorPitch.controls.forEach((control: any) => {
       if (control.value instanceof File) {
@@ -688,16 +714,16 @@ export class EditStoryComponent {
       title: formValue.title,
       thumbnailImageUrl: this.extractValue(this.storyForm.get('thumbnailUrl')?.value),
       bannerUrl: this.extractValue(this.storyForm.get('bannerUrl')?.value),
-      description: formValue.description,
+      description: formValue.description.replace(/-/g, '&#8209'),
       duration: formValue.duration ? Number(formValue.duration) : null,
 
       ownerEId: formValue.ownerId, // already userEid string
-      businessProblem: formValue.businessProblem,
-      solutions: formValue.solutions,
-      valueDelivered: formValue.valueDelivered,
-      toolsAndTechnologies: formValue.toolsAndTechnologies,
-      keyResults: formValue.keyResults,
-      narrationGuide: formValue.narrationGuide,
+      businessProblem: formValue.businessProblem.replace(/-/g, '&#8209'),
+      solutions: formValue.solutions.replace(/-/g, '&#8209'),
+      valueDelivered: formValue.valueDelivered.replace(/-/g, '&#8209'),
+      toolsAndTechnologies: formValue.toolsAndTechnologies.replace(/-/g, '&#8209'),
+      keyResults: formValue.keyResults.replace(/-/g, '&#8209'),
+      narrationGuide: formValue.narrationGuide.replace(/-/g, '&#8209'),
 
       approverId: ownerUser ? ownerUser.userId : null,
       creatorId: ownerUser ? ownerUser.userId : null,
