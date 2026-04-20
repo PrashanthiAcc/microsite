@@ -10,6 +10,8 @@ import { UsecaseService } from '../../../../core/services/usecase';
 import { UserService } from '../../../../core/services/users';
 import { HttpClient } from '@angular/common/http';
 import { NumericPlusDirective } from '../../../../shared/directives/numeric-plus';
+import { HomePageService } from '../../../../core/services/home-page.service';
+import { forkJoin } from 'rxjs';
 
 export interface Story {
   usecaseId: number;
@@ -89,7 +91,7 @@ export class HomepageConfigurationsComponent {
   featuredStories: Story[] = [];
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService, private cdr: ChangeDetectorRef,
-    private route: ActivatedRoute) {
+    private route: ActivatedRoute, private homePageService: HomePageService) {
 
     this.homePageForm = this.fb.group({
       applicationName: [''],
@@ -153,6 +155,110 @@ export class HomepageConfigurationsComponent {
     });
     this.loadIndustries();
     this.homePageForm.get('clientStories')?.disable();
+    this.getHomePageConfigDetails();
+    this.getApprovedStoryCount();
+  }
+
+
+ getHomePageConfigDetails(): void {
+  this.homePageService.getHomePageData().subscribe({
+    next: (res: any) => {
+      console.log('fetched successfully', res);
+
+      // ✅ Patch text fields
+      this.homePageForm.patchValue({
+        applicationName: res.applicationName,
+        title: res.title,
+        subtitle: res.subTitle,
+        mesMomSolutions: res.mesMomSolDelivered,
+        productionSupport: res.prodSiteCriticalSupport,
+        sapEwmPrograms: res.sapEwmPrgDelivered,
+        sapEwmProgramsTbd: res.sapEwmProgramsTbd
+      });
+
+      // ✅ Images
+      this.imagePreviews['heroImage'] = res.heroImageUrl;
+      this.imagePreviews['keyCapabilitiesImage'] = res.keyCapabilityConfigurationImage;
+
+      // ✅ Industries — always 7 slots
+      const industriesArray = this.homePageForm.get('industries') as FormArray;
+      industriesArray.clear();
+      this.industryPreviews = [];
+
+      const industryNames = [
+        { industryId: 1, name: 'Consumer Package Goods', defaultImage: 'assets/CPG.png' },
+        { industryId: 2, name: 'Life Sciences', defaultImage: 'assets/Life Sciences.png' },
+        { industryId: 3, name: 'Energy', defaultImage: 'assets/Energy.png' },
+        { industryId: 4, name: 'Industrials', defaultImage: 'assets/Industrials.png' },
+        { industryId: 5, name: 'Utilities', defaultImage: 'assets/Utilities.jpg' },
+        { industryId: 6, name: 'Chemicals & Natural Services', defaultImage: 'assets/Chemical and Natural Resources.png' },
+        { industryId: 7, name: 'High Tech', defaultImage: 'assets/High Tech Industry.png' }
+      ];
+
+      industryNames.forEach((ind, i) => {
+        const backendThumb = res.industryThumbnails?.find((t: any) => t.industryId === ind.industryId);
+
+        industriesArray.push(this.fb.group({
+          industryId: ind.industryId,
+          name: ind.name,
+          defaultImage: ind.defaultImage,
+          //fileName: backendThumb ? backendThumb.industryThumbnailUrl : '' // keep URL or empty
+        }));
+
+        // ✅ Preview: backend URL if exists, else blank (UI shows default + upload msg)
+        this.industryPreviews[i] = backendThumb ? backendThumb.industryThumbnailUrl : '';
+      });
+
+      // ✅ Featured stories
+      const featuredStoriesArray = this.homePageForm.get('featuredStories') as FormArray;
+      featuredStoriesArray.clear();
+
+      if (res.featuredStories?.length > 0) {
+        res.featuredStories.forEach((story: any) => {
+          featuredStoriesArray.push(this.fb.group({ usecaseId: story.usecaseId }));
+        });
+
+        // Example: hardcoded test with one ID
+        const storyRequests = [
+          this.usecaseService.getStoryDetailsById('10163')
+        ];
+
+        forkJoin(storyRequests).subscribe((stories: any[]) => {
+          this.featuredStories = stories.map(story => ({
+            ...story,
+            industryName: this.getIndustryName(story.industryId),
+            subIndustryName: this.getSubIndustryName(story.subIndustryId),
+            tags: story.tag || []
+          }));
+          this.cdr.detectChanges();
+        });
+      }
+
+      this.cdr.detectChanges();
+    },
+    error: err => console.error('Fetch failed', err)
+  });
+}
+
+
+
+  getApprovedStoryCount(): void {
+    this.homePageService.getApprovedUsecaseCount().subscribe({
+      next: (res: any) => {
+        console.log('fetched successfully', res);
+
+        // ✅ Extract the number from the response object
+        const approvedCount = res["Total Approved usecases"];
+
+        // ✅ Patch the clientStories field with just the number
+        this.homePageForm.patchValue({
+          clientStories: approvedCount
+        });
+
+        this.cdr.detectChanges();
+      },
+      error: err => console.error('Fetch failed', err)
+    });
   }
 
 
@@ -210,8 +316,17 @@ export class HomepageConfigurationsComponent {
   }
 
   removeStory(index: number) {
+    const featuredStoriesArray = this.homePageForm.get('featuredStories') as FormArray;
+
+    // remove from local array
     this.featuredStories.splice(index, 1);
+
+    // remove from FormArray
+    featuredStoriesArray.removeAt(index);
+
+    console.log("featured stories after delete::", this.featuredStories);
   }
+
   loadAllStories(page: number = 1, size: number = 10) {
     this.isLoading = false;
     this.usecaseService.getAllStories(page, size).subscribe((res: any) => {
@@ -491,8 +606,9 @@ export class HomepageConfigurationsComponent {
     }
 
 
-    this.http.post('/api/homepage-config', payload).subscribe(res => {
-      console.log('Saved successfully', res);
+    this.homePageService.saveHomePageConfig(payload).subscribe({
+      next: res => console.log('Saved successfully', res),
+      error: err => console.error('Save failed', err)
     });
   }
 
