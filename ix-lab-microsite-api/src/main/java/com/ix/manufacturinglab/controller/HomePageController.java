@@ -65,4 +65,34 @@ public class HomePageController {
         return ResponseEntity.ok(response);
     }
 
+    @PutMapping(value = "/v1/home-page-configuration", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> updateHomePage(
+            @RequestPart("homePageConfig") String requestJson,
+            @RequestPart(value = "heroImageFile", required = false) MultipartFile heroImageFile,
+            @RequestPart(value = "keyCapConfigFile", required = false) MultipartFile keyCapConfigFile,
+            @RequestPart(value = "industryThumbnailFiles", required = false) List<MultipartFile> industryThumbnailFiles,
+            @RequestParam(value = "heroImageFileUrls", required = false) String heroImageFileUrl,
+            @RequestParam(value = "keyCapConfigFileUrls", required = false) String keyCapConfigFileUrl,
+            @RequestParam(value = "industryThumbnailFilesUrls", required = false) List<String> industryThumbnailFileUrls) {
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+
+            HomePageRequestDTO requestDTO =
+                    mapper.readValue(requestJson, HomePageRequestDTO.class);
+
+            if (requestDTO.getTitle() == null || requestDTO.getTitle().isBlank()) {
+                return ResponseEntity.badRequest().body("Title is required");
+            }
+
+            homePageService.updateHomePage(requestDTO, heroImageFile, keyCapConfigFile, industryThumbnailFiles, heroImageFileUrl, keyCapConfigFileUrl, industryThumbnailFileUrls);
+
+            return ResponseEntity.ok().build();
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(e.getMessage());
+        }
+    }
+
 }

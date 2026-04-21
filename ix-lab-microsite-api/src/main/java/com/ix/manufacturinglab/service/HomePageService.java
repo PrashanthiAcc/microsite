@@ -11,4 +11,6 @@ public interface HomePageService {
     void createHomePage(HomePageRequestDTO requestDTO, MultipartFile heroImageUrl,MultipartFile keyCapConfigUrl, List<MultipartFile> industryThumbnailUrl);
 
     HomePageResponseDTO getHomePage();
+
+    void updateHomePage(HomePageRequestDTO dto, MultipartFile heroFile, MultipartFile keyCapFile, List<MultipartFile> industryFiles, String heroUrl, String keyCapUrl, List<String> industryUrls);
 }
