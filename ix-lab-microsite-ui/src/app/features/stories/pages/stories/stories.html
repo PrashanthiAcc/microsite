@@ -143,13 +143,13 @@
 
 
       <div class="stories__actions" *ngIf="!showAdminControls && this.currentFrom == 'stories'">
-        <a class="action-link" (click)="openIndustryModal()" [class.disabled]="!industryName || industryName === 'All'">
+        <a class="action-link" (click)="openIndustryModal()" [class.disabled]="!isIndustryOverviewEnabled()">
           <img src="assets/icons/industry-overview.png" alt="Industry overview" />
           View Industry Overview
         </a>
 
         <a class="action-link" (click)="openValueChainModal()"
-          [class.disabled]="!subIndustryName || subIndustryName === 'All'">
+          [class.disabled]="!isValueChainEnabled()">
           <img src="assets/icons/value-chain.png" alt="Value chain" />
           View Value Chain
         </a>
@@ -264,19 +264,14 @@
 <!--Modal-->
 <div class="modal-overlay" *ngIf="showIndustryOverview">
   <div class="modal">
-
-    <div class="modal-header">
-      <img [src]="getIndustryImage()" class="modal_img" />
-      <button class="close-btn" (click)="showIndustryOverview = false">✕</button>
-    </div>
+    <button class="close-btn" (click)="showIndustryOverview = false">✕</button>
+    <img [src]="getIndustryImage()" class="modal-img" />
   </div>
 </div>
 
 <div class="modal-overlay" *ngIf="showValueChain">
   <div class="modal">
-    <div class="modal-header">
-      <img [src]="getValueChainImage()" class="modal_img" />
-      <button class="close-btn" (click)="showValueChain = false">✕</button>
-    </div>
+    <button class="close-btn" (click)="showValueChain = false">✕</button>
+    <img [src]="getValueChainImage()" class="modal-img" />
   </div>
 </div>

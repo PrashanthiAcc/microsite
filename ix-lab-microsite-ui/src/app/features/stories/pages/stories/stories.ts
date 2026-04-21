@@ -62,12 +62,12 @@ export class StoriesComponent implements OnInit {
   showIndustryOverview: boolean = false;
   showValueChain: boolean = false;
   viewIndustryOverview = [
-      { name: 'Life Sciences', defaultImage: 'assets/LifeScience Industry Overview.png' },
-    ];
+    { name: 'Life Sciences', defaultImage: 'assets/LifeScience Industry Overview.png' },
+  ];
   viewValueChain = [
-      { name: 'Pharmaceuticals', defaultImage: 'assets/Pharmaceuticals Value Chain.png' },
-      //{ name: 'Med Tech', defaultImage: 'assets/Life Sciences.png' },
-    ];
+    { name: 'Pharmaceuticals', defaultImage: 'assets/Pharmaceuticals Value Chain.png' },
+    //{ name: 'Med Tech', defaultImage: 'assets/Life Sciences.png' },
+  ];
   constructor(private router: Router, private http: HttpClient,
     private industryService: IndustryService, private cdr: ChangeDetectorRef, private route: ActivatedRoute,
     private userService: UserService, private usecaseService: UsecaseService
@@ -481,16 +481,28 @@ export class StoriesComponent implements OnInit {
     return subIndustry ? subIndustry.subIndustryName : '';
   }
 
-  getIndustryImage(){
+  getIndustryImage() {
     const name = this.industryName;
     const industry = this.viewIndustryOverview.find(item => item.name === name);
     return industry ? industry.defaultImage : 'assets/cards.png';
   }
 
-  getValueChainImage(){
+  getValueChainImage() {
     const name = this.subIndustryName;
     const chain = this.viewValueChain.find(item => item.name === name);
     return chain ? chain.defaultImage : 'assets/cards.png';
+  }
+
+  isIndustryOverviewEnabled(): boolean {
+    return !!this.industryName &&
+      this.industryName !== 'All' &&
+      this.viewIndustryOverview.some(item => item.name === this.industryName);
+  }
+
+  isValueChainEnabled(): boolean {
+    return !!this.subIndustryName &&
+      this.subIndustryName !== 'All' &&
+      this.viewValueChain.some(item => item.name === this.subIndustryName);
   }
 
   getBreadcrumbTitle(): string {

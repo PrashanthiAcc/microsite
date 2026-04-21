@@ -583,13 +583,17 @@ export class HomepageConfigurationsComponent {
       payload.append('keyCapConfigUrl', this.imageBlobs.keyCapabilitiesImage, this.homePageForm.value.keyCapabilitiesImage);
     }
 
+    // this.industriesArray.controls.forEach((control: any, i: number) => {
+    //   if (this.industryBlobs[i]) {
+    //     payload.append(`industrythumbnailUrl[${i}]`, this.industryBlobs[i], control.value.fileName);
+    //   }
+    // });
+
     this.industriesArray.controls.forEach((control: any, i: number) => {
       if (this.industryBlobs[i]) {
-        payload.append(`industrythumbnailUrl[${i}]`, this.industryBlobs[i], control.value.fileName);
+        payload.append('industrythumbnailUrl', this.industryBlobs[i], control.value.fileName);
       }
     });
-
-
     for (const [key, value] of payload.entries()) {
       if (value instanceof File) {
         console.log(`${key}: File -> name=${value.name}, size=${value.size} bytes, type=${value.type}`);
