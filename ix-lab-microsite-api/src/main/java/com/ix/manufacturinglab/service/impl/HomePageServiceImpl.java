@@ -272,10 +272,7 @@ public class HomePageServiceImpl implements HomePageService {
         homePageRepository.save(config);
     }
 
-    private String handleSingleUpdate(String existingUrl,
-                                      String incomingUrl,
-                                      MultipartFile file,
-                                      String folder) {
+    private String handleSingleUpdate(String existingUrl, String incomingUrl, MultipartFile file, String folder) {
 
         if (file != null && !file.isEmpty()) {
 
@@ -305,11 +302,9 @@ public class HomePageServiceImpl implements HomePageService {
     }
 
     @Transactional
-    public void updateIndustryThumbnails(HomePageRequestDTO dto,
-                                         List<MultipartFile> industryFiles,
+    public void updateIndustryThumbnails(HomePageRequestDTO dto, List<MultipartFile> industryFiles,
                                          List<String> industryThumbnailFileUrls) {
 
-        // 🔹 Normalize incoming URLs
         if (industryThumbnailFileUrls != null) {
             if (industryThumbnailFileUrls.size() == 1 && industryThumbnailFileUrls.get(0).isBlank()) {
                 industryThumbnailFileUrls = Collections.emptyList();
@@ -318,40 +313,31 @@ public class HomePageServiceImpl implements HomePageService {
             industryThumbnailFileUrls = Collections.emptyList();
         }
 
-        // 🔹 Extract incoming paths using your method
-        // 🔹 Extract incoming paths
         List<String> incomingPaths = industryThumbnailFileUrls.stream()
                 .map(this::extractBlobPath)
                 .filter(Objects::nonNull)
                 .map(String::trim)
                 .toList();
 
-// 🔹 Find all blobs currently in DB (before delete)
         List<IndustryThumbnails> existing = industryThumbnailsRepository.findAll();
 
-// 🔹 Delete anything NOT in incoming
         for (IndustryThumbnails old : existing) {
 
             String dbPath = extractBlobPath(old.getIndustryThumbnailUrl());
 
             if (dbPath != null && !incomingPaths.contains(dbPath)) {
 
-                System.out.println("Deleting blob (not in incoming): " + dbPath);
-
                 cloudStorageService.deleteFile(dbPath);
                 industryThumbnailsRepository.deleteById(old.getIndustryThumbnailId());
             }
         }
 
-        // 🔹 ADD new files
         if (industryFiles != null && !industryFiles.isEmpty()) {
 
-            // existing IDs from incoming URLs
             Set<Long> existingIds = incomingPaths.stream()
                     .map(path -> Long.parseLong(path.split("/")[1]))
                     .collect(Collectors.toSet());
 
-            // new IDs from payload
             List<Long> newIds = dto.getIndustryThumbnails().stream()
                     .map(i -> i.getIndustryId())
                     .filter(id -> !existingIds.contains(id))
