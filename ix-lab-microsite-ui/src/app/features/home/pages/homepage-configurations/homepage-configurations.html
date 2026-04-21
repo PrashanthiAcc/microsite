@@ -192,8 +192,8 @@
                     <ng-template #placeholder>
                         <div class="story-card choose-card" (click)="updateImage('industries', i)">
                             <div class="story-content centered">
-                                <h4>Add Industry Thumbnail</h4>
-                                <p>Upload an image to represent this industry</p>
+                                <!-- <h4>Add Industry Thumbnail</h4> -->
+                                <p>Upload an Image</p>
                             </div>
                         </div>
                     </ng-template>
@@ -252,7 +252,7 @@
 
                         <!-- Placeholder -->
                         <ng-template #placeholder>
-                            <div class="story-card choose-card" (click)="openStoryModal()">
+                            <div class="story-card" (click)="openStoryModal()">
                                 <div class="story-content centered">
                                     <h4>Choose a Featured Story</h4>
                                     <p>Select a story to highlight on your dashboard</p>
