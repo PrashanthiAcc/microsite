@@ -144,8 +144,8 @@ export class StoriesComponent implements OnInit {
 
   applyFilters() {
     if (this.showAdminControls && this.currentFrom !== 'stories') {
-      this.filteredStories = this.stories.filter((story: any) => story.status === 'IN_REVIEW');
-      this.filtered = this.filteredStories;
+      this.filtered = this.stories.filter((story: any) => story.status === 'IN_REVIEW');
+      // this.filtered = this.filteredStories;
     } else {
       this.filtered = [...this.stories];
     }
@@ -259,14 +259,11 @@ export class StoriesComponent implements OnInit {
       ];
 
       this.subIndustries = [
-        { subIndustryId: -1, subIndustryName: 'All' },
-        ...this.allSubIndustries
+        { subIndustryId: -1, subIndustryName: 'All' }
       ];
 
-      this.valueChains = [
-        { valueChainId: -1, valueChainName: 'All' },
-        ...this.allValueChains
-      ];
+      this.valueChains = [{ valueChainId: -1, valueChainName: 'All' }];
+      this.valueChainName = 'All';
 
 
       this.selectedSubIndustryId = -1;
@@ -286,6 +283,7 @@ export class StoriesComponent implements OnInit {
           this.applyFilters();
           this.cdr.detectChanges();
         }
+        this.loadAllStories(this.currentPage, this.pageSize);
       } else {
         // Default Industry also to "All"
         this.selectedIndustryId = -1;
@@ -302,15 +300,16 @@ export class StoriesComponent implements OnInit {
       this.selectedSubIndustryId = -1;
       this.selectedValueChainId = -1;
 
+      this.industryName = null;
+      this.subIndustryName = null;
+      this.valueChainName = null;
+
       this.subIndustries = [
-        { subIndustryId: -1, subIndustryName: 'All' },
-        ...this.allSubIndustries
+        { subIndustryId: -1, subIndustryName: 'All' }
       ];
 
-      this.valueChains = [
-        { valueChainId: -1, valueChainName: 'All' },
-        ...this.allValueChains
-      ];
+      this.valueChains = [{ valueChainId: -1, valueChainName: 'All' }];
+      this.valueChainName = 'All';
 
       this.applyFilters();
       return;
@@ -327,10 +326,8 @@ export class StoriesComponent implements OnInit {
       ...this.allSubIndustries.filter(sub => sub.industryId === industry.industryId)
     ];
 
-    this.valueChains = [
-      { valueChainId: -1, valueChainName: 'All' },
-      ...this.allValueChains.filter(vc => vc.industryId === industry.industryId)
-    ];
+    this.valueChains = [{ valueChainId: -1, valueChainName: 'All' }];
+    this.valueChainName = 'All';
 
     this.applyFilters();
   }
@@ -342,10 +339,8 @@ export class StoriesComponent implements OnInit {
       this.selectedSubIndustryId = -1;
       this.selectedValueChainId = -1;
       this.valueChainName = null;
-      this.valueChains = [
-        { valueChainId: -1, valueChainName: 'All' },
-        ...this.allValueChains.filter(vc => vc.industryId === this.selectedIndustryId)
-      ];
+      this.valueChains = [{ valueChainId: -1, valueChainName: 'All' }];
+      this.valueChainName = 'All';
 
       this.applyFilters();
       return;
@@ -356,8 +351,9 @@ export class StoriesComponent implements OnInit {
     this.valueChainName = null;
     this.valueChains = [
       { valueChainId: -1, valueChainName: 'All' },
-      ...this.allValueChains.filter(vc => vc.subIndustryId === sub.subIndustryId)
+      ...this.allValueChains.filter(vc => Number(vc.subIndustryId) === Number(sub.subIndustryId))
     ];
+    this.valueChainName = 'All';
 
     this.applyFilters();
   }
