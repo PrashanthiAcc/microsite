@@ -29,4 +29,6 @@ public interface CloudStorageService {
     void deleteFileFromBlobPath(String blobPath);
 
     void deleteFileFromBlobforhomepage(String fileUrl);
+
+    boolean deleteFile(String blobPath);
 }

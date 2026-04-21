@@ -21,9 +21,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.Set;
 import java.util.Optional;
+import java.util.Objects;
 
 @Service
 public class HomePageServiceImpl implements HomePageService {
@@ -46,7 +53,7 @@ public class HomePageServiceImpl implements HomePageService {
 
     @Override
     @Transactional
-    public void createHomePage(HomePageRequestDTO requestDTO, MultipartFile heroImageUrl, MultipartFile keyCapConfigUrl, MultipartFile industryThumbnailUrl) {
+    public void createHomePage(HomePageRequestDTO requestDTO, MultipartFile heroImageUrl, MultipartFile keyCapConfigUrl, List<MultipartFile> industryThumbnailUrl) {
 
         try {
 
@@ -136,28 +143,35 @@ public class HomePageServiceImpl implements HomePageService {
                     throw new CommonException(CommonExceptionConstants.BAD_REQUEST, "Industry thumbnail file is required");
                 }
 
-                List<IndustryThumbnails> thumbnails = requestDTO.getIndustryThumbnails()
-                        .stream()
-                        .map(t -> {
+                if (industryThumbnailUrl.size() != requestDTO.getIndustryThumbnails().size()) {
+                    throw new CommonException(CommonExceptionConstants.BAD_REQUEST,
+                            "Mismatch between industryIds and files count");
+                }
 
-                            if (t.getIndustryId() == null) {
-                                throw new CommonException(CommonExceptionConstants.BAD_REQUEST, "industryId is required");
-                            }
+                List<IndustryThumbnails> thumbnails = new ArrayList<>();
 
-                            String blobPath = "industry-thumbnail/" + t.getIndustryId() + "/" +
-                                    industryThumbnailUrl.getOriginalFilename();
+                for (int i = 0; i < requestDTO.getIndustryThumbnails().size(); i++) {
 
-                            logger.debug("Uploading industry thumbnail for industryId {} at path: {}", t.getIndustryId(), blobPath);
+                    IndustryThumbnailDTO t = requestDTO.getIndustryThumbnails().get(i);
+                    MultipartFile file = industryThumbnailUrl.get(i);
 
-                            String insuatryThumbnailSasUrl = cloudStorageService.uploadFile(industryThumbnailUrl, blobPath);
+                    if (t.getIndustryId() == null) {
+                        throw new CommonException(CommonExceptionConstants.BAD_REQUEST, "industryId is required");
+                    }
 
-                            IndustryThumbnails entity = new IndustryThumbnails();
-                            entity.setIndustryId(t.getIndustryId());
-                            entity.setIndustryThumbnailUrl(insuatryThumbnailSasUrl);
+                    String blobPath = "industry-thumbnail/" + t.getIndustryId() + "/" +
+                            file.getOriginalFilename();
 
-                            return entity;
-                        })
-                        .toList();
+                    logger.debug("Uploading industry thumbnail for industryId {} at path: {}", t.getIndustryId(), blobPath);
+
+                    String industryThumbnailSasUrl = cloudStorageService.uploadFile(file, blobPath);
+
+                    IndustryThumbnails entity = new IndustryThumbnails();
+                    entity.setIndustryId(t.getIndustryId());
+                    entity.setIndustryThumbnailUrl(industryThumbnailSasUrl);
+
+                    thumbnails.add(entity);
+                }
 
                 industryThumbnailsRepository.saveAll(thumbnails);
             }
@@ -226,5 +240,170 @@ public class HomePageServiceImpl implements HomePageService {
                     "Failed to fetch Home Page Configuration"
             );
         }
+    }
+
+    @Transactional
+    public void updateHomePage(HomePageRequestDTO dto, MultipartFile heroFile, MultipartFile keyCapFile, List<MultipartFile> industryFiles,
+                               String heroUrl, String keyCapUrl, List<String> industryThumbnailFileUrls) {
+
+        HomePageConfiguration config = homePageRepository.findByApplicationName(dto.getApplicationName())
+                                       .orElseThrow(() -> new RuntimeException("Home page config not found"));
+
+        config.setApplicationName(dto.getApplicationName());
+        config.setTitle(dto.getTitle());
+        config.setSubtitle(dto.getSubTitle());
+        config.setMesMomSolDelivered(dto.getMesMomSolDelivered());
+        config.setProdSiteCriticalSupport(dto.getProdSiteCriticalSupport());
+        config.setSapEwmPrgDelivered(dto.getSapEwmPrgDelivered());
+        config.setUpdatedById(dto.getUpdatedById());
+        config.setLastUpdated(LocalDateTime.now());
+
+        config.setHeroImageUrl(
+                handleSingleUpdate(config.getHeroImageUrl(), heroUrl, heroFile, "hero-image/"));
+
+        config.setKeyCapConfUrl(
+                handleSingleUpdate(config.getKeyCapConfUrl(), keyCapUrl, keyCapFile, "key-capacity/")
+        );
+
+        updateIndustryThumbnails(dto, industryFiles, industryThumbnailFileUrls);
+
+        handleFeaturedStories(dto);
+
+        homePageRepository.save(config);
+    }
+
+    private String handleSingleUpdate(String existingUrl, String incomingUrl, MultipartFile file, String folder) {
+
+        if (file != null && !file.isEmpty()) {
+
+            if (folder.endsWith("/")) {
+                folder = folder.substring(0, folder.length() - 1);
+            }
+
+            String fileName = file.getOriginalFilename().trim();
+
+            String blobPath = folder + "/" + fileName;
+
+            if (existingUrl != null && !existingUrl.isBlank()) {
+                String oldPath = extractBlobPath(existingUrl);
+                if (oldPath != null) {
+                    cloudStorageService.deleteFile(oldPath);
+                }
+            }
+
+            return cloudStorageService.uploadFile(file, blobPath);
+        }
+
+        if (incomingUrl != null && !incomingUrl.isBlank()) {
+            return incomingUrl;
+        }
+
+        return existingUrl;
+    }
+
+    @Transactional
+    public void updateIndustryThumbnails(HomePageRequestDTO dto, List<MultipartFile> industryFiles,
+                                         List<String> industryThumbnailFileUrls) {
+
+        if (industryThumbnailFileUrls != null) {
+            if (industryThumbnailFileUrls.size() == 1 && industryThumbnailFileUrls.get(0).isBlank()) {
+                industryThumbnailFileUrls = Collections.emptyList();
+            }
+        } else {
+            industryThumbnailFileUrls = Collections.emptyList();
+        }
+
+        List<String> incomingPaths = industryThumbnailFileUrls.stream()
+                .map(this::extractBlobPath)
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .toList();
+
+        List<IndustryThumbnails> existing = industryThumbnailsRepository.findAll();
+
+        for (IndustryThumbnails old : existing) {
+
+            String dbPath = extractBlobPath(old.getIndustryThumbnailUrl());
+
+            if (dbPath != null && !incomingPaths.contains(dbPath)) {
+
+                cloudStorageService.deleteFile(dbPath);
+                industryThumbnailsRepository.deleteById(old.getIndustryThumbnailId());
+            }
+        }
+
+        if (industryFiles != null && !industryFiles.isEmpty()) {
+
+            Set<Long> existingIds = incomingPaths.stream()
+                    .map(path -> Long.parseLong(path.split("/")[1]))
+                    .collect(Collectors.toSet());
+
+            List<Long> newIds = dto.getIndustryThumbnails().stream()
+                    .map(i -> i.getIndustryId())
+                    .filter(id -> !existingIds.contains(id))
+                    .toList();
+
+            int index = 0;
+
+            for (MultipartFile file : industryFiles) {
+
+                if (file.isEmpty()) continue;
+
+                Long industryId = newIds.get(index);
+
+                String fileName = file.getOriginalFilename().trim();
+                String blobPath = "industry-thumbnail/" + industryId + "/" + fileName;
+
+                System.out.println("UPLOAD PATH: " + blobPath);
+
+                String url = cloudStorageService.uploadFile(file, blobPath);
+
+                IndustryThumbnails entity = new IndustryThumbnails();
+                entity.setIndustryId(industryId);
+                entity.setIndustryThumbnailUrl(url);
+
+                industryThumbnailsRepository.save(entity);
+
+                index++;
+            }
+        }
+    }
+
+    @Transactional
+    private void handleFeaturedStories(HomePageRequestDTO dto) {
+
+        featuredStoriesRepository.deleteAll();
+
+        if (dto.getFeaturedStories() == null || dto.getFeaturedStories().isEmpty()) {
+            return;
+        }
+
+        for (var item : dto.getFeaturedStories()) {
+
+            if (item.getUsecaseId() == null) {
+                throw new IllegalArgumentException("UsecaseId is required");
+            }
+
+            FeaturedStories entity = new FeaturedStories();
+            entity.setUsecaseId(item.getUsecaseId());
+
+            featuredStoriesRepository.save(entity);
+        }
+    }
+
+    private String extractBlobPath(String url) {
+        if (url == null) return null;
+
+        String cleanUrl = url.split("\\?")[0];
+
+        String path = cleanUrl.substring(cleanUrl.indexOf(".net/") + 5);
+
+        path = URLDecoder.decode(path, StandardCharsets.UTF_8).trim();
+
+        if (path.startsWith("ixmicrositelab/")) {
+            path = path.substring("ixmicrositelab/".length());
+        }
+
+        return path;
     }
 }

@@ -16,13 +16,11 @@ import java.util.List;
 @Repository
 public interface UseCaseArtifactRepository extends JpaRepository<UseCaseArtifact, Integer> {
 
-    List<UseCaseArtifact> findByUseCase_UsecaseId(Integer usecaseId);
 
     void deleteByUseCase_UsecaseId(Integer usecaseId);
 
     List<UseCaseArtifact> findAllByUseCase_UsecaseIdIn(List<Integer> ids);
 
-    void deleteByUseCase_UsecaseIdAndArtifactTypeAndArtifactName(Long usecaseId, String artifactType, String artifactName);
 
     @Modifying
     @Transactional

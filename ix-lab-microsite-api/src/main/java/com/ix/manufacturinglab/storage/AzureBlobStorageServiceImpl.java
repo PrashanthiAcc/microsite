@@ -344,5 +344,18 @@ public class AzureBlobStorageServiceImpl implements CloudStorageService {
         }
     }
 
+    @Override
+    public boolean deleteFile(String blobPath) {
+        BlobClient blobClient = blobContainerClient.getBlobClient(blobPath);
+
+        if (!blobClient.exists()) {
+            logger.warn("Blob does not exist: {}", blobPath);
+            return false;
+        }
+
+        blobClient.delete();
+        logger.info("Deleted blob: {}", blobPath);
+        return true;
+    }
 
 }
