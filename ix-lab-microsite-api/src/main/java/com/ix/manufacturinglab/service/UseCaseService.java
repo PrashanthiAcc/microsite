@@ -124,5 +124,6 @@ public interface UseCaseService {
                                                                  List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
                                                                  List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls);
 
+    List<Map<String, Object>> getUseCaseCountByIndustry();
 
 }

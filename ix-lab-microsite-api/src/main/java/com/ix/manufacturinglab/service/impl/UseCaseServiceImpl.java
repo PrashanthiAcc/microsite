@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.ix.manufacturinglab.dto.ArtifactDTO;
@@ -1561,5 +1562,22 @@ public class UseCaseServiceImpl implements UseCaseService {
 
         long rounded = (count / 10) * 10;
         return rounded + "+";
+    }
+
+    @Override
+    public List<Map<String, Object>> getUseCaseCountByIndustry() {
+
+        List<Object[]> results = useCaseRepository.getApprovedActiveUseCaseCountByIndustry();
+
+        List<Map<String, Object>> response = new ArrayList<>();
+
+        for (Object[] row : results) {
+            Map<String, Object> data = new HashMap<>();
+            data.put("industryId", row[0]);
+            data.put("usecaseCount", row[1]);
+            response.add(data);
+        }
+
+        return response;
     }
 }
