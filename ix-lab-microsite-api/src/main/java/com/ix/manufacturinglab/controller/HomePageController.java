@@ -17,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ix.common.exception.CommonErrorManagement;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 
 
@@ -45,7 +47,12 @@ public class HomePageController {
             ObjectMapper mapper = new ObjectMapper();
             HomePageRequestDTO requestDTO = mapper.readValue(requestJson, HomePageRequestDTO.class);
             homePageService.createHomePage(requestDTO, heroImageUrl, keyCapConfigUrl, industryThumbnailUrl);
-            return ResponseEntity.ok("Created successfully");
+            //return ResponseEntity.ok("Configuration Created successfully");
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", 200);
+            response.put("message", "Configuration Created Successfully");
+            return ResponseEntity.ok(response);
+
 
         } catch (CommonException e) {
             throw e;
@@ -87,7 +94,12 @@ public class HomePageController {
 
             homePageService.updateHomePage(requestDTO, heroImageFile, keyCapConfigFile, industryThumbnailFiles, heroImageFileUrl, keyCapConfigFileUrl, industryThumbnailFileUrls);
 
-            return ResponseEntity.ok().build();
+           // return ResponseEntity.ok("Configuration Updated Successfully");
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", 200);
+            response.put("message", "Configuration Updated Successfully");
+
+            return ResponseEntity.ok(response);
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
