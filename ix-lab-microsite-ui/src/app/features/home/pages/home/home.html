@@ -20,7 +20,7 @@
 
 <app-industries *ngIf="industriesData" [industriesData]="industriesData"></app-industries>
 
-<app-featured-stories></app-featured-stories>
+<app-featured-stories *ngIf="featuredStoriesData" [featuredStoriesData]="featuredStoriesData"></app-featured-stories>
 
 <app-key-capabilities *ngIf="keyCapabilitiesData" [keyCapabilitiesData]="keyCapabilitiesData"></app-key-capabilities>
 

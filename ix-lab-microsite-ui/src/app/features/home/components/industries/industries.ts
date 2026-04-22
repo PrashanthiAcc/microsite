@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { IndustryService } from '../../../../core/services/industry';
+import { HomePageService } from '../../../../core/services/home-page.service';
 
 interface IndustryThumbnail {
   industryId: number;
@@ -32,11 +33,21 @@ export class Industries {
     6: 'assets/icons/icon-chemicals.png',
     7: 'assets/icons/icon-hightech.png',
   };
-  constructor(private router: Router, private industryService: IndustryService, private cdr: ChangeDetectorRef) {}
+  constructor(private router: Router, private industryService: IndustryService, private cdr: ChangeDetectorRef,
+    private homePageService: HomePageService
+  ) { }
 
   ngOnInit() {
     console.log("industriesData::", this.industriesData);
     this.loadIndustries();
+    this.getUsecaseCountByIndustry();
+  }
+
+  getUsecaseCountByIndustry() {
+    this.homePageService.getCountByIndustry().subscribe((res: any) => {
+      console.log("Count", res);
+      this.cdr.detectChanges();
+    });
   }
 
   loadIndustries() {
@@ -44,27 +55,27 @@ export class Industries {
       this.allIndustries = res.industries;
       this.industries = this.mergeIndustries();
       console.log("Merged industries:", this.industries);
-       this.cdr.detectChanges();
+      this.cdr.detectChanges();
     });
   }
 
-mergeIndustries(): IndustryThumbnail[] {
-  if (!this.industriesData?.industryThumbnails || !this.allIndustries) {
-    return [];
+  mergeIndustries(): IndustryThumbnail[] {
+    if (!this.industriesData?.industryThumbnails || !this.allIndustries) {
+      return [];
+    }
+
+    return this.industriesData.industryThumbnails.map((thumb: any) => {
+      const match = this.allIndustries.find(
+        (ind: any) => ind.industryId === thumb.industryId
+      );
+
+      return {
+        ...thumb,
+        industryName: match ? match.industryName : 'Unknown Industry',
+        icon: this.iconMap[thumb.industryId] || 'assets/icons/default.png'
+      };
+    });
   }
-
-  return this.industriesData.industryThumbnails.map((thumb: any) => {
-    const match = this.allIndustries.find(
-      (ind: any) => ind.industryId === thumb.industryId
-    );
-
-    return {
-      ...thumb,
-      industryName: match ? match.industryName : 'Unknown Industry',
-      icon: this.iconMap[thumb.industryId] || 'assets/icons/default.png'
-    };
-  });
-}
 
 
 
@@ -72,4 +83,4 @@ mergeIndustries(): IndustryThumbnail[] {
     this.router.navigate(['/stories'], { queryParams: { from: 'stories', title: industryTitle } });
   }
 }
-  
+

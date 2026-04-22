@@ -25,4 +25,8 @@ export class HomePageService {
   updateHomePageConfig(payload: FormData) {
     return this.http.put(`${environment.apiUrl}/api/homepage/v1/home-page-configuration`, payload);
   }
+
+  getCountByIndustry() {
+    return this.http.get(`${environment.apiUrl}/api/usecase/v1/usecases/count-by-industry`);
+  }
 }

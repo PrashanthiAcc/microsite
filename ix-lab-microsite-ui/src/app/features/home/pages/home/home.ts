@@ -34,6 +34,7 @@ export class HomeComponent {
   heroData: any;
   industriesData: any
   keyCapabilitiesData: any;
+  featuredStoriesData: any;
   constructor(private homePageService: HomePageService, private cdr: ChangeDetectorRef){}
 
   toggle() {
@@ -69,6 +70,9 @@ export class HomeComponent {
         keyCapabilityConfigurationImage: res.keyCapabilityConfigurationImage
       }
       
+      this.featuredStoriesData = {
+        featuredStories: res.featuredStories
+      }
         this.cdr.detectChanges();
       },
       error: err => console.error('Fetch failed', err)
