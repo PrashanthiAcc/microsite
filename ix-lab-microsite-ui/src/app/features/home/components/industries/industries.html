@@ -4,20 +4,35 @@
   </div>
 
   <div class="grid">
-    <div class="card" *ngFor="let industry of industries">
-      <img [src]="'assets/' + industry.image" [alt]="industry.title" />
+    <!-- <div class="card" *ngFor="let industry of industries">
+      <img [src]="industry.industryThumbnailUrl"/>
       <div class="overlay">
         <div class="card-content-vertical">
           <div class="img-row">
-            <img *ngIf="industry.icon" class="top-icon" [src]="'assets/' + industry.icon" [alt]="industry.title + ' icon'" />
+            <img class="top-icon" [src]="industry.icon" [alt]="industry.industryName + ' icon'" />
           </div>
           
           <div class="title-row">
-            <div class="title">{{ industry.title }} <span class="count">({{ industry.count }})</span></div>
-            <div class="arrow" (click)="goToStories(industry.title)">→</div>
+            <div class="title">{{ industry.industryName }} <span class="count">()</span></div>
+            <div class="arrow" (click)="goToStories(industry.industryName)">→</div>
           </div>
         </div>
       </div>
+    </div> -->
+  <div class="card" *ngFor="let industry of industries">
+  <img [src]="industry.industryThumbnailUrl" [alt]="industry.industryName" />
+  <div class="overlay">
+    <div class="card-content-vertical">
+      <div class="img-row">
+        <img class="top-icon" [src]="industry.icon" [alt]="industry.industryName + ' icon'" />
+      </div>
+      <div class="title-row">
+        <div class="title">{{ industry.industryName }}</div>
+        <div class="arrow" (click)="goToStories(industry.industryName)">→</div>
+      </div>
     </div>
+  </div>
+</div>
+
   </div>
 </section>

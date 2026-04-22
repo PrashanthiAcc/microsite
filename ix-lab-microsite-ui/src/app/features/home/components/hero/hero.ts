@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, Input } from '@angular/core';
+import { HomePageService } from '../../../../core/services/home-page.service';
 
 @Component({
   selector: 'app-hero',
@@ -8,5 +9,26 @@ import { Component } from '@angular/core';
   styleUrl: './hero.scss',
 })
 export class Hero {
+ @Input() heroData!:any
+  approvedCount: any;
+  constructor(private homePageService: HomePageService, private cdr: ChangeDetectorRef){}
+  ngOnInit() {
+    console.log("heroData::", this.heroData)
+    this.getApprovedStoryCount();
+  }
 
+   getApprovedStoryCount(): void {
+    this.homePageService.getApprovedUsecaseCount().subscribe({
+      next: (res: any) => {
+        console.log('fetched successfully', res);
+
+        // ✅ Extract the number from the response object
+         this.approvedCount = res["Total Approved usecases"];
+
+        // ✅ Patch the clientStories field with just the number
+        this.cdr.detectChanges();
+      },
+      error: err => console.error('Fetch failed', err)
+    });
+  }
 }

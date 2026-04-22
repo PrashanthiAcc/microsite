@@ -86,3 +86,13 @@
     font-size: 20px;
   }
 }
+
+.cap-card--full img {
+  width: 100%;        /* let it fill the card */
+  height: auto;       /* keep aspect ratio */
+  max-height: 400px;  /* optional cap so it doesn’t get too tall */
+  max-width: 500px;
+  object-fit: contain; /* ensures full image is visible */
+  margin-bottom: 0;
+  border-radius: 6px; /* optional for rounded corners */
+}

@@ -1,6 +1,6 @@
 <!-- <app-navbar></app-navbar> -->
 
-<app-hero></app-hero>
+<app-hero *ngIf="heroData" [heroData]="heroData"></app-hero>
 
 <div class="overview">
   <!-- <div class="overview-header" (click)="toggle()">
@@ -18,8 +18,9 @@
   </div> -->
 </div>
 
-<app-industries></app-industries>
+<app-industries *ngIf="industriesData" [industriesData]="industriesData"></app-industries>
 
 <app-featured-stories></app-featured-stories>
 
-<app-key-capabilities></app-key-capabilities>
+<app-key-capabilities *ngIf="keyCapabilitiesData" [keyCapabilitiesData]="keyCapabilitiesData"></app-key-capabilities>
+
