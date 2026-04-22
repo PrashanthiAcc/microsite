@@ -368,6 +368,9 @@ public class UseCaseController {
                 errorResponse.setErrorDescription(ManufacturingLabConstants.DRAFT_TITLE_REQUIRED);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
             }
+            if (requestDTO.getSpeakers() == null || requestDTO.getSpeakers().isEmpty()) {
+                throw new CommonException(CommonExceptionConstants.BAD_REQUEST, "Speakers list cannot be empty");
+            }
 
             UseCaseResponseDTO response =
                     useCaseService.createUseCaseAndSaveAsDraftWithBlob(requestDTO, clientTestimonials, demoVideos,thumbnailUrl, bannerUrl,elevatorPitch, userStory);
@@ -485,7 +488,8 @@ public class UseCaseController {
             if (requestDTO.getTitle() == null || requestDTO.getTitle().isBlank()) {
                 errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
                 errorResponse.setErrorDescription(ManufacturingLabConstants.DRAFT_TITLE_REQUIRED);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);           }
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+            }
 
             UseCaseResponseDTO response = useCaseService.updateUseCaseAndSubmitForApprovalwithBlob(usecaseId, requestDTO, clientTestimonials,
                     demoVideos, thumbnailUrl, bannerUrl , elevatorPitch, userStory, clientTestimonialsUrls, demoVideosUrls, elevatorPitchUrls, userStoryUrls);

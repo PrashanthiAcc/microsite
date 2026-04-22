@@ -246,8 +246,10 @@ public class HomePageServiceImpl implements HomePageService {
     public void updateHomePage(HomePageRequestDTO dto, MultipartFile heroFile, MultipartFile keyCapFile, List<MultipartFile> industryFiles,
                                String heroUrl, String keyCapUrl, List<String> industryThumbnailFileUrls) {
 
-        HomePageConfiguration config = homePageRepository.findByApplicationName(dto.getApplicationName())
-                                       .orElseThrow(() -> new RuntimeException("Home page config not found"));
+        HomePageConfiguration config = homePageRepository.findAll()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Home page config not found"));
 
         config.setApplicationName(dto.getApplicationName());
         config.setTitle(dto.getTitle());
