@@ -21,4 +21,8 @@ export class HomePageService {
   saveHomePageConfig(payload: FormData) {
     return this.http.post(`${environment.apiUrl}/api/homepage/v1/home-page-configuration`, payload);
   }
+
+  updateHomePageConfig(payload: FormData) {
+    return this.http.put(`${environment.apiUrl}/api/homepage/v1/home-page-configuration`, payload);
+  }
 }

@@ -89,6 +89,7 @@ export class HomepageConfigurationsComponent {
   pagination_left = 'assets/icons/pagination_left.png';
   searchTerm: any;
   featuredStories: Story[] = [];
+  getHomePageDetails: any;
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService, private cdr: ChangeDetectorRef,
     private route: ActivatedRoute, private homePageService: HomePageService) {
@@ -165,8 +166,7 @@ export class HomepageConfigurationsComponent {
     this.homePageService.getHomePageData().subscribe({
       next: (res: any) => {
         console.log('fetched successfully', res);
-
-        // ✅ Patch text fields
+        this.getHomePageDetails = res;
         this.homePageForm.patchValue({
           applicationName: res.applicationName,
           title: res.title,
@@ -177,11 +177,9 @@ export class HomepageConfigurationsComponent {
           sapEwmProgramsTbd: res.sapEwmProgramsTbd
         });
 
-        // ✅ Images
         this.imagePreviews['heroImage'] = res.heroImageUrl;
         this.imagePreviews['keyCapabilitiesImage'] = res.keyCapabilityConfigurationImage;
 
-        // ✅ Industries — always 7 slots
         const industriesArray = this.homePageForm.get('industries') as FormArray;
         industriesArray.clear();
         this.industryPreviews = [];
@@ -192,16 +190,16 @@ export class HomepageConfigurationsComponent {
           industriesArray.push(this.fb.group({
             industryId: ind.industryId,
             name: ind.name,
-            fileName: [''],       // don’t patch filename from backend
-            defaultImage: ['']    // keep blank
+            fileName: [''],
+            defaultImage: ['']
           }));
 
-          // ✅ Preview: backend URL if exists, else blank
+
           this.industryPreviews[i] = backendThumb ? backendThumb.industryThumbnailUrl : '';
         });
 
 
-        // ✅ Featured stories
+
         const featuredStoriesArray = this.homePageForm.get('featuredStories') as FormArray;
         featuredStoriesArray.clear();
 
@@ -607,6 +605,77 @@ export class HomepageConfigurationsComponent {
       next: res => console.log('Saved successfully', res),
       error: err => console.error('Save failed', err)
     });
+  }
+
+
+  onUpdate(): void {
+    const payload = new FormData();
+
+    const homePageConfig = {
+      applicationName: this.homePageForm.value.applicationName,
+      title: this.homePageForm.value.title,
+      subTitle: this.homePageForm.value.subtitle,
+      mesMomSolDelivered: this.stripPlus(this.homePageForm.value.mesMomSolutions),
+      prodSiteCriticalSupport: this.stripPlus(this.homePageForm.value.productionSupport),
+      sapEwmPrgDelivered: this.stripPlus(this.homePageForm.value.sapEwmPrograms),
+      updatedById: 101,
+      featuredStories: (this.homePageForm.value.featuredStories || []).map((s: { usecaseId: number }) => ({
+        usecaseId: s.usecaseId
+      })),
+      // ✅ Always send industry IDs
+      industryThumbnails: (this.industriesArray.controls || [])
+        .filter((control: any, i: number) => this.industryPreviews[i] || this.industryBlobs[i])
+        .map((control: any) => ({
+          industryId: control.value.industryId
+        }))
+    };
+
+    // ✅ Append JSON metadata
+    payload.append('homePageConfig', JSON.stringify(homePageConfig));
+
+    // ✅ Hero image: either binary OR url
+    if (this.imageBlobs.heroImage) {
+      payload.append('heroImageFile', this.imageBlobs.heroImage, this.homePageForm.value.heroImage);
+      payload.append('heroImageFileUrls', ''); // blank since new file replaces old
+    } else if (this.imagePreviews['heroImage']) {
+      payload.append('heroImageFileUrls', this.imagePreviews['heroImage']);
+    }
+
+    // ✅ Key Capabilities image: either binary OR url
+    if (this.imageBlobs.keyCapabilitiesImage) {
+      payload.append('keyCapConfigFile', this.imageBlobs.keyCapabilitiesImage, this.homePageForm.value.keyCapabilitiesImage);
+      payload.append('keyCapConfigFileUrls', '');
+    } else if (this.imagePreviews['keyCapabilitiesImage']) {
+      payload.append('keyCapConfigFileUrls', this.imagePreviews['keyCapabilitiesImage']);
+    }
+
+    // ✅ Industry thumbnails: each slot either binary OR url
+    this.industriesArray.controls.forEach((control: any, i: number) => {
+      if (this.industryBlobs[i]) {
+        payload.append('industryThumbnailFiles', this.industryBlobs[i], control.value.fileName);
+        payload.append('industryThumbnailFilesUrls', ''); // blank since new file replaces old
+      } else if (this.industryPreviews[i]) {
+        payload.append('industryThumbnailFilesUrls', this.industryPreviews[i]);
+      }
+    });
+
+    // Debug log
+    for (const [key, value] of payload.entries()) {
+      if (value instanceof File) {
+        console.log(`${key}: File -> name=${value.name}, size=${value.size} bytes, type=${value.type}`);
+      } else {
+        console.log(`${key}: ${value}`);
+      }
+    }
+
+    this.homePageService.updateHomePageConfig(payload).subscribe({
+      next: res => console.log('Updated successfully', res),
+      error: err => console.error('Update failed', err)
+    });
+  }
+
+  onSaveClick() {
+    this.getHomePageDetails ? this.onUpdate() : this.onSaveChanges();
   }
 
 }
