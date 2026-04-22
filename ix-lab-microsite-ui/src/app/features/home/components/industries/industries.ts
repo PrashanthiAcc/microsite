@@ -10,6 +10,7 @@ interface IndustryThumbnail {
   industryThumbnailUrl: string;
   industryName: string;
   icon: string;
+  usecaseCount: number;
 }
 
 @Component({
@@ -23,6 +24,7 @@ export class Industries {
   @Input() industriesData!: any;
   industries: IndustryThumbnail[] = [];   // ✅ typed array
   allIndustries: any;
+  usecaseCounts: Record<number, number> = {};
 
   private iconMap: Record<number, string> = {
     1: 'assets/icons/icon-cpg.png',
@@ -44,11 +46,18 @@ export class Industries {
   }
 
   getUsecaseCountByIndustry() {
-    this.homePageService.getCountByIndustry().subscribe((res: any) => {
-      console.log("Count", res);
+    this.homePageService.getCountByIndustry().subscribe((res: any[]) => {
+      // Example response: [{ usecaseCount: 4, industryId: 1 }]
+      this.usecaseCounts = res.reduce((acc, item) => {
+        acc[item.industryId] = item.usecaseCount;
+        return acc;
+      }, {} as Record<number, number>);
+
+      this.industries = this.mergeIndustries();
       this.cdr.detectChanges();
     });
   }
+
 
   loadIndustries() {
     this.industryService.getIndustries().subscribe((res: any) => {
@@ -72,10 +81,12 @@ export class Industries {
       return {
         ...thumb,
         industryName: match ? match.industryName : 'Unknown Industry',
-        icon: this.iconMap[thumb.industryId] || 'assets/icons/default.png'
+        icon: this.iconMap[thumb.industryId] || 'assets/icons/default.png',
+        usecaseCount: this.usecaseCounts[thumb.industryId] || 0   // ✅ direct numeric lookup
       };
     });
   }
+
 
 
 
