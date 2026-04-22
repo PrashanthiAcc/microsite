@@ -93,6 +93,12 @@ export class StoryDetailsComponent {
     if (id) {
       this.usecaseService.getStoryDetailsById(id).subscribe(res => {
         this.storyDetails = res as StoryDetails;
+
+        this.storyDetails.businessProblem = this.cleanContent(this.storyDetails.businessProblem);
+        this.storyDetails.solutions = this.cleanContent(this.storyDetails.solutions);
+        this.storyDetails.valueDelivered = this.cleanContent(this.storyDetails.valueDelivered);
+        this.storyDetails.toolsAndTechnologies = this.cleanContent(this.storyDetails.toolsAndTechnologies);
+        this.storyDetails.keyResults = this.cleanContent(this.storyDetails.keyResults);
         console.log('Fetched story details:', this.storyDetails);
         // Initialize FAQ toggle state
         // this.storyDetails.faqs = this.storyDetails.faqs.map(f => ({ ...f, showAnswer: false }));
@@ -107,6 +113,15 @@ export class StoryDetailsComponent {
         this.cdr.detectChanges();
       });
     }
+  }
+
+  cleanContent(content: string): string {
+    if (!content) return '';
+
+    return content
+      .replace(/&nbsp;/g, ' ')
+      .replace(/\u00A0/g, ' ')
+      .trim();
   }
 
   onArtifactSelected(artifact: any) {
