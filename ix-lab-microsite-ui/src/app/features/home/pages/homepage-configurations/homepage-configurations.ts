@@ -602,7 +602,10 @@ export class HomepageConfigurationsComponent {
 
 
     this.homePageService.saveHomePageConfig(payload).subscribe({
-      next: res => console.log('Saved successfully', res),
+      next: res => {
+        console.log('Saved successfully', res);
+        this.router.navigate(['/home']);   // ✅ redirect after success
+      },
       error: err => console.error('Save failed', err)
     });
   }
@@ -669,8 +672,11 @@ export class HomepageConfigurationsComponent {
     }
 
     this.homePageService.updateHomePageConfig(payload).subscribe({
-      next: res => console.log('Updated successfully', res),
-      error: err => console.error('Update failed', err)
+      next: res => {
+        console.log('Updated successfully', res);
+        this.router.navigate(['/home']);   // ✅ redirect after success
+      },
+      error: err => console.error('Save failed', err)
     });
   }
 
