@@ -31,4 +31,18 @@ public interface UseCaseRepository extends JpaRepository<UseCase, Integer> {
     void archiveUseCasesByOwnerEid(@Param("ownerEid") String ownerEid);
 
     long countByStatusAndIsActive(String status, boolean isActive);
+
+    @Query(value = """
+        SELECT i.industry_name,
+               COUNT(u.usecase_id) AS usecase_count
+        FROM mfg.usecase u
+        JOIN mfg.value_chain v
+            ON u.value_chain_id = v.value_chain_id
+        JOIN mfg.industry i
+            ON v.industry_id = i.industry_id
+        WHERE u.status = 'APPROVED'
+          AND u.is_active = 'true'
+        GROUP BY i.industry_name
+        """, nativeQuery = true)
+    List<Object[]> getApprovedActiveUseCaseCountByIndustry();
 }

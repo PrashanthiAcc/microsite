@@ -548,4 +548,10 @@ public class UseCaseController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/v1/usecases/count-by-industry")
+    public ResponseEntity<List<Map<String, Object>>> getUseCaseCountByIndustry() {
+
+        return ResponseEntity.ok(useCaseService.getUseCaseCountByIndustry());
+    }
 }
