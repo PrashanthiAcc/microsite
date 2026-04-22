@@ -653,7 +653,7 @@ export class HomepageConfigurationsComponent {
     this.industriesArray.controls.forEach((control: any, i: number) => {
       if (this.industryBlobs[i]) {
         payload.append('industryThumbnailFiles', this.industryBlobs[i], control.value.fileName);
-        payload.append('industryThumbnailFilesUrls', ''); // blank since new file replaces old
+        //payload.append('industryThumbnailFilesUrls', ''); // blank since new file replaces old
       } else if (this.industryPreviews[i]) {
         payload.append('industryThumbnailFilesUrls', this.industryPreviews[i]);
       }
