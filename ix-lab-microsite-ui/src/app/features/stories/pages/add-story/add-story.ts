@@ -46,6 +46,7 @@ export class AddStoryComponent {
   uploadIconPath = 'assets/icons/upload.png';
   saveIconPath = 'assets/icons/save_white.png';
   closeIconPath = 'assets/icons/close.png';
+  arrowLeftIcon = "assets/icons/left.png";
   isOpen: boolean = true;
   showApprovalModal: boolean = false;
   tags: string[] = [];

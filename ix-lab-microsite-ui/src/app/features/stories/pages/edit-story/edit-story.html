@@ -1,5 +1,7 @@
 <form [formGroup]="storyForm" class="story-form">
 
+  <span class="arrow-back" alt="back" (click)="onCancel()">←</span>
+
   <!-- BASIC DETAILS -->
   <section class="card">
     <h3 class="label-header" (click)="toggleBasicDetailsAccordion()">
