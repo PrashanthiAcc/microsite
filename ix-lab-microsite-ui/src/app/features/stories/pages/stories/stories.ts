@@ -32,6 +32,7 @@ export class StoriesComponent implements OnInit {
   filteredStories: any[] = [];
   searchText: string = '';
   drafts: any[] = [];
+  allDrafts: any[] = [];
   allUsers: any[] = [];
   showToast = false;
   toastMessage = '';
@@ -108,6 +109,13 @@ export class StoriesComponent implements OnInit {
 
       this.isLoading = false;
 
+      // Sort by updatedDate DESC (latest first)
+      allStories = allStories.sort((a: any, b: any) => {
+        const dateA = a.updatedDate ? new Date(a.updatedDate).getTime() : 0;
+        const dateB = b.updatedDate ? new Date(b.updatedDate).getTime() : 0;
+        return dateB - dateA; // latest first
+      });
+
       this.stories = allStories.map((story: any) => ({
         ...story,
         tags: story.tag,
@@ -143,13 +151,8 @@ export class StoriesComponent implements OnInit {
 
 
   applyFilters() {
-    if (this.showAdminControls && this.currentFrom !== 'stories') {
-      this.filtered = this.stories.filter((story: any) => story.status === 'IN_REVIEW');
-      // this.filtered = this.filteredStories;
-    } else {
-      this.filtered = [...this.stories];
-    }
-
+    this.filtered = [...this.stories];
+  
     if (this.selectedIndustryId !== -1) {
       this.filtered = this.filtered.filter((story: any) => story.industryId === this.selectedIndustryId);
     }
@@ -163,6 +166,24 @@ export class StoriesComponent implements OnInit {
     }
 
     this.filteredStories = this.filtered;
+
+    if (this.showAdminControls && this.currentFrom !== 'stories') {
+
+      this.drafts = this.filtered
+        .filter((story: any) => story.status === 'DRAFT')
+        .map((draft: any) => ({
+          ...draft,
+          tags: draft.tags,
+          ownerName: this.getOwnerName(draft.ownerId),
+          industryName: this.getIndustryName(draft.industryId),
+          subIndustryName: this.getSubIndustryName(draft.subIndustryId)
+        }));
+
+      this.filteredStories = this.filtered.filter((story: any) => story.status === 'IN_REVIEW');
+      // this.filtered = this.filteredStories;
+    } else {
+      this.filteredStories = [...this.filtered];
+    }
   }
 
   getAllUsers() {
@@ -539,4 +560,28 @@ export class StoriesComponent implements OnInit {
   openValueChainModal() {
     this.showValueChain = true;
   }
+
+  getDynamicTitle(): string {
+  const parts: string[] = [];
+
+  if (this.industryName && this.industryName !== 'All') {
+    parts.push(this.industryName);
+  }
+
+  if (this.subIndustryName && this.subIndustryName !== 'All') {
+    parts.push(this.subIndustryName);
+  }
+
+  if (this.valueChainName && this.valueChainName !== 'All') {
+    parts.push(this.valueChainName);
+  }
+
+  if (parts.length === 0 && (!this.showAdminControls && this.currentFrom === 'stories')) {
+    return 'All Stories';
+  } else if (parts.length === 0 && (this.showAdminControls && this.currentFrom !== 'stories')) {
+    return '';
+  }
+
+  return parts.join(' > ');
+}
 }

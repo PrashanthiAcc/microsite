@@ -57,7 +57,7 @@
     <!-- new wrapper Drafts-->
     <ng-container *ngIf="showAdminControls && this.currentFrom !== 'stories'">
       <div class="stories__header">
-        <h1 class="stories__title" *ngIf="drafts.length">All Drafts ({{ drafts.length }})</h1>
+        <h1 class="stories__title" *ngIf="drafts.length">All Drafts {{ getDynamicTitle() }} ({{ drafts.length }})</h1>
       </div>
 
       <!-- GRID ALL DRAFTS------------ -->
@@ -122,6 +122,9 @@
                   <span>{{ draft.status }}</span>
                 </div>
               </div>
+              <div class="footer-item" *ngIf="draft.updatedDate">
+                <span>{{ draft.updatedDate | date:'dd MMM yyyy' }}</span>
+              </div>
             </div>
           </div>
 
@@ -136,9 +139,8 @@
     <!-- new wrapper Stories -->
     <div class="stories__header">
       <!-- <h1 class="stories__title" *ngIf="filteredStories.length && !showAdminControls">{{ getBreadcrumbTitle() }} ({{ stories.length }})</h1> -->
-      <h1 class="stories__title" *ngIf="filteredStories.length && !showAdminControls">{{cardCategoryTitle ?? 'All
-        Stories'}} ({{ stories.length }})</h1>
-      <h1 class="stories__title" *ngIf="filteredStories.length && showAdminControls">All In Review Stories ({{
+      <h1 class="stories__title" *ngIf="filteredStories.length && !showAdminControls">{{ getDynamicTitle() }} ({{ filteredStories.length }})</h1>
+      <h1 class="stories__title" *ngIf="filteredStories.length && showAdminControls">All In Review Stories {{ getDynamicTitle() }} ({{
         filteredStories.length }})</h1>
 
 
@@ -218,6 +220,9 @@
                 <img [src]="reviewIcon" alt="status" />
                 <span>{{ story.status }}</span>
               </div>
+            </div>
+            <div class="footer-item" *ngIf="story.updatedDate">
+              <span>{{ story.updatedDate | date:'dd MMM yyyy' }}</span>
             </div>
           </div>
         </div>

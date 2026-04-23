@@ -19,7 +19,7 @@
         </div>
       </div>
     </div> -->
-  <div class="card" *ngFor="let industry of industries">
+  <div class="card" *ngFor="let industry of industries" (click)="goToStories(industry.industryName)">
   <img [src]="industry.industryThumbnailUrl" [alt]="industry.industryName" />
   <div class="overlay">
     <div class="card-content-vertical">
@@ -28,7 +28,7 @@
       </div>
       <div class="title-row">
         <div class="title">{{ industry.industryName }} <span class="count">({{ industry.usecaseCount }})</span></div>
-        <div class="arrow" (click)="goToStories(industry.industryName)">→</div>
+        <div class="arrow">→</div>
       </div>
     </div>
   </div>
