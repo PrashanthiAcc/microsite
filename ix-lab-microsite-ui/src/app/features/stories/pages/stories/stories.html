@@ -94,7 +94,16 @@
           <div class="story-card__content">
             <span class="category">{{ draft.category }}</span>
 
-            <span class="industry-subindustry-border-bottom">{{draft.industryName}} • {{draft.subIndustryName}}</span>
+            <div class="industry-row">
+              <span class="left industry-subindustry-border-bottom feild-font">
+                {{draft.industryName}} • {{draft.subIndustryName}}
+              </span>
+            
+              <span class="right feild-font">
+                <img src="assets/icons/value-chain.png" alt="Value chain" />
+                {{draft.valueChainName}}
+              </span>
+            </div>
 
             <h3>{{ draft.title }}</h3>
 
@@ -193,7 +202,16 @@
         <div class="story-card__content">
           <span class="category">{{ story.category }}</span>
 
-          <span class="industry-subindustry-border-bottom">{{story.industryName}} • {{story.subIndustryName}}</span>
+          <div class="industry-row">
+            <span class="left industry-subindustry-border-bottom feild-font">
+              {{story.industryName}} • {{story.subIndustryName}}
+            </span>
+          
+            <span class="right feild-font">
+              <img src="assets/icons/value-chain.png" alt="Value chain" />
+              {{story.valueChainName}}
+            </span>
+          </div>
 
           <h3>{{ story.title }}</h3>
 

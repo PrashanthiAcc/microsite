@@ -386,6 +386,10 @@
   border-bottom: 1px solid #7b2cff;
 }
 
+.feild-font {
+  font-weight: 600;
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -455,6 +459,31 @@
   display: block;
   margin: 0 auto;
   border-radius: 0 0 12px 12px; /* rounded bottom corners */
+}
+
+.industry-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.industry-row .left {
+  font-size: 12px;
+  color: #555;
+}
+
+.industry-row .right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #555;
+}
+
+.industry-row img {
+  width: 14px;
+  height: 14px;
 }
 
 /* subtle entrance animation */

@@ -99,6 +99,7 @@ export class StoryDetailsComponent {
         this.storyDetails.valueDelivered = this.cleanContent(this.storyDetails.valueDelivered);
         this.storyDetails.toolsAndTechnologies = this.cleanContent(this.storyDetails.toolsAndTechnologies);
         this.storyDetails.keyResults = this.cleanContent(this.storyDetails.keyResults);
+        this.storyDetails.narrationGuide = this.cleanContent(this.storyDetails.narrationGuide);
         console.log('Fetched story details:', this.storyDetails);
         // Initialize FAQ toggle state
         // this.storyDetails.faqs = this.storyDetails.faqs.map(f => ({ ...f, showAnswer: false }));

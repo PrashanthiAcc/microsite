@@ -121,7 +121,8 @@ export class StoriesComponent implements OnInit {
         tags: story.tag,
         ownerName: this.getOwnerName(story.ownerEId),
         industryName: this.getIndustryName(story.industryId),
-        subIndustryName: this.getSubIndustryName(story.subIndustryId)
+        subIndustryName: this.getSubIndustryName(story.subIndustryId),
+        valueChainName: this.getValueChainName(story.valueChainId)
       }));
 
       this.filteredStories = this.stories;
@@ -136,7 +137,8 @@ export class StoriesComponent implements OnInit {
             tags: draft.tag,
             ownerName: this.getOwnerName(draft.ownerEId),
             industryName: this.getIndustryName(draft.industryId),
-            subIndustryName: this.getSubIndustryName(draft.subIndustryId)
+            subIndustryName: this.getSubIndustryName(draft.subIndustryId),
+            valueChainName: this.getValueChainName(draft.valueChainId)
           }));
       }
 
@@ -500,6 +502,11 @@ export class StoriesComponent implements OnInit {
   getSubIndustryName(id: number): string {
     const subIndustry = this.allSubIndustries.find((s: any) => s.subIndustryId === id);
     return subIndustry ? subIndustry.subIndustryName : '';
+  }
+
+  getValueChainName(id: number): string {
+    const valueChain = this.allValueChains.find((s: any) => s.valueChainId === id);
+    return valueChain ? valueChain.valueChainName : '';
   }
 
   getIndustryImage() {
