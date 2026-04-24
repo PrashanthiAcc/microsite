@@ -120,11 +120,6 @@ input:focus {
     object-fit: cover;
 }
 
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
-}
 
 .stat-item {
     background: #FFF;
@@ -876,4 +871,113 @@ input:focus {
 .choose-card {
     width: 378px;
     height: 410px;
+}
+
+/* Default: large screens */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 items per row */
+    gap: 24px;
+}
+
+/* 1163px breakpoint (~110–115% zoom) */
+@media (max-width: 1173px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important; /* 2 items per row */
+    }
+    .stat-item input {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+/* 1149px breakpoint (~115% zoom) */
+@media (max-width: 1149px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important; /* 2 items per row */
+    }
+    .stat-item input {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+
+/* 1011px breakpoint (~125% zoom) */
+@media (max-width: 1011px) {
+    .industries-grid,
+    .stories-grid,
+    .stats-grid {
+        grid-template-columns: 1fr; /* collapse to single column */
+    }
+
+    .story-wrapper {
+        width: 100%;
+        height: auto;
+    }
+
+    .industry-item img {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+    }
+
+    .stat-item input {
+        width: 100%;
+        box-sizing: border-box;
+    }
+}
+
+/* 843px breakpoint */
+@media (max-width: 843px) {
+    .industries-grid,
+    .stories-grid,
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .story-wrapper {
+        width: 100%;
+        height: auto;
+    }
+}
+
+/* 722px breakpoint */
+@media (max-width: 722px) {
+    .industries-grid,
+    .stories-grid,
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .story-wrapper {
+        width: 100%;
+        height: auto;
+    }
+}
+
+/* 630px breakpoint */
+@media (max-width: 630px) {
+    .industries-grid,
+    .stories-grid,
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .story-wrapper {
+        width: 100%;
+        height: auto;
+    }
+
+    .industry-item img {
+        max-height: 300px; /* shrink images further for small screens */
+    }
+
+    .stat-item input {
+        font-size: 18px; /* shrink input text */
+    }
+
+    .stat-item label {
+        font-size: 12px; /* shrink labels */
+    }
 }

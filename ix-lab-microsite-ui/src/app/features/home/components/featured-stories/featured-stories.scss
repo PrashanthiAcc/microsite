@@ -135,3 +135,64 @@
     transform: translateX(0);
   }
 }
+
+.featured-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 5vw;
+  animation: fadeIn 0.4s ease;
+  flex-wrap: wrap; // allows wrapping when space is tight
+}
+
+.text-section {
+  flex: 1 1 320px;
+  min-width: 280px;
+}
+
+.image-section {
+  flex: 1 1 320px;
+  display: flex;
+  justify-content: center;
+}
+
+.image-section img {
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+  aspect-ratio: 16/10;
+  object-fit: cover;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Tablet breakpoint */
+@media (max-width: 1024px) {
+  .featured-content {
+    gap: 3vw;
+  }
+  .image-section img {
+    max-width: 480px;
+  }
+}
+
+/* Critical fix for ~722px and zoomed views */
+@media (max-width: 768px) {
+  .featured-content {
+    flex-direction: column; // stack vertically
+    align-items: center;
+    text-align: center;
+  }
+  .text-section {
+    order: 2; // text below image
+    max-width: 90%;
+  }
+  .image-section {
+    order: 1;
+    margin-bottom: 20px;
+    width: 100%;
+    justify-content: center;
+  }
+  .image-section img {
+    max-width: 100%; // no overflow
+  }
+}
