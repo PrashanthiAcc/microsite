@@ -239,8 +239,8 @@
                 <span>{{ story.status }}</span>
               </div>
             </div>
-            <div class="footer-item" *ngIf="story.updatedDate">
-              <span>{{ story.updatedDate | date:'dd MMM yyyy' }}</span>
+            <div class="footer-item">
+              <span>{{ story.updatedDate || story.createdDate | date:'dd MMM yyyy' }}</span>
             </div>
           </div>
         </div>

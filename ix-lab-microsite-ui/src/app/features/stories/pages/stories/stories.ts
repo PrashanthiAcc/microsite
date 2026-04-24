@@ -111,8 +111,8 @@ export class StoriesComponent implements OnInit {
 
       // Sort by updatedDate DESC (latest first)
       allStories = allStories.sort((a: any, b: any) => {
-        const dateA = a.updatedDate ? new Date(a.updatedDate).getTime() : 0;
-        const dateB = b.updatedDate ? new Date(b.updatedDate).getTime() : 0;
+        const dateA = a.updatedDate ? new Date(a.updatedDate).getTime() : new Date(a.createdDate).getTime();
+        const dateB = b.updatedDate ? new Date(b.updatedDate).getTime() : new Date(b.createdDate).getTime();
         return dateB - dateA; // latest first
       });
 
