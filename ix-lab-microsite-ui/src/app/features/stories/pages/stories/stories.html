@@ -53,11 +53,17 @@
 
     </div>
 
+    <div class="stories__header" *ngIf="showAdminControls && isFilterApplied()">
+      <h1 class="stories__title">
+        {{ getDynamicTitle() }} ({{ drafts.length + filteredStories.length }})
+      </h1>
+    </div>
+
     <!---DRAFTS SECTION-->
     <!-- new wrapper Drafts-->
     <ng-container *ngIf="showAdminControls && this.currentFrom !== 'stories'">
       <div class="stories__header">
-        <h1 class="stories__title" *ngIf="drafts.length">All Drafts {{ getDynamicTitle() }} ({{ drafts.length }})</h1>
+        <h1 class="stories__title">All Drafts ({{ drafts.length }})</h1>
       </div>
 
       <!-- GRID ALL DRAFTS------------ -->
@@ -148,9 +154,8 @@
     <!-- new wrapper Stories -->
     <div class="stories__header">
       <!-- <h1 class="stories__title" *ngIf="filteredStories.length && !showAdminControls">{{ getBreadcrumbTitle() }} ({{ stories.length }})</h1> -->
-      <h1 class="stories__title" *ngIf="filteredStories.length && !showAdminControls">{{ getDynamicTitle() }} ({{ filteredStories.length }})</h1>
-      <h1 class="stories__title" *ngIf="filteredStories.length && showAdminControls">All In Review Stories {{ getDynamicTitle() }} ({{
-        filteredStories.length }})</h1>
+      <h1 class="stories__title" *ngIf="!showAdminControls">{{ getDynamicTitle() }} ({{ filteredStories.length }})</h1>
+      <h1 class="stories__title" *ngIf="showAdminControls">All In Review Stories ({{ filteredStories.length }})</h1>
 
 
       <div class="stories__actions" *ngIf="!showAdminControls && this.currentFrom == 'stories'">

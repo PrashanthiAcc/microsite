@@ -154,7 +154,7 @@ export class StoriesComponent implements OnInit {
 
   applyFilters() {
     this.filtered = [...this.stories];
-  
+
     if (this.selectedIndustryId !== -1) {
       this.filtered = this.filtered.filter((story: any) => story.industryId === this.selectedIndustryId);
     }
@@ -569,26 +569,34 @@ export class StoriesComponent implements OnInit {
   }
 
   getDynamicTitle(): string {
-  const parts: string[] = [];
+    const parts: string[] = [];
 
-  if (this.industryName && this.industryName !== 'All') {
-    parts.push(this.industryName);
+    if (this.industryName && this.industryName !== 'All') {
+      parts.push(this.industryName);
+    }
+
+    if (this.subIndustryName && this.subIndustryName !== 'All') {
+      parts.push(this.subIndustryName);
+    }
+
+    if (this.valueChainName && this.valueChainName !== 'All') {
+      parts.push(this.valueChainName);
+    }
+
+    if (parts.length === 0 && (!this.showAdminControls && this.currentFrom === 'stories')) {
+      return 'All Stories';
+    } else if (parts.length === 0 && (this.showAdminControls && this.currentFrom !== 'stories')) {
+      return '';
+    }
+
+    return parts.join(' > ');
   }
 
-  if (this.subIndustryName && this.subIndustryName !== 'All') {
-    parts.push(this.subIndustryName);
+  isFilterApplied(): boolean {
+    return !!(
+      (this.industryName && this.industryName !== 'All') ||
+      (this.subIndustryName && this.subIndustryName !== 'All') ||
+      (this.valueChainName && this.valueChainName !== 'All')
+    );
   }
-
-  if (this.valueChainName && this.valueChainName !== 'All') {
-    parts.push(this.valueChainName);
-  }
-
-  if (parts.length === 0 && (!this.showAdminControls && this.currentFrom === 'stories')) {
-    return 'All Stories';
-  } else if (parts.length === 0 && (this.showAdminControls && this.currentFrom !== 'stories')) {
-    return '';
-  }
-
-  return parts.join(' > ');
-}
 }
