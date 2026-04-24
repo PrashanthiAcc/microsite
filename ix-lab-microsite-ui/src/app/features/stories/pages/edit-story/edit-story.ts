@@ -229,6 +229,9 @@ export class EditStoryComponent {
         bannerValue = { name: fileName };
       }
 
+      this.thumbnailPreview = res.thumbnailImageUrl || null;
+      this.bannerPreview = res.bannerUrl || null;
+
       // ✅ Patch form values
       this.storyForm.patchValue({
         industryId: industryName,
@@ -249,8 +252,23 @@ export class EditStoryComponent {
         narrationGuide: res.narrationGuide,
         approverId: res.approverId,
         creatorId: res.creatorId,
-        thumbnail: thumbnailValue,
-        banner: bannerValue
+        thumbnail: res.thumbnailImageUrl
+          ? {
+            file: null,
+            name: res.thumbnailImageUrl.split('/').pop(),
+            url: res.thumbnailImageUrl,
+            isDeleted: false
+          }
+          : null,
+
+        banner: res.bannerUrl
+          ? {
+            file: null,
+            name: res.bannerUrl.split('/').pop(),
+            url: res.bannerUrl,
+            isDeleted: false
+          }
+          : null
       });
 
       // ✅ Tags
@@ -615,12 +633,36 @@ export class EditStoryComponent {
     const formData = new FormData();
     formData.append('useCaseRequest', JSON.stringify(payload));
 
-    if (this.thumbnailFile) {
-      formData.append('thumbnailUrl', this.thumbnailFile);
+     // Thumbnail section for Payload
+    const thumbnail = this.storyForm.get('thumbnail')?.value;
+
+    if (thumbnail instanceof File) {
+      formData.append('thumbnailUrl', thumbnail);
+    }
+    else if (thumbnail?.file instanceof File) {
+      formData.append('thumbnailUrls', thumbnail.file);
+    }
+    else if (typeof thumbnail === 'string') {
+      formData.append('thumbnailUrl', thumbnail);
+    }
+    else if (thumbnail?.url) {
+      formData.append('thumbnailUrls', thumbnail.url);
     }
 
-    if (this.bannerFile) {
-      formData.append('bannerUrl', this.bannerFile);
+    // Banner section for Payload
+    const banner = this.storyForm.get('banner')?.value;
+
+    if (banner instanceof File) {
+      formData.append('bannerUrl', banner);
+    }
+    else if (banner?.file instanceof File) {
+      formData.append('bannerUrls', banner.file);
+    }
+    else if (typeof banner === 'string') {
+      formData.append('bannerUrl', banner);
+    }
+    else if (banner?.url) {
+      formData.append('bannerUrls', banner.url);
     }
 
     // Elevator Pitch section for Payload
@@ -788,12 +830,36 @@ export class EditStoryComponent {
     const formData = new FormData();
     formData.append('useCaseRequest', JSON.stringify(payload));
 
-    if (this.thumbnailFile) {
-      formData.append('thumbnailUrl', this.thumbnailFile);
+    // Thumbnail section for Payload
+    const thumbnail = this.storyForm.get('thumbnail')?.value;
+
+    if (thumbnail instanceof File) {
+      formData.append('thumbnailUrl', thumbnail);
+    }
+    else if (thumbnail?.file instanceof File) {
+      formData.append('thumbnailUrls', thumbnail.file);
+    }
+    else if (typeof thumbnail === 'string') {
+      formData.append('thumbnailUrl', thumbnail);
+    }
+    else if (thumbnail?.url) {
+      formData.append('thumbnailUrls', thumbnail.url);
     }
 
-    if (this.bannerFile) {
-      formData.append('bannerUrl', this.bannerFile);
+    // Banner section for Payload
+    const banner = this.storyForm.get('banner')?.value;
+
+    if (banner instanceof File) {
+      formData.append('bannerUrl', banner);
+    }
+    else if (banner?.file instanceof File) {
+      formData.append('bannerUrls', banner.file);
+    }
+    else if (typeof banner === 'string') {
+      formData.append('bannerUrl', banner);
+    }
+    else if (banner?.url) {
+      formData.append('bannerUrls', banner.url);
     }
 
     // Elevator Pitch section for Payload
