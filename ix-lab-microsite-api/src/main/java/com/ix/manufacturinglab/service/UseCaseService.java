@@ -1,7 +1,10 @@
 package com.ix.manufacturinglab.service;
 
+import com.ix.manufacturinglab.dto.FaqDTO;
 import com.ix.manufacturinglab.dto.UseCaseRequestDTO;
 import com.ix.manufacturinglab.dto.UseCaseResponseDTO;
+import com.ix.manufacturinglab.entity.UseCase;
+import com.ix.manufacturinglab.entity.UseCaseFaq;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -117,13 +120,17 @@ public interface UseCaseService {
     UseCaseResponseDTO updateUseCaseandSaveasDraftWithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
                                                            List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl,
                                                            List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
-                                                           List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls);
+                                                           List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls,String bannerUrls);
 
     UseCaseResponseDTO updateUseCaseAndSubmitForApprovalwithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
                                                                  List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl,
                                                                  List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
-                                                                 List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls);
+                                                                 List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls,String bannerUrls);
 
     List<Map<String, Object>> getUseCaseCountByIndustry();
+
+    void saveFaqs(Integer usecaseId, List<FaqDTO> faqDTOs);
+
+    List<FaqDTO> getFaqsByUseCaseId(Integer usecaseId);
 
 }

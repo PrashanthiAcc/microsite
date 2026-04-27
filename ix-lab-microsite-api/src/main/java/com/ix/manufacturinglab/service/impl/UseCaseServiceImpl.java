@@ -1188,7 +1188,7 @@ public class UseCaseServiceImpl implements UseCaseService {
     public UseCaseResponseDTO updateUseCaseandSaveasDraftWithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
                                                                   List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl,
                                                                   List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
-                                                                  List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls){
+                                                                  List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls,String bannerUrls){
 
 
     // Fetch existing use case
@@ -1266,6 +1266,8 @@ public class UseCaseServiceImpl implements UseCaseService {
             String blobPath = thumbnailFolder + "/" + thumbnailUrl.getOriginalFilename();
             String thumbnailAsUrl = cloudStorageService.uploadFile(thumbnailUrl, blobPath);
             content.setThumbnailUrl(thumbnailAsUrl);
+        } else {
+            content.setThumbnailUrl(thumbnailUrls);
         }
 
         if (bannerUrl != null && !bannerUrl.isEmpty()) {
@@ -1276,6 +1278,8 @@ public class UseCaseServiceImpl implements UseCaseService {
             String blobPath = bannerFolder + "/" + bannerUrl.getOriginalFilename();
             String bannersasUrl = cloudStorageService.uploadFile(bannerUrl, blobPath);
             content.setBannerUrl(bannersasUrl);
+        } else {
+            content.setBannerUrl(bannerUrls);
         }
 
         if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
@@ -1428,7 +1432,7 @@ public class UseCaseServiceImpl implements UseCaseService {
     public UseCaseResponseDTO updateUseCaseAndSubmitForApprovalwithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
                                                                         List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl,
                                                                         List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
-                                                                        List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls) {
+                                                                        List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls,String bannerUrls) {
         logger.debug(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
 
         UseCase existingUseCase = useCaseRepository.findById(usecaseId)
@@ -1489,6 +1493,8 @@ public class UseCaseServiceImpl implements UseCaseService {
             String blobPath = thumbnailFolder + "/" + thumbnailUrl.getOriginalFilename();
             String thumbnailAsUrl = cloudStorageService.uploadFile(thumbnailUrl, blobPath);
             content.setThumbnailUrl(thumbnailAsUrl);
+        } else {
+            content.setThumbnailUrl(thumbnailUrls);
         }
 
         if (bannerUrl != null && !bannerUrl.isEmpty()) {
@@ -1499,6 +1505,8 @@ public class UseCaseServiceImpl implements UseCaseService {
             String blobPath = bannerFolder + "/" + bannerUrl.getOriginalFilename();
             String bannersasUrl = cloudStorageService.uploadFile(bannerUrl, blobPath);
             content.setBannerUrl(bannersasUrl);
+        } else {
+            content.setBannerUrl(bannerUrls);
         }
 
         // Clear collections only if updating the same use case
@@ -1580,4 +1588,77 @@ public class UseCaseServiceImpl implements UseCaseService {
 
         return response;
     }
+
+    @Transactional
+    public void saveFaqs(Integer usecaseId, List<FaqDTO> faqDTOs) {
+
+        UseCase useCase = useCaseRepository.findById(usecaseId)
+                .orElseThrow(() ->
+                        new RuntimeException("Use case not found"));
+
+        List<UseCaseFaq> existingFaqs =
+                useCaseFaqRepository.findByUseCase(useCase);
+
+        Map<Integer, UseCaseFaq> existingMap = existingFaqs.stream()
+                .collect(Collectors.toMap(
+                        UseCaseFaq::getUsecaseFaqId,
+                        Function.identity()
+                ));
+
+        Set<Integer> incomingIds = new HashSet<>();
+
+        for (FaqDTO dto : faqDTOs) {
+
+            if (dto.getUsecaseFaqId() != null &&
+                    existingMap.containsKey(dto.getUsecaseFaqId())) {
+
+                UseCaseFaq faq =
+                        existingMap.get(dto.getUsecaseFaqId());
+
+                faq.setQuestion(dto.getQuestion());
+                faq.setAnswer(dto.getAnswer());
+                faq.setUpdatedBy(dto.getUpdatedBy());
+                faq.setLastUpdated(LocalDateTime.now());
+
+                incomingIds.add(dto.getUsecaseFaqId());
+
+            } else {
+
+                UseCaseFaq newFaq = UseCaseFaq.builder()
+                        .useCase(useCase)
+                        .question(dto.getQuestion())
+                        .answer(dto.getAnswer())
+                        .updatedBy(dto.getUpdatedBy())
+                        .lastUpdated(LocalDateTime.now())
+                        .build();
+
+                useCaseFaqRepository.save(newFaq);
+            }
+        }
+
+        List<UseCaseFaq> toDelete = existingFaqs.stream()
+                .filter(faq ->
+                        !incomingIds.contains(faq.getUsecaseFaqId()))
+                .toList();
+
+        useCaseFaqRepository.deleteAll(toDelete);
+    }
+
+    @Override
+    public List<FaqDTO> getFaqsByUseCaseId(Integer usecaseId) {
+
+        List<UseCaseFaq> faqs = useCaseFaqRepository.findByUseCaseUsecaseId(usecaseId);
+
+        return faqs.stream()
+                .map(faq -> FaqDTO.builder()
+                        .usecaseFaqId(faq.getUsecaseFaqId())
+                        .usecaseId(faq.getUseCase().getUsecaseId())
+                        .question(faq.getQuestion())
+                        .answer(faq.getAnswer())
+                        .updatedBy(faq.getUpdatedBy())
+                        .lastUpdated(faq.getLastUpdated())
+                        .build())
+                .toList();
+    }
+
 }

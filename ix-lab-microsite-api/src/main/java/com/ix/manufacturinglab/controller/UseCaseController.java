@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ix.common.exception.CommonErrorManagement;
 import com.ix.manufacturinglab.constants.CommonExceptionConstants;
 import com.ix.manufacturinglab.constants.ManufacturingLabConstants;
+import com.ix.manufacturinglab.dto.FaqDTO;
 import com.ix.manufacturinglab.dto.UseCaseRequestDTO;
 import com.ix.manufacturinglab.dto.UseCaseResponseDTO;
 import com.ix.manufacturinglab.exception.CommonException;
@@ -439,7 +440,9 @@ public class UseCaseController {
             @RequestParam(value = "clientTestimonialsUrls", required = false) List<String> clientTestimonialsUrls,
             @RequestParam(value = "demoVideosUrls", required = false) List<String> demoVideosUrls,
             @RequestParam(value = "elevatorPitchUrls", required = false) List<String> elevatorPitchUrls,
-            @RequestParam(value = "userStoryUrls", required = false) List<String> userStoryUrls) {
+            @RequestParam(value = "userStoryUrls", required = false) List<String> userStoryUrls,
+            @RequestPart(value = "thumbnailUrls", required = false) String thumbnailUrls,
+            @RequestPart(value = "bannerUrls", required = false) String bannerUrls) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -452,7 +455,7 @@ public class UseCaseController {
             }
 
             //UseCaseResponseDTO response = useCaseService.updateUseCaseandSaveasDraftWithBlob(usecaseId, requestDTO, clientTestimonials,demoVideos, thumbnailUrl, bannerUrl, elevatorPitch, userStory);
-            UseCaseResponseDTO response =  useCaseService.updateUseCaseandSaveasDraftWithBlob(usecaseId, requestDTO,clientTestimonials,demoVideos,thumbnailUrl,bannerUrl, elevatorPitch, userStory, clientTestimonialsUrls, demoVideosUrls, elevatorPitchUrls, userStoryUrls);
+            UseCaseResponseDTO response =  useCaseService.updateUseCaseandSaveasDraftWithBlob(usecaseId, requestDTO,clientTestimonials,demoVideos,thumbnailUrl,bannerUrl, elevatorPitch, userStory, clientTestimonialsUrls, demoVideosUrls, elevatorPitchUrls, userStoryUrls, thumbnailUrls, bannerUrls);
             return ResponseEntity.ok(response);
 
         } catch (CommonException e) {
@@ -479,7 +482,9 @@ public class UseCaseController {
             @RequestParam(value = "clientTestimonialsUrls", required = false) List<String> clientTestimonialsUrls,
             @RequestParam(value = "demoVideosUrls", required = false) List<String> demoVideosUrls,
             @RequestParam(value = "elevatorPitchUrls", required = false) List<String> elevatorPitchUrls,
-            @RequestParam(value = "userStoryUrls", required = false) List<String> userStoryUrls) {
+            @RequestParam(value = "userStoryUrls", required = false) List<String> userStoryUrls,
+            @RequestParam(value = "thumbnailUrls", required = false) String thumbnailUrls,
+            @RequestParam(value = "bannerUrls", required = false) String bannerUrls) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -492,7 +497,7 @@ public class UseCaseController {
             }
 
             UseCaseResponseDTO response = useCaseService.updateUseCaseAndSubmitForApprovalwithBlob(usecaseId, requestDTO, clientTestimonials,
-                    demoVideos, thumbnailUrl, bannerUrl , elevatorPitch, userStory, clientTestimonialsUrls, demoVideosUrls, elevatorPitchUrls, userStoryUrls);
+                    demoVideos, thumbnailUrl, bannerUrl , elevatorPitch, userStory, clientTestimonialsUrls, demoVideosUrls, elevatorPitchUrls, userStoryUrls, thumbnailUrls, bannerUrls);
             return ResponseEntity.ok(response);
 
         } catch (CommonException e) {
@@ -554,4 +559,25 @@ public class UseCaseController {
 
         return ResponseEntity.ok(useCaseService.getUseCaseCountByIndustry());
     }
+
+    @PutMapping("/v1/{usecaseId}/faqs")
+    public ResponseEntity<Map<String,Object>> saveFaqs(@PathVariable Integer usecaseId,
+                                                       @RequestBody List<FaqDTO> faqDTOs) {
+
+        useCaseService.saveFaqs(usecaseId, faqDTOs);
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "status",200,
+                        "message","FAQs Saved successfully"
+                )
+        );
+    }
+
+    @GetMapping("/v1/{usecaseId}/faqs")
+    public ResponseEntity<List<FaqDTO>> getUseCaseFaqs(@PathVariable Integer usecaseId) {
+
+        return ResponseEntity.ok(useCaseService.getFaqsByUseCaseId(usecaseId));
+    }
+
 }
