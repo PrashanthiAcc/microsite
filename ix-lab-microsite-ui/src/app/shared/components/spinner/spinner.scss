@@ -1,0 +1,19 @@
+/* spinner.component.css */
+.spinner-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;   /* fixed size */
+  height: 100px;
+}
+
+.spinner-logo {
+  width: 100%;
+  height: 100%;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}

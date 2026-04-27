@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators, FormsModule } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
@@ -9,11 +9,12 @@ import { IndustryService } from '../../../../core/services/industry';
 import { UsecaseService } from '../../../../core/services/usecase';
 import { UserService } from '../../../../core/services/users';
 import { ToasterComponent } from '../../../../shared/components/toaster/toaster';
+import { Spinner } from '../../../../shared/components/spinner/spinner';
 
 @Component({
   selector: 'app-add-story',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, QuillModule, CustomDropdownComponent, ToasterComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, QuillModule, CustomDropdownComponent, ToasterComponent, Spinner],
   templateUrl: './add-story.html',
   styleUrls: ['./add-story.scss']
 })
@@ -55,7 +56,7 @@ export class AddStoryComponent {
   editorConfig = {
     toolbar: [
       ['bold', 'italic', 'underline'],
-      [{ list: 'ordered'}, { list: 'bullet'}],
+      [{ list: 'ordered' }, { list: 'bullet' }],
       [{ align: [] }]
     ]
   };
@@ -98,7 +99,7 @@ export class AddStoryComponent {
   bannerFile: File | null = null;
   thumbnailPreview: string | ArrayBuffer | null = null;
   bannerPreview: string | ArrayBuffer | null = null;
-
+  isDataLoading = signal(false);
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient, private location: Location,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService, private cd: ChangeDetectorRef) {
     this.storyForm = this.fb.group({
@@ -556,8 +557,10 @@ export class AddStoryComponent {
       formData.append('userStory', clientStory);
     }
 
+    this.isDataLoading.set(true);
     this.usecaseService.submitForApproval(formData).subscribe({
       next: (res: any) => {
+        this.isDataLoading.set(false);
         this.showToast = false;
         console.log('Response from API:', res);
         this.toastTitle = 'Story created and submitted for approval successfully';
@@ -567,6 +570,7 @@ export class AddStoryComponent {
         this.location.back();
       },
       error: (err: any) => {
+        this.isDataLoading.set(false);
         this.showToast = false;
         console.error('Error from API:', err);
         //console.log('Error payload:', err.error);
@@ -692,9 +696,10 @@ export class AddStoryComponent {
     if (clientStory instanceof File) {
       formData.append('userStory', clientStory);
     }
-
+    this.isDataLoading.set(true);
     this.usecaseService.saveAsDraft(formData).subscribe({
       next: (res: any) => {
+        this.isDataLoading.set(false);
         this.showToast = false;
         console.log('Response from API:', res);
         this.toastTitle = 'Story Saved As Draft';
@@ -703,6 +708,7 @@ export class AddStoryComponent {
         this.location.back();
       },
       error: (err: any) => {
+        this.isDataLoading.set(false);
         this.showToast = false;
         console.error('Error from API:', err);
         //console.log('Error payload:', err.error);

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators, FormsModule } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
@@ -10,6 +10,7 @@ import { UsecaseService } from '../../../../core/services/usecase';
 import { UserService } from '../../../../core/services/users';
 import { forkJoin, Observable } from 'rxjs';
 import { ToasterComponent } from '../../../../shared/components/toaster/toaster';
+import { Spinner } from '../../../../shared/components/spinner/spinner';
 interface IndustryResponse {
   industries: any[];
   subIndustries: any[];
@@ -19,7 +20,7 @@ interface IndustryResponse {
 
 @Component({
   selector: 'app-edit-story',
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, QuillModule, CustomDropdownComponent, ToasterComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, QuillModule, CustomDropdownComponent, ToasterComponent, Spinner],
   templateUrl: './edit-story.html',
   styleUrls: ['./edit-story.scss'],
 })
@@ -111,6 +112,7 @@ export class EditStoryComponent {
   showToast = false;
   toastMessage = '';
   toastTitle = '';
+  isDataLoading = signal(false);
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService,
     private route: ActivatedRoute, private location: Location, private cdr: ChangeDetectorRef) {
@@ -633,7 +635,7 @@ export class EditStoryComponent {
     const formData = new FormData();
     formData.append('useCaseRequest', JSON.stringify(payload));
 
-     // Thumbnail section for Payload
+    // Thumbnail section for Payload
     const thumbnail = this.storyForm.get('thumbnail')?.value;
 
     if (thumbnail instanceof File) {
@@ -736,9 +738,10 @@ export class EditStoryComponent {
     }
 
     console.log('Payload for Update:', payload);
-
+    this.isDataLoading.set(true);
     this.usecaseService.updateStorySendForApproval(this.usecaseID, formData).subscribe({
       next: (res: any) => {
+        this.isDataLoading.set(false);
         this.showToast = false;
         console.log('Response from API:', res);
         this.toastTitle = 'Story updated successfully';
@@ -748,6 +751,7 @@ export class EditStoryComponent {
         this.location.back();
       },
       error: (err: any) => {
+        this.isDataLoading.set(false);
         this.showToast = false;
         console.error('Error from API:', err);
         //console.log('Error payload:', err.error);
@@ -932,9 +936,10 @@ export class EditStoryComponent {
     }
 
     console.log('Payload for Update:', payload);
-
+    this.isDataLoading.set(true);
     this.usecaseService.updateStorySaveDraft(this.usecaseID, formData).subscribe({
       next: (res: any) => {
+        this.isDataLoading.set(false);
         this.showToast = false;
         console.log('Response from API:', res);
         this.toastTitle = 'Story updated for draft';
@@ -944,6 +949,7 @@ export class EditStoryComponent {
         this.location.back();
       },
       error: (err: any) => {
+        this.isDataLoading.set(false);
         this.showToast = false;
         console.error('Error from API:', err);
         console.log('Error payload:', err.error);

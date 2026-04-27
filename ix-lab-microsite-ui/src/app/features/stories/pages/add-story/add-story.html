@@ -1,6 +1,6 @@
 <form [formGroup]="storyForm" class="story-form">
 
-<span class="arrow-back" alt="back" (click)="onCancel()">←</span>
+  <span class="arrow-back" alt="back" (click)="onCancel()">←</span>
 
   <!-- BASIC DETAILS -->
   <section class="card">
@@ -417,11 +417,7 @@
 
 </form>
 
-<app-toaster 
-  [title]="toastTitle" 
-  [message]="toastMessage" 
-  [show]="showToast"
-  (closed)="showToast = false">
+<app-toaster [title]="toastTitle" [message]="toastMessage" [show]="showToast" (closed)="showToast = false">
 </app-toaster>
 
 <div>
@@ -449,4 +445,8 @@
       </button>
     </div>
   </div>
+</div>
+
+<div class="spinner-overlay" *ngIf="isDataLoading()">
+  <app-spinner></app-spinner>
 </div>
