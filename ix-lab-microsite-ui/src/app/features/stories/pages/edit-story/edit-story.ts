@@ -202,7 +202,7 @@ export class EditStoryComponent {
 
   loadUsecaseById(id: string | null) {
     if (!id) return;
-
+    this.isDataLoading.set(true);
     this.usecaseService.getStoryDetailsById(id).subscribe((res: any) => {
       // ✅ Find matching names for industry/subIndustry/valueChain
       const industryName = this.industries.find(i => i.industryId === res.industryId)?.industryName || '';
@@ -317,6 +317,7 @@ export class EditStoryComponent {
       });
 
       this.originalFaqs = this.faqs.value.map(faq => ({ ...faq }));
+      this.isDataLoading.set(false);
     });
   }
 

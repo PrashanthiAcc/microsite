@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -9,12 +9,13 @@ import { UserService } from '../../../../core/services/users';
 import { ChangeDetectorRef } from '@angular/core';
 import { ToasterComponent } from '../../../../shared/components/toaster/toaster';
 import { FormsModule } from '@angular/forms';
+import { Spinner } from '../../../../shared/components/spinner/spinner';
 
 
 @Component({
   selector: 'app-stories',
   standalone: true,
-  imports: [CommonModule, CustomDropdownComponent, RouterModule, ToasterComponent, FormsModule],
+  imports: [CommonModule, CustomDropdownComponent, RouterModule, ToasterComponent, FormsModule, Spinner],
   templateUrl: './stories.html',
   styleUrls: ['./stories.scss']
 })
@@ -62,6 +63,7 @@ export class StoriesComponent implements OnInit {
   valueChainName: any;
   showIndustryOverview: boolean = false;
   showValueChain: boolean = false;
+  isDataLoading = signal(false);
   viewIndustryOverview = [
     { name: 'Life Sciences', defaultImage: 'assets/LifeScience Industry Overview.png' },
   ];
@@ -94,60 +96,67 @@ export class StoriesComponent implements OnInit {
 
 
   loadAllStories(page: number = 1, size: number = 10) {
+    this.isDataLoading.set(true);
     this.isLoading = false;
-    this.usecaseService.getAllStories(page, size).subscribe((res: any) => {
-      let allStories = res.content || [];
+    this.usecaseService.getAllStories(page, size).subscribe({
+      next: (res: any) => {
+        let allStories = res.content || [];
 
-      if (!this.showAdminControls) {
-        allStories = allStories.filter((story: any) => story.isActive == true);
-        if (allStories.length > 0) {
-          this.isLoading = true;
-        } else {
-          this.isLoading = false;
+        if (!this.showAdminControls) {
+          allStories = allStories.filter((story: any) => story.isActive == true);
+          if (allStories.length > 0) {
+            this.isLoading = true;
+          } else {
+            this.isLoading = false;
+          }
         }
+
+        this.isLoading = false;
+
+        // Sort by updatedDate DESC (latest first)
+        allStories = allStories.sort((a: any, b: any) => {
+          const dateA = a.updatedDate ? new Date(a.updatedDate).getTime() : new Date(a.createdDate).getTime();
+          const dateB = b.updatedDate ? new Date(b.updatedDate).getTime() : new Date(b.createdDate).getTime();
+          return dateB - dateA; // latest first
+        });
+
+        this.stories = allStories.map((story: any) => ({
+          ...story,
+          tags: story.tag,
+          ownerName: this.getOwnerName(story.ownerEId),
+          industryName: this.getIndustryName(story.industryId),
+          subIndustryName: this.getSubIndustryName(story.subIndustryId),
+          valueChainName: this.getValueChainName(story.valueChainId)
+        }));
+
+        this.filteredStories = this.stories;
+        this.applyFilters();
+        if (this.showAdminControls && this.currentFrom !== 'stories') {
+          this.filteredStories = this.stories.filter((story: any) => story.status === 'IN_REVIEW');
+
+          this.drafts = allStories
+            .filter((story: any) => story.status === 'DRAFT')
+            .map((draft: any) => ({
+              ...draft,
+              tags: draft.tag,
+              ownerName: this.getOwnerName(draft.ownerEId),
+              industryName: this.getIndustryName(draft.industryId),
+              subIndustryName: this.getSubIndustryName(draft.subIndustryId),
+              valueChainName: this.getValueChainName(draft.valueChainId)
+            }));
+        }
+
+        this.currentPage = page;
+        this.totalPages = res.totalPages;
+        this.totalElements = res.totalElements;
+        this.pageSize = res.size;
+        this.isDataLoading.set(false);
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+         this.isDataLoading.set(false);
       }
-
-      this.isLoading = false;
-
-      // Sort by updatedDate DESC (latest first)
-      allStories = allStories.sort((a: any, b: any) => {
-        const dateA = a.updatedDate ? new Date(a.updatedDate).getTime() : new Date(a.createdDate).getTime();
-        const dateB = b.updatedDate ? new Date(b.updatedDate).getTime() : new Date(b.createdDate).getTime();
-        return dateB - dateA; // latest first
-      });
-
-      this.stories = allStories.map((story: any) => ({
-        ...story,
-        tags: story.tag,
-        ownerName: this.getOwnerName(story.ownerEId),
-        industryName: this.getIndustryName(story.industryId),
-        subIndustryName: this.getSubIndustryName(story.subIndustryId),
-        valueChainName: this.getValueChainName(story.valueChainId)
-      }));
-
-      this.filteredStories = this.stories;
-      this.applyFilters();
-      if (this.showAdminControls && this.currentFrom !== 'stories') {
-        this.filteredStories = this.stories.filter((story: any) => story.status === 'IN_REVIEW');
-
-        this.drafts = allStories
-          .filter((story: any) => story.status === 'DRAFT')
-          .map((draft: any) => ({
-            ...draft,
-            tags: draft.tag,
-            ownerName: this.getOwnerName(draft.ownerEId),
-            industryName: this.getIndustryName(draft.industryId),
-            subIndustryName: this.getSubIndustryName(draft.subIndustryId),
-            valueChainName: this.getValueChainName(draft.valueChainId)
-          }));
-      }
-
-      this.currentPage = page;
-      this.totalPages = res.totalPages;
-      this.totalElements = res.totalElements;
-      this.pageSize = res.size;
-      this.cdr.detectChanges();
-      console.log('Stories loaded:', this.stories);
+      //console.log('Stories loaded:', this.stories);
     });
   }
 
@@ -431,8 +440,10 @@ export class StoriesComponent implements OnInit {
   }
 
   discardDraft(usecaseId: string) {
+    this.isDataLoading.set(true);
     this.usecaseService.discardDraft(usecaseId).subscribe({
       next: (res: string) => {
+        this.isDataLoading.set(false);
         console.log('API success, response:', res);
         this.showToast = false;
         this.toastTitle = 'Draft Discarded Successfully';
@@ -456,6 +467,7 @@ export class StoriesComponent implements OnInit {
         this.loadAllStories(); // Refresh the list 
       },
       error: (err) => {
+        this.isDataLoading.set(false);
         console.error('API error:', err);
       }
     });

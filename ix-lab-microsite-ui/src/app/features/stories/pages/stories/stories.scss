@@ -491,3 +491,13 @@
   from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
   to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
+
+.spinner-overlay {
+  position: fixed;       /* cover entire viewport */
+  inset: 0;              /* shorthand for top/right/bottom/left: 0 */
+  display: flex;         /* flexbox centering */
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.6); /* optional semi-transparent backdrop */
+  z-index: 10000;        /* above stories grid and modals */
+}
