@@ -16,17 +16,29 @@ padding-left: 80px;
   display: inline-block;
   margin-left: 20px;
 }
+// .card-container {
+//   display: flex;
+//   gap: 24px;
+//   padding: 20px;
+//   width: 1760px;
+//   height: 352px;
+//   display: flex;
+//   gap: 20px;
+//   opacity: 1;
+// }
+ 
 .card-container {
   display: flex;
+  flex-wrap: wrap;        /* allow cards to wrap to next line */
   gap: 24px;
   padding: 20px;
-  width: 1760px;
-  height: 352px;
-  display: flex;
-  gap: 20px;
+  width: 100%;            /* take full available width */
+  max-width: 1760px;      /* optional: cap at 1760px */
+  height: auto;           /* let height adjust naturally */
   opacity: 1;
+  box-sizing: border-box; /* ensure padding doesn’t add overflow */
 }
- 
+
 .config-card {
   width: 320px;
   height: 175px;

@@ -130,13 +130,16 @@ export class StoryDetailsComponent {
     const cleanUrl = artifact.url;
 
     if (fileName.endsWith('.ppt') || fileName.endsWith('.pptx')) {
-      const viewerUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(artifact.url)}`;
+      // const viewerUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(artifact.url)}`;
 
-      const newTab = window.open('', '_blank');
+      // const newTab = window.open('', '_blank');
 
-      if (newTab) {
-        newTab.location.href = viewerUrl;
-      }
+      // if (newTab) {
+      //   newTab.location.href = viewerUrl;
+      // }
+      const officeUrl = `ms-powerpoint:ofe|u|${artifact.url}`;
+      window.location.href = officeUrl;
+
     } else {
       window.open(cleanUrl, '_blank');
     }
@@ -149,18 +152,18 @@ export class StoryDetailsComponent {
   }
 
   navigateBack() {
-  const queryParams = this.route.snapshot.queryParams;
+    const queryParams = this.route.snapshot.queryParams;
 
-  this.router.navigate(['/stories'], {
-    queryParams: {
-      from: queryParams['from'] || 'stories',
-      page: queryParams['page'] || 1,
-      search: queryParams['search'] || null,
-      industry: queryParams['industry'] || null,
-      subIndustry: queryParams['subIndustry'] || null,
-      valueChain: queryParams['valueChain'] || null
-    }
-  });
-}
+    this.router.navigate(['/stories'], {
+      queryParams: {
+        from: queryParams['from'] || 'stories',
+        page: queryParams['page'] || 1,
+        search: queryParams['search'] || null,
+        industry: queryParams['industry'] || null,
+        subIndustry: queryParams['subIndustry'] || null,
+        valueChain: queryParams['valueChain'] || null
+      }
+    });
+  }
 
 }
