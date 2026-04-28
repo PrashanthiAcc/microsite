@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ix.common.exception.CommonErrorManagement;
 import com.ix.manufacturinglab.constants.CommonExceptionConstants;
 import com.ix.manufacturinglab.constants.ManufacturingLabConstants;
-import com.ix.manufacturinglab.dto.FaqDTO;
 import com.ix.manufacturinglab.dto.UseCaseRequestDTO;
 import com.ix.manufacturinglab.dto.UseCaseResponseDTO;
 import com.ix.manufacturinglab.exception.CommonException;
@@ -43,56 +42,6 @@ public class UseCaseController {
         this.errorResponse = errorResponse;
     }
 
-    /**
-     * Save a use case as draft (minimal validation).
-     * Only title is required. Status is automatically set to DRAFT.
-     *
-     * @param requestDTO the use case request body
-     * @return the saved draft use case response
-     */
-    @PostMapping(value = "/v1/save-draft", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> createUseCaseAndSaveAsDraft(@RequestBody UseCaseRequestDTO requestDTO) {
-
-        logger.info(ManufacturingLabConstants.LOG_SAVING_DRAFT, requestDTO.getTitle());
-        try {
-            if (requestDTO.getTitle() == null || requestDTO.getTitle().isBlank()) {
-                errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
-                errorResponse.setErrorDescription(ManufacturingLabConstants.DRAFT_TITLE_REQUIRED);
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
-            }
-            UseCaseResponseDTO response = useCaseService.createUseCaseAndSaveAsDraft(requestDTO);
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
-        } catch (CommonException e) {
-            logger.error("Exception occurred while saving use case as draft: {}", e.getMessage(), e);
-            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
-            errorResponse.setErrorDescription(ManufacturingLabConstants.SAVE_DRAFT_GENERIC_ERROR_MESSAGE);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
-        }
-    }
-
-
-    /**
-     * Submit a use case for approval (full validation).
-     * Status is automatically set to IN_REVIEW.
-     *
-     * @param requestDTO the use case request body
-     * @return the submitted use case response
-     */
-    @PostMapping(value = "/v1/submit-for-approval", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> createUseCaseAndsubmitForApproval(
-            @Valid @RequestBody UseCaseRequestDTO requestDTO) {
-
-        //logger.debug(ManufacturingLabConstants.LOG_SUBMITTING_FOR_APPROVAL, requestDTO.getTitle());
-        try {
-            UseCaseResponseDTO response = useCaseService.createUseCaseAndSubmitForApproval(requestDTO);
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
-        } catch (CommonException e) {
-            logger.error("Exception occurred while submitting use case for approval: {}", e.getMessage(), e);
-            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
-            errorResponse.setErrorDescription(ManufacturingLabConstants.SUBMIT_FOR_APPROVAL_GENERIC_ERROR_MESSAGE);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
-        }
-    }
 
     /**
      * Get a use case by ID.
@@ -138,73 +87,6 @@ public class UseCaseController {
         }
     }
 
-    /**
-     * Update an existing use case and set status to DRAFT.
-     *
-     * @param usecaseId  the use case ID
-     * @param requestDTO the update request body
-     * @return the updated use case response
-     */
-    @PutMapping(value = "/v1/{usecaseId}/save-draft", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> updateUseCaseandSaveasDraft(@PathVariable("usecaseId") Integer usecaseId,
-                                                              @Valid @RequestBody UseCaseRequestDTO requestDTO) {
-
-        logger.info(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
-        try {
-            UseCaseResponseDTO response = useCaseService.updateUseCaseandSaveasDraft(usecaseId, requestDTO);
-            return ResponseEntity.status(HttpStatus.OK).body("Use case Id " + usecaseId + " is updated successfully");
-        } catch (CommonException e) {
-            logger.error("Exception occurred while updating use case: {}", e.getMessage(), e);
-
-            errorResponse.setErrorCode(e.getErrorCode());
-            errorResponse.setErrorDescription(e.getErrorDescription());
-
-            HttpStatus status;
-
-            try {
-                status = HttpStatus.valueOf(Integer.parseInt(e.getErrorCode()));
-            } catch (Exception ex) {
-                status = HttpStatus.INTERNAL_SERVER_ERROR;
-            }
-
-            return ResponseEntity.status(status).body(errorResponse);
-        }
-    }
-
-    /**
-     * Update an existing use case and set status to IN_REVIEW.
-     *
-     * @param usecaseId  the use case ID
-     * @param requestDTO the update request body
-     * @return the updated use case response
-     */
-    @PutMapping(value = "/v1/{usecaseId}/submit-for-approval", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> updateUseCaseandsubmitForApproval(@PathVariable("usecaseId") Integer usecaseId,
-                                                                    @Valid @RequestBody UseCaseRequestDTO requestDTO) {
-
-        //logger.debug("Submitting use case {} for approval", usecaseId);
-
-        try {
-            UseCaseResponseDTO response = useCaseService.updateUseCaseandsubmitForApproval(usecaseId, requestDTO);
-            return ResponseEntity.ok("Use case submitted for approval successfully");
-
-        } catch (CommonException e) {
-            logger.error("Exception occurred while updating use case: {}", e.getMessage(), e);
-
-            errorResponse.setErrorCode(e.getErrorCode());
-            errorResponse.setErrorDescription(e.getErrorDescription());
-
-            HttpStatus status;
-
-            try {
-                status = HttpStatus.valueOf(Integer.parseInt(e.getErrorCode()));
-            } catch (Exception ex) {
-                status = HttpStatus.INTERNAL_SERVER_ERROR;
-            }
-
-            return ResponseEntity.status(status).body(errorResponse);
-        }
-    }
 
     /**
      * Soft-delete a use case (set is_active = false).
@@ -312,41 +194,6 @@ public class UseCaseController {
         }
     }
 
-    /**
-     * Update an existing use case and set status to APPROVED by super-admin.
-     *
-     * @param usecaseId  the use case ID
-     * @param requestDTO the update request body
-     * @return the updated use case response
-     */
-    @PutMapping("/v1/{usecaseId}/save")
-    public ResponseEntity<String> updateUseCaseAndSaveBySuperAdmin(@PathVariable Integer usecaseId,
-                                                                   @RequestBody UseCaseRequestDTO requestDTO) {
-
-        //logger.debug("Submitting use case {} for approval", usecaseId);
-
-        try {
-            useCaseService.updateUseCaseBySuperAdmin(usecaseId, requestDTO);
-
-            return ResponseEntity.ok("Use case updated successfully by Super Admin");
-
-        } catch (CommonException e) {
-            logger.error("Exception occurred while updating use case: {}", e.getMessage(), e);
-
-            errorResponse.setErrorCode(e.getErrorCode());
-            errorResponse.setErrorDescription(e.getErrorDescription());
-
-            HttpStatus status;
-
-            try {
-                status = HttpStatus.valueOf(Integer.parseInt(e.getErrorCode()));
-            } catch (Exception ex) {
-                status = HttpStatus.INTERNAL_SERVER_ERROR;
-            }
-
-            return ResponseEntity.status(status).body(errorResponse.toString());
-        }
-    }
 
     @PostMapping(value = "/v1/save-draft-withblob", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Object> createUseCaseAndSaveAsDraftWithBlob(
@@ -455,7 +302,7 @@ public class UseCaseController {
             }
 
             //UseCaseResponseDTO response = useCaseService.updateUseCaseandSaveasDraftWithBlob(usecaseId, requestDTO, clientTestimonials,demoVideos, thumbnailUrl, bannerUrl, elevatorPitch, userStory);
-            UseCaseResponseDTO response =  useCaseService.updateUseCaseandSaveasDraftWithBlob(usecaseId, requestDTO,clientTestimonials,demoVideos,thumbnailUrl,bannerUrl, elevatorPitch, userStory, clientTestimonialsUrls, demoVideosUrls, elevatorPitchUrls, userStoryUrls, thumbnailUrls, bannerUrls);
+            UseCaseResponseDTO response =  useCaseService.updateUseCaseandSaveasDraftWithBlob(usecaseId, requestDTO,clientTestimonials,demoVideos,thumbnailUrl,bannerUrl, elevatorPitch, userStory, clientTestimonialsUrls, demoVideosUrls, elevatorPitchUrls, userStoryUrls, thumbnailUrls, bannerUrls );
             return ResponseEntity.ok(response);
 
         } catch (CommonException e) {
@@ -483,8 +330,8 @@ public class UseCaseController {
             @RequestParam(value = "demoVideosUrls", required = false) List<String> demoVideosUrls,
             @RequestParam(value = "elevatorPitchUrls", required = false) List<String> elevatorPitchUrls,
             @RequestParam(value = "userStoryUrls", required = false) List<String> userStoryUrls,
-            @RequestParam(value = "thumbnailUrls", required = false) String thumbnailUrls,
-            @RequestParam(value = "bannerUrls", required = false) String bannerUrls) {
+            @RequestPart(value = "thumbnailUrls", required = false) String thumbnailUrls,
+            @RequestPart(value = "bannerUrls", required = false) String bannerUrls) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -560,24 +407,81 @@ public class UseCaseController {
         return ResponseEntity.ok(useCaseService.getUseCaseCountByIndustry());
     }
 
-    @PutMapping("/v1/{usecaseId}/faqs")
-    public ResponseEntity<Map<String,Object>> saveFaqs(@PathVariable Integer usecaseId,
-                                                       @RequestBody List<FaqDTO> faqDTOs) {
+    @PostMapping(value = "/v1/save-withblob", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> createUseCaseAndSaveBySuperAdminWithBlob(
+            @RequestPart("useCaseRequest") String requestJson,
+            @RequestPart(value = "clientTestimonials", required = false) List<MultipartFile> clientTestimonials,
+            @RequestPart(value = "demoVideos", required = false) List<MultipartFile> demoVideos,
+            @RequestPart(value = "thumbnailUrl", required = false) MultipartFile thumbnailUrl,
+            @RequestPart(value = "bannerUrl", required = false) MultipartFile bannerUrl,
+            @RequestPart(value = "elevatorPitch", required = false) List<MultipartFile> elevatorPitch,
+            @RequestPart(value = "userStory", required = false) List<MultipartFile> userStory) {
 
-        useCaseService.saveFaqs(usecaseId, faqDTOs);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
 
-        return ResponseEntity.ok(
-                Map.of(
-                        "status",200,
-                        "message","FAQs Saved successfully"
-                )
-        );
+            UseCaseRequestDTO requestDTO =
+                    mapper.readValue(requestJson, UseCaseRequestDTO.class);
+
+            if (requestDTO.getTitle() == null || requestDTO.getTitle().isBlank()) {
+                errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+                errorResponse.setErrorDescription(ManufacturingLabConstants.DRAFT_TITLE_REQUIRED);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+            }
+
+            UseCaseResponseDTO response =
+                    useCaseService.createUseCaseAndSaveBySuperAdminWithBlob(requestDTO, clientTestimonials, demoVideos, thumbnailUrl, bannerUrl, elevatorPitch, userStory);
+
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+
+        } catch (CommonException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error parsing request JSON", e);
+            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+            errorResponse.setErrorDescription("Invalid JSON format");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
+
     }
 
-    @GetMapping("/v1/{usecaseId}/faqs")
-    public ResponseEntity<List<FaqDTO>> getUseCaseFaqs(@PathVariable Integer usecaseId) {
+    @PutMapping(value = "/v1/{usecaseId}/save-withblob", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Object> updateUseCaseAndSaveBySuperAdminWithBlob(
+            @PathVariable Integer usecaseId,
+            @RequestPart("useCaseRequest") String requestJson,
+            @RequestPart(value = "clientTestimonials", required = false) List<MultipartFile> clientTestimonials,
+            @RequestPart(value = "demoVideos", required = false) List<MultipartFile> demoVideos,
+            @RequestPart(value = "thumbnailUrl", required = false) MultipartFile thumbnailUrl,
+            @RequestPart(value = "bannerUrl", required = false) MultipartFile bannerUrl,
+            @RequestPart(value = "elevatorPitch", required = false) List<MultipartFile> elevatorPitch,
+            @RequestPart(value = "userStory", required = false) List<MultipartFile> userStory,
+            @RequestParam(value = "clientTestimonialsUrls", required = false) List<String> clientTestimonialsUrls,
+            @RequestParam(value = "demoVideosUrls", required = false) List<String> demoVideosUrls,
+            @RequestParam(value = "elevatorPitchUrls", required = false) List<String> elevatorPitchUrls,
+            @RequestParam(value = "userStoryUrls", required = false) List<String> userStoryUrls,
+            @RequestPart(value = "thumbnailUrls", required = false) String thumbnailUrls,
+            @RequestPart(value = "bannerUrls", required = false) String bannerUrls) {
 
-        return ResponseEntity.ok(useCaseService.getFaqsByUseCaseId(usecaseId));
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+
+            UseCaseRequestDTO requestDTO = mapper.readValue(requestJson, UseCaseRequestDTO.class);
+            if (requestDTO.getTitle() == null || requestDTO.getTitle().isBlank()) {
+                errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+                errorResponse.setErrorDescription(ManufacturingLabConstants.DRAFT_TITLE_REQUIRED);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+            }
+            UseCaseResponseDTO response =  useCaseService.updateUseCaseAndSaveBySuperAdminWithBlob(usecaseId, requestDTO,clientTestimonials,demoVideos,thumbnailUrl,bannerUrl, elevatorPitch, userStory, clientTestimonialsUrls, demoVideosUrls, elevatorPitchUrls, userStoryUrls, thumbnailUrls, bannerUrls);
+            return ResponseEntity.ok(response);
+
+        } catch (CommonException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error parsing request JSON", e);
+            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+            errorResponse.setErrorDescription("Invalid JSON format");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
+
     }
-
 }

@@ -1,10 +1,7 @@
 package com.ix.manufacturinglab.service;
 
-import com.ix.manufacturinglab.dto.FaqDTO;
 import com.ix.manufacturinglab.dto.UseCaseRequestDTO;
 import com.ix.manufacturinglab.dto.UseCaseResponseDTO;
-import com.ix.manufacturinglab.entity.UseCase;
-import com.ix.manufacturinglab.entity.UseCaseFaq;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,22 +13,6 @@ import java.util.Map;
  */
 public interface UseCaseService {
 
-    /**
-     * Saves a new use case as a draft and persists data across multiple related tables.
-     *
-     * @param requestDTO the use case draft request data
-     * @return the saved use case response containing draft details
-     */
-    UseCaseResponseDTO createUseCaseAndSaveAsDraft(UseCaseRequestDTO requestDTO);
-
-    /**
-     * Submits a use case for approval and persists data across multiple related tables.
-     * updates the status from to IN_REVIEW.
-     *
-     * @param requestDTO the use case request data to be submitted for approval
-     * @return the submitted use case response containing approval details
-     */
-    UseCaseResponseDTO createUseCaseAndSubmitForApproval(UseCaseRequestDTO requestDTO);
 
     /**
      * Discards a draft use case by deleting it from all related tables based on the given use case ID.
@@ -57,14 +38,6 @@ public interface UseCaseService {
      */
     Page<UseCaseResponseDTO> getAllUseCases(int page, int size);
 
-    /**
-     * Update an existing use case and its related data.
-     *
-     * @param usecaseId  the use case ID
-     * @param requestDTO the update request
-     * @return the updated use case response with status DRAFT
-     */
-    UseCaseResponseDTO updateUseCaseandSaveasDraft(Integer usecaseId, UseCaseRequestDTO requestDTO);
 
     /**
      * Soft-delete a use case (set is_active = false).
@@ -80,14 +53,6 @@ public interface UseCaseService {
      */
     void archiveApprovedUseCase(Integer usecaseId);
 
-    /**
-     * Update an existing use case and its related data.
-     *
-     * @param usecaseId  the use case ID
-     * @param requestDTO the update request
-     * @return the updated use case response with status IN_REVIEW
-     */
-    UseCaseResponseDTO updateUseCaseandsubmitForApproval(Integer usecaseId, UseCaseRequestDTO requestDTO);
 
     /**
      * Get all ARCHIVE use cases.
@@ -96,14 +61,6 @@ public interface UseCaseService {
      */
     Page<UseCaseResponseDTO> getAllArchiveUseCases(int page, int size);
 
-    /**
-     * Update an existing use case and its related data by super-admin.
-     *
-     * @param usecaseId  the use case ID
-     * @param requestDTO the update request
-     * @return the updated use case response with status APPROVED
-     */
-    UseCaseResponseDTO updateUseCaseBySuperAdmin(Integer usecaseId, UseCaseRequestDTO requestDTO);
 
     //UseCaseResponseDTO updateUseCaseAndSubmitForApprovalwithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory);
 
@@ -120,17 +77,21 @@ public interface UseCaseService {
     UseCaseResponseDTO updateUseCaseandSaveasDraftWithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
                                                            List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl,
                                                            List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
-                                                           List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls,String bannerUrls);
+                                                           List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls, String bannerUrls);
 
     UseCaseResponseDTO updateUseCaseAndSubmitForApprovalwithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
                                                                  List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl,
                                                                  List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
-                                                                 List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls,String bannerUrls);
+                                                                 List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls, String bannerUrls);
 
     List<Map<String, Object>> getUseCaseCountByIndustry();
 
-    void saveFaqs(Integer usecaseId, List<FaqDTO> faqDTOs);
+    UseCaseResponseDTO updateUseCaseAndSaveBySuperAdminWithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
+                                                                List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl,
+                                                                List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
+                                                                List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls, String bannerUrls);
 
-    List<FaqDTO> getFaqsByUseCaseId(Integer usecaseId);
+    UseCaseResponseDTO createUseCaseAndSaveBySuperAdminWithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory);
+
 
 }

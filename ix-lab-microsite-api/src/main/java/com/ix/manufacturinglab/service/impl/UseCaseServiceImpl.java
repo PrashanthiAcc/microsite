@@ -119,110 +119,6 @@ public class UseCaseServiceImpl implements UseCaseService {
     }
 
     @Override
-    @Transactional
-    public UseCaseResponseDTO createUseCaseAndSaveAsDraft(UseCaseRequestDTO requestDTO) {
-        logger.debug(ManufacturingLabConstants.LOG_SAVING_DRAFT, requestDTO.getTitle());
-
-        // 1. Build UseCase entity
-        UseCase useCase = UseCase.builder()
-                .valueChainId(requestDTO.getValueChainId())
-                .title(requestDTO.getTitle())
-                .ownerEid(requestDTO.getOwnerEId())
-                .status(requestDTO.getStatus() != null ? requestDTO.getStatus() : UseCaseStatus.DRAFT.name())
-                .approverId(requestDTO.getApproverId())
-                .isUpdatedUsecase(false)
-                .createdDate(LocalDateTime.now())
-                .isActive(false)
-                .creatorId(requestDTO.getCreatorId())
-                .build();
-
-        // 2. Add tags (cascade will persist)
-        addTags(useCase, requestDTO);
-
-        // 3. Add speakers (cascade will persist)
-        addSpeakers(useCase, requestDTO);
-
-        // 4. Add artifacts (cascade will persist)
-        addArtifacts(useCase, requestDTO);
-
-        // 5. Add UseCaseFaqs(cascade will persist)
-        addUseCaseFaqs(useCase, requestDTO);
-
-        // 6. Save UseCase (cascade saves speakers, tags, artifacts)
-        useCase = useCaseRepository.save(useCase);
-
-        // 7. Save UseCaseContent separately
-        UseCaseContent content = UseCaseContent.builder()
-                .usecaseId(useCase.getUsecaseId())
-                .description(requestDTO.getDescription())
-                .businessProblem(requestDTO.getBusinessProblem())
-                .solution(requestDTO.getSolutions())
-                .toolsAndTechnologies(requestDTO.getToolsAndTechnologies())
-                .keyResults(requestDTO.getKeyResults())
-                .valueDelivered(requestDTO.getValueDelivered())
-                .duration(requestDTO.getDuration())
-                .thumbnailUrl(requestDTO.getThumbnailImageUrl())
-                .narrationGuide(requestDTO.getNarrationGuide())
-                .bannerUrl(requestDTO.getBannerUrl())
-                .build();
-        useCaseContentRepository.save(content);
-
-        return buildResponseDTO(useCase, content, requestDTO);
-    }
-
-    @Override
-    @Transactional
-    public UseCaseResponseDTO createUseCaseAndSubmitForApproval(UseCaseRequestDTO requestDTO) {
-        logger.debug(ManufacturingLabConstants.LOG_SUBMITTING_FOR_APPROVAL, requestDTO.getTitle());
-
-        // 1. Build UseCase entity
-        UseCase useCase = UseCase.builder()
-                .valueChainId(requestDTO.getValueChainId())
-                .title(requestDTO.getTitle())
-                .ownerEid(String.valueOf(requestDTO.getOwnerEId()))
-                .status(requestDTO.getStatus() != null ? requestDTO.getStatus() : UseCaseStatus.IN_REVIEW.name())
-                .approverId(requestDTO.getApproverId())
-                .isUpdatedUsecase(false)
-                .createdDate(LocalDateTime.now())
-                .isActive(false)
-                .creatorId(requestDTO.getCreatorId())
-                .build();
-
-        // 2. Add tags (cascade will persist)
-        addTags(useCase, requestDTO);
-
-        // 3. Add speakers (cascade will persist)
-        addSpeakers(useCase, requestDTO);
-
-        // 4. Add artifacts (cascade will persist)
-        addArtifacts(useCase, requestDTO);
-
-        // 5. Add UseCaseFaqs(cascade will persist)
-        addUseCaseFaqs(useCase, requestDTO);
-
-        // 6. Save UseCase (cascade saves speakers, tags, artifacts)
-        useCase = useCaseRepository.save(useCase);
-
-        // 7. Save UseCaseContent separately
-        UseCaseContent content = UseCaseContent.builder()
-                .usecaseId(useCase.getUsecaseId())
-                .description(requestDTO.getDescription())
-                .businessProblem(requestDTO.getBusinessProblem())
-                .solution(requestDTO.getSolutions())
-                .toolsAndTechnologies(requestDTO.getToolsAndTechnologies())
-                .keyResults(requestDTO.getKeyResults())
-                .valueDelivered(requestDTO.getValueDelivered())
-                .duration(requestDTO.getDuration())
-                .thumbnailUrl(requestDTO.getThumbnailImageUrl())
-                .narrationGuide(requestDTO.getNarrationGuide())
-                .bannerUrl(requestDTO.getBannerUrl())
-                .build();
-        useCaseContentRepository.save(content);
-
-        return buildResponseDTO(useCase, content, requestDTO);
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public UseCaseResponseDTO getUseCaseById(Integer usecaseId) {
         logger.debug(ManufacturingLabConstants.LOG_FETCHING_USE_CASE, usecaseId);
@@ -304,112 +200,6 @@ public class UseCaseServiceImpl implements UseCaseService {
         }).toList();
 
         return new PageImpl<>(responses, pageable, useCases.getTotalElements());
-    }
-
-    @Override
-    public UseCaseResponseDTO updateUseCaseandSaveasDraft(Integer usecaseId, UseCaseRequestDTO requestDTO) {
-
-        logger.info(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
-
-        try {
-            // Fetch existing record
-            UseCase existingUseCase = useCaseRepository.findById(usecaseId)
-                    .orElseThrow(() -> new CommonException(
-                            CommonExceptionConstants.NOT_FOUND,
-                            ManufacturingLabConstants.USE_CASE_NOT_FOUND + usecaseId));
-
-            String status = existingUseCase.getStatus();
-            Integer parentId = existingUseCase.getParentUsecaseId();
-
-            UseCase useCase;
-
-            if ("DRAFT".equalsIgnoreCase(status) || "IN_REVIEW".equalsIgnoreCase(status) && parentId == null) {
-
-                useCase = existingUseCase;
-
-            } else if ("APPROVED".equalsIgnoreCase(status) && parentId == null) {
-
-                useCase = new UseCase();
-
-                useCase.setValueChainId(existingUseCase.getValueChainId());
-                useCase.setCreatorId(existingUseCase.getCreatorId());
-
-                useCase.setOwnerEid(existingUseCase.getOwnerEid());
-                useCase.setCreatedDate(LocalDateTime.now());
-                useCase.setCreatorId(existingUseCase.getCreatorId());
-
-                useCase.setParentUsecaseId(existingUseCase.getUsecaseId());
-                useCase.setStatus("DRAFT");
-                useCase.setIsUpdatedUsecase(true);
-                useCase.setIsActive(false);
-
-            } else {
-                throw new CommonException(CommonExceptionConstants.CONFLICT, "Use case can't be modified in current state");
-            }
-
-            useCase.setValueChainId(requestDTO.getValueChainId());
-            useCase.setTitle(requestDTO.getTitle());
-            useCase.setOwnerEid(String.valueOf(requestDTO.getOwnerEId()));
-            useCase.setCreatorId(requestDTO.getCreatorId());
-            useCase.setStatus("DRAFT");
-            useCase.setApproverId(requestDTO.getApproverId());
-            useCase.setIsUpdatedUsecase(true);
-            useCase.setUpdatedDate(LocalDateTime.now());
-
-            useCase.setIsActive(false);
-
-            useCase = useCaseRepository.save(useCase);
-
-            UseCaseContent content;
-
-            if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
-
-                content = useCaseContentRepository.findByUsecaseId(useCase.getUsecaseId())
-                        .orElse(UseCaseContent.builder().usecaseId(useCase.getUsecaseId()).build());
-            } else {
-
-                content = new UseCaseContent();
-                content.setUsecaseId(useCase.getUsecaseId());
-            }
-
-            content.setDescription(requestDTO.getDescription());
-            content.setBusinessProblem(requestDTO.getBusinessProblem());
-            content.setSolution(requestDTO.getSolutions());
-            content.setToolsAndTechnologies(requestDTO.getToolsAndTechnologies());
-            content.setKeyResults(requestDTO.getKeyResults());
-            content.setValueDelivered(requestDTO.getValueDelivered());
-            content.setDuration(requestDTO.getDuration());
-            content.setThumbnailUrl(requestDTO.getThumbnailImageUrl());
-            content.setBannerUrl(requestDTO.getBannerUrl());
-            content.setNarrationGuide(requestDTO.getNarrationGuide());
-
-            useCaseContentRepository.save(content);
-
-            if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
-
-                useCase.getTags().clear();
-                useCase.getSpeakers().clear();
-                //useCase.getArtifacts().clear();
-                useCase.getFaqs().clear();
-            }
-
-            addTags(useCase, requestDTO);
-            addSpeakers(useCase, requestDTO);
-            addArtifacts(useCase, requestDTO);
-            addUseCaseFaqs(useCase, requestDTO);
-
-            useCaseRepository.save(useCase);
-
-            return buildResponseFromEntities(useCase, content);
-
-        } catch (CommonException e) {
-            logger.error("Error occurred while processing use case: {}", e.getMessage(), e);
-            throw e;
-        } catch (Exception e) {
-            logger.error("Unexpected error occurred: {}", e.getMessage(), e);
-            throw new CommonException(CommonExceptionConstants.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
-        }
-
     }
 
     @Override
@@ -731,103 +521,6 @@ public class UseCaseServiceImpl implements UseCaseService {
         useCaseRepository.delete(useCase);
     }
 
-    @Override
-    @Transactional
-    public UseCaseResponseDTO updateUseCaseandsubmitForApproval(Integer usecaseId, UseCaseRequestDTO requestDTO) {
-
-        logger.debug(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
-
-        UseCase existingUseCase = useCaseRepository.findById(usecaseId)
-                .orElseThrow(() -> new CommonException(
-                        CommonExceptionConstants.NOT_FOUND,
-                        ManufacturingLabConstants.USE_CASE_NOT_FOUND + usecaseId));
-
-        String status = existingUseCase.getStatus();
-        Integer parentId = existingUseCase.getParentUsecaseId();
-
-        UseCase useCase;
-
-        if (("DRAFT".equalsIgnoreCase(status) || "IN_REVIEW".equalsIgnoreCase(status)) && parentId == null) {
-
-            useCase = existingUseCase;
-
-        } else if ("APPROVED".equalsIgnoreCase(status) && parentId == null) {
-
-            useCase = new UseCase();
-
-
-            useCase.setValueChainId(existingUseCase.getValueChainId());
-            useCase.setCreatorId(existingUseCase.getCreatorId());
-            useCase.setOwnerEid(existingUseCase.getOwnerEid());
-
-            useCase.setCreatedDate(LocalDateTime.now());
-            useCase.setCreatorId(existingUseCase.getCreatorId());
-
-            useCase.setParentUsecaseId(existingUseCase.getUsecaseId());
-            useCase.setStatus("IN_REVIEW");
-            useCase.setIsUpdatedUsecase(true);
-            useCase.setIsActive(false);
-        } else {
-            throw new CommonException(CommonExceptionConstants.CONFLICT, "Use case cannot be modified in current state"
-            );
-        }
-
-        useCase.setTitle(requestDTO.getTitle());
-        useCase.setValueChainId(requestDTO.getValueChainId());
-        useCase.setOwnerEid(String.valueOf(requestDTO.getOwnerEId()));
-        useCase.setApproverId(requestDTO.getApproverId());
-        useCase.setCreatorId(requestDTO.getCreatorId());
-        useCase.setStatus("IN_REVIEW");
-        useCase.setApproverId(requestDTO.getApproverId());
-
-        useCase.setIsActive(false);
-        useCase.setIsUpdatedUsecase(true);
-        useCase.setStatus("IN_REVIEW");
-        useCase.setUpdatedDate(LocalDateTime.now());
-
-        useCase = useCaseRepository.save(useCase);
-
-        UseCaseContent content;
-
-        if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
-            content = useCaseContentRepository.findByUsecaseId(useCase.getUsecaseId())
-                    .orElse(new UseCaseContent());
-            content.setUsecaseId(useCase.getUsecaseId());
-        } else {
-            content = new UseCaseContent();
-            content.setUsecaseId(useCase.getUsecaseId());
-        }
-
-        content.setDescription(requestDTO.getDescription());
-        content.setBusinessProblem(requestDTO.getBusinessProblem());
-        content.setSolution(requestDTO.getSolutions());
-        content.setToolsAndTechnologies(requestDTO.getToolsAndTechnologies());
-        content.setKeyResults(requestDTO.getKeyResults());
-        content.setValueDelivered(requestDTO.getValueDelivered());
-        content.setDuration(requestDTO.getDuration());
-        content.setThumbnailUrl(requestDTO.getThumbnailImageUrl());
-        content.setBannerUrl(requestDTO.getBannerUrl());
-        content.setNarrationGuide(requestDTO.getNarrationGuide());
-
-        useCaseContentRepository.save(content);
-
-        if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
-            useCase.getTags().clear();
-            useCase.getSpeakers().clear();
-            //useCase.getArtifacts().clear();
-            useCase.getFaqs().clear();
-        }
-
-        addTags(useCase, requestDTO);
-        addSpeakers(useCase, requestDTO);
-        addArtifacts(useCase, requestDTO);
-        addUseCaseFaqs(useCase, requestDTO);
-
-        useCaseRepository.save(useCase);
-
-        return buildResponseFromEntities(useCase, content);
-    }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -895,104 +588,6 @@ public class UseCaseServiceImpl implements UseCaseService {
         }).toList();
 
         return new PageImpl<>(responses, pageable, useCases.getTotalElements());
-    }
-
-    @Override
-    @Transactional
-    public UseCaseResponseDTO updateUseCaseBySuperAdmin(Integer usecaseId,
-                                                        UseCaseRequestDTO requestDTO) {
-
-        logger.debug(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
-
-        UseCase existingUseCase = useCaseRepository.findById(usecaseId)
-                .orElseThrow(() -> new CommonException(
-                        CommonExceptionConstants.NOT_FOUND,
-                        ManufacturingLabConstants.USE_CASE_NOT_FOUND + usecaseId));
-
-        String status = existingUseCase.getStatus();
-        Integer parentId = existingUseCase.getParentUsecaseId();
-
-        UseCase useCase;
-
-        if ("DRAFT".equalsIgnoreCase(status)) {
-
-            useCase = existingUseCase;
-        } else if ("APPROVED".equalsIgnoreCase(status)) {
-
-            existingUseCase.setIsActive(false);
-            useCaseRepository.save(existingUseCase);
-
-            useCase = new UseCase();
-
-            useCase.setValueChainId(existingUseCase.getValueChainId());
-            useCase.setCreatorId(existingUseCase.getCreatorId());
-            useCase.setOwnerEid(existingUseCase.getOwnerEid());
-            useCase.setCreatedDate(LocalDateTime.now());
-            useCase.setParentUsecaseId(existingUseCase.getUsecaseId());
-            useCase.setApprovedDate(LocalDateTime.now());
-            useCase.setUpdatedDate(LocalDateTime.now());
-        } else {
-            throw new CommonException(
-                    CommonExceptionConstants.CONFLICT,
-                    "Use case cannot be modified in current state"
-            );
-        }
-
-
-        useCase.setTitle(requestDTO.getTitle());
-        useCase.setValueChainId(requestDTO.getValueChainId());
-        useCase.setOwnerEid(String.valueOf(requestDTO.getOwnerEId()));
-        useCase.setApproverId(requestDTO.getCreatorId());
-        useCase.setCreatorId(requestDTO.getCreatorId());
-
-        useCase.setStatus("APPROVED");
-        useCase.setApprovedDate(LocalDateTime.now());
-
-        useCase.setIsActive(true);
-        useCase.setIsUpdatedUsecase(true);
-        useCase.setUpdatedDate(LocalDateTime.now());
-
-        useCase = useCaseRepository.save(useCase);
-
-        UseCaseContent content;
-
-        if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
-            content = useCaseContentRepository.findByUsecaseId(useCase.getUsecaseId())
-                    .orElse(new UseCaseContent());
-            content.setUsecaseId(useCase.getUsecaseId());
-        } else {
-            content = new UseCaseContent();
-            content.setUsecaseId(useCase.getUsecaseId());
-        }
-
-        content.setDescription(requestDTO.getDescription());
-        content.setBusinessProblem(requestDTO.getBusinessProblem());
-        content.setSolution(requestDTO.getSolutions());
-        content.setToolsAndTechnologies(requestDTO.getToolsAndTechnologies());
-        content.setKeyResults(requestDTO.getKeyResults());
-        content.setValueDelivered(requestDTO.getValueDelivered());
-        content.setDuration(requestDTO.getDuration());
-        content.setThumbnailUrl(requestDTO.getThumbnailImageUrl());
-        content.setBannerUrl(requestDTO.getBannerUrl());
-        content.setNarrationGuide(requestDTO.getNarrationGuide());
-
-        useCaseContentRepository.save(content);
-
-        if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
-            useCase.getTags().clear();
-            useCase.getSpeakers().clear();
-            //useCase.getArtifacts().clear();
-            useCase.getFaqs().clear();
-        }
-
-        addTags(useCase, requestDTO);
-        addSpeakers(useCase, requestDTO);
-        addArtifacts(useCase, requestDTO);
-        addUseCaseFaqs(useCase, requestDTO);
-
-        useCaseRepository.save(useCase);
-
-        return buildResponseFromEntities(useCase, content);
     }
 
     private void addArtifactsFromFiles(UseCase useCase, String folderPath, List<MultipartFile> files, String artifactType) {
@@ -1188,7 +783,7 @@ public class UseCaseServiceImpl implements UseCaseService {
     public UseCaseResponseDTO updateUseCaseandSaveasDraftWithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
                                                                   List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl,
                                                                   List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
-                                                                  List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls,String bannerUrls){
+                                                                  List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls, String bannerUrls){
 
 
     // Fetch existing use case
@@ -1432,7 +1027,7 @@ public class UseCaseServiceImpl implements UseCaseService {
     public UseCaseResponseDTO updateUseCaseAndSubmitForApprovalwithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
                                                                         List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl,
                                                                         List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
-                                                                        List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls,String bannerUrls) {
+                                                                        List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls, String bannerUrls) {
         logger.debug(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
 
         UseCase existingUseCase = useCaseRepository.findById(usecaseId)
@@ -1589,76 +1184,207 @@ public class UseCaseServiceImpl implements UseCaseService {
         return response;
     }
 
+    @Override
     @Transactional
-    public void saveFaqs(Integer usecaseId, List<FaqDTO> faqDTOs) {
+    public UseCaseResponseDTO updateUseCaseAndSaveBySuperAdminWithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
+                                                                       List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl,
+                                                                       List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
+                                                                       List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls, String bannerUrls) {
 
-        UseCase useCase = useCaseRepository.findById(usecaseId)
-                .orElseThrow(() ->
-                        new RuntimeException("Use case not found"));
+        logger.debug(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
 
-        List<UseCaseFaq> existingFaqs =
-                useCaseFaqRepository.findByUseCase(useCase);
+        UseCase existingUseCase = useCaseRepository.findById(usecaseId)
+                .orElseThrow(() -> new CommonException(
+                        CommonExceptionConstants.NOT_FOUND,
+                        ManufacturingLabConstants.USE_CASE_NOT_FOUND + usecaseId));
 
-        Map<Integer, UseCaseFaq> existingMap = existingFaqs.stream()
-                .collect(Collectors.toMap(
-                        UseCaseFaq::getUsecaseFaqId,
-                        Function.identity()
-                ));
+        String status = existingUseCase.getStatus();
+        Integer parentId = existingUseCase.getParentUsecaseId();
 
-        Set<Integer> incomingIds = new HashSet<>();
+        UseCase useCase;
 
-        for (FaqDTO dto : faqDTOs) {
+        if ("DRAFT".equalsIgnoreCase(status)) {
 
-            if (dto.getUsecaseFaqId() != null &&
-                    existingMap.containsKey(dto.getUsecaseFaqId())) {
+            useCase = existingUseCase;
+        } else if ("APPROVED".equalsIgnoreCase(status)) {
 
-                UseCaseFaq faq =
-                        existingMap.get(dto.getUsecaseFaqId());
+            existingUseCase.setIsActive(false);
+            useCaseRepository.save(existingUseCase);
 
-                faq.setQuestion(dto.getQuestion());
-                faq.setAnswer(dto.getAnswer());
-                faq.setUpdatedBy(dto.getUpdatedBy());
-                faq.setLastUpdated(LocalDateTime.now());
+            useCase = new UseCase();
 
-                incomingIds.add(dto.getUsecaseFaqId());
-
-            } else {
-
-                UseCaseFaq newFaq = UseCaseFaq.builder()
-                        .useCase(useCase)
-                        .question(dto.getQuestion())
-                        .answer(dto.getAnswer())
-                        .updatedBy(dto.getUpdatedBy())
-                        .lastUpdated(LocalDateTime.now())
-                        .build();
-
-                useCaseFaqRepository.save(newFaq);
-            }
+            useCase.setValueChainId(existingUseCase.getValueChainId());
+            useCase.setCreatorId(existingUseCase.getCreatorId());
+            useCase.setOwnerEid(existingUseCase.getOwnerEid());
+            useCase.setCreatedDate(LocalDateTime.now());
+            useCase.setParentUsecaseId(null);
+            useCase.setApprovedDate(LocalDateTime.now());
+            useCase.setUpdatedDate(LocalDateTime.now());
+        } else {
+            throw new CommonException(
+                    CommonExceptionConstants.CONFLICT,
+                    "Use case cannot be modified in current state"
+            );
         }
 
-        List<UseCaseFaq> toDelete = existingFaqs.stream()
-                .filter(faq ->
-                        !incomingIds.contains(faq.getUsecaseFaqId()))
-                .toList();
 
-        useCaseFaqRepository.deleteAll(toDelete);
+        useCase.setTitle(requestDTO.getTitle());
+        useCase.setValueChainId(requestDTO.getValueChainId());
+        useCase.setOwnerEid(String.valueOf(requestDTO.getOwnerEId()));
+        useCase.setApproverId(requestDTO.getCreatorId());
+        useCase.setCreatorId(requestDTO.getCreatorId());
+
+        useCase.setStatus("APPROVED");
+        useCase.setApprovedDate(LocalDateTime.now());
+
+        useCase.setIsActive(true);
+        useCase.setIsUpdatedUsecase(true);
+        useCase.setUpdatedDate(LocalDateTime.now());
+
+        useCase = useCaseRepository.save(useCase);
+
+        UseCaseContent content;
+
+        if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
+            content = useCaseContentRepository.findByUsecaseId(useCase.getUsecaseId())
+                    .orElse(new UseCaseContent());
+            content.setUsecaseId(useCase.getUsecaseId());
+        } else {
+            content = new UseCaseContent();
+            content.setUsecaseId(useCase.getUsecaseId());
+        }
+
+        String thumbnailFolder = thumbnailurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+        String bannerFolder = bannerurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
+
+        if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
+
+            if (content.getThumbnailUrl() != null && !content.getThumbnailUrl().isEmpty()) {
+                cloudStorageService.deleteFileFromBlobPath(content.getThumbnailUrl());
+            }
+            String blobPath = thumbnailFolder + "/" + thumbnailUrl.getOriginalFilename();
+            String thumbnailAsUrl = cloudStorageService.uploadFile(thumbnailUrl, blobPath);
+            content.setThumbnailUrl(thumbnailAsUrl);
+        } else {
+            content.setThumbnailUrl(thumbnailUrls);
+        }
+
+        if (bannerUrl != null && !bannerUrl.isEmpty()) {
+
+            if (content.getBannerUrl() != null && !content.getBannerUrl().isEmpty()) {
+                cloudStorageService.deleteFileFromBlobPath(content.getBannerUrl());
+            }
+            String blobPath = bannerFolder + "/" + bannerUrl.getOriginalFilename();
+            String bannersasUrl = cloudStorageService.uploadFile(bannerUrl, blobPath);
+            content.setBannerUrl(bannersasUrl);
+        } else {
+            content.setBannerUrl(bannerUrls);
+        }
+
+        if (existingUseCase.getUsecaseId().equals(useCase.getUsecaseId())) {
+            useCase.getTags().clear();
+            useCase.getSpeakers().clear();
+            //useCase.getArtifacts().clear();
+            useCase.getFaqs().clear();
+        }
+
+        handleArtifacts(useCase, "usecase/artifacts/Client Testimonials/" + usecaseId, "CLIENT_TESTIMONIAL", clientTestimonialsUrls, clientTestimonials);
+        handleArtifacts(useCase, "usecase/artifacts/Demo Videos/" + usecaseId, "DEMO_VIDEO", demoVideosUrls, demoVideos);
+        handleArtifacts(useCase, "usecase/artifacts/Client Credentials/user_story/" + usecaseId, "USER_STORY", userStoryUrls, userStory);
+        handleArtifacts(useCase, "usecase/artifacts/Client Credentials/elevator_pitch/" + usecaseId, "ELEVATOR_PITCH", elevatorPitchUrls, elevatorPitch);
+
+
+        content.setDescription(requestDTO.getDescription());
+        content.setBusinessProblem(requestDTO.getBusinessProblem());
+        content.setSolution(requestDTO.getSolutions());
+        content.setToolsAndTechnologies(requestDTO.getToolsAndTechnologies());
+        content.setKeyResults(requestDTO.getKeyResults());
+        content.setValueDelivered(requestDTO.getValueDelivered());
+        content.setDuration(requestDTO.getDuration());
+        content.setNarrationGuide(requestDTO.getNarrationGuide());
+
+        useCaseContentRepository.save(content);
+
+        addTags(useCase, requestDTO);
+        addSpeakers(useCase, requestDTO);
+        addUseCaseFaqs(useCase, requestDTO);
+
+        useCaseRepository.save(useCase);
+
+
+        return buildResponseFromEntities(useCase, content);
     }
 
     @Override
-    public List<FaqDTO> getFaqsByUseCaseId(Integer usecaseId) {
+    @Transactional
+    public UseCaseResponseDTO createUseCaseAndSaveBySuperAdminWithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory) {
+        logger.debug(ManufacturingLabConstants.LOG_SUBMITTING_FOR_APPROVAL, requestDTO.getTitle());
 
-        List<UseCaseFaq> faqs = useCaseFaqRepository.findByUseCaseUsecaseId(usecaseId);
+        UseCase useCase = UseCase.builder()
+                .valueChainId(requestDTO.getValueChainId())
+                .title(requestDTO.getTitle())
+                .ownerEid(String.valueOf(requestDTO.getOwnerEId()))
+                .status(requestDTO.getStatus() != null ? requestDTO.getStatus() : UseCaseStatus.APPROVED.name())
+                .approverId(requestDTO.getCreatorId())
+                .isUpdatedUsecase(false)
+                .createdDate(LocalDateTime.now())
+                .isActive(true)
+                .creatorId(requestDTO.getCreatorId())
+                .approvedDate(LocalDateTime.now())
+                .build();
 
-        return faqs.stream()
-                .map(faq -> FaqDTO.builder()
-                        .usecaseFaqId(faq.getUsecaseFaqId())
-                        .usecaseId(faq.getUseCase().getUsecaseId())
-                        .question(faq.getQuestion())
-                        .answer(faq.getAnswer())
-                        .updatedBy(faq.getUpdatedBy())
-                        .lastUpdated(faq.getLastUpdated())
-                        .build())
-                .toList();
+        addTags(useCase, requestDTO);
+
+        addSpeakers(useCase, requestDTO);
+
+        //addArtifacts(useCase, requestDTO);
+
+        addUseCaseFaqs(useCase, requestDTO);
+
+        useCase = useCaseRepository.save(useCase);
+
+        String thumbnailSasUrl = null;
+        String bannerSasUrl = null;
+
+        if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
+            String blobPath = thumbnailurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
+                    + "/" + thumbnailUrl.getOriginalFilename();
+            logger.debug("Uploading thumbnailUrl to blob storage at path: {}", blobPath);
+            thumbnailSasUrl = cloudStorageService.uploadFile(thumbnailUrl, blobPath);
+            logger.debug("thumbnailUrl uploaded successfully. Blob URL: {}", thumbnailSasUrl);
+
+        }
+        if (bannerUrl != null && !bannerUrl.isEmpty()) {
+            String blobPath = bannerurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()))
+                    + "/" + bannerUrl.getOriginalFilename();
+            logger.debug("Uploading bannerUrl to blob storage at path: {}", blobPath);
+            bannerSasUrl = cloudStorageService.uploadFile(bannerUrl, blobPath);
+            logger.debug("bannerUrl uploaded successfully. Blob URL: {}", bannerSasUrl);
+        }
+
+        uploadArtifacts(useCase, clientTestimonials, "CLIENT_TESTIMONIAL", clientTestimonialsPath);
+        uploadArtifacts(useCase, demoVideos, "DEMO_VIDEO", demoVideosPath);
+        uploadArtifacts(useCase, elevatorPitch, "ELEVATOR_PITCH", elevatorPitchPath);
+        uploadArtifacts(useCase, userStory, "USER_STORY", userStoryPath);
+
+        useCase = useCaseRepository.save(useCase);
+
+        UseCaseContent content = UseCaseContent.builder()
+                .usecaseId(useCase.getUsecaseId())
+                .description(requestDTO.getDescription())
+                .businessProblem(requestDTO.getBusinessProblem())
+                .solution(requestDTO.getSolutions())
+                .toolsAndTechnologies(requestDTO.getToolsAndTechnologies())
+                .keyResults(requestDTO.getKeyResults())
+                .valueDelivered(requestDTO.getValueDelivered())
+                .duration(requestDTO.getDuration())
+                .thumbnailUrl(thumbnailSasUrl)
+                .narrationGuide(requestDTO.getNarrationGuide())
+                .bannerUrl(bannerSasUrl)
+                .build();
+        useCaseContentRepository.save(content);
+
+        return buildResponseDTO(useCase, content, requestDTO);
     }
 
 }
