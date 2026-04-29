@@ -9,8 +9,5 @@ import java.util.List;
 public interface UseCaseFaqRepository extends JpaRepository<UseCaseFaq, Integer> {
 
     List<UseCaseFaq> findAllByUseCase_UsecaseIdIn(List<Integer> ids);
-
-    List<UseCaseFaq> findByUseCase(UseCase useCase);
-
-    List<UseCaseFaq> findByUseCaseUsecaseId(Integer usecaseId);
+    void deleteByUseCase_UsecaseId(Integer usecaseId);
 }

@@ -154,7 +154,9 @@ public class UseCaseController {
             useCaseService.discardDraftUseCase(usecaseId);
 
             return ResponseEntity.ok(
-                    "Draft use case with Id " + usecaseId + " is discarded successfully");
+                    Map.of(
+                            "message",
+                            "Draft use case with Id " + usecaseId + " is discarded successfully"));
 
         } catch (CommonException e) {
 

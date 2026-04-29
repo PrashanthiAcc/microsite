@@ -515,13 +515,30 @@ public class UseCaseServiceImpl implements UseCaseService {
         UseCase useCase = useCaseRepository
                 .findByUsecaseIdAndStatus(usecaseId, "DRAFT")
                 .orElseThrow(() ->
-                        new CommonException("400", "Only draft use cases can be discarded or use case not found")
-                );
+                        new CommonException("400", "Only draft use cases can be discarded or use case not found"));
+
+        UseCaseContent useCaseContent = useCaseContentRepository.findByUsecaseId(usecaseId).orElse(null);
+
+        if (useCaseContent.getThumbnailUrl() != null) {
+            cloudStorageService.deleteFile(extractBlobPath(useCaseContent.getThumbnailUrl()));
+        }
+
+        if (useCaseContent.getBannerUrl() != null) {
+            cloudStorageService.deleteFile(extractBlobPath(useCaseContent.getBannerUrl()));
+        }
+
+        cloudStorageService.deleteAllFilesInFolder("usecase/artifacts/Client Testimonials/" + usecaseId);
+
+        cloudStorageService.deleteAllFilesInFolder("usecase/artifacts/Demo Videos/" + usecaseId);
+
+        cloudStorageService.deleteAllFilesInFolder("usecase/artifacts/Client Credentials/user_story/" + usecaseId);
+
+        cloudStorageService.deleteAllFilesInFolder("usecase/artifacts/Client Credentials/elevator_pitch/" + usecaseId);
 
         useCaseContentRepository.deleteByUsecaseId(usecaseId);
-        useCaseArtifactRepository.deleteByUseCase_UsecaseId(usecaseId);
         useCaseTagRepository.deleteByUseCase_UsecaseId(usecaseId);
         useCaseSpeakerRepository.deleteByUseCase_UsecaseId(usecaseId);
+        useCaseFaqRepository.deleteByUseCase_UsecaseId(usecaseId);
         useCaseRepository.delete(useCase);
     }
 
