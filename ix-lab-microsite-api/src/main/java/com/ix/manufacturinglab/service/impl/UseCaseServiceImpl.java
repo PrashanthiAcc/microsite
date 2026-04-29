@@ -14,6 +14,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 
+import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.storage.blob.BlobContainerClient;
 import com.ix.manufacturinglab.dto.ArtifactDTO;
 import com.ix.manufacturinglab.dto.SpeakerDTO;
@@ -460,9 +461,12 @@ public class UseCaseServiceImpl implements UseCaseService {
             builder.faqs(
                     useCase.getFaqs().stream()
                             .map(f -> FaqDTO.builder()
+                                    .usecaseFaqId(f.getUsecaseFaqId())
+                                    .usecaseId(f.getUseCase().getUsecaseId())
                                     .question(f.getQuestion())
                                     .answer(f.getAnswer())
-                                    .updatedBy(f.getUpdatedBy())   // change to String.valueOf(...) if DTO expects String
+                                    .updatedBy(f.getUpdatedBy())
+                                    .lastUpdated(f.getLastUpdated())
                                     .build()
                             )
                             .toList()
@@ -1387,4 +1391,68 @@ public class UseCaseServiceImpl implements UseCaseService {
         return buildResponseDTO(useCase, content, requestDTO);
     }
 
+    @Transactional
+    @Override
+    public UseCaseResponseDTO approveUseCaseWithoutEditingBySuperAdmin(Integer usecaseId, Integer approverId) {
+
+        UseCase useCase = useCaseRepository.findById(usecaseId)
+                .orElseThrow(() ->
+                        new CommonException(
+                                CommonExceptionConstants.BAD_REQUEST,
+                                "Usecase not found with ID: " + usecaseId));
+
+        useCase.setStatus("APPROVED");
+        useCase.setIsActive(true);
+        useCase.setApproverId(approverId);
+        useCase.setApprovedDate(LocalDateTime.now());
+        useCase.setUpdatedDate(LocalDateTime.now());
+        useCase.setIsUpdatedUsecase(true);
+
+        UseCase savedUseCase = useCaseRepository.save(useCase);
+
+        UseCaseContent content = useCaseContentRepository
+                .findByUsecaseId(savedUseCase.getUsecaseId())
+                .orElse(null);
+
+        ValueChain valueChain = valueChainRepository
+                .findById(Long.valueOf(savedUseCase.getValueChainId()))
+                .orElseThrow(() ->
+                        new CommonException(
+                                CommonExceptionConstants.BAD_REQUEST, "Value chain not found"));
+
+        return buildResponseFromEntities(savedUseCase, content, valueChain.getIndustryId(), valueChain.getSubIndustryId());
+    }
+
+    @Transactional
+    @Override
+    public UseCaseResponseDTO sendBackToDraftWithoutEditingBySuperAdmin(Integer usecaseId) {
+
+        UseCase useCase = useCaseRepository.findById(usecaseId)
+                .orElseThrow(() ->
+                        new CommonException(
+                                CommonExceptionConstants.BAD_REQUEST,
+                                "Usecase not found with ID: " + usecaseId
+                        ));
+
+        useCase.setStatus("DRAFT");
+        useCase.setIsActive(false);
+        useCase.setUpdatedDate(LocalDateTime.now());
+        useCase.setIsUpdatedUsecase(true);
+
+        UseCase savedUseCase = useCaseRepository.save(useCase);
+
+        UseCaseContent content = useCaseContentRepository
+                .findByUsecaseId(savedUseCase.getUsecaseId())
+                .orElse(null);
+
+        ValueChain valueChain = valueChainRepository
+                .findById(Long.valueOf(savedUseCase.getValueChainId()))
+                .orElseThrow(() ->
+                        new CommonException(
+                                CommonExceptionConstants.BAD_REQUEST,
+                                "Value chain not found"
+                        ));
+
+        return buildResponseFromEntities(savedUseCase, content, valueChain.getIndustryId(), valueChain.getSubIndustryId());
+    }
 }

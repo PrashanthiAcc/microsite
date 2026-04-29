@@ -91,7 +91,14 @@ public interface UseCaseService {
                                                                 List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
                                                                 List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls, String bannerUrls);
 
-    UseCaseResponseDTO createUseCaseAndSaveBySuperAdminWithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory);
+    UseCaseResponseDTO createUseCaseAndSaveBySuperAdminWithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
+                                                                List<MultipartFile> demoVideos, MultipartFile thumbnailUrl,
+                                                                MultipartFile bannerUrl, List<MultipartFile> elevatorPitch,
+                                                                List<MultipartFile> userStory);
+
+    UseCaseResponseDTO approveUseCaseWithoutEditingBySuperAdmin(Integer usecaseId, Integer approverId);
+
+    UseCaseResponseDTO sendBackToDraftWithoutEditingBySuperAdmin(Integer usecaseId);
 
 
 }

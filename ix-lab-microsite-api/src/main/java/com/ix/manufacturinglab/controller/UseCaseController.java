@@ -484,4 +484,16 @@ public class UseCaseController {
         }
 
     }
+
+    @PutMapping("/v1/{usecaseId}/approve")
+    public ResponseEntity<UseCaseResponseDTO> approveUseCaseWithoutEditingBySuperAdmin(@PathVariable Integer usecaseId, @RequestParam Integer approverId) {
+
+        return ResponseEntity.ok(useCaseService.approveUseCaseWithoutEditingBySuperAdmin(usecaseId, approverId));
+    }
+
+    @PutMapping("/v1/{usecaseId}/sendBackToDraft")
+    public ResponseEntity<UseCaseResponseDTO> sendBackToDraftWithoutEditingBySuperAdmin(@PathVariable Integer usecaseId) {
+
+        return ResponseEntity.ok(useCaseService.sendBackToDraftWithoutEditingBySuperAdmin(usecaseId));
+    }
 }
