@@ -10,7 +10,7 @@ export class UsecaseService {
 
   private baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   submitForApproval(payload: FormData): Observable<any> {
     return this.http.post(`${this.baseUrl}/api/usecase/v1/submit-for-approval-withblob`, payload);
@@ -62,6 +62,15 @@ export class UsecaseService {
   }
 
   getFeaturedStories() {
-  return this.http.get<any>(`${environment.apiUrl}/api/usecase/v1/all?page=1&size=10`);
-}
+    return this.http.get<any>(`${environment.apiUrl}/api/usecase/v1/all?page=1&size=10`);
+  }
+
+  updateFaqs(usecaseId: number, faqs: any[]): Observable<any> {
+    return this.http.put(
+      `${this.baseUrl}/api/usecase/v1/${usecaseId}/faqs`,
+      faqs,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
 }

@@ -142,6 +142,7 @@ export class StoryDetailsComponent {
   faqs!: FormArray<FormGroup>;
   faqBackup: any[] = [];
   storyForm!: FormGroup;
+  storyID: any;
   constructor(private route: ActivatedRoute, private usecaseService: UsecaseService, private cdr: ChangeDetectorRef,
     private router: Router, private fb: FormBuilder
   ) { this.faqs = this.fb.array<FormGroup>([]); }
@@ -154,7 +155,49 @@ export class StoryDetailsComponent {
     });
     window.scrollTo({ top: 0 });
     this, this.fromPage = this.route.snapshot.queryParams['from'] || 'stories';
-    const id = this.route.snapshot.paramMap.get('id');
+    this.storyID = this.route.snapshot.paramMap.get('id');
+    // if (id) {
+    //   this.usecaseService.getStoryDetailsById(id).subscribe(res => {
+    //     this.storyDetails = res as StoryDetails;
+
+    //     this.storyDetails.businessProblem = this.cleanContent(this.storyDetails.businessProblem);
+    //     this.storyDetails.solutions = this.cleanContent(this.storyDetails.solutions);
+    //     this.storyDetails.valueDelivered = this.cleanContent(this.storyDetails.valueDelivered);
+    //     this.storyDetails.toolsAndTechnologies = this.cleanContent(this.storyDetails.toolsAndTechnologies);
+    //     this.storyDetails.keyResults = this.cleanContent(this.storyDetails.keyResults);
+    //     this.storyDetails.narrationGuide = this.cleanContent(this.storyDetails.narrationGuide);
+    //     console.log('Fetched story details:', this.storyDetails);
+    //     // Initialize FAQ toggle state
+    //     // this.storyDetails.faqs = this.storyDetails.faqs.map(f => ({ ...f, showAnswer: false }));
+
+    //     this.storyDetails.faqs = (this.storyDetails.faqs ?? []).map(f => ({ ...f, showAnswer: false }));
+
+    //     this.faqs.clear();
+    //     (this.storyDetails.faqs ?? []).forEach(f => {
+    //       this.faqs.push(this.fb.group({
+    //         question: [f.question, Validators.required],
+    //         answer: [f.answer, Validators.required],
+    //         editing: [false],
+    //         showAnswer: [false],
+    //         updated: [false],
+    //         usecaseFaqId: [f.usecaseFaqId],
+    //         updatedBy: [f.updatedBy]
+    //       }));
+    //     });
+
+    //     // Split artifacts by type
+    //     this.clientCredentials = this.storyDetails.artifacts.filter(a => a.artifactType === 'ELEVATOR_PITCH' || a.artifactType === 'USER_STORY');
+    //     this.demoVideos = this.storyDetails.artifacts.filter(a => a.artifactType === 'DEMO_VIDEO');
+    //     this.clientTestimonials = this.storyDetails.artifacts.filter(a => a.artifactType === 'CLIENT_TESTIMONIAL');
+
+    //     this.cdr.detectChanges();
+    //   });
+    // }
+    this.getStoryDetails(this.storyID);
+  }
+
+
+  getStoryDetails(id:any) {
     if (id) {
       this.usecaseService.getStoryDetailsById(id).subscribe(res => {
         this.storyDetails = res as StoryDetails;
@@ -179,8 +222,8 @@ export class StoryDetailsComponent {
             editing: [false],
             showAnswer: [false],
             updated: [false],
-            usecaseFaqId: [f.usecaseFaqId], 
-            updatedBy: [f.updatedBy] 
+            usecaseFaqId: [f.usecaseFaqId],
+            updatedBy: [f.updatedBy]
           }));
         });
 
@@ -249,18 +292,18 @@ export class StoryDetailsComponent {
   }
 
   addFAQ() {
-  const faqGroup = this.fb.group({
-    usecaseFaqId: [null],
-    usecaseId: [this.storyDetails.usecaseId],
-    question: ['', Validators.required],
-    answer: ['', Validators.required],
-    editing: [true],
-    showAnswer: [false],
-    updated: [false],
-    updatedBy: [this.storyDetails.creatorId] // or current user ID
-  });
-  this.faqs.insert(0, faqGroup);
-}
+    const faqGroup = this.fb.group({
+      usecaseFaqId: [null],
+      usecaseId: [this.storyDetails.usecaseId],
+      question: ['', Validators.required],
+      answer: ['', Validators.required],
+      editing: [true],
+      showAnswer: [false],
+      updated: [false],
+      updatedBy: [this.storyDetails.creatorId] // or current user ID
+    });
+    this.faqs.insert(0, faqGroup);
+  }
 
 
 
@@ -299,23 +342,32 @@ export class StoryDetailsComponent {
   }
 
   get hasUpdatedFaq(): boolean {
-  return this.faqs.controls.some(f => f.get('updated')?.value === true);
-}
+    return this.faqs.controls.some(f => f.get('updated')?.value === true);
+  }
 
- updateFAQPayload() {
-  // Collect the entire FAQ array
-  const payload = this.faqs.value.map((f: any) => ({
-    usecaseFaqId: f.usecaseFaqId,
-    question: f.question,
-    answer: f.answer,
-    updatedBy: f.updatedBy
-  }));
+  updateFAQPayload() {
+    // Collect the entire FAQ array
+    const payload = this.faqs.value.map((f: any) => ({
+      usecaseFaqId: f.usecaseFaqId,
+      question: f.question,
+      answer: f.answer,
+      updatedBy: f.updatedBy
+    }));
 
-  console.log('Sending FAQ payload:', payload);
+    console.log('Sending FAQ payload:', payload);
 
-  // TODO: call your backend service here
-  // this.usecaseService.updateFaqs(this.storyDetails.usecaseId, payload).subscribe(...)
-}
+    // TODO: call your backend service here
+    this.usecaseService.updateFaqs(this.storyDetails.usecaseId, payload)
+      .subscribe({
+        next: res => {
+          console.log('FAQ update response:', res)
+          this.getStoryDetails(this.storyID);
+        },
+        error: err => {
+          console.error('FAQ update failed:', err)
+        }
+      });
+  }
 
 
 }
