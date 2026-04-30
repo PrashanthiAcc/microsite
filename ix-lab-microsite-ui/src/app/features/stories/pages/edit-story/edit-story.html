@@ -214,7 +214,7 @@
             <button type="button" class="upload-btn" (click)="videoInput.click()"> <img [src]="uploadIconPath"
                 alt="upload icon" class="upload-icon" /> Upload File</button>
             <span class="file-name" *ngIf="item.value">{{ item.value?.name || item.value?.file?.name }}</span>
-            <p>Supported file .mp4 up to 200MB.</p>
+            <p>Supported file .mp4 up to 250MB.</p>
             <button type="button" class="btn-delete" (click)="removeField(demoVideos, i)">🗑</button>
           </div>
           <input type="file" #videoInput hidden (change)="handleFileUpload($event, 'demoVideos', i)">

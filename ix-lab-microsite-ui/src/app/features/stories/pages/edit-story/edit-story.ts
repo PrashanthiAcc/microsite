@@ -96,10 +96,10 @@ export class EditStoryComponent {
     thumbnail: 5 * 1024 * 1024, // 5MB
     banner: 5 * 1024 * 1024,    // 5MB
     // clientCredentials: 100 * 1024 * 1024, // 100MB
-    elevatorPitch: 200 * 1024 * 1024, // 100MB
-    clientStory: 200 * 1024 * 1024, // 100MB
-    demoVideos: 200 * 1024 * 1024,        // 100MB
-    clientTestimonials: 200 * 1024 * 1024 // 100MB
+    elevatorPitch: 200 * 1024 * 1024, // 200MB
+    clientStory: 200 * 1024 * 1024, // 200MB
+    demoVideos: 250 * 1024 * 1024,        // 250MB
+    clientTestimonials: 200 * 1024 * 1024 // 200MB
   };
   allUsers: any[] = [];
   modalAction: 'draft' | 'approval' | null = null;

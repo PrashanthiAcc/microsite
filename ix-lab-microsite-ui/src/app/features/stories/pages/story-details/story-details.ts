@@ -142,6 +142,12 @@ export class StoryDetailsComponent {
   faqs!: FormArray<FormGroup>;
   faqBackup: any[] = [];
   storyForm!: FormGroup;
+
+  videoList: string[] = [];
+  currentVideo: string = '';
+  currentIndex = 0;
+  showVideoPlayer = false;
+
   constructor(private route: ActivatedRoute, private usecaseService: UsecaseService, private cdr: ChangeDetectorRef,
     private router: Router, private fb: FormBuilder
   ) { this.faqs = this.fb.array<FormGroup>([]); }
@@ -153,6 +159,7 @@ export class StoryDetailsComponent {
       clientTestimonial: ['']
     });
     window.scrollTo({ top: 0 });
+    this.videoList = this.demoVideos?.map(v => v.url) || [];
     this, this.fromPage = this.route.snapshot.queryParams['from'] || 'stories';
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
@@ -179,8 +186,8 @@ export class StoryDetailsComponent {
             editing: [false],
             showAnswer: [false],
             updated: [false],
-            usecaseFaqId: [f.usecaseFaqId], 
-            updatedBy: [f.updatedBy] 
+            usecaseFaqId: [f.usecaseFaqId],
+            updatedBy: [f.updatedBy]
           }));
         });
 
@@ -207,21 +214,64 @@ export class StoryDetailsComponent {
     const fileName = artifact.artifactName?.toLowerCase() || '';
     const cleanUrl = artifact.url;
 
-    if (fileName.endsWith('.ppt') || fileName.endsWith('.pptx')) {
-      // const viewerUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(artifact.url)}`;
+    const isPPT = fileName.endsWith('.ppt') || fileName.endsWith('.pptx');
+    const isVideo = /\.(mp4|webm|ogg)$/i.test(fileName);
 
-      // const newTab = window.open('', '_blank');
-
-      // if (newTab) {
-      //   newTab.location.href = viewerUrl;
-      // }
+    // ✅ PPT
+    if (isPPT) {
       const officeUrl = `ms-powerpoint:ofe|u|${artifact.url}`;
       window.location.href = officeUrl;
+    }
+    // ✅ VIDEO
+    else if (isVideo) {
 
+      const intentUrl = `intent://${cleanUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;type=video/mp4;end`;
+      window.location.href = intentUrl;
+
+      this.playVideoInPlayer(cleanUrl);
+
+      // setTimeout(() => {
+      //   this.playVideoInPlayer(cleanUrl);
+      // }, 1500);
     } else {
       window.open(cleanUrl, '_blank');
     }
   }
+
+  closeVideo() {
+    const video = document.querySelector('video') as HTMLVideoElement;
+
+    if (video) {
+      video.pause();
+      video.currentTime = 0;
+    }
+
+    this.showVideoPlayer = false;
+    this.currentVideo = '';
+  }
+
+  playVideoInPlayer(url: string) {
+    this.showVideoPlayer = true;
+
+    if (!this.videoList.includes(url)) {
+      this.videoList.push(url);
+    }
+
+    this.currentIndex = this.videoList.indexOf(url);
+    this.currentVideo = url;
+  }
+
+  playNext() {
+    this.currentIndex++;
+
+    if (this.currentIndex < this.videoList.length) {
+      this.currentVideo = this.videoList[this.currentIndex];
+    } else {
+      this.currentIndex = 0; // loop
+      this.currentVideo = this.videoList[0];
+    }
+  }
+
 
   toggleFaqGuide(event: Event): void {
     console.log('FAQ & Guide checkbox changed:', event);
@@ -249,18 +299,18 @@ export class StoryDetailsComponent {
   }
 
   addFAQ() {
-  const faqGroup = this.fb.group({
-    usecaseFaqId: [null],
-    usecaseId: [this.storyDetails.usecaseId],
-    question: ['', Validators.required],
-    answer: ['', Validators.required],
-    editing: [true],
-    showAnswer: [false],
-    updated: [false],
-    updatedBy: [this.storyDetails.creatorId] // or current user ID
-  });
-  this.faqs.insert(0, faqGroup);
-}
+    const faqGroup = this.fb.group({
+      usecaseFaqId: [null],
+      usecaseId: [this.storyDetails.usecaseId],
+      question: ['', Validators.required],
+      answer: ['', Validators.required],
+      editing: [true],
+      showAnswer: [false],
+      updated: [false],
+      updatedBy: [this.storyDetails.creatorId] // or current user ID
+    });
+    this.faqs.insert(0, faqGroup);
+  }
 
 
 
@@ -299,23 +349,23 @@ export class StoryDetailsComponent {
   }
 
   get hasUpdatedFaq(): boolean {
-  return this.faqs.controls.some(f => f.get('updated')?.value === true);
-}
+    return this.faqs.controls.some(f => f.get('updated')?.value === true);
+  }
 
- updateFAQPayload() {
-  // Collect the entire FAQ array
-  const payload = this.faqs.value.map((f: any) => ({
-    usecaseFaqId: f.usecaseFaqId,
-    question: f.question,
-    answer: f.answer,
-    updatedBy: f.updatedBy
-  }));
+  updateFAQPayload() {
+    // Collect the entire FAQ array
+    const payload = this.faqs.value.map((f: any) => ({
+      usecaseFaqId: f.usecaseFaqId,
+      question: f.question,
+      answer: f.answer,
+      updatedBy: f.updatedBy
+    }));
 
-  console.log('Sending FAQ payload:', payload);
+    console.log('Sending FAQ payload:', payload);
 
-  // TODO: call your backend service here
-  // this.usecaseService.updateFaqs(this.storyDetails.usecaseId, payload).subscribe(...)
-}
+    // TODO: call your backend service here
+    // this.usecaseService.updateFaqs(this.storyDetails.usecaseId, payload).subscribe(...)
+  }
 
 
 }
