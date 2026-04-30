@@ -10,11 +10,11 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Optional;
+import java.util.ArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.ArrayList;
 
-import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.storage.blob.BlobContainerClient;
 import com.ix.manufacturinglab.dto.ArtifactDTO;
 import com.ix.manufacturinglab.dto.SpeakerDTO;
@@ -30,6 +30,7 @@ import com.ix.manufacturinglab.entity.UseCaseFaq;
 import com.ix.manufacturinglab.entity.ValueChain;
 import com.ix.manufacturinglab.entity.SubIndustry;
 import com.ix.manufacturinglab.entity.Industry;
+import com.ix.manufacturinglab.entity.Favourite;
 import com.ix.manufacturinglab.repository.UseCaseContentRepository;
 import com.ix.manufacturinglab.repository.UseCaseRepository;
 import com.ix.manufacturinglab.repository.UseCaseSpeakerRepository;
@@ -39,6 +40,7 @@ import com.ix.manufacturinglab.repository.ValueChainRepository;
 import com.ix.manufacturinglab.repository.SubIndustryRepository;
 import com.ix.manufacturinglab.repository.IndustryRepository;
 import com.ix.manufacturinglab.repository.UseCaseFaqRepository;
+import com.ix.manufacturinglab.repository.FavouriteUseCaseRepository;
 import com.ix.manufacturinglab.storage.CloudStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,6 +79,7 @@ public class UseCaseServiceImpl implements UseCaseService {
     private final UseCaseFaqRepository useCaseFaqRepository;
     private final SubIndustryRepository subIndustryRepository;
     private final IndustryRepository industryRepository;
+    private final FavouriteUseCaseRepository favouriteUseCaseRepository;
     private final CloudStorageService cloudStorageService;
     private final BlobContainerClient blobContainerClient;
     @Value("${storage.path.artifacts.client.testimonials}")
@@ -105,7 +108,8 @@ public class UseCaseServiceImpl implements UseCaseService {
                               IndustryRepository industryRepository,
                               UseCaseFaqRepository useCaseFaqRepository,
                               CloudStorageService cloudStorageService,
-                              BlobContainerClient blobContainerClient) {
+                              BlobContainerClient blobContainerClient,
+                              FavouriteUseCaseRepository favouriteUseCaseRepository) {
         this.useCaseRepository = useCaseRepository;
         this.useCaseContentRepository = useCaseContentRepository;
         this.useCaseSpeakerRepository = useCaseSpeakerRepository;
@@ -117,6 +121,7 @@ public class UseCaseServiceImpl implements UseCaseService {
         this.useCaseFaqRepository = useCaseFaqRepository;
         this.cloudStorageService = cloudStorageService;
         this.blobContainerClient = blobContainerClient;
+        this.favouriteUseCaseRepository = favouriteUseCaseRepository;
     }
 
     @Override
@@ -1473,5 +1478,27 @@ public class UseCaseServiceImpl implements UseCaseService {
                         ));
 
         return buildResponseFromEntities(savedUseCase, content, valueChain.getIndustryId(), valueChain.getSubIndustryId());
+    }
+
+    @Override
+    public Favourite addUseCaseAsFavourite(Integer userId, Integer usecaseId) {
+
+        Optional<Favourite> existing = favouriteUseCaseRepository.findByUserIdAndUsecaseId(userId, usecaseId);
+
+        if (existing.isPresent()) {
+            throw new CommonException(CommonExceptionConstants.BAD_REQUEST, "Use case already marked as favourite");
+        }
+
+        Favourite favourite = Favourite.builder()
+                .userId(userId)
+                .usecaseId(usecaseId)
+                .lastUpdated(LocalDateTime.now())
+                .build();
+
+        return favouriteUseCaseRepository.save(favourite);
+    }
+    @Override
+    public List<Favourite> getFavouriteUseCases(Integer userId) {
+        return favouriteUseCaseRepository.findByUserId(userId);
     }
 }

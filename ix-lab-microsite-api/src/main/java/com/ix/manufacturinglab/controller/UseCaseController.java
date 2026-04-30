@@ -6,6 +6,7 @@ import com.ix.manufacturinglab.constants.CommonExceptionConstants;
 import com.ix.manufacturinglab.constants.ManufacturingLabConstants;
 import com.ix.manufacturinglab.dto.UseCaseRequestDTO;
 import com.ix.manufacturinglab.dto.UseCaseResponseDTO;
+import com.ix.manufacturinglab.entity.Favourite;
 import com.ix.manufacturinglab.exception.CommonException;
 import com.ix.manufacturinglab.service.UseCaseService;
 import jakarta.validation.Valid;
@@ -117,7 +118,7 @@ public class UseCaseController {
      * @param usecaseId the use case ID
      * @return the success text response
      */
-    @PatchMapping("/v1/{usecaseId}/archive")
+    @PatchMapping(value =  "/v1/{usecaseId}/archive")
     public ResponseEntity<Object> archiveApprovedUseCase(@PathVariable Integer usecaseId) {
 
         //logger.debug("Received request to archive use case with id {}", usecaseId);
@@ -146,7 +147,7 @@ public class UseCaseController {
      * @return the success text response
      */
 
-    @DeleteMapping("/v1/{usecaseId}/discard")
+    @DeleteMapping(value =  "/v1/{usecaseId}/discard")
     public ResponseEntity<Object> discardDraftUseCase(@PathVariable Integer usecaseId) {
 
         //logger.debug("Discarding draft use case with id {}", usecaseId);
@@ -395,7 +396,7 @@ public class UseCaseController {
         }
     }
 
-    @GetMapping("/v1/count")
+    @GetMapping(value =  "/v1/count")
     public ResponseEntity<Map<String, Object>> getApprovedUseCaseCount() {
 
         Map<String, Object> response = useCaseService.getApprovedActiveUseCaseCount();
@@ -403,7 +404,7 @@ public class UseCaseController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/v1/usecases/count-by-industry")
+    @GetMapping(value =  "/v1/usecases/count-by-industry")
     public ResponseEntity<List<Map<String, Object>>> getUseCaseCountByIndustry() {
 
         return ResponseEntity.ok(useCaseService.getUseCaseCountByIndustry());
@@ -487,15 +488,60 @@ public class UseCaseController {
 
     }
 
-    @PutMapping("/v1/{usecaseId}/approve")
+    @PutMapping(value =  "/v1/{usecaseId}/approve")
     public ResponseEntity<UseCaseResponseDTO> approveUseCaseWithoutEditingBySuperAdmin(@PathVariable Integer usecaseId, @RequestParam Integer approverId) {
 
         return ResponseEntity.ok(useCaseService.approveUseCaseWithoutEditingBySuperAdmin(usecaseId, approverId));
     }
 
-    @PutMapping("/v1/{usecaseId}/sendBackToDraft")
+    @PutMapping(value =  "/v1/{usecaseId}/sendBackToDraft")
     public ResponseEntity<UseCaseResponseDTO> sendBackToDraftWithoutEditingBySuperAdmin(@PathVariable Integer usecaseId) {
 
         return ResponseEntity.ok(useCaseService.sendBackToDraftWithoutEditingBySuperAdmin(usecaseId));
+    }
+
+    @PostMapping(value = "/v1/favourites")
+    public ResponseEntity<Object> addUseCaseAsFavourite(@RequestParam Integer userId, @RequestParam Integer usecaseId) {
+
+        try {
+            Favourite saved = useCaseService.addUseCaseAsFavourite(userId, usecaseId);
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("data", saved);
+            result.put("message", "Use case added to favourites successfully");
+
+            return new ResponseEntity<>(result, HttpStatus.OK);
+
+        } catch (CommonException e) {
+            logger.error("Exception occurred while adding favourite: {}", e.getMessage(), e);
+            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+            errorResponse.setErrorDescription(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    @GetMapping(value = "/v1/favourites")
+    public ResponseEntity<Object> getFavouriteUseCases(@RequestParam Integer userId) {
+
+        try {
+            List<Favourite> responses = useCaseService.getFavouriteUseCases(userId);
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("data", responses);
+
+            if (responses.isEmpty()) {
+                result.put("message", "No favourite use cases found for user ID " + userId);
+            } else {
+                result.put("message", "Favourite use cases fetched successfully");
+            }
+
+            return new ResponseEntity<>(result, HttpStatus.OK);
+
+        } catch (CommonException e) {
+            logger.error("Exception occurred while fetching favourite use cases: {}", e.getMessage(), e);
+            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+            errorResponse.setErrorDescription("Error while fetching favourite use cases");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 }

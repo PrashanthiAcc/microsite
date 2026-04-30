@@ -2,6 +2,7 @@ package com.ix.manufacturinglab.service;
 
 import com.ix.manufacturinglab.dto.UseCaseRequestDTO;
 import com.ix.manufacturinglab.dto.UseCaseResponseDTO;
+import com.ix.manufacturinglab.entity.Favourite;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -99,6 +100,10 @@ public interface UseCaseService {
     UseCaseResponseDTO approveUseCaseWithoutEditingBySuperAdmin(Integer usecaseId, Integer approverId);
 
     UseCaseResponseDTO sendBackToDraftWithoutEditingBySuperAdmin(Integer usecaseId);
+
+    List<Favourite> getFavouriteUseCases(Integer userId);
+
+    Favourite addUseCaseAsFavourite(Integer userId, Integer usecaseId);
 
 
 }
