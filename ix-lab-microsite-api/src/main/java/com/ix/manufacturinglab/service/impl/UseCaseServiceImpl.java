@@ -351,6 +351,8 @@ public class UseCaseServiceImpl implements UseCaseService {
                 .faqs(useCase.getFaqs() == null ? List.of() :
                         useCase.getFaqs().stream()
                                 .map(f -> FaqDTO.builder()
+                                        .usecaseFaqId(f.getUsecaseFaqId())
+                                        .usecaseId(f.getUseCase().getUsecaseId())
                                         .question(f.getQuestion())
                                         .answer(f.getAnswer())
                                         .updatedBy(f.getUpdatedBy())
