@@ -68,12 +68,13 @@ export class Industries {
     });
   }
 
+
   mergeIndustries(): IndustryThumbnail[] {
     if (!this.industriesData?.industryThumbnails || !this.allIndustries) {
       return [];
     }
 
-    return this.industriesData.industryThumbnails.map((thumb: any) => {
+    const merged = this.industriesData.industryThumbnails.map((thumb: any) => {
       const match = this.allIndustries.find(
         (ind: any) => ind.industryId === thumb.industryId
       );
@@ -82,16 +83,31 @@ export class Industries {
         ...thumb,
         industryName: match ? match.industryName : 'Unknown Industry',
         icon: this.iconMap[thumb.industryId] || 'assets/icons/default.png',
-        usecaseCount: this.usecaseCounts[thumb.industryId] || 0   // ✅ direct numeric lookup
+        usecaseCount: this.usecaseCounts[thumb.industryId] || 0
       };
     });
+
+    // ✅ Add static industry object
+    merged.push({
+      industryId: 8,
+      industryThumbnailId: 97,
+      industryThumbnailUrl:
+        'assets/nvidia.jpg',
+      industryName: 'NVIDIA',
+      icon: 'assets/icons/icon-hightech.png',
+      usecaseCount: 0,
+    } as IndustryThumbnail & { redirectUrl: string });
+
+    return merged;
   }
 
 
 
-
   goToStories(industryTitle: string) {
-    this.router.navigate(['/stories'], { queryParams: { from: 'stories', title: industryTitle } });
+    if (industryTitle == 'NVIDIA') {
+      window.open('https://apps.powerapps.com/play/e/5379f250-d93e-ea4e-b5fd-2ed49b2e6505/a/03905ca3-d4da-4d43-b72b-18bef4657795?tenantId=e0793d39-0939-496d-b129-198edd916feb&hint=d533ac37-20c0-496d-a5a1-c0ade80760e1&sourcetime=1769492949529&source=portal&hidenavbar=true')
+    } else
+      this.router.navigate(['/stories'], { queryParams: { from: 'stories', title: industryTitle } });
   }
 }
 

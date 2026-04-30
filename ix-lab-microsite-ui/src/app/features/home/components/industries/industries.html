@@ -27,7 +27,7 @@
         <img class="top-icon" [src]="industry.icon" [alt]="industry.industryName + ' icon'" />
       </div>
       <div class="title-row">
-        <div class="title">{{ industry.industryName }} <span class="count">({{ industry.usecaseCount }})</span></div>
+        <div class="title">{{ industry.industryName }} <span class="count" *ngIf="industry.industryName != 'NVIDIA'">({{ industry.usecaseCount }})</span></div>
         <div class="arrow">→</div>
       </div>
     </div>
