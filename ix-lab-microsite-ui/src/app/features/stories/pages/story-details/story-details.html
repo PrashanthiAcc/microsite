@@ -1,111 +1,111 @@
 <section class="story-form">
 
 
-    <!-- <form [formGroup]="storyForm" class="story-form"> -->
+    <form [formGroup]="storyForm" class="story-form">
 
-    <!-- HEADER -->
+        <!-- HEADER -->
 
-    <section class="hero" [ngStyle]="{'background-image': 'url(' + storyDetails.bannerUrl + ')'}">
-        <img [src]="leftArrowIconPath" alt="backtostories" class="back-icon" (click)="navigateBack()">
-        <div class="hero-overlay"></div>
+        <section class="hero" [ngStyle]="{'background-image': 'url(' + storyDetails.bannerUrl + ')'}">
+            <img [src]="leftArrowIconPath" alt="backtostories" class="back-icon" (click)="navigateBack()">
+            <div class="hero-overlay"></div>
 
-        <div class="hero-content">
-            <h1>
-                {{ storyDetails?.title }} <br />
-                <!-- Experience Zone -->
-            </h1>
+            <div class="hero-content">
+                <h1>
+                    {{ storyDetails?.title }} <br />
+                    <!-- Experience Zone -->
+                </h1>
 
-            <p class="subtitle">{{ storyDetails?.description }}</p>
+                <p class="subtitle">{{ storyDetails?.description }}</p>
 
+            </div>
+        </section>
+
+
+
+        <div class="button-group">
+            <app-custom-dropdown label="Client Credential" [options]="clientCredentials" displayKey="artifactName"
+                (optionSelected)="onArtifactSelected($event)" formControlName="clientCredential">
+            </app-custom-dropdown>
+
+            <app-custom-dropdown label="Demo Videos" [options]="demoVideos" displayKey="artifactName"
+                (optionSelected)="onArtifactSelected($event)" formControlName="demoVideo">
+            </app-custom-dropdown>
+
+            <app-custom-dropdown label="Client Testimonials" [options]="clientTestimonials" displayKey="artifactName"
+                (optionSelected)="onArtifactSelected($event)" formControlName="clientTestimonial">
+            </app-custom-dropdown>
+
+
+            <label class="btn-checkbox">
+                <input type="checkbox" class="faq-checkbox" (change)="toggleFaqGuide($event)" />
+                <span class="checkbox-text">FAQ & Guide</span>
+            </label>
         </div>
-    </section>
+
+        <!-- BUSINESS PROBLEM -->
+        <section class="info-section">
+            <h3 class="label-header">
+                <img [src]="alertIconPath" alt="alert" class="label-icon"> Business Problem
+            </h3>
+            <div class="divider"></div>
+            <div class="info-body" [innerHTML]="storyDetails.businessProblem">
+            </div>
+        </section>
+
+        <!-- SOLUTION -->
+        <section class="info-section">
+            <h3 class="label-header">
+                <img [src]="solutionIconPath" alt="solution" class="label-icon"> Solution
+            </h3>
+            <div class="divider"></div>
+            <div class="info-body" [innerHTML]="storyDetails.solutions">
+            </div>
+        </section>
+
+        <!-- VALUE DELIVERED -->
+        <section class="info-section">
+            <h3 class="label-header">
+                <img [src]="line_graphIconPath" alt="value" class="label-icon"> Value Delivered
+            </h3>
+            <div class="divider"></div>
+            <div class="info-body" [innerHTML]="storyDetails.valueDelivered">
+            </div>
+        </section>
 
 
+        <!-- TOOLS & TECHNOLOGY -->
+        <section class="info-section highlight" *ngIf="storyDetails?.toolsAndTechnologies">
+            <h3 class="label-header" style="color:#fff;">
+                <img [src]="caliperIconPath" alt="tools" class="label-icon"> Tools & Technology
+            </h3>
+            <div class="divider"></div>
+            <div class="info-body" [innerHTML]="storyDetails.toolsAndTechnologies">
+            </div>
+        </section>
 
-    <div class="button-group">
-        <app-custom-dropdown label="Client Credential" [options]="clientCredentials" displayKey="artifactName"
-            (optionSelected)="onArtifactSelected($event)" formControlName="clientCredential">
-        </app-custom-dropdown>
+        <!-- KEY RESULTS -->
+        <section class="info-section" *ngIf="storyDetails?.keyResults">
+            <h3 class="label-header">
+                <img [src]="targetIconPath" alt="target" class="label-icon"> Key Results
+            </h3>
+            <div class="divider"></div>
+            <div class="info-body" [innerHTML]="storyDetails.keyResults">
+            </div>
+        </section>
 
-        <app-custom-dropdown label="Demo Videos" [options]="demoVideos" displayKey="artifactName"
-            (optionSelected)="onArtifactSelected($event)" formControlName="demoVideo">
-        </app-custom-dropdown>
+        <!-- NARRATION GUIDE -->
+        <section class="info-section" *ngIf="showNarrationGuideAndFAQ">
+            <h3 class="label-header">
+                <img [src]="chequeIconPath" alt="cheque" class="label-icon"> Narration Guide
+            </h3>
+            <div class="divider"></div>
+            <div class="info-body" [innerHTML]="storyDetails.narrationGuide">
+            </div>
+        </section>
 
-        <app-custom-dropdown label="Client Testimonials" [options]="clientTestimonials" displayKey="artifactName"
-            (optionSelected)="onArtifactSelected($event)" formControlName="clientTestimonial">
-        </app-custom-dropdown>
-
-
-        <label class="btn-checkbox">
-            <input type="checkbox" class="faq-checkbox" (change)="toggleFaqGuide($event)" />
-            <span class="checkbox-text">FAQ & Guide</span>
-        </label>
-    </div>
-
-    <!-- BUSINESS PROBLEM -->
-    <section class="info-section">
-        <h3 class="label-header">
-            <img [src]="alertIconPath" alt="alert" class="label-icon"> Business Problem
-        </h3>
-        <div class="divider"></div>
-        <div class="info-body" [innerHTML]="storyDetails.businessProblem">
-        </div>
-    </section>
-
-    <!-- SOLUTION -->
-    <section class="info-section">
-        <h3 class="label-header">
-            <img [src]="solutionIconPath" alt="solution" class="label-icon"> Solution
-        </h3>
-        <div class="divider"></div>
-        <div class="info-body" [innerHTML]="storyDetails.solutions">
-        </div>
-    </section>
-
-    <!-- VALUE DELIVERED -->
-    <section class="info-section">
-        <h3 class="label-header">
-            <img [src]="line_graphIconPath" alt="value" class="label-icon"> Value Delivered
-        </h3>
-        <div class="divider"></div>
-        <div class="info-body" [innerHTML]="storyDetails.valueDelivered">
-        </div>
-    </section>
-
-
-    <!-- TOOLS & TECHNOLOGY -->
-    <section class="info-section highlight" *ngIf="storyDetails?.toolsAndTechnologies">
-        <h3 class="label-header" style="color:#fff;">
-            <img [src]="caliperIconPath" alt="tools" class="label-icon"> Tools & Technology
-        </h3>
-        <div class="divider"></div>
-        <div class="info-body" [innerHTML]="storyDetails.toolsAndTechnologies">
-        </div>
-    </section>
-
-    <!-- KEY RESULTS -->
-    <section class="info-section" *ngIf="storyDetails?.keyResults">
-        <h3 class="label-header">
-            <img [src]="targetIconPath" alt="target" class="label-icon"> Key Results
-        </h3>
-        <div class="divider"></div>
-        <div class="info-body" [innerHTML]="storyDetails.keyResults">
-        </div>
-    </section>
-
-    <!-- NARRATION GUIDE -->
-    <section class="info-section" *ngIf="showNarrationGuideAndFAQ">
-        <h3 class="label-header">
-            <img [src]="chequeIconPath" alt="cheque" class="label-icon"> Narration Guide
-        </h3>
-        <div class="divider"></div>
-        <div class="info-body" [innerHTML]="storyDetails.narrationGuide">
-        </div>
-    </section>
-
-    <!-- FAQ -->
-    <!-- FAQ Section (View Mode with Toggle) -->
-    <section class="info-section" *ngIf="showNarrationGuideAndFAQ">
+        <!-- FAQ -->
+        <!-- FAQ Section (View Mode with Toggle) -->
+        <!-- <section class="info-section" *ngIf="showNarrationGuideAndFAQ">
         <h3 class="label-header">
             <img [src]="locationIconPath" alt="faq" class="label-icon"> FAQ
         </h3>
@@ -124,7 +124,81 @@
                 <p>{{ faq.answer }}</p>
             </div>
         </div>
-    </section>
+    </section> -->
 
-    <!-- </form> -->
+
+
+        <section class="info-section" *ngIf="showNarrationGuideAndFAQ">
+            <div class="header-row">
+                <h3 class="label-header">
+                    <img [src]="locationIconPath" alt="faq" class="label-icon"> FAQ
+                </h3>
+                <!-- <button type="button" class="btn-add" (click)="addFAQ()">+</button> -->
+            </div>
+            <div class="divider"></div>
+
+            <!-- Add FAQ button -->
+
+            <!-- FAQ Items -->
+            <section class="card faq-card" *ngFor="let faq of faqFormGroups; let i = index" [formGroup]="faq">
+
+                <!-- Edit mode -->
+                <div *ngIf="faq.get('editing')?.value">
+                    <div class="sub-header-row">
+                        <h4 class="faq-title">Edit FAQ</h4>
+                        <div class="faq-actions">
+                            <button type="button" class="btn-cancel-faq" (click)="cancelFAQ(i)">Cancel</button>
+                            <button type="button" class="btn-save-faq" (click)="saveFAQ(i)">
+                                <img [src]="saveIconPath" alt="save icon" class="save-icon" /> Save
+                            </button>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="faq-form">
+                        <label>Question</label>
+                        <input type="text" formControlName="question" placeholder="Type Question here"
+                            class="faq-input">
+
+                        <label>Answer</label>
+                        <textarea formControlName="answer" placeholder="Type Answer here" class="faq-input"></textarea>
+                    </div>
+                </div>
+
+                <!-- View mode -->
+                <div *ngIf="!faq.get('editing')?.value" class="faq-header-row">
+                    <span class="faq-question">{{ faq.get('question')?.value }}</span>
+                    <div class="faq-actions">
+                        <!-- Accordion toggle -->
+                        <button type="button" class="accordion-btn"
+                            (click)="faq.get('showAnswer')?.setValue(!faq.get('showAnswer')?.value)">
+                            <img [src]="faq.get('showAnswer')?.value ? upArrowIconPath : downArrowIconPath"
+                                alt="toggle answer" />
+                        </button>
+                        <!-- Edit -->
+                        <button type="button" class="edit-btn" (click)="editFAQ(i)">
+                            <img [src]="pencilIconPath" alt="edit" />
+                        </button>
+                        <!-- Delete -->
+                        <!-- <button type="button" class="btn-delete" (click)="deleteFAQ(i)"
+                            style="margin-top: 24px; color: black;">🗑</button> -->
+                    </div>
+                </div>
+
+                <!-- Read-only accordion open -->
+                <div *ngIf="faq.get('showAnswer')?.value && !faq.get('editing')?.value" class="faq-form readonly">
+                    <label>Question</label>
+                    <input type="text" [value]="faq.get('question')?.value" class="faq-input" readonly>
+
+                    <label>Answer</label>
+                    <textarea class="faq-input" readonly>{{ faq.get('answer')?.value }}</textarea>
+                </div>
+            </section>
+        </section>
+
+        <!-- <div class="button-group" *ngIf="hasUpdatedFaq">
+            <button type="button" class="btn-approve" (click)="updateFAQPayload()">
+                Update FAQ
+            </button>
+        </div> -->
+    </form>
 </section>
