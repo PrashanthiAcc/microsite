@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ix.common.exception.CommonErrorManagement;
 import com.ix.manufacturinglab.constants.CommonExceptionConstants;
 import com.ix.manufacturinglab.constants.ManufacturingLabConstants;
+import com.ix.manufacturinglab.dto.FaqDTO;
 import com.ix.manufacturinglab.dto.UseCaseRequestDTO;
 import com.ix.manufacturinglab.dto.UseCaseResponseDTO;
 import com.ix.manufacturinglab.entity.Favourite;
@@ -543,5 +544,47 @@ public class UseCaseController {
             errorResponse.setErrorDescription("Error while fetching favourite use cases");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
+    }
+
+    @DeleteMapping("/v1/favourites")
+    public ResponseEntity<Object> removeFavourite(
+            @RequestParam Integer userId,
+            @RequestParam Integer usecaseId) {
+
+        try {
+            useCaseService.removeFavourite(userId, usecaseId);
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("data", null);
+            result.put("message", "Use case removed from favourites successfully");
+
+            return new ResponseEntity<>(result, HttpStatus.OK);
+
+        } catch (CommonException e) {
+            logger.error("Exception occurred while removing favourite: {}", e.getMessage(), e);
+            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
+            errorResponse.setErrorDescription(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    @PutMapping("/v1/{usecaseId}/faqs")
+    public ResponseEntity<Map<String,Object>> saveFaqs(@PathVariable Integer usecaseId,
+                                                       @RequestBody List<FaqDTO> faqDTOs) {
+
+        useCaseService.saveFaqs(usecaseId, faqDTOs);
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "status",200,
+                        "message","FAQs Saved successfully"
+                )
+        );
+    }
+
+    @GetMapping("/v1/{usecaseId}/faqs")
+    public ResponseEntity<List<FaqDTO>> getUseCaseFaqs(@PathVariable Integer usecaseId) {
+
+        return ResponseEntity.ok(useCaseService.getFaqsByUseCaseId(usecaseId));
     }
 }

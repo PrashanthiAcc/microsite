@@ -1,5 +1,6 @@
 package com.ix.manufacturinglab.service;
 
+import com.ix.manufacturinglab.dto.FaqDTO;
 import com.ix.manufacturinglab.dto.UseCaseRequestDTO;
 import com.ix.manufacturinglab.dto.UseCaseResponseDTO;
 import com.ix.manufacturinglab.entity.Favourite;
@@ -104,6 +105,12 @@ public interface UseCaseService {
     List<Favourite> getFavouriteUseCases(Integer userId);
 
     Favourite addUseCaseAsFavourite(Integer userId, Integer usecaseId);
+
+    void saveFaqs(Integer usecaseId, List<FaqDTO> faqDTOs);
+
+    List<FaqDTO> getFaqsByUseCaseId(Integer usecaseId);
+
+    void removeFavourite(Integer userId, Integer usecaseId);
 
 
 }
