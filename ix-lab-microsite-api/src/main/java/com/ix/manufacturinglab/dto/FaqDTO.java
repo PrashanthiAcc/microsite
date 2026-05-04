@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 
 public class FaqDTO {
 
-    //private Integer usecaseFaqId;
-    //private Integer usecaseId;
+    private Integer usecaseFaqId;
+    private Integer usecaseId;
     private String question;
     private String answer;
     private Integer updatedBy;

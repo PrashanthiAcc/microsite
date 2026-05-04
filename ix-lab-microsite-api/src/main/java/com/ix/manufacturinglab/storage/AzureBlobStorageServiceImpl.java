@@ -25,6 +25,7 @@ import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.ix.manufacturinglab.repository.UseCaseArtifactRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.azure.storage.blob.BlobClient;
@@ -42,7 +43,11 @@ public class AzureBlobStorageServiceImpl implements CloudStorageService {
     private final BlobContainerClient blobContainerClient;
 
     private final UseCaseArtifactRepository useCaseArtifactRepository;
-    private static final int CHUNK_SIZE = 8 * 1024 * 1024; // 8MB per block
+    @Value("${azure.blob.chunk-size}")
+    private int CHUNK_SIZE;
+
+
+    //private static final int CHUNK_SIZE = 8 * 1024 * 1024; // 8MB per block
     public AzureBlobStorageServiceImpl(BlobContainerClient blobContainerClient, UseCaseArtifactRepository useCaseArtifactRepository) {
         this.blobContainerClient = blobContainerClient;
         this.useCaseArtifactRepository = useCaseArtifactRepository;
