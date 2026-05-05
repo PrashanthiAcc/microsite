@@ -5,7 +5,7 @@ import { MsalGuard } from '@azure/msal-angular';
 export const routes: Routes = [
   {
     path: '',
-    //canActivate: [MsalGuard],
+    canActivate: [MsalGuard],
     component: LayoutComponent,
     data: { role: 'admin' },
     children: [
@@ -68,7 +68,7 @@ export const routes: Routes = [
   },
   {
     path: 'presenter',
-    //canActivate: [MsalGuard],
+    canActivate: [MsalGuard],
     component: LayoutComponent,
     data: { role: 'presenter' },
     children: [
