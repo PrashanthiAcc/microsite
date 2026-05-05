@@ -1,10 +1,11 @@
 import { Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout';
 
-
+import { MsalGuard } from '@azure/msal-angular';
 export const routes: Routes = [
   {
     path: '',
+    //canActivate: [MsalGuard],
     component: LayoutComponent,
     data: { role: 'admin' },
     children: [
@@ -67,6 +68,7 @@ export const routes: Routes = [
   },
   {
     path: 'presenter',
+    //canActivate: [MsalGuard],
     component: LayoutComponent,
     data: { role: 'presenter' },
     children: [
