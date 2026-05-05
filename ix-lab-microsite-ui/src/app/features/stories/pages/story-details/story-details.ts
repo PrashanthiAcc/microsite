@@ -142,6 +142,10 @@ export class StoryDetailsComponent {
   faqs!: FormArray<FormGroup>;
   faqBackup: any[] = [];
   storyForm!: FormGroup;
+  videoList: string[] = [];
+  currentVideo: string = '';
+  currentIndex = 0;
+  showVideoPlayer = false;
   storyID: any;
   constructor(private route: ActivatedRoute, private usecaseService: UsecaseService, private cdr: ChangeDetectorRef,
     private router: Router, private fb: FormBuilder
@@ -154,6 +158,7 @@ export class StoryDetailsComponent {
       clientTestimonial: ['']
     });
     window.scrollTo({ top: 0 });
+    this.videoList = this.demoVideos?.map(v => v.url) || [];
     this, this.fromPage = this.route.snapshot.queryParams['from'] || 'stories';
     this.storyID = this.route.snapshot.paramMap.get('id');
     // if (id) {
@@ -197,7 +202,7 @@ export class StoryDetailsComponent {
   }
 
 
-  getStoryDetails(id:any) {
+  getStoryDetails(id: any) {
     if (id) {
       this.usecaseService.getStoryDetailsById(id).subscribe(res => {
         this.storyDetails = res as StoryDetails;
@@ -250,124 +255,180 @@ export class StoryDetailsComponent {
     const fileName = artifact.artifactName?.toLowerCase() || '';
     const cleanUrl = artifact.url;
 
-    if (fileName.endsWith('.ppt') || fileName.endsWith('.pptx')) {
-      // const viewerUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(artifact.url)}`;
+    const isPPT = fileName.endsWith('.ppt') || fileName.endsWith('.pptx');
+    const isVideo = /\.(mp4|webm|ogg)$/i.test(fileName);
 
-      // const newTab = window.open('', '_blank');
-
-      // if (newTab) {
-      //   newTab.location.href = viewerUrl;
-      // }
+    if (isPPT) {
       const officeUrl = `ms-powerpoint:ofe|u|${artifact.url}`;
       window.location.href = officeUrl;
+    } // ✅ VIDEO
+    else if (isVideo) {
 
+      const intentUrl = `intent://${cleanUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;type=video/mp4;end`;
+      window.location.href = intentUrl;
+
+      this.playVideoInPlayer(cleanUrl);
+
+      // setTimeout(() => {
+      //   this.playVideoInPlayer(cleanUrl);
+      // }, 1500);
     } else {
       window.open(cleanUrl, '_blank');
     }
   }
 
-  toggleFaqGuide(event: Event): void {
-    console.log('FAQ & Guide checkbox changed:', event);
-    const input = event.target as HTMLInputElement;
-    this.showNarrationGuideAndFAQ = input.checked;
+  closeVideo() {
+    const video = document.querySelector('video') as HTMLVideoElement;
+
+    if (video) {
+      video.pause();
+      video.currentTime = 0;
+    }
+
+    this.showVideoPlayer = false;
+    this.currentVideo = '';
   }
 
-  navigateBack() {
-    const queryParams = this.route.snapshot.queryParams;
+  playVideoInPlayer(url: string) {
+    this.showVideoPlayer = true;
 
-    this.router.navigate(['/stories'], {
-      queryParams: {
-        from: queryParams['from'] || 'stories',
-        page: queryParams['page'] || 1,
-        search: queryParams['search'] || null,
-        industry: queryParams['industry'] || null,
-        subIndustry: queryParams['subIndustry'] || null,
-        valueChain: queryParams['valueChain'] || null
-      }
-    });
+    if (!this.videoList.includes(url)) {
+      this.videoList.push(url);
+    }
+
+    this.currentIndex = this.videoList.indexOf(url);
+    this.currentVideo = url;
   }
+
+  playNext() {
+    this.currentIndex++;
+
+    if (this.currentIndex < this.videoList.length) {
+      this.currentVideo = this.videoList[this.currentIndex];
+    } else {
+      this.currentIndex = 0; // loop
+      this.currentVideo = this.videoList[0];
+    }
+  }
+
+  // if (fileName.endsWith('.ppt') || fileName.endsWith('.pptx')) {
+  //   // const viewerUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(artifact.url)}`;
+
+  //   // const newTab = window.open('', '_blank');
+
+  //   // if (newTab) {
+  //   //   newTab.location.href = viewerUrl;
+  //   // }
+  //   const officeUrl = `ms-powerpoint:ofe|u|${artifact.url}`;
+  //   window.location.href = officeUrl;
+
+  // } else {
+  //   window.open(cleanUrl, '_blank');
+  // }
+//}
+
+toggleFaqGuide(event: Event): void {
+  console.log('FAQ & Guide checkbox changed:', event);
+  const input = event.target as HTMLInputElement;
+  this.showNarrationGuideAndFAQ = input.checked;
+}
+
+navigateBack() {
+  const queryParams = this.route.snapshot.queryParams;
+
+  this.router.navigate(['/stories'], {
+    queryParams: {
+      from: queryParams['from'] || 'stories',
+      page: queryParams['page'] || 1,
+      search: queryParams['search'] || null,
+      industry: queryParams['industry'] || null,
+      subIndustry: queryParams['subIndustry'] || null,
+      valueChain: queryParams['valueChain'] || null
+    }
+  });
+}
 
   get faqFormGroups(): FormGroup[] {
-    return this.faqs.controls as FormGroup[];
+  return this.faqs.controls as FormGroup[];
+}
+
+addFAQ() {
+  const faqGroup = this.fb.group({
+    usecaseFaqId: [null],
+    usecaseId: [this.storyDetails.usecaseId],
+    question: ['', Validators.required],
+    answer: ['', Validators.required],
+    editing: [true],
+    showAnswer: [false],
+    updated: [false],
+    updatedBy: [this.storyDetails.creatorId] // or current user ID
+  });
+  this.faqs.insert(0, faqGroup);
+}
+
+
+
+editFAQ(i: number) {
+  const faqGroup = this.faqs.at(i);
+  this.faqBackup[i] = { ...faqGroup.value };
+  faqGroup.patchValue({ editing: true, showAnswer: true });
+}
+
+saveFAQ(i: number) {
+  const faqGroup = this.faqs.at(i);
+  if (faqGroup.valid) {
+    faqGroup.patchValue({ editing: false, updated: true });
+    // TODO: send faqGroup.value to backend
   }
+}
 
-  addFAQ() {
-    const faqGroup = this.fb.group({
-      usecaseFaqId: [null],
-      usecaseId: [this.storyDetails.usecaseId],
-      question: ['', Validators.required],
-      answer: ['', Validators.required],
-      editing: [true],
-      showAnswer: [false],
-      updated: [false],
-      updatedBy: [this.storyDetails.creatorId] // or current user ID
-    });
-    this.faqs.insert(0, faqGroup);
+updateFAQ(i: number) {
+  const faqGroup = this.faqs.at(i);
+  console.log('Updating FAQ:', faqGroup.value);
+  // TODO: call backend update API here
+}
+
+cancelFAQ(i: number) {
+  const faqGroup = this.faqs.at(i);
+  const original = this.faqBackup[i];
+  if (original) {
+    faqGroup.setValue(original);
   }
+  faqGroup.patchValue({ editing: false, showAnswer: false });
+}
 
-
-
-  editFAQ(i: number) {
-    const faqGroup = this.faqs.at(i);
-    this.faqBackup[i] = { ...faqGroup.value };
-    faqGroup.patchValue({ editing: true, showAnswer: true });
-  }
-
-  saveFAQ(i: number) {
-    const faqGroup = this.faqs.at(i);
-    if (faqGroup.valid) {
-      faqGroup.patchValue({ editing: false, updated: true });
-      // TODO: send faqGroup.value to backend
-    }
-  }
-
-  updateFAQ(i: number) {
-    const faqGroup = this.faqs.at(i);
-    console.log('Updating FAQ:', faqGroup.value);
-    // TODO: call backend update API here
-  }
-
-  cancelFAQ(i: number) {
-    const faqGroup = this.faqs.at(i);
-    const original = this.faqBackup[i];
-    if (original) {
-      faqGroup.setValue(original);
-    }
-    faqGroup.patchValue({ editing: false, showAnswer: false });
-  }
-
-  deleteFAQ(i: number) {
-    this.faqs.removeAt(i);
-    this.faqBackup.splice(i, 1);
-  }
+deleteFAQ(i: number) {
+  this.faqs.removeAt(i);
+  this.faqBackup.splice(i, 1);
+}
 
   get hasUpdatedFaq(): boolean {
-    return this.faqs.controls.some(f => f.get('updated')?.value === true);
-  }
+  return this.faqs.controls.some(f => f.get('updated')?.value === true);
+}
 
-  updateFAQPayload() {
-    // Collect the entire FAQ array
-    const payload = this.faqs.value.map((f: any) => ({
-      usecaseFaqId: f.usecaseFaqId,
-      question: f.question,
-      answer: f.answer,
-      updatedBy: f.updatedBy
-    }));
+updateFAQPayload() {
+  // Collect the entire FAQ array
+  const payload = this.faqs.value.map((f: any) => ({
+    usecaseFaqId: f.usecaseFaqId,
+    question: f.question,
+    answer: f.answer,
+    updatedBy: f.updatedBy
+  }));
 
-    console.log('Sending FAQ payload:', payload);
+  console.log('Sending FAQ payload:', payload);
 
-    // TODO: call your backend service here
-    this.usecaseService.updateFaqs(this.storyDetails.usecaseId, payload)
-      .subscribe({
-        next: res => {
-          console.log('FAQ update response:', res)
-          this.getStoryDetails(this.storyID);
-        },
-        error: err => {
-          console.error('FAQ update failed:', err)
-        }
-      });
-  }
+  // TODO: call your backend service here
+  this.usecaseService.updateFaqs(this.storyDetails.usecaseId, payload)
+    .subscribe({
+      next: res => {
+        console.log('FAQ update response:', res)
+        this.getStoryDetails(this.storyID);
+      },
+      error: err => {
+        console.error('FAQ update failed:', err)
+      }
+    });
+}
 
 
 }
