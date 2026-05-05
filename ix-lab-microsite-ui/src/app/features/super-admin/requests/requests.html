@@ -1,0 +1,199 @@
+<section class="stories">
+
+    <div class="stories-container">
+
+        <!-- BREADCRUMB & ACTION BUTTONS -->
+        <!-- <div class="stories__top-bar" *ngIf="showAdminControls">
+      <div class="breadcrumb">
+        <a href="#" class="breadcrumb-link">Admin</a>
+        <span class="breadcrumb-separator">›</span>
+        <a [routerLink]="['/admin/configuration']" class="breadcrumb-link">Configurations</a>
+        <span class="breadcrumb-separator">›</span>
+        <a href="#" class="breadcrumb-link active">Stories Configuration</a>
+      </div>
+
+      <div class="top-actions">
+        <button class="btn-outline" (click)="archivedStories()">Archived Stories</button>
+
+        <button class="btn-primary" routerLink="/add-story">
+          Add Story
+        </button>
+      </div>
+    </div> -->
+
+        <div class="filters">
+
+            <!-- Industry -->
+            <app-custom-dropdown label="Industry" [options]="industries" displayKey="industryName"
+                [(ngModel)]="selectedIndustryId" (optionSelected)="onIndustrySelected($event)">
+            </app-custom-dropdown>
+
+            <!-- Sub Industry -->
+            <app-custom-dropdown label="Sub-Industry" [options]="subIndustries" displayKey="subIndustryName"
+                [(ngModel)]="selectedSubIndustryId" [disabled]="selectedIndustryId === -1"
+                (optionSelected)="onSubIndustrySelected($event)">
+            </app-custom-dropdown>
+
+            <!-- Value Chain -->
+            <app-custom-dropdown label="Value Chain" [options]="valueChains" displayKey="valueChainName"
+                [(ngModel)]="selectedValueChainId" [disabled]="selectedSubIndustryId === -1"
+                (optionSelected)="onValueChainSelected($event)">
+            </app-custom-dropdown>
+
+            <!-- Sort -->
+            <!-- <app-custom-dropdown label="Sort by" [options]="['Popular','New & Noteworthy']">
+      </app-custom-dropdown> -->
+            <app-toaster [title]="toastTitle" [message]="toastMessage" [show]="showToast" (closed)="showToast = false">
+            </app-toaster>
+            <!-- Search -->
+            <div class="search">
+                <input type="text" placeholder="Search" [(ngModel)]="searchText" (input)="onSearch()" />
+                <button>🔍</button>
+            </div>
+
+        </div>
+
+        <!-- <div class="stories__header" *ngIf="showAdminControls && isFilterApplied()">
+      <h1 class="stories__title">
+        {{ getDynamicTitle() }} ({{ drafts.length + filteredStories.length }})
+      </h1>
+    </div> -->
+
+
+        <div></div>
+
+        <!-- new wrapper Stories -->
+        <div class="stories__header">
+            <!-- <h1 class="stories__title" *ngIf="filteredStories.length && !showAdminControls">{{ getBreadcrumbTitle() }} ({{ stories.length }})</h1> -->
+
+            <h1 class="stories__title" *ngIf="filteredStories.length">Requests ({{ filteredStories.length }})</h1>
+
+        </div>
+
+        <!---ALL STORIES-------------------->
+        <div class="stories__grid" *ngIf="!isLoading && filteredStories.length > 0">
+
+            <div class="story-card" *ngFor="let story of filteredStories" [routerLink]="['/stories', story.usecaseId]"
+                [queryParams]="{from: currentFrom, page: currentPage}">
+
+                <div class="story-card__media">
+                    <img [src]="story.thumbnailImageUrl" alt="">
+                    <!-- <button class="card-menu-btn" (click)="$event.stopPropagation(); toggleMenu(story, $event)">⋮</button> -->
+
+                    <!-- <div class="card-menu" *ngIf="story.showMenu" (click)="$event.stopPropagation()">
+
+            <button class="menu-item">
+              <img [src]="editIcon" alt="Edit" />
+              <span [routerLink]="['/stories', story.usecaseId, 'edit']">Edit Story</span>
+            </button>
+            <button class="menu-item">
+              <img [src]="favoriteIcon" alt="Favorite" />
+              <span>Add to Favourites</span>
+            </button>
+            <button class="menu-item" *ngIf="showAdminControls && story.status === 'DRAFT'">
+              <img [src]="discardIcon" alt="Discard" />
+              <span (click)="discardDraft(story.usecaseId)">Discard Draft</span>
+            </button>
+            <button class="menu-item" *ngIf="showAdminControls && story.status !== 'ARCHIVED'">
+              <img [src]="archiveIcon" alt="Archive" />
+              <span (click)="archiveStory(story.usecaseId)">Archive Story</span>
+            </button>
+          </div> -->
+                </div>
+
+                <div class="story-card__content">
+                    <span class="category">{{ story.category }}</span>
+
+                    <div class="industry-row">
+                        <span class="left industry-subindustry-border-bottom feild-font">
+                            {{story.industryName}} • {{story.subIndustryName}}
+                        </span>
+
+                        <span class="right feild-font">
+                            <img src="assets/icons/value-chain.png" alt="Value chain" />
+                            {{story.valueChainName}}
+                        </span>
+                    </div>
+
+                    <h3>{{ story.title }}</h3>
+
+                    <p class="truncate-3-lines">{{ story.description }}</p>
+
+                    <div class="tags">
+                        <span *ngFor="let tag of story.tag">{{ tag }}</span>
+                    </div>
+
+                    <!-- Footer row for stories -->
+                    <div class="story-card__footer">
+                        <div class="footer-row">
+                            <div class="footer-item">
+                                <img [src]="user_logo" alt="user" />
+                                <span>{{ story.ownerName }}</span>
+                            </div>
+                            <div class="footer-item">
+                                <img [src]="durationIcon" alt="time" />
+                                <span>{{ story.duration }} Min</span>
+                            </div>
+                        </div>
+                        <div *ngIf="showAdminControls" class="footer-row status">
+                            <div class="footer-item">
+                                <img [src]="reviewIcon" alt="status" />
+                                <span>{{ story.status }}</span>
+                            </div>
+                        </div>
+                        <div class="footer-row date-row">
+                            <div class="footer-item">
+                                <span>{{ story.updatedDate || story.createdDate | date:'dd MMM yyyy' }}</span>
+                            </div>
+                            <div class="footer-item new-story-chip"
+                                [ngClass]="{'edit-story-chip': !isNewStory(story)}">
+                                <span>{{ isNewStory(story) ? 'New Story' : 'Edit Story' }}</span>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!---NO ACTIVE STORY SECTION-->
+        <div class="stories__header" *ngIf="!showAdminControls">
+            <h1 class="stories__title" *ngIf="!isLoading && filteredStories.length === 0">No Requests Found</h1>
+        </div>
+
+
+        <!-- <ng-container *ngIf="showAdminControls">
+      <div class="pagination" *ngIf="totalPages > 1">
+       
+        <button [routerLink]="['/stories']" [queryParams]="{ from: currentFrom, page: currentPage - 1 }"
+          [disabled]="currentPage === 1" style="border: none;">
+          <img [src]="pagination_left" alt="Previous" />
+        </button>
+
+        
+        <span *ngFor="let page of [].constructor(totalPages); let i = index" [routerLink]="['/stories']"
+          [queryParams]="{ from: currentFrom, page: i + 1 }" [class.active]="currentPage === i + 1">
+          {{ i + 1 }}
+        </span>
+
+       
+        <button [routerLink]="['/stories']" [queryParams]="{ from: currentFrom, page: currentPage + 1 }"
+          [disabled]="currentPage === totalPages" style="border: none;">
+          <img [src]="pagination_right" alt="Next" />
+        </button>
+      </div>
+    </ng-container> -->
+
+
+
+    </div>
+</section>
+
+
+
+<!-- <div class="spinner-overlay" *ngIf="isDataLoading()">
+  <app-spinner></app-spinner>
+</div> -->

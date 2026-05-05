@@ -15,7 +15,7 @@ export class NavbarComponent {
   adminOpen = false;
   userPhotoUrl = 'assets/images/profile.png'; // existing value
   isPresenter = false;
-  role: string = 'admin';
+  role: string = 'superadmin';
 
   constructor(private elRef: ElementRef, private router: Router, private route: ActivatedRoute) {
    
@@ -37,7 +37,7 @@ export class NavbarComponent {
   setRoleFromRoute() {
   let route = this.router.routerState.snapshot.root;
 
-  let role = 'admin'; // default
+  let role = 'superadmin'; // default
 
   while (route) {
     if (route.data && route.data['role']) {
@@ -50,14 +50,30 @@ export class NavbarComponent {
 }
 
 // else if condition for favourites is added for now, once roles are in place then else if is not required and component routing will take care of it 
+// getRoute(path?: string) {
+//   if (this.role === 'presenter' && path !== 'favourites') {
+//     return path ? `/presenter/${path}` : '/presenter';
+//   } else if (this.role === 'presenter' && path === 'favourites') {
+//     return '/presenter';
+//   }
+//   return path ? `/${path}` : '/';
+// }
+
 getRoute(path?: string) {
   if (this.role === 'presenter' && path !== 'favourites') {
     return path ? `/presenter/${path}` : '/presenter';
   } else if (this.role === 'presenter' && path === 'favourites') {
     return '/presenter';
   }
+  // 👇 for superadmin, just return root-level paths
+  else if (this.role === 'superadmin') {
+    return path ? `/${path}` : '/';
+  }
+  // default (admin)
   return path ? `/${path}` : '/';
 }
+
+
 
   toggleAdminMenu(event: Event) {
     event.stopPropagation();
