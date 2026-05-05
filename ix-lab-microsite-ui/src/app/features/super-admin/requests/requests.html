@@ -73,8 +73,8 @@
         <!---ALL STORIES-------------------->
         <div class="stories__grid" *ngIf="!isLoading && filteredStories.length > 0">
 
-            <div class="story-card" *ngFor="let story of filteredStories" [routerLink]="['/stories', story.usecaseId]"
-                [queryParams]="{from: currentFrom, page: currentPage}">
+            <div class="story-card" *ngFor="let story of filteredStories"
+                [routerLink]="['/view-request', story.usecaseId, 'edit']" [queryParams]="{page: currentPage}">
 
                 <div class="story-card__media">
                     <img [src]="story.thumbnailImageUrl" alt="">
@@ -145,8 +145,7 @@
                             <div class="footer-item">
                                 <span>{{ story.updatedDate || story.createdDate | date:'dd MMM yyyy' }}</span>
                             </div>
-                            <div class="footer-item new-story-chip"
-                                [ngClass]="{'edit-story-chip': !isNewStory(story)}">
+                            <div class="footer-item new-story-chip" [ngClass]="{'edit-story-chip': !isNewStory(story)}">
                                 <span>{{ isNewStory(story) ? 'New Story' : 'Edit Story' }}</span>
                             </div>
                         </div>
@@ -165,27 +164,27 @@
         </div>
 
 
-        <!-- <ng-container *ngIf="showAdminControls">
-      <div class="pagination" *ngIf="totalPages > 1">
-       
-        <button [routerLink]="['/stories']" [queryParams]="{ from: currentFrom, page: currentPage - 1 }"
-          [disabled]="currentPage === 1" style="border: none;">
-          <img [src]="pagination_left" alt="Previous" />
-        </button>
+        <ng-container>
+            <div class="pagination" *ngIf="totalPages > 1">
 
-        
-        <span *ngFor="let page of [].constructor(totalPages); let i = index" [routerLink]="['/stories']"
-          [queryParams]="{ from: currentFrom, page: i + 1 }" [class.active]="currentPage === i + 1">
-          {{ i + 1 }}
-        </span>
+                <button [routerLink]="['/request']" [queryParams]="{ page: currentPage - 1 }"
+                    [disabled]="currentPage === 1" style="border: none;">
+                    <img [src]="pagination_left" alt="Previous" />
+                </button>
 
-       
-        <button [routerLink]="['/stories']" [queryParams]="{ from: currentFrom, page: currentPage + 1 }"
-          [disabled]="currentPage === totalPages" style="border: none;">
-          <img [src]="pagination_right" alt="Next" />
-        </button>
-      </div>
-    </ng-container> -->
+
+                <span *ngFor="let page of [].constructor(totalPages); let i = index" [routerLink]="['/request']"
+                    [queryParams]="{ page: i + 1 }" [class.active]="currentPage === i + 1">
+                    {{ i + 1 }}
+                </span>
+
+
+                <button [routerLink]="['/request']" [queryParams]="{ page: currentPage + 1 }"
+                    [disabled]="currentPage === totalPages" style="border: none;">
+                    <img [src]="pagination_right" alt="Next" />
+                </button>
+            </div>
+        </ng-container>
 
 
 

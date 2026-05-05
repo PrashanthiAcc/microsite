@@ -64,13 +64,7 @@ export class RequestsComponent {
   showIndustryOverview: boolean = false;
   showValueChain: boolean = false;
   isDataLoading = signal(false);
-  viewIndustryOverview = [
-    { name: 'Life Sciences', defaultImage: 'assets/LifeScience Industry Overview.png' },
-  ];
-  viewValueChain = [
-    { name: 'Pharmaceuticals', defaultImage: 'assets/Pharmaceuticals Value Chain.png' },
-    //{ name: 'Med Tech', defaultImage: 'assets/Life Sciences.png' },
-  ];
+  
   constructor(private router: Router, private http: HttpClient,
     private industryService: IndustryService, private cdr: ChangeDetectorRef, private route: ActivatedRoute,
     private userService: UserService, private usecaseService: UsecaseService
@@ -101,9 +95,11 @@ export class RequestsComponent {
     this.usecaseService.getAllStories(page, size).subscribe({
       next: (res: any) => {
         let allStories = res.content || [];
+        console.log("all stories:: ", allStories)
 
         if (!this.showAdminControls) {
           allStories = allStories.filter((story: any) => story.status == 'IN_REVIEW');
+          //console.log("filtered stories:: ", this.filteredStories)
           if (allStories.length > 0) {
             this.isLoading = true;
           } else {
@@ -130,9 +126,11 @@ export class RequestsComponent {
         }));
 
         this.filteredStories = this.stories;
+        console.log("filtered stories:: ", this.filteredStories)
         this.applyFilters();
         if (this.showAdminControls && this.currentFrom !== 'stories') {
           this.filteredStories = this.stories.filter((story: any) => story.status === 'IN_REVIEW');
+          console.log("filtered stories:: ", this.filteredStories)
 
           this.drafts = allStories
             .filter((story: any) => story.status === 'DRAFT')
@@ -191,6 +189,7 @@ export class RequestsComponent {
         }));
 
       this.filteredStories = this.filtered.filter((story: any) => story.status === 'IN_REVIEW');
+      console.log("filtered stories:: ", this.filteredStories)
       // this.filtered = this.filteredStories;
     } else {
       this.filteredStories = [...this.filtered];
@@ -233,51 +232,6 @@ export class RequestsComponent {
     this.stories.forEach(s => (s.showMenu = false));
   }
 
-
-  archiveStories() {
-    // Handle archive selected stories
-    console.log('Archive stories clicked');
-    // TODO: Implement archiving logic
-  }
-
-  // loadIndustries() {
-  //   this.industryService.getIndustries().subscribe((res: any) => {
-
-  //     this.allIndustries = res.industries;
-
-  //     this.allSubIndustries = res.subIndustries;
-  //     this.allValueChains = res.valueChains;
-
-  //     this.industries = [
-  //       { industryId: null, industryName: 'All' },
-  //       ...this.allIndustries
-  //     ];
-
-  //     this.subIndustries = [
-  //       { subIndustryId: null, subIndustryName: 'All' },
-  //       ...this.allSubIndustries
-  //     ];
-
-  //     this.valueChains = [
-  //       { valueChainId: null, valueChainName: 'All' },
-  //       ...this.allValueChains
-  //     ];
-
-  //     this.cardCategoryTitle = this.route.snapshot.queryParams['title'];
-  //     const title = this.route.snapshot.queryParams['title'];
-  //     if (title) {
-  //       const selectedIndustryObj = this.industries.find(
-  //         ind => ind.industryName === title
-  //       );
-  //       if (selectedIndustryObj) {
-  //         this.selectedIndustryId = selectedIndustryObj.industryId;
-  //         this.applyFilters();
-  //         this.cdr.detectChanges();
-  //       }
-  //     }
-
-  //   });
-  // }
 
   loadIndustries() {
     this.industryService.getIndustries().subscribe((res: any) => {
@@ -404,75 +358,7 @@ export class RequestsComponent {
     this.applyFilters();
   }
 
-  archiveStory(usecaseId: string) {
-    this.usecaseService.archiveUsecase(usecaseId).subscribe({
-      next: (res: string) => {
-        console.log('API success, response:', res);
-
-        this.toastTitle = 'Story Archived Successfully';
-        this.toastMessage = res;
-        this.showToast = true;
-
-        // ✅ Close the card menu for the archived story
-        this.stories.forEach(s => {
-          if (s.usecaseId === usecaseId) {
-            s.showMenu = false;
-          }
-        });
-        this.drafts.forEach(d => {
-          if (d.usecaseId === usecaseId) {
-            d.showMenu = false;
-          }
-        });
-
-        this.cdr.detectChanges();
-        window.scrollTo({ top: 0 });
-        this.loadAllStories(); // Refresh the list 
-      },
-      error: (err) => {
-        console.error('API error:', err);
-      }
-    });
-  }
-
-  archivedStories() {
-    this.router.navigate(['/archived']);
-  }
-
-  discardDraft(usecaseId: string) {
-    this.isDataLoading.set(true);
-    this.usecaseService.discardDraft(usecaseId).subscribe({
-      next: (res: string) => {
-        this.isDataLoading.set(false);
-        console.log('API success, response:', res);
-        this.showToast = false;
-        this.toastTitle = 'Draft Discarded Successfully';
-        //this.toastMessage = res;
-        this.showToast = true;
-
-        // ✅ Close the card menu for the discarded draft
-        this.stories.forEach(s => {
-          if (s.usecaseId === usecaseId) {
-            s.showMenu = false;
-          }
-        });
-        this.drafts.forEach(d => {
-          if (d.usecaseId === usecaseId) {
-            d.showMenu = false;
-          }
-        });
-
-        this.cdr.detectChanges();
-        window.scrollTo({ top: 0 });
-        this.loadAllStories(); // Refresh the list 
-      },
-      error: (err) => {
-        this.isDataLoading.set(false);
-        console.error('API error:', err);
-      }
-    });
-  }
-
+ 
   onSearch() {
     const value = this.searchText.trim().toLowerCase();
 
@@ -519,89 +405,6 @@ export class RequestsComponent {
   getValueChainName(id: number): string {
     const valueChain = this.allValueChains.find((s: any) => s.valueChainId === id);
     return valueChain ? valueChain.valueChainName : '';
-  }
-
-  getIndustryImage() {
-    const name = this.industryName;
-    const industry = this.viewIndustryOverview.find(item => item.name === name);
-    return industry ? industry.defaultImage : 'assets/cards.png';
-  }
-
-  getValueChainImage() {
-    const name = this.subIndustryName;
-    const chain = this.viewValueChain.find(item => item.name === name);
-    return chain ? chain.defaultImage : 'assets/cards.png';
-  }
-
-  isIndustryOverviewEnabled(): boolean {
-    return !!this.industryName &&
-      this.industryName !== 'All' &&
-      this.viewIndustryOverview.some(item => item.name === this.industryName);
-  }
-
-  isValueChainEnabled(): boolean {
-    return !!this.subIndustryName &&
-      this.subIndustryName !== 'All' &&
-      this.viewValueChain.some(item => item.name === this.subIndustryName);
-  }
-
-  getBreadcrumbTitle(): string {
-    // Case 1: all three are "All"
-    if (this.selectedIndustryId === -1 && this.selectedSubIndustryId === -1 && this.selectedValueChainId === -1) {
-      return 'All Stories';
-    }
-
-    let parts: string[] = [];
-
-    // Case 2: Industry = All, but others chosen
-    if (this.selectedIndustryId === -1) {
-      parts.push('All');
-    } else if (this.industryName && this.industryName !== 'All') {
-      parts.push(this.industryName);
-    }
-
-    if (this.selectedSubIndustryId !== -1 && this.subIndustryName && this.subIndustryName !== 'All') {
-      parts.push(this.subIndustryName);
-    }
-
-    if (this.selectedValueChainId !== -1 && this.valueChainName && this.valueChainName !== 'All') {
-      parts.push(this.valueChainName);
-    }
-
-    return parts.join(' > ') || 'All Stories';
-  }
-
-  openIndustryModal() {
-    console.log("clicked chchchc")
-    this.showIndustryOverview = true;
-  }
-
-  openValueChainModal() {
-    this.showValueChain = true;
-  }
-
-  getDynamicTitle(): string {
-    const parts: string[] = [];
-
-    if (this.industryName && this.industryName !== 'All') {
-      parts.push(this.industryName);
-    }
-
-    if (this.subIndustryName && this.subIndustryName !== 'All') {
-      parts.push(this.subIndustryName);
-    }
-
-    if (this.valueChainName && this.valueChainName !== 'All') {
-      parts.push(this.valueChainName);
-    }
-
-    if (parts.length === 0 && (!this.showAdminControls && this.currentFrom === 'stories')) {
-      return 'All Stories';
-    } else if (parts.length === 0 && (this.showAdminControls && this.currentFrom !== 'stories')) {
-      return '';
-    }
-
-    return parts.join(' > ');
   }
 
   isFilterApplied(): boolean {

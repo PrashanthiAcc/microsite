@@ -73,4 +73,24 @@ export class UsecaseService {
     );
   }
 
+  approveUsecase(usecaseId: number, approverId: number): Observable<string> {
+    return this.http.put(
+      `${this.baseUrl}/api/usecase/v1/${usecaseId}/approve`,
+      {}, // empty body
+      {
+        params: { approverId: approverId },
+        responseType: 'text'
+      }
+    );
+  }
+
+  sendToDraftUsecase(usecaseId: number): Observable<string> {
+    return this.http.put(
+      `${this.baseUrl}/api/usecase/v1/${usecaseId}/sendBackToDraft`,
+      {}, // empty body
+      {
+        responseType: 'text'
+      }
+    );
+  }
 }

@@ -220,6 +220,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/super-admin/requests/requests')
             .then(m => m.RequestsComponent)
+      },
+      {
+        path: 'view-request/:id/edit',
+        loadComponent: () =>
+         import('./features/super-admin/view-requests/view-requests')
+            .then(m => m.ViewRequestsComponent)
       }
     ]
   },
@@ -233,6 +239,19 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/super-admin/requests/requests')
             .then(m => m.RequestsComponent)
+      }
+    ]
+  },
+  {
+    path: 'view-request/:id/edit', 
+    component: LayoutComponent,
+    data: { role: 'superadmin' },
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/super-admin/view-requests/view-requests')
+            .then(m => m.ViewRequestsComponent)
       }
     ]
   },

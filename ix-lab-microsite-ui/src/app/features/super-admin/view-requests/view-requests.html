@@ -1,7 +1,21 @@
 <form [formGroup]="storyForm" class="story-form">
 
-  <span class="arrow-back" alt="back" (click)="onCancel()">←</span>
+  <!-- <span class="arrow-back" alt="back" (click)="onCancel()">←</span> -->
 
+  <section class="hero" [ngStyle]="{'background-image': 'url(' + storyDetails.bannerUrl + ')'}">
+            <img [src]="leftArrowIconPath" alt="backtostories" class="back-icon" (click)="onCancel()">
+            <div class="hero-overlay"></div>
+
+            <div class="hero-content">
+                <h1>
+                    {{ storyDetails?.title }} <br />
+                    
+                </h1>
+
+                <p class="subtitle">{{ storyDetails?.description }}</p>
+
+            </div>
+        </section>
   <!-- BASIC DETAILS -->
   <section class="card">
     <h3 class="label-header" (click)="toggleBasicDetailsAccordion()">
@@ -375,8 +389,8 @@
           <button type="button" class="edit-btn" (click)="editFAQ(i)">
             <img [src]="pencilIconPath" alt="edit" />
           </button>
-          <button type="button" class="btn-delete" (click)="deleteFAQ(i)"
-            style="margin-top: 24px; color: black;">🗑</button>
+          <!-- <button type="button" class="btn-delete" (click)="deleteFAQ(i)"
+            style="margin-top: 24px; color: black;">🗑</button> -->
         </div>
       </div>
 
@@ -395,16 +409,26 @@
 
   <!-- ACTION BUTTONS -->
   <div class="button-group">
-    <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button>
+    <!-- <button type="button" class="btn-cancel" (click)="onCancel()">Cancel</button> -->
 
-    <button type="button" class="btn-draft" (click)="openModal('draft')">
+    <!-- <button type="button" class="btn-draft" (click)="openModal('draft')">
       <img src="assets/icons/save.png" class="btn-icon" alt="draft">
       Save as Draft
     </button>
 
     <button type="button" class="btn-approve" (click)="openModal('approval')">
       <img src="assets/icons/leading.png" class="btn-icon" alt="approve">
-      Send for Approval
+      Save
+    </button> -->
+
+    <button type="button" class="btn-draft" (click)="openSuperAdminModal('send-to-draft')" style="color: #D60D0D;">
+      <img src="assets/icons/red_cross.png" class="btn-icon" alt="draft" style="height: 14px; width: 14px;">
+      Send to Draft
+    </button>
+
+    <button type="button" class="btn-approve" (click)="openSuperAdminModal('accept')">
+      <img src="assets/icons/tick.png" class="btn-icon" alt="approve">
+      Accept
     </button>
   </div>
 
@@ -425,18 +449,42 @@
 <div class="modal-backdrop" *ngIf="showApprovalModal">
   <div class="modal" *ngIf="showApprovalModal">
     <div class="modal-header">
-      <h2>Edit Story</h2>
+      <h2>Save Story</h2>
       <button type="button" class="btn-close" (click)="closeApprovalModal()">
         <img [src]="closeIconPath" alt="close icon" class="close-icon" />
       </button>
     </div>
 
     <p class="modal-message">
-      {{ modalAction === 'approval' ? 'Send for Approval?' : 'Save as Draft?' }}
+      {{ modalAction === 'approval' ? 'Are you sure you want to save this story?' : 'Are you sure you want to save this story as Draft?' }}
     </p>
 
     <div class="modal-actions">
       <button type="button" class="btn-approve" (click)="confirmModalAction()">
+        Okay
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!---Super Admin Modals-->
+
+<div class="modal-backdrop" *ngIf="showSuperAdminApprovalModal">
+  <div class="modal" *ngIf="showSuperAdminApprovalModal">
+    <div class="modal-header">
+      <h2>Approve Story</h2>
+      <button type="button" class="btn-close" (click)="closeSuperAdminApprovalModal()">
+        <img [src]="closeIconPath" alt="close icon" class="close-icon" />
+      </button>
+    </div>
+
+    <p class="modal-message">
+      {{ superAdminModalAction === 'accept' ? 'Are you sure you want to Approve this story?' : 'Are you sure you want to send this story to Draft?' }}
+    </p>
+
+    <div class="modal-actions">
+      <button type="button" class="btn-approve" (click)="confirmSuperAdminModalAction()">
         Okay
       </button>
     </div>
