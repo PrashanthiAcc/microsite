@@ -92,19 +92,23 @@ export class RequestsComponent {
   loadAllStories(page: number = 1, size: number = 10) {
     this.isDataLoading.set(true);
     this.isLoading = false;
-    this.usecaseService.getAllStories(page, size).subscribe({
+    this.usecaseService.getUsecasesByStatus('IN_REVIEW', page, size).subscribe({
       next: (res: any) => {
-        let allStories = res.content || [];
+        let allStories = res || [];
         console.log("all stories:: ", allStories)
 
+        // if (!this.showAdminControls) {
+        //   allStories = allStories.filter((story: any) => story.status == 'IN_REVIEW');
+        //   //console.log("filtered stories:: ", this.filteredStories)
+        //   if (allStories.length > 0) {
+        //     this.isLoading = true;
+        //   } else {
+        //     this.isLoading = false;
+        //   }
+        // }
+        // No need to filter by status again, API already does it
         if (!this.showAdminControls) {
-          allStories = allStories.filter((story: any) => story.status == 'IN_REVIEW');
-          //console.log("filtered stories:: ", this.filteredStories)
-          if (allStories.length > 0) {
-            this.isLoading = true;
-          } else {
-            this.isLoading = false;
-          }
+          this.isLoading = allStories.length > 0;
         }
 
         this.isLoading = false;
@@ -159,42 +163,57 @@ export class RequestsComponent {
   }
 
 
-  applyFilters() {
-    this.filtered = [...this.stories];
+  // applyFilters() {
+  //   this.filtered = [...this.stories];
 
-    if (this.selectedIndustryId !== -1) {
-      this.filtered = this.filtered.filter((story: any) => story.industryId === this.selectedIndustryId);
-    }
+  //   if (this.selectedIndustryId !== -1) {
+  //     this.filtered = this.filtered.filter((story: any) => story.industryId === this.selectedIndustryId);
+  //   }
 
-    if (this.selectedSubIndustryId !== -1) {
-      this.filtered = this.filtered.filter((story: any) => story.subIndustryId === this.selectedSubIndustryId);
-    }
+  //   if (this.selectedSubIndustryId !== -1) {
+  //     this.filtered = this.filtered.filter((story: any) => story.subIndustryId === this.selectedSubIndustryId);
+  //   }
 
-    if (this.selectedValueChainId !== -1) {
-      this.filtered = this.filtered.filter((story: any) => story.valueChainId === this.selectedValueChainId);
-    }
+  //   if (this.selectedValueChainId !== -1) {
+  //     this.filtered = this.filtered.filter((story: any) => story.valueChainId === this.selectedValueChainId);
+  //   }
 
-    this.filteredStories = this.filtered;
+  //   this.filteredStories = this.filtered;
 
-    if (this.showAdminControls && this.currentFrom !== 'stories') {
+  //   if (this.showAdminControls && this.currentFrom !== 'stories') {
 
-      this.drafts = this.filtered
-        .filter((story: any) => story.status === 'DRAFT')
-        .map((draft: any) => ({
-          ...draft,
-          tags: draft.tags,
-          ownerName: this.getOwnerName(draft.ownerId),
-          industryName: this.getIndustryName(draft.industryId),
-          subIndustryName: this.getSubIndustryName(draft.subIndustryId)
-        }));
+  //     this.drafts = this.filtered
+  //       .filter((story: any) => story.status === 'DRAFT')
+  //       .map((draft: any) => ({
+  //         ...draft,
+  //         tags: draft.tags,
+  //         ownerName: this.getOwnerName(draft.ownerId),
+  //         industryName: this.getIndustryName(draft.industryId),
+  //         subIndustryName: this.getSubIndustryName(draft.subIndustryId)
+  //       }));
 
-      this.filteredStories = this.filtered.filter((story: any) => story.status === 'IN_REVIEW');
-      console.log("filtered stories:: ", this.filteredStories)
-      // this.filtered = this.filteredStories;
-    } else {
-      this.filteredStories = [...this.filtered];
-    }
+  //     this.filteredStories = this.filtered.filter((story: any) => story.status === 'IN_REVIEW');
+  //     console.log("filtered stories:: ", this.filteredStories)
+  //     // this.filtered = this.filteredStories;
+  //   } else {
+  //     this.filteredStories = [...this.filtered];
+  //   }
+  // }
+applyFilters() {
+  this.filtered = [...this.stories];
+
+  if (this.selectedIndustryId !== -1) {
+    this.filtered = this.filtered.filter((story:any) => story.industryId === this.selectedIndustryId);
   }
+  if (this.selectedSubIndustryId !== -1) {
+    this.filtered = this.filtered.filter((story:any) => story.subIndustryId === this.selectedSubIndustryId);
+  }
+  if (this.selectedValueChainId !== -1) {
+    this.filtered = this.filtered.filter((story:any) => story.valueChainId === this.selectedValueChainId);
+  }
+
+  this.filteredStories = [...this.filtered];
+}
 
   getAllUsers() {
     this.userService.getAllUsers().subscribe((res: any) => {

@@ -15,7 +15,7 @@ import { ChangeDetectorRef } from '@angular/core';
   styleUrl: './archived-story.scss',
 })
 export class ArchivedStoriesComponent {
-showAdminControls = false;
+  showAdminControls = false;
   industries: any[] = [];
   subIndustries: any[] = [];
   valueChains: any[] = [];
@@ -24,35 +24,40 @@ showAdminControls = false;
   allValueChains: any[] = [];
   archivedStories: any[] = [];
   allUsers: any[] = [];
-
+  currentPage = 1;
+  totalPages = 0;
+  pageSize = 10;
+  totalElements = 0;
+  pagination_right = 'assets/icons/pagination_right.png';
+  pagination_left = 'assets/icons/pagination_left.png';
   constructor(private router: Router, private http: HttpClient,
     private industryService: IndustryService, private cdr: ChangeDetectorRef, private route: ActivatedRoute,
     private userService: UserService, private usecaseService: UsecaseService
   ) { }
 
-   ngOnInit() {
+  ngOnInit() {
     window.scrollTo({ top: 0 });
     this.route.queryParams.subscribe(params => {
       this.showAdminControls = params['from'] === 'config';
     });
 
     this.loadIndustries();
-    this.loadAllStories();
+    this.loadAllStories(this.currentPage);
     this.getAllUsers();
 
   }
 
-  loadAllStories() {
-    this.usecaseService.getAllStories().subscribe((res: any) => {
-      const allStories = res.content || [];
-    
+  loadAllStories(page: number = 1, size: number = 10) {
+    this.usecaseService.getUsecasesByStatus('ARCHIVED', page, size).subscribe((res: any) => {
+      const allStories = res || [];
+
       this.archivedStories = allStories
         .filter((story: any) => story.status === 'ARCHIVED')
         .map((archived: any) => ({
           ...archived,
           ownerName: this.getOwnerName(archived.ownerEId)
         }));
-        console.log("archivedStories::", this.archivedStories);
+      console.log("archivedStories::", this.archivedStories);
       this.cdr.detectChanges();
     });
   }
@@ -75,8 +80,7 @@ showAdminControls = false;
     return user ? user.userEid : 'Unknown';
   }
 
-  
-  currentPage = 1;
+
 
   toggleMenu(story: any, event?: MouseEvent) {
     if (event) {

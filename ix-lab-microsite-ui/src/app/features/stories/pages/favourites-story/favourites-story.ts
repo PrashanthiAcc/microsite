@@ -19,7 +19,7 @@ import { UserService } from '../../../../core/services/users';
   styleUrl: './favourites-story.scss',
 })
 export class FavouritesStoryComponent {
-showAdminControls = false;
+  showAdminControls = false;
   isLoading = true;
   industries: any[] = [];
   subIndustries: any[] = [];
@@ -91,21 +91,23 @@ showAdminControls = false;
   loadAllStories(page: number = 1, size: number = 10) {
     this.isDataLoading.set(true);
     this.isLoading = false;
-    this.usecaseService.getAllStories(page, size).subscribe({
+    this.usecaseService.getFavouriteUsecases(32, page, size).subscribe({
       next: (res: any) => {
-        let allStories = res.content || [];
+        let allStories = res || [];
         console.log("all stories:: ", allStories)
 
+        // if (!this.showAdminControls) {
+        //   allStories = allStories.filter((story: any) => story.status == 'IN_REVIEW');
+        //   //console.log("filtered stories:: ", this.filteredStories)
+        //   if (allStories.length > 0) {
+        //     this.isLoading = true;
+        //   } else {
+        //     this.isLoading = false;
+        //   }
+        // }
         if (!this.showAdminControls) {
-          allStories = allStories.filter((story: any) => story.status == 'IN_REVIEW');
-          //console.log("filtered stories:: ", this.filteredStories)
-          if (allStories.length > 0) {
-            this.isLoading = true;
-          } else {
-            this.isLoading = false;
-          }
+          this.isLoading = allStories.length > 0;
         }
-
         this.isLoading = false;
 
         // Sort by updatedDate DESC (latest first)

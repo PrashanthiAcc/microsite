@@ -94,15 +94,34 @@ export class UsecaseService {
     );
   }
 
-/** Mark a usecase as favourite for a given user */
-favouriteUsecase(userId: number, usecaseId: string): Observable<{ data: any; message: string }> {
-  return this.http.post<{ data: any; message: string }>(
-    `${this.baseUrl}/api/usecase/v1/favourites`,
-    {}, // empty body
-    {
-      params: { userId, usecaseId }
-    }
-  );
-}
 
+  favouriteUsecase(userId: number, usecaseId: string): Observable<{ data: any; message: string }> {
+    return this.http.post<{ data: any; message: string }>(
+      `${this.baseUrl}/api/usecase/v1/favourites`,
+      {}, // empty body
+      {
+        params: { userId, usecaseId }
+      }
+    );
+  }
+
+  getFavouriteUsecases(
+    userId: number,
+    page: number = 1,
+    size: number = 10
+  ): Observable<any> {
+    return this.http.get(`${this.baseUrl}/api/usecase/v1/favourites`, {
+      params: { userId, page, size }
+    });
+  }
+
+  getUsecasesByStatus(
+    status: string,
+    page: number = 1,
+    size: number = 10
+  ): Observable<any> {
+    return this.http.get(`${this.baseUrl}/api/usecase/v1/usecases`, {
+      params: { status, page, size }
+    });
+  }
 }

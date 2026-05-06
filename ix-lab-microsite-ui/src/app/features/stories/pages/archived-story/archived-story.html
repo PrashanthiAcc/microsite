@@ -12,7 +12,7 @@
         <a href="#" class="breadcrumb-link active">Stories Configuration</a>
       </div>
 
-     
+
     </div>
 
     <div class="filters">
@@ -57,9 +57,9 @@
         <div class="story-card__media">
           <img [src]="archived.thumbnailImageUrl" alt="">
           <button class="card-menu-btn" (click)="$event.stopPropagation(); toggleMenu(archived, $event)">⋮</button>
-         
+
           <div class="card-menu" *ngIf="archived.showMenu" (click)="$event.stopPropagation()">
-            
+
             <button class="menu-item">
               <img src="assets/icons/edit.png" alt="Edit" />
               <span [routerLink]="['/stories', archived.usecaseId, 'edit']">Edit Story</span>
@@ -112,13 +112,27 @@
     </div>
     <!---ARCHIVED STORIES SECTION-->
 
-    <!-- PAGINATION -->
-    <div class="pagination">
-      <span class="active">1</span>
-      <span>2</span>
-      <span>3</span>
-      <span>4</span>
-    </div>
+    <ng-container>
+      <div class="pagination" *ngIf="totalPages > 1">
+
+        <button [routerLink]="['/archived']" [queryParams]="{ page: currentPage - 1 }" [disabled]="currentPage === 1"
+          style="border: none;">
+          <img [src]="pagination_left" alt="Previous" />
+        </button>
+
+
+        <span *ngFor="let page of [].constructor(totalPages); let i = index" [routerLink]="['/archived']"
+          [queryParams]="{ page: i + 1 }" [class.active]="currentPage === i + 1">
+          {{ i + 1 }}
+        </span>
+
+
+        <button [routerLink]="['/archived']" [queryParams]="{ page: currentPage + 1 }"
+          [disabled]="currentPage === totalPages" style="border: none;">
+          <img [src]="pagination_right" alt="Next" />
+        </button>
+      </div>
+    </ng-container>
 
   </div>
 </section>
