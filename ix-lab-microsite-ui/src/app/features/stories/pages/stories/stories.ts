@@ -10,6 +10,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { ToasterComponent } from '../../../../shared/components/toaster/toaster';
 import { FormsModule } from '@angular/forms';
 import { Spinner } from '../../../../shared/components/spinner/spinner';
+import { forkJoin } from 'rxjs';
 
 
 @Component({
@@ -34,6 +35,14 @@ export class StoriesComponent implements OnInit {
   searchText: string = '';
   drafts: any[] = [];
   allDrafts: any[] = [];
+  
+inReviewStories: any[] = [];
+approvedStories: any[] = [];
+
+filteredDrafts: any[] = [];
+filteredInReview: any[] = [];
+filteredApproved: any[] = [];
+
   allUsers: any[] = [];
   showToast = false;
   toastMessage = '';
@@ -71,6 +80,9 @@ export class StoriesComponent implements OnInit {
     { name: 'Pharmaceuticals', defaultImage: 'assets/Pharmaceuticals Value Chain.png' },
     //{ name: 'Med Tech', defaultImage: 'assets/Life Sciences.png' },
   ];
+  totalDrafts: any;
+  totalInReview: any;
+  totalApproved: any;
   constructor(private router: Router, private http: HttpClient,
     private industryService: IndustryService, private cdr: ChangeDetectorRef, private route: ActivatedRoute,
     private userService: UserService, private usecaseService: UsecaseService
@@ -95,107 +107,199 @@ export class StoriesComponent implements OnInit {
   }
 
 
-  loadAllStories(page: number = 1, size: number = 10) {
-    this.isDataLoading.set(true);
-    this.isLoading = false;
-    this.usecaseService.getAllStories(page, size).subscribe({
-      next: (res: any) => {
-        let allStories = res.content || [];
+  // loadAllStories(page: number = 1, size: number = 10) {
+  //   this.isDataLoading.set(true);
+  //   this.isLoading = false;
+  //   this.usecaseService.getAllStories(page, size).subscribe({
+  //     next: (res: any) => {
+  //       let allStories = res.content || [];
 
-        if (!this.showAdminControls) {
-          allStories = allStories.filter((story: any) => story.isActive == true);
-          if (allStories.length > 0) {
-            this.isLoading = true;
-          } else {
-            this.isLoading = false;
-          }
-        }
+  //       if (!this.showAdminControls) {
+  //         allStories = allStories.filter((story: any) => story.isActive == true);
+  //         if (allStories.length > 0) {
+  //           this.isLoading = true;
+  //         } else {
+  //           this.isLoading = false;
+  //         }
+  //       }
 
-        this.isLoading = false;
+  //       this.isLoading = false;
 
-        // Sort by updatedDate DESC (latest first)
-        allStories = allStories.sort((a: any, b: any) => {
-          const dateA = a.updatedDate ? new Date(a.updatedDate).getTime() : new Date(a.createdDate).getTime();
-          const dateB = b.updatedDate ? new Date(b.updatedDate).getTime() : new Date(b.createdDate).getTime();
-          return dateB - dateA; // latest first
-        });
+  //       // Sort by updatedDate DESC (latest first)
+  //       allStories = allStories.sort((a: any, b: any) => {
+  //         const dateA = a.updatedDate ? new Date(a.updatedDate).getTime() : new Date(a.createdDate).getTime();
+  //         const dateB = b.updatedDate ? new Date(b.updatedDate).getTime() : new Date(b.createdDate).getTime();
+  //         return dateB - dateA; // latest first
+  //       });
 
-        this.stories = allStories.map((story: any) => ({
-          ...story,
-          tags: story.tag,
-          ownerName: this.getOwnerName(story.ownerEId),
-          industryName: this.getIndustryName(story.industryId),
-          subIndustryName: this.getSubIndustryName(story.subIndustryId),
-          valueChainName: this.getValueChainName(story.valueChainId)
-        }));
+  //       this.stories = allStories.map((story: any) => ({
+  //         ...story,
+  //         tags: story.tag,
+  //         ownerName: this.getOwnerName(story.ownerEId),
+  //         industryName: this.getIndustryName(story.industryId),
+  //         subIndustryName: this.getSubIndustryName(story.subIndustryId),
+  //         valueChainName: this.getValueChainName(story.valueChainId)
+  //       }));
 
-        this.filteredStories = this.stories;
-        this.applyFilters();
-        if (this.showAdminControls && this.currentFrom !== 'stories') {
-          this.filteredStories = this.stories.filter((story: any) => story.status === 'IN_REVIEW');
+  //       this.filteredStories = this.stories;
+  //       this.applyFilters();
+  //       if (this.showAdminControls && this.currentFrom !== 'stories') {
+  //         this.filteredStories = this.stories.filter((story: any) => story.status === 'IN_REVIEW');
 
-          this.drafts = allStories
-            .filter((story: any) => story.status === 'DRAFT')
-            .map((draft: any) => ({
-              ...draft,
-              tags: draft.tag,
-              ownerName: this.getOwnerName(draft.ownerEId),
-              industryName: this.getIndustryName(draft.industryId),
-              subIndustryName: this.getSubIndustryName(draft.subIndustryId),
-              valueChainName: this.getValueChainName(draft.valueChainId)
-            }));
-        }
+  //         this.drafts = allStories
+  //           .filter((story: any) => story.status === 'DRAFT')
+  //           .map((draft: any) => ({
+  //             ...draft,
+  //             tags: draft.tag,
+  //             ownerName: this.getOwnerName(draft.ownerEId),
+  //             industryName: this.getIndustryName(draft.industryId),
+  //             subIndustryName: this.getSubIndustryName(draft.subIndustryId),
+  //             valueChainName: this.getValueChainName(draft.valueChainId)
+  //           }));
+  //       }
 
-        this.currentPage = page;
-        this.totalPages = res.totalPages;
-        this.totalElements = res.totalElements;
-        this.pageSize = res.size;
-        this.isDataLoading.set(false);
-        this.cdr.detectChanges();
-      },
-      error: (err: any) => {
-         this.isDataLoading.set(false);
+  //       this.currentPage = page;
+  //       this.totalPages = res.totalPages;
+  //       this.totalElements = res.totalElements;
+  //       this.pageSize = res.size;
+  //       this.isDataLoading.set(false);
+  //       this.cdr.detectChanges();
+  //     },
+  //     error: (err: any) => {
+  //        this.isDataLoading.set(false);
+  //     }
+  //     //console.log('Stories loaded:', this.stories);
+  //   });
+  // }
+
+
+
+loadAllStories(page: number = 1, size: number = 10) {
+  this.isDataLoading.set(true);
+
+  forkJoin({
+    drafts: this.usecaseService.getUsecasesByStatus('DRAFT', page, size),
+    inReview: this.usecaseService.getUsecasesByStatus('IN_REVIEW', page, size),
+    approved: this.usecaseService.getUsecasesByStatus('APPROVED', page, size)
+  }).subscribe({
+    next: ({ drafts, inReview, approved }) => {
+      this.drafts = (drafts || []).map((d:any) => this.mapStory(d));
+      this.inReviewStories = (inReview || []).map((s:any) => this.mapStory(s));
+      this.approvedStories = (approved || []).map((a:any) => this.mapStory(a));
+
+      // ✅ Hydrate filteredStories based on mode
+      if (this.showAdminControls) {
+        this.filteredStories = [...this.inReviewStories];
+      } else {
+        this.filteredStories = [...this.approvedStories];
       }
-      //console.log('Stories loaded:', this.stories);
-    });
+
+      this.applyFilters();
+
+      // Shared pagination
+      // Shared pagination
+this.currentPage = page;
+this.pageSize = size;
+this.totalDrafts = drafts.totalElements || this.totalDrafts;
+this.totalInReview = inReview.totalElements || this.totalInReview;
+this.totalApproved = approved.totalElements || this.totalApproved;
+
+this.totalElements = this.totalDrafts + this.totalInReview + this.totalApproved;
+this.totalPages = Math.ceil(this.totalElements / this.pageSize);
+
+// this.totalElements =
+//   this.drafts.length +
+//   this.inReviewStories.length +
+//   this.approvedStories.length;
+
+// this.totalPages = Math.ceil(this.totalElements / this.pageSize);
+
+this.isLoading = false;
+this.isDataLoading.set(false);
+this.cdr.detectChanges();
+
+      // Debug logs
+      console.log('Drafts:', this.drafts.length);
+      console.log('In Review:', this.inReviewStories.length);
+      console.log('Approved:', this.approvedStories.length);
+      console.log('FilteredStories:', this.filteredStories.length);
+    },
+    error: () => {
+      this.isDataLoading.set(false);
+      this.isLoading = false;
+    }
+  });
+}
+
+
+
+private mapStory(story: any) {
+  return {
+    ...story,
+    tags: story.tag,
+    ownerName: this.getOwnerName(story.ownerEId),
+    industryName: this.getIndustryName(story.industryId),
+    subIndustryName: this.getSubIndustryName(story.subIndustryId),
+    valueChainName: this.getValueChainName(story.valueChainId)
+  };
+}
+
+  // applyFilters() {
+  //   this.filtered = [...this.stories];
+
+  //   if (this.selectedIndustryId !== -1) {
+  //     this.filtered = this.filtered.filter((story: any) => story.industryId === this.selectedIndustryId);
+  //   }
+
+  //   if (this.selectedSubIndustryId !== -1) {
+  //     this.filtered = this.filtered.filter((story: any) => story.subIndustryId === this.selectedSubIndustryId);
+  //   }
+
+  //   if (this.selectedValueChainId !== -1) {
+  //     this.filtered = this.filtered.filter((story: any) => story.valueChainId === this.selectedValueChainId);
+  //   }
+
+  //   this.filteredStories = this.filtered;
+
+  //   if (this.showAdminControls && this.currentFrom !== 'stories') {
+
+  //     this.drafts = this.filtered
+  //       .filter((story: any) => story.status === 'DRAFT')
+  //       .map((draft: any) => ({
+  //         ...draft,
+  //         tags: draft.tags,
+  //         ownerName: this.getOwnerName(draft.ownerId),
+  //         industryName: this.getIndustryName(draft.industryId),
+  //         subIndustryName: this.getSubIndustryName(draft.subIndustryId)
+  //       }));
+
+  //     this.filteredStories = this.filtered.filter((story: any) => story.status === 'IN_REVIEW');
+  //     // this.filtered = this.filteredStories;
+  //   } else {
+  //     this.filteredStories = [...this.filtered];
+  //   }
+  // }
+
+applyFilters() {
+  const filterFn = (story: any) =>
+    (this.selectedIndustryId === -1 || story.industryId === this.selectedIndustryId) &&
+    (this.selectedSubIndustryId === -1 || story.subIndustryId === this.selectedSubIndustryId) &&
+    (this.selectedValueChainId === -1 || story.valueChainId === this.selectedValueChainId);
+
+  this.filteredDrafts = this.drafts.filter(filterFn);
+  this.filteredInReview = this.inReviewStories.filter(filterFn);
+  this.filteredApproved = this.approvedStories.filter(filterFn);
+
+  if (this.showAdminControls) {
+    // ✅ Admin view: only In Review
+    this.filteredStories = this.filteredInReview;
+  } else {
+    // ✅ Normal view: only Approved
+    this.filteredStories = this.filteredApproved;
   }
+}
 
 
-  applyFilters() {
-    this.filtered = [...this.stories];
-
-    if (this.selectedIndustryId !== -1) {
-      this.filtered = this.filtered.filter((story: any) => story.industryId === this.selectedIndustryId);
-    }
-
-    if (this.selectedSubIndustryId !== -1) {
-      this.filtered = this.filtered.filter((story: any) => story.subIndustryId === this.selectedSubIndustryId);
-    }
-
-    if (this.selectedValueChainId !== -1) {
-      this.filtered = this.filtered.filter((story: any) => story.valueChainId === this.selectedValueChainId);
-    }
-
-    this.filteredStories = this.filtered;
-
-    if (this.showAdminControls && this.currentFrom !== 'stories') {
-
-      this.drafts = this.filtered
-        .filter((story: any) => story.status === 'DRAFT')
-        .map((draft: any) => ({
-          ...draft,
-          tags: draft.tags,
-          ownerName: this.getOwnerName(draft.ownerId),
-          industryName: this.getIndustryName(draft.industryId),
-          subIndustryName: this.getSubIndustryName(draft.subIndustryId)
-        }));
-
-      this.filteredStories = this.filtered.filter((story: any) => story.status === 'IN_REVIEW');
-      // this.filtered = this.filteredStories;
-    } else {
-      this.filteredStories = [...this.filtered];
-    }
-  }
 
   getAllUsers() {
     this.userService.getAllUsers().subscribe((res: any) => {
@@ -473,38 +577,70 @@ export class StoriesComponent implements OnInit {
     });
   }
 
-  onSearch() {
-    const value = this.searchText.trim().toLowerCase();
+  // onSearch() {
+  //   const value = this.searchText.trim().toLowerCase();
 
-    if (this.showAdminControls && this.currentFrom !== 'stories') {
-      this.filteredStories = this.stories.filter((story: any) => story.status === 'IN_REVIEW');
-      this.filtered = this.filteredStories;
-    } else {
-      this.filtered = [...this.stories];
-    }
-    if (!value) {
-      this.filteredStories = this.filtered;
-      return;
-    }
+  //   if (this.showAdminControls && this.currentFrom !== 'stories') {
+  //     this.filteredStories = this.stories.filter((story: any) => story.status === 'IN_REVIEW');
+  //     this.filtered = this.filteredStories;
+  //   } else {
+  //     this.filtered = [...this.stories];
+  //   }
+  //   if (!value) {
+  //     this.filteredStories = this.filtered;
+  //     return;
+  //   }
 
-    this.filteredStories = this.filtered.filter((story: any) => {
+  //   this.filteredStories = this.filtered.filter((story: any) => {
 
-      const title = (story.title || '').toLowerCase();
-      const description = (story.description || '').toLowerCase();
-      const ownerEId = (story.ownerEId || '').toLowerCase();
-      const ownerName = (story.ownerName || '').toLowerCase();
+  //     const title = (story.title || '').toLowerCase();
+  //     const description = (story.description || '').toLowerCase();
+  //     const ownerEId = (story.ownerEId || '').toLowerCase();
+  //     const ownerName = (story.ownerName || '').toLowerCase();
 
-      const tags = Array.isArray(story.tags)
-        ? story.tags.join(' ').toLowerCase()
-        : (story.tags || '').toLowerCase();
+  //     const tags = Array.isArray(story.tags)
+  //       ? story.tags.join(' ').toLowerCase()
+  //       : (story.tags || '').toLowerCase();
 
-      return (
-        title.includes(value) ||
-        description.includes(value) || ownerEId.includes(value) || ownerName.includes(value) ||
-        tags.includes(value)
-      );
-    });
+  //     return (
+  //       title.includes(value) ||
+  //       description.includes(value) || ownerEId.includes(value) || ownerName.includes(value) ||
+  //       tags.includes(value)
+  //     );
+  //   });
+  // }
+onSearch() {
+  const value = this.searchText.trim().toLowerCase();
+
+  const searchFn = (story: any) => {
+    const title = (story.title || '').toLowerCase();
+    const description = (story.description || '').toLowerCase();
+    const ownerEId = (story.ownerEId || '').toLowerCase();
+    const ownerName = (story.ownerName || '').toLowerCase();
+    const tags = Array.isArray(story.tags)
+      ? story.tags.join(' ').toLowerCase()
+      : (story.tags || '').toLowerCase();
+
+    return (
+      title.includes(value) ||
+      description.includes(value) ||
+      ownerEId.includes(value) ||
+      ownerName.includes(value) ||
+      tags.includes(value)
+    );
+  };
+
+  if (!value) {
+    this.applyFilters();
+    return;
   }
+
+  this.filteredDrafts = this.drafts.filter(searchFn);
+  this.filteredInReview = this.inReviewStories.filter(searchFn);
+  this.filteredApproved = this.approvedStories.filter(searchFn);
+
+  this.filteredStories = this.filteredInReview; // keep template binding intact
+}
 
   getIndustryName(id: number): string {
     const industry = this.allIndustries.find((i: any) => i.industryId === id);
