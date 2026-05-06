@@ -43,4 +43,9 @@ public interface UseCaseRepository extends JpaRepository<UseCase, Integer> {
         GROUP BY v.industry_id
         """, nativeQuery = true)
     List<Object[]> getApprovedActiveUseCaseCountByIndustry();
+
+    Page<UseCase> findByStatusAndIsActiveTrue(String status, Pageable pageable);
+
+    List<UseCase> findByUsecaseIdIn(List<Integer> ids);
+
 }

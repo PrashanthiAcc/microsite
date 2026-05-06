@@ -16,5 +16,8 @@ public interface UseCaseContentRepository extends JpaRepository<UseCaseContent, 
     Optional<UseCaseContent> findByUsecaseId(Integer usecaseId);
 
     void deleteByUsecaseId(Integer usecaseId);
+
     List<UseCaseContent> findAllByUsecaseIdIn(List<Integer> ids);
+
+    List<UseCaseContent> findByUsecaseIdIn(List<Integer> usecaseIds);
 }

@@ -66,11 +66,11 @@ public interface UseCaseService {
 
     //UseCaseResponseDTO updateUseCaseAndSubmitForApprovalwithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory);
 
-    UseCaseResponseDTO createUseCaseAndSubmitForApprovalwithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory);
+    UseCaseResponseDTO createUseCaseAndSubmitForApprovalwithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> demoVideoLinks);
 
     //UseCaseResponseDTO updateUseCaseandSaveasDraftWithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory);
 
-    UseCaseResponseDTO createUseCaseAndSaveAsDraftWithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory);
+    UseCaseResponseDTO createUseCaseAndSaveAsDraftWithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> demoVideoLinks);
 
     String uploadDemoVideoInCheckMode(MultipartFile demoVideo);
 
@@ -79,19 +79,20 @@ public interface UseCaseService {
     UseCaseResponseDTO updateUseCaseandSaveasDraftWithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
                                                            List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl,
                                                            List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
-                                                           List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls, String bannerUrls);
+                                                           List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls, String bannerUrls, List<String> demoVideoExistingLinks, List<String> demoVideoLinks);
 
     UseCaseResponseDTO updateUseCaseAndSubmitForApprovalwithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
                                                                  List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl,
                                                                  List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
-                                                                 List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls, String bannerUrls);
+                                                                 List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls, String bannerUrls, List<String> demoVideoExistingLinks, List<String> demoVideoLinks);
 
     List<Map<String, Object>> getUseCaseCountByIndustry();
 
     UseCaseResponseDTO updateUseCaseAndSaveBySuperAdminWithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
                                                                 List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl,
                                                                 List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
-                                                                List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls, String bannerUrls);
+                                                                List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls,
+                                                                String bannerUrls, List<String> demoVideoExistingLinks, List<String> demoVideoLinks);
 
     UseCaseResponseDTO createUseCaseAndSaveBySuperAdminWithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
                                                                 List<MultipartFile> demoVideos, MultipartFile thumbnailUrl,
@@ -102,7 +103,7 @@ public interface UseCaseService {
 
     UseCaseResponseDTO sendBackToDraftWithoutEditingBySuperAdmin(Integer usecaseId);
 
-    List<Favourite> getFavouriteUseCases(Integer userId);
+    List<UseCaseResponseDTO> getFavouriteUseCases(Integer userId, Integer page, Integer size);
 
     Favourite addUseCaseAsFavourite(Integer userId, Integer usecaseId);
 
@@ -112,5 +113,5 @@ public interface UseCaseService {
 
     void removeFavourite(Integer userId, Integer usecaseId);
 
-
+    List<UseCaseResponseDTO> getUseCasesByStatus(String status, Integer page, Integer size);
 }
