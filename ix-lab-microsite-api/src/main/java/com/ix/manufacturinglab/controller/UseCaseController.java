@@ -583,8 +583,8 @@ public class UseCaseController {
 
         @GetMapping(value = "/v1/usecases")
         public ResponseEntity<List<UseCaseResponseDTO>> getUseCasesByStatus(@RequestParam String status,
-                                                                            @RequestParam(defaultValue = "1") int page,
-                                                                            @RequestParam(defaultValue = "10") int size) {
+                                                                            @RequestParam(defaultValue = "1") Integer page,
+                                                                            @RequestParam(defaultValue = "10") Integer size) {
 
             return ResponseEntity.ok(useCaseService.getUseCasesByStatus(status, page, size));
         }
