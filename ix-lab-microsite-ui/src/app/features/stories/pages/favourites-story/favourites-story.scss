@@ -393,12 +393,14 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65); /* slightly darker for elegance */
+  background: rgba(0, 0, 0, 0.65);
+  /* slightly darker for elegance */
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  backdrop-filter: blur(2px); /* subtle blur for premium feel */
+  backdrop-filter: blur(2px);
+  /* subtle blur for premium feel */
 }
 
 .modal {
@@ -416,23 +418,25 @@
   display: flex;
   flex-direction: column;
   z-index: 10000;
-  animation: fadeInScale 0.3s ease; /* smooth entrance */
+  animation: fadeInScale 0.3s ease;
+  /* smooth entrance */
 }
 
-.modal-header {
-  position: relative;
-  height: 56px;
-  padding: 0 20px;
-  font-size: 20px;
-  font-weight: 400;
-  color: #000;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
+// .modal-header {
+//   position: relative;
+//   height: 56px;
+//   padding: 0 20px;
+//   font-size: 20px;
+//   font-weight: 400;
+//   color: #000;
+//   display: flex;
+//   justify-content: flex-end;
+//   align-items: center;
+// }
 
 .close-btn {
-  position: absolute;   /* key fix */
+  position: absolute;
+  /* key fix */
   top: 12px;
   right: 12px;
   border: none;
@@ -458,7 +462,8 @@
   object-fit: fill;
   display: block;
   margin: 0 auto;
-  border-radius: 0 0 12px 12px; /* rounded bottom corners */
+  border-radius: 0 0 12px 12px;
+  /* rounded bottom corners */
 }
 
 .industry-row {
@@ -488,23 +493,36 @@
 
 /* subtle entrance animation */
 @keyframes fadeInScale {
-  from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
-  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 
 .spinner-overlay {
-  position: fixed;       /* cover entire viewport */
-  inset: 0;              /* shorthand for top/right/bottom/left: 0 */
-  display: flex;         /* flexbox centering */
+  position: fixed;
+  /* cover entire viewport */
+  inset: 0;
+  /* shorthand for top/right/bottom/left: 0 */
+  display: flex;
+  /* flexbox centering */
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.6); /* optional semi-transparent backdrop */
-  z-index: 10000;        /* above stories grid and modals */
+  background: rgba(255, 255, 255, 0.6);
+  /* optional semi-transparent backdrop */
+  z-index: 10000;
+  /* above stories grid and modals */
 }
 
 .footer-row.date-row {
   display: flex;
-  justify-content: space-between; /* date left, chip right */
+  justify-content: space-between;
+  /* date left, chip right */
   align-items: center;
 }
 
@@ -519,8 +537,8 @@
 }
 
 .footer-item.new-story-chip.edit-story-chip span {
-  background-color: #FEF3C4; 
-  color: #000;              
+  background-color: #FEF3C4;
+  color: #000;
 }
 
 .story-divider {
@@ -537,15 +555,127 @@
 }
 
 .footer-row.checkbox-row label {
-  color: #460073;   /* always purple */
+  color: #460073;
+  /* always purple */
   font-weight: 500;
   cursor: pointer;
 }
 
 .footer-row.checkbox-row input[type="checkbox"] {
-  accent-color: #460073; /* checkbox tick + box color */
+  accent-color: #460073;
+  /* checkbox tick + box color */
   margin-right: 6px;
 }
 
+.search-wrapper {
+  display: flex;
+  flex-direction: column;
+  /* stack vertically */
+  align-items: flex-start;
+  /* keep left aligned */
+  margin-left: auto;
+  /* push to right side with search */
+  gap: 8px;
+  /* space between button and search */
+}
 
+.generate-btn {
+  align-self: flex-end;
+  /* align button with search bar */
+}
 
+.generate-btn:disabled {
+  background: #d9d9d9;
+  /* grey background */
+  color: #777;
+  /* grey text */
+  cursor: not-allowed;
+}
+
+.modal {
+  //max-width: 800px;
+  width: 100%;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh; /* limit height */
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto; /* scrollbar */
+  padding-right: 8px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.modal-count {
+  width: 230px;
+  background: black;
+  color: white;
+  height: 48px;
+  margin: 18px 0px 8px 18px;
+  padding: 12px 0px 2px 12px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.files-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.file-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f0f0f0;
+  border-radius: 16px;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: #A100FF;
+}
+
+.chip-close {
+  background: none;
+  border: none;
+  margin-left: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #555;
+}
+.chip-close:hover {
+  color: red;
+}
+
+.modal-footer {
+  padding: 12px;
+  border-top: 1px solid #ddd;
+}
+
+.footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}

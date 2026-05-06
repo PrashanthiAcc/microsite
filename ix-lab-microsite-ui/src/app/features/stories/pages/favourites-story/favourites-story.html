@@ -26,10 +26,26 @@
       </app-custom-dropdown> -->
             <app-toaster [title]="toastTitle" [message]="toastMessage" [show]="showToast" (closed)="showToast = false">
             </app-toaster>
-            <!-- Search -->
-            <div class="search">
+
+
+
+            <!-- <div class="search">
                 <input type="text" placeholder="Search" [(ngModel)]="searchText" (input)="onSearch()" />
                 <button>🔍</button>
+            </div> -->
+            <div class="search-wrapper">
+                <!-- Generate Deck Button -->
+                <button class="btn-primary generate-btn" [disabled]="!isAnyCheckboxSelected" (click)="onGenerateDeck()">
+                    Generate Deck
+                    <img [src]="isAnyCheckboxSelected ? chevronIcon : chevronBlackIcon" alt="">
+                </button>
+
+
+                <!-- Search -->
+                <div class="search">
+                    <input type="text" placeholder="Search" [(ngModel)]="searchText" (input)="onSearch()" />
+                    <button>🔍</button>
+                </div>
             </div>
 
         </div>
@@ -130,30 +146,24 @@
 
                         <hr class="story-divider" />
 
-                        <div class="footer-row checkbox-row">
-                            <div class="footer-item" (click)="$event.stopPropagation()">
-                                <input type="checkbox" id="pitch-{{story.usecaseId}}" />
-                                <label for="pitch-{{story.usecaseId}}">Elevator Pitch Deck</label>
-                            </div>
-                            <div class="footer-item" (click)="$event.stopPropagation()">
-                                <input type="checkbox" id="client-{{story.usecaseId}}" />
-                                <label for="client-{{story.usecaseId}}">Detailed Client Story</label>
-                            </div>
-                            <div class="footer-item" (click)="$event.stopPropagation()">
-                                <input type="checkbox" id="testimonial-{{story.usecaseId}}" />
-                                <label for="testimonial-{{story.usecaseId}}">Client Testimonials</label>
+                        <div class="footer-row checkbox-row" *ngIf="story.artifacts?.length">
+                            <div class="footer-item" *ngFor="let artifact of story.artifacts"
+                                (click)="$event.stopPropagation()">
+                                <input type="checkbox" id="{{artifact.artifactType}}-{{story.usecaseId}}"
+                                    [checked]="isArtifactSelected(story.usecaseId, artifact)"
+                                    (change)="onCheckboxChange(story.usecaseId, artifact, $event)" />
+                                <label for="{{artifact.artifactType}}-{{story.usecaseId}}">
+                                    {{ getArtifactLabel(artifact.artifactType) }}
+                                </label>
+
                             </div>
                         </div>
-
-
                     </div>
                 </div>
-
             </div>
-
         </div>
 
-        <!---NO ACTIVE STORY SECTION-->
+        <!---NO REQUEST SECTION-->
         <div class="stories__header" *ngIf="!showAdminControls">
             <h1 class="stories__title" *ngIf="!isLoading && filteredStories.length === 0">No Requests Found</h1>
         </div>
@@ -185,6 +195,59 @@
 
     </div>
 </section>
+
+
+<div class="modal-overlay" *ngIf="showGenerateDeckModal">
+    <div class="modal">
+        <!-- Modal Content -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Generate Deck</h2>
+                <button class="close-btn" (click)="closeModal()">✕</button>
+            </div>
+
+            <span class="modal-count">Total Files Selected: {{ getTotalSelections() }}</span>
+
+            <!-- Scrollable area -->
+            <div class="modal-body">
+                <div class="story-selection" *ngFor="let usecaseId of getSelectedUsecaseIds()">
+                    
+                    <h3>
+                        <strong style="font-size: 20px;">Story</strong>
+                        <span style="margin-left:12px; font-weight:normal; font-size: 20px;">
+                            {{ getStoryTitle(usecaseId) }}
+                        </span>
+                    </h3>
+
+                    <!-- Files label + chips inline -->
+                    <div class="files-row">
+                        <strong style="font-size: 20px;">Files</strong>
+                        <div class="file-chips">
+                            <span class="chip" *ngFor="let artifact of selectedArtifactsByUsecase[usecaseId]">
+                                {{ artifact.artifactName }}
+                                <button class="chip-close" (click)="removeArtifact(usecaseId, artifact)">✕</button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <hr />
+                </div>
+            </div>
+
+            <!-- Buttons INSIDE scrollable content -->
+            <div class="modal-footer">
+                <div class="footer-actions">
+                    <button class="btn-outline" (click)="closeModal()">Cancel</button>
+                    <button class="btn-primary" (click)="generatePDF()">Generate PDF</button>
+                    <button class="btn-primary" (click)="generatePPT()">Generate PPT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 
 
 

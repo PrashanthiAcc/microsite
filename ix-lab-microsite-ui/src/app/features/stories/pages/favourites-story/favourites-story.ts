@@ -50,6 +50,8 @@ export class FavouritesStoryComponent {
   discardIcon = "assets/icons/discard.png";
   favoriteIcon = "assets/icons/favorite.png";
   editIcon = "assets/icons/edit.png";
+  chevronIcon = "assets/icons/chevron.png";
+  chevronBlackIcon = "assets/icons/chevron_black.png";
   currentFrom: string = 'stories';
   selectedIndustryId: number | null = null;
   selectedSubIndustryId: number | null = null;
@@ -123,7 +125,10 @@ export class FavouritesStoryComponent {
           ownerName: this.getOwnerName(story.ownerEId),
           industryName: this.getIndustryName(story.industryId),
           subIndustryName: this.getSubIndustryName(story.subIndustryId),
-          valueChainName: this.getValueChainName(story.valueChainId)
+          valueChainName: this.getValueChainName(story.valueChainId),
+          artifacts: (story.artifacts || []).filter((a: any) =>
+            ['CLIENT_TESTIMONIAL', 'ELEVATOR_PITCH', 'USER_STORY'].includes(a.artifactType)
+          )
         }));
 
         this.filteredStories = this.stories;
@@ -157,6 +162,19 @@ export class FavouritesStoryComponent {
       }
       //console.log('Stories loaded:', this.stories);
     });
+  }
+
+  getArtifactLabel(type: string): string {
+    switch (type) {
+      case 'ELEVATOR_PITCH':
+        return 'Elevator Pitch Deck';
+      case 'USER_STORY':
+        return 'Detailed Client Story';
+      case 'CLIENT_TESTIMONIAL':
+        return 'Client Testimonials';
+      default:
+        return type; // fallback
+    }
   }
 
 
@@ -420,5 +438,165 @@ export class FavouritesStoryComponent {
     if (!story.updatedDate) return true;
     return false;
   }
+
+  selectedArtifactsByUsecase: { [usecaseId: number]: { artifactType: string, url: string, artifactName: string }[] } = {};
+  isAnyCheckboxSelected = false;
+  showGenerateDeckModal = false;
+
+  onCheckboxChange(storyId: number, artifact: any, event: any) {
+    if (!this.selectedArtifactsByUsecase[storyId]) {
+      this.selectedArtifactsByUsecase[storyId] = [];
+    }
+
+    if (event.target.checked) {
+      // ✅ Add full artifact object if not already present
+      const exists = this.selectedArtifactsByUsecase[storyId]
+        .some(a => a.artifactType === artifact.artifactType && a.url === artifact.url);
+
+      if (!exists) {
+        this.selectedArtifactsByUsecase[storyId].push({
+          artifactType: artifact.artifactType,
+          url: artifact.url,
+          artifactName: artifact.artifactName
+        });
+      }
+    } else {
+      // ✅ Remove artifact if unchecked
+      this.selectedArtifactsByUsecase[storyId] =
+        this.selectedArtifactsByUsecase[storyId].filter(a => a.url !== artifact.url);
+
+      // ✅ Clean up empty usecase entries
+      if (this.selectedArtifactsByUsecase[storyId].length === 0) {
+        delete this.selectedArtifactsByUsecase[storyId];
+      }
+    }
+
+    // ✅ Enable/disable button based on any selection
+    this.isAnyCheckboxSelected = Object.keys(this.selectedArtifactsByUsecase).length > 0;
+
+    console.log('Selections:', this.selectedArtifactsByUsecase);
+  }
+
+  onGenerateDeck() {
+    // ✅ Compute total selection count across all usecases
+    const totalSelections = Object.values(this.selectedArtifactsByUsecase)
+      .reduce((sum, arr) => sum + arr.length, 0);
+
+    const payload = {
+      selections: this.selectedArtifactsByUsecase,
+      totalCount: totalSelections   // ✅ one key for total count
+    };
+
+    console.log("Generate Deck clicked with payload:", payload);
+
+    // TODO: pass `payload` to your deck generation logic
+
+    this.openModal();
+  }
+
+
+
+  openModal() {
+    this.showGenerateDeckModal = true;
+  }
+
+  closeModal() {
+    this.showGenerateDeckModal = false;
+  }
+
+  getSelectedUsecaseIds(): number[] {
+    return Object.keys(this.selectedArtifactsByUsecase).map(id => +id);
+  }
+
+  getStoryTitle(usecaseId: number): string {
+    const story = this.stories.find(s => s.usecaseId === usecaseId);
+    return story ? story.title : `Usecase ${usecaseId}`;
+  }
+
+  getTotalSelections(): number {
+    return Object.values(this.selectedArtifactsByUsecase)
+      .reduce((sum, arr) => sum + arr.length, 0);
+  }
+
+  removeArtifact(usecaseId: number, artifact: any) {
+    if (!this.selectedArtifactsByUsecase[usecaseId]) return;
+
+    // ✅ Remove artifact from the array
+    this.selectedArtifactsByUsecase[usecaseId] =
+      this.selectedArtifactsByUsecase[usecaseId].filter(a => a.url !== artifact.url);
+
+    // ✅ Clean up empty usecase entries
+    if (this.selectedArtifactsByUsecase[usecaseId].length === 0) {
+      delete this.selectedArtifactsByUsecase[usecaseId];
+    }
+
+    // ✅ Update button enable/disable state
+    this.isAnyCheckboxSelected = Object.keys(this.selectedArtifactsByUsecase).length > 0;
+
+    console.log('Updated selections:', this.selectedArtifactsByUsecase);
+  }
+
+  isArtifactSelected(storyId: number, artifact: any): boolean {
+    return !!this.selectedArtifactsByUsecase[storyId]?.some(a => a.url === artifact.url);
+  }
+
+  generatePDF() {
+    const filesToConvert: any[] = [];
+
+    Object.entries(this.selectedArtifactsByUsecase).forEach(([usecaseId, artifacts]) => {
+      artifacts.forEach(artifact => {
+        const ext = (artifact.artifactName.split('.').pop() ?? '').toLowerCase();
+
+        if (ext === 'ppt' || ext === 'pptx') {
+          filesToConvert.push(artifact); // PPT → PDF
+        } else if (['jpeg', 'jpg', 'png'].includes(ext)) {
+          filesToConvert.push(artifact); // Images → PDF
+        }
+      });
+    });
+
+    console.log("Files selected for PDF conversion:", filesToConvert);
+
+    const payload = { targetFormat: 'pdf', files: filesToConvert };
+    this.http.post('/api/convert', payload, { responseType: 'blob' })
+      .subscribe(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `converted.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      });
+  }
+
+  generatePPT() {
+    const filesToConvert: any[] = [];
+
+    Object.entries(this.selectedArtifactsByUsecase).forEach(([usecaseId, artifacts]) => {
+      artifacts.forEach(artifact => {
+        const ext = (artifact.artifactName.split('.').pop() ?? '').toLowerCase();
+
+        if (ext === 'pdf') {
+          filesToConvert.push(artifact); // PDF → PPT
+        } else if (['jpeg', 'jpg', 'png'].includes(ext)) {
+          filesToConvert.push(artifact); // Images → PPT
+        }
+      });
+    });
+
+    console.log("Files selected for PPT conversion:", filesToConvert);
+
+    const payload = { targetFormat: 'ppt', files: filesToConvert };
+    this.http.post('/api/convert', payload, { responseType: 'blob' })
+      .subscribe(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `converted.pptx`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      });
+  }
+
 
 }
