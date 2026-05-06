@@ -133,11 +133,12 @@ public class UseCaseController {
 
             logger.error("Exception occurred while archiving use case: {}", e.getMessage(), e);
 
-            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
-            errorResponse.setErrorDescription(
-                    ManufacturingLabConstants.ARCHIVE_USE_CASE_GENERIC_ERROR_MESSAGE);
+            errorResponse.setErrorCode(e.getErrorCode());
+            errorResponse.setErrorDescription(e.getMessage());
 
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+            HttpStatus status = CommonExceptionConstants.BAD_REQUEST.equals(e.getErrorCode()) ? HttpStatus.BAD_REQUEST : HttpStatus.NOT_FOUND.equals(e.getErrorCode()) ? HttpStatus.NOT_FOUND : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            return ResponseEntity.status(status).body(errorResponse);
         }
     }
 
@@ -207,7 +208,8 @@ public class UseCaseController {
             @RequestPart(value = "elevatorPitch", required = false) List<MultipartFile> elevatorPitch,
             @RequestPart(value = "userStory", required = false) List<MultipartFile> userStory,
             @RequestPart(value = "thumbnailUrl", required = false) MultipartFile thumbnailUrl,
-            @RequestPart(value = "bannerUrl", required = false) MultipartFile bannerUrl) {
+            @RequestPart(value = "bannerUrl", required = false) MultipartFile bannerUrl,
+            @RequestParam(value = "demoVideoLinks", required = false) List<String> demoVideoLinks) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -225,7 +227,7 @@ public class UseCaseController {
             }
 
             UseCaseResponseDTO response =
-                    useCaseService.createUseCaseAndSaveAsDraftWithBlob(requestDTO, clientTestimonials, demoVideos,thumbnailUrl, bannerUrl,elevatorPitch, userStory);
+                    useCaseService.createUseCaseAndSaveAsDraftWithBlob(requestDTO, clientTestimonials, demoVideos,thumbnailUrl, bannerUrl,elevatorPitch, userStory, demoVideoLinks);
 
             return new ResponseEntity<>(response, HttpStatus.CREATED);
 
@@ -247,7 +249,8 @@ public class UseCaseController {
             @RequestPart(value = "thumbnailUrl", required = false) MultipartFile thumbnailUrl,
             @RequestPart(value = "bannerUrl", required = false) MultipartFile bannerUrl,
             @RequestPart(value = "elevatorPitch", required = false) List<MultipartFile> elevatorPitch,
-            @RequestPart(value = "userStory", required = false) List<MultipartFile> userStory) {
+            @RequestPart(value = "userStory", required = false) List<MultipartFile> userStory,
+            @RequestParam(value = "demoVideoLinks", required = false) List<String> demoVideoLinks) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -262,7 +265,7 @@ public class UseCaseController {
             }
 
             UseCaseResponseDTO response =
-                    useCaseService.createUseCaseAndSubmitForApprovalwithBlob(requestDTO, clientTestimonials, demoVideos, thumbnailUrl, bannerUrl, elevatorPitch, userStory);
+                    useCaseService.createUseCaseAndSubmitForApprovalwithBlob(requestDTO, clientTestimonials, demoVideos, thumbnailUrl, bannerUrl, elevatorPitch, userStory, demoVideoLinks);
 
             return new ResponseEntity<>(response, HttpStatus.CREATED);
 
@@ -293,7 +296,9 @@ public class UseCaseController {
             @RequestParam(value = "elevatorPitchUrls", required = false) List<String> elevatorPitchUrls,
             @RequestParam(value = "userStoryUrls", required = false) List<String> userStoryUrls,
             @RequestPart(value = "thumbnailUrls", required = false) String thumbnailUrls,
-            @RequestPart(value = "bannerUrls", required = false) String bannerUrls) {
+            @RequestPart(value = "bannerUrls", required = false) String bannerUrls,
+            @RequestParam(value = "demoVideoExistingLinks", required = false) List<String> demoVideoExistingLinks,
+            @RequestParam(value = "demoVideoLinks", required = false) List<String> demoVideoLinks) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -306,7 +311,7 @@ public class UseCaseController {
             }
 
             //UseCaseResponseDTO response = useCaseService.updateUseCaseandSaveasDraftWithBlob(usecaseId, requestDTO, clientTestimonials,demoVideos, thumbnailUrl, bannerUrl, elevatorPitch, userStory);
-            UseCaseResponseDTO response =  useCaseService.updateUseCaseandSaveasDraftWithBlob(usecaseId, requestDTO,clientTestimonials,demoVideos,thumbnailUrl,bannerUrl, elevatorPitch, userStory, clientTestimonialsUrls, demoVideosUrls, elevatorPitchUrls, userStoryUrls, thumbnailUrls, bannerUrls );
+            UseCaseResponseDTO response =  useCaseService.updateUseCaseandSaveasDraftWithBlob(usecaseId, requestDTO,clientTestimonials,demoVideos,thumbnailUrl,bannerUrl, elevatorPitch, userStory, clientTestimonialsUrls, demoVideosUrls, elevatorPitchUrls, userStoryUrls, thumbnailUrls, bannerUrls, demoVideoExistingLinks, demoVideoLinks );
             return ResponseEntity.ok(response);
 
         } catch (CommonException e) {
@@ -335,7 +340,9 @@ public class UseCaseController {
             @RequestParam(value = "elevatorPitchUrls", required = false) List<String> elevatorPitchUrls,
             @RequestParam(value = "userStoryUrls", required = false) List<String> userStoryUrls,
             @RequestPart(value = "thumbnailUrls", required = false) String thumbnailUrls,
-            @RequestPart(value = "bannerUrls", required = false) String bannerUrls) {
+            @RequestPart(value = "bannerUrls", required = false) String bannerUrls,
+            @RequestParam(value = "demoVideoExistingLinks", required = false) List<String> demoVideoExistingLinks,
+            @RequestParam(value = "demoVideoLinks", required = false) List<String> demoVideoLinks) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -348,7 +355,7 @@ public class UseCaseController {
             }
 
             UseCaseResponseDTO response = useCaseService.updateUseCaseAndSubmitForApprovalwithBlob(usecaseId, requestDTO, clientTestimonials,
-                    demoVideos, thumbnailUrl, bannerUrl , elevatorPitch, userStory, clientTestimonialsUrls, demoVideosUrls, elevatorPitchUrls, userStoryUrls, thumbnailUrls, bannerUrls);
+                    demoVideos, thumbnailUrl, bannerUrl , elevatorPitch, userStory, clientTestimonialsUrls, demoVideosUrls, elevatorPitchUrls, userStoryUrls, thumbnailUrls, bannerUrls, demoVideoExistingLinks, demoVideoLinks);
             return ResponseEntity.ok(response);
 
         } catch (CommonException e) {
@@ -464,7 +471,9 @@ public class UseCaseController {
             @RequestParam(value = "elevatorPitchUrls", required = false) List<String> elevatorPitchUrls,
             @RequestParam(value = "userStoryUrls", required = false) List<String> userStoryUrls,
             @RequestPart(value = "thumbnailUrls", required = false) String thumbnailUrls,
-            @RequestPart(value = "bannerUrls", required = false) String bannerUrls) {
+            @RequestPart(value = "bannerUrls", required = false) String bannerUrls,
+            @RequestParam(value = "demoVideoExistingLinks", required = false) List<String> demoVideoExistingLinks,
+            @RequestParam(value = "demoVideoLinks", required = false) List<String> demoVideoLinks) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -475,7 +484,8 @@ public class UseCaseController {
                 errorResponse.setErrorDescription(ManufacturingLabConstants.DRAFT_TITLE_REQUIRED);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
             }
-            UseCaseResponseDTO response =  useCaseService.updateUseCaseAndSaveBySuperAdminWithBlob(usecaseId, requestDTO,clientTestimonials,demoVideos,thumbnailUrl,bannerUrl, elevatorPitch, userStory, clientTestimonialsUrls, demoVideosUrls, elevatorPitchUrls, userStoryUrls, thumbnailUrls, bannerUrls);
+            UseCaseResponseDTO response =  useCaseService.updateUseCaseAndSaveBySuperAdminWithBlob(usecaseId, requestDTO,clientTestimonials,demoVideos,thumbnailUrl,bannerUrl,
+                    elevatorPitch, userStory, clientTestimonialsUrls, demoVideosUrls, elevatorPitchUrls, userStoryUrls, thumbnailUrls, bannerUrls, demoVideoExistingLinks, demoVideoLinks);
             return ResponseEntity.ok(response);
 
         } catch (CommonException e) {
@@ -521,35 +531,17 @@ public class UseCaseController {
         }
     }
 
-    @GetMapping(value = "/v1/favourites")
-    public ResponseEntity<Object> getFavouriteUseCases(@RequestParam Integer userId) {
+    @GetMapping("/v1/favourites")
+    public ResponseEntity<List<UseCaseResponseDTO>> getFavouriteUseCases(@RequestParam Integer userId,
+                                                                         @RequestParam(defaultValue = "1") Integer page,
+                                                                         @RequestParam(defaultValue = "10") Integer size) {
 
-        try {
-            List<Favourite> responses = useCaseService.getFavouriteUseCases(userId);
 
-            Map<String, Object> result = new HashMap<>();
-            result.put("data", responses);
-
-            if (responses.isEmpty()) {
-                result.put("message", "No favourite use cases found for user ID " + userId);
-            } else {
-                result.put("message", "Favourite use cases fetched successfully");
-            }
-
-            return new ResponseEntity<>(result, HttpStatus.OK);
-
-        } catch (CommonException e) {
-            logger.error("Exception occurred while fetching favourite use cases: {}", e.getMessage(), e);
-            errorResponse.setErrorCode(CommonExceptionConstants.BAD_REQUEST);
-            errorResponse.setErrorDescription("Error while fetching favourite use cases");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
-        }
+        return ResponseEntity.ok(useCaseService.getFavouriteUseCases(userId, page, size));
     }
 
-    @DeleteMapping("/v1/favourites")
-    public ResponseEntity<Object> removeFavourite(
-            @RequestParam Integer userId,
-            @RequestParam Integer usecaseId) {
+    @DeleteMapping(value = "/v1/favourites")
+    public ResponseEntity<Object> removeFavourite(@RequestParam Integer userId, @RequestParam Integer usecaseId) {
 
         try {
             useCaseService.removeFavourite(userId, usecaseId);
@@ -568,7 +560,7 @@ public class UseCaseController {
         }
     }
 
-    @PutMapping("/v1/{usecaseId}/faqs")
+    @PutMapping(value = "/v1/{usecaseId}/faqs")
     public ResponseEntity<Map<String,Object>> saveFaqs(@PathVariable Integer usecaseId,
                                                        @RequestBody List<FaqDTO> faqDTOs) {
 
@@ -582,9 +574,18 @@ public class UseCaseController {
         );
     }
 
-    @GetMapping("/v1/{usecaseId}/faqs")
+    @GetMapping(value = "/v1/{usecaseId}/faqs")
     public ResponseEntity<List<FaqDTO>> getUseCaseFaqs(@PathVariable Integer usecaseId) {
 
         return ResponseEntity.ok(useCaseService.getFaqsByUseCaseId(usecaseId));
     }
+
+
+        @GetMapping(value = "/v1/usecases")
+        public ResponseEntity<List<UseCaseResponseDTO>> getUseCasesByStatus(@RequestParam String status,
+                                                                            @RequestParam(defaultValue = "1") int page,
+                                                                            @RequestParam(defaultValue = "10") int size) {
+
+            return ResponseEntity.ok(useCaseService.getUseCasesByStatus(status, page, size));
+        }
 }

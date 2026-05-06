@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -719,7 +720,7 @@ public class UseCaseServiceImpl implements UseCaseService {
     }
     @Override
     @Transactional
-    public UseCaseResponseDTO createUseCaseAndSubmitForApprovalwithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory) {
+    public UseCaseResponseDTO createUseCaseAndSubmitForApprovalwithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> demoVideoLinks) {
         logger.debug(ManufacturingLabConstants.LOG_SUBMITTING_FOR_APPROVAL, requestDTO.getTitle());
 
         // 1. Build UseCase entity
@@ -774,6 +775,8 @@ public class UseCaseServiceImpl implements UseCaseService {
         uploadArtifacts(useCase, elevatorPitch, "ELEVATOR_PITCH", elevatorPitchPath);
         uploadArtifacts(useCase, userStory, "USER_STORY", userStoryPath);
 
+        saveDemoVideoLinks(useCase, demoVideoLinks);
+
         useCase = useCaseRepository.save(useCase);
 
         // 7. Save UseCaseContent separately
@@ -811,7 +814,8 @@ public class UseCaseServiceImpl implements UseCaseService {
     public UseCaseResponseDTO updateUseCaseandSaveasDraftWithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
                                                                   List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl,
                                                                   List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
-                                                                  List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls, String bannerUrls){
+                                                                  List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls,
+                                                                  String thumbnailUrls, String bannerUrls, List<String> demoVideoExistingLinks, List<String> demoVideoLinks){
 
 
     // Fetch existing use case
@@ -866,21 +870,7 @@ public class UseCaseServiceImpl implements UseCaseService {
 
         String thumbnailFolder = thumbnailurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
         String bannerFolder = bannerurlPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
-        //String testimonialsFolder = clientTestimonialsPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
-        //String demoVideosFolder = demoVideosPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
-        //String elevatorPitchFolder = elevatorPitchPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
-        //String userStoryFolder = userStoryPath.replace("{usecase-id}", String.valueOf(useCase.getUsecaseId()));
 
-        /*if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
-            String thumbnaisasUrl = uploadFileToBlob(thumbnailUrl, thumbnailFolder, content.getThumbnailUrl());
-            content.setThumbnailUrl(thumbnaisasUrl);
-        }
-        if (bannerUrl != null && !bannerUrl.isEmpty()) {
-            String bannersasUrl = uploadFileToBlob(bannerUrl, bannerFolder, content.getBannerUrl());
-            content.setBannerUrl(bannersasUrl);
-        }
-
-         */
         if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
 
             if (content.getThumbnailUrl() != null && !content.getThumbnailUrl().isEmpty()) {
@@ -912,14 +902,12 @@ public class UseCaseServiceImpl implements UseCaseService {
             useCase.getFaqs().clear();
         }
 
-        //addArtifactsFromFiles(useCase, testimonialsFolder, clientTestimonials, "CLIENT_TESTIMONIAL");
-        //addArtifactsFromFiles(useCase, demoVideosFolder, demoVideos, "DEMO_VIDEO");
-        //addArtifactsFromFiles(useCase, elevatorPitchFolder, elevatorPitch, "ELEVATOR_PITCH");
-        //addArtifactsFromFiles(useCase, userStoryFolder, userStory, "USER_STORY");
         handleArtifacts(useCase, "usecase/artifacts/Client Testimonials/" + usecaseId, "CLIENT_TESTIMONIAL", clientTestimonialsUrls, clientTestimonials);
         handleArtifacts(useCase, "usecase/artifacts/Demo Videos/" + usecaseId, "DEMO_VIDEO", demoVideosUrls, demoVideos);
         handleArtifacts(useCase, "usecase/artifacts/Client Credentials/user_story/" + usecaseId, "USER_STORY", userStoryUrls, userStory);
         handleArtifacts(useCase, "usecase/artifacts/Client Credentials/elevator_pitch/" + usecaseId, "ELEVATOR_PITCH", elevatorPitchUrls, elevatorPitch);
+
+        handleDemoVideoLinks(useCase, demoVideoExistingLinks, demoVideoLinks);
 
 
         content.setDescription(requestDTO.getDescription());
@@ -944,7 +932,7 @@ public class UseCaseServiceImpl implements UseCaseService {
 
     @Override
     @Transactional
-    public UseCaseResponseDTO createUseCaseAndSaveAsDraftWithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory) {
+    public UseCaseResponseDTO createUseCaseAndSaveAsDraftWithBlob(UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials, List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl, List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> demoVideoLinks) {
         logger.debug(ManufacturingLabConstants.LOG_SAVING_DRAFT, requestDTO.getTitle());
 // 1. Build UseCase entity
         UseCase useCase = UseCase.builder()
@@ -992,6 +980,7 @@ public class UseCaseServiceImpl implements UseCaseService {
         uploadArtifacts(useCase, demoVideos, "DEMO_VIDEO", demoVideosPath);
         uploadArtifacts(useCase, elevatorPitch, "ELEVATOR_PITCH", elevatorPitchPath);
         uploadArtifacts(useCase, userStory, "USER_STORY", userStoryPath);
+        saveDemoVideoLinks(useCase, demoVideoLinks);
         useCase = useCaseRepository.save(useCase);
 
 // 7. Save UseCaseContent separately
@@ -1055,7 +1044,8 @@ public class UseCaseServiceImpl implements UseCaseService {
     public UseCaseResponseDTO updateUseCaseAndSubmitForApprovalwithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
                                                                         List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl,
                                                                         List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
-                                                                        List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls, String bannerUrls) {
+                                                                        List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls,
+                                                                        String bannerUrls, List<String> demoVideoExistingLinks, List<String> demoVideoLinks) {
         logger.debug(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
 
         UseCase existingUseCase = useCaseRepository.findById(usecaseId)
@@ -1151,6 +1141,7 @@ public class UseCaseServiceImpl implements UseCaseService {
         handleArtifacts(useCase, "usecase/artifacts/Client Credentials/user_story/" + usecaseId, "USER_STORY", userStoryUrls, userStory);
         handleArtifacts(useCase, "usecase/artifacts/Client Credentials/elevator_pitch/" + usecaseId, "ELEVATOR_PITCH", elevatorPitchUrls, elevatorPitch);
 
+        handleDemoVideoLinks(useCase, demoVideoExistingLinks, demoVideoLinks);
         // Update content details
         content.setDescription(requestDTO.getDescription());
         content.setBusinessProblem(requestDTO.getBusinessProblem());
@@ -1217,7 +1208,8 @@ public class UseCaseServiceImpl implements UseCaseService {
     public UseCaseResponseDTO updateUseCaseAndSaveBySuperAdminWithBlob(Integer usecaseId, UseCaseRequestDTO requestDTO, List<MultipartFile> clientTestimonials,
                                                                        List<MultipartFile> demoVideos, MultipartFile thumbnailUrl, MultipartFile bannerUrl,
                                                                        List<MultipartFile> elevatorPitch, List<MultipartFile> userStory, List<String> clientTestimonialsUrls,
-                                                                       List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls, String bannerUrls) {
+                                                                       List<String> demoVideosUrls,List<String> elevatorPitchUrls,List<String> userStoryUrls, String thumbnailUrls,
+                                                                       String bannerUrls, List<String> demoVideoExistingLinks, List<String> demoVideoLinks) {
 
         logger.debug(ManufacturingLabConstants.LOG_UPDATING_USE_CASE, usecaseId);
 
@@ -1321,6 +1313,7 @@ public class UseCaseServiceImpl implements UseCaseService {
         handleArtifacts(useCase, "usecase/artifacts/Client Credentials/user_story/" + usecaseId, "USER_STORY", userStoryUrls, userStory);
         handleArtifacts(useCase, "usecase/artifacts/Client Credentials/elevator_pitch/" + usecaseId, "ELEVATOR_PITCH", elevatorPitchUrls, elevatorPitch);
 
+        handleDemoVideoLinks(useCase, demoVideoExistingLinks, demoVideoLinks);
 
         content.setDescription(requestDTO.getDescription());
         content.setBusinessProblem(requestDTO.getBusinessProblem());
@@ -1498,8 +1491,46 @@ public class UseCaseServiceImpl implements UseCaseService {
         return favouriteUseCaseRepository.save(favourite);
     }
     @Override
-    public List<Favourite> getFavouriteUseCases(Integer userId) {
-        return favouriteUseCaseRepository.findByUserId(userId);
+    @Transactional(readOnly = true)
+    public List<UseCaseResponseDTO> getFavouriteUseCases(Integer userId, Integer page, Integer size) {
+
+
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        Page<Favourite> favouritePage = favouriteUseCaseRepository.findByUserId(userId, pageable);
+
+        if (!favouritePage.hasContent()) {
+            return Collections.emptyList();
+        }
+
+        List<Integer> usecaseIds = favouritePage.getContent().stream()
+                .map(Favourite::getUsecaseId)
+                .distinct()
+                .toList();
+
+        List<UseCase> useCases = useCaseRepository.findByUsecaseIdIn(usecaseIds);
+
+        Map<Integer, UseCase> useCaseMap = useCases.stream()
+                .collect(Collectors.toMap(
+                        UseCase::getUsecaseId,
+                        Function.identity()
+                ));
+
+        Map<Integer, UseCaseContent> contentMap =
+                useCaseContentRepository.findByUsecaseIdIn(usecaseIds)
+                        .stream()
+                        .collect(Collectors.toMap(
+                                UseCaseContent::getUsecaseId,
+                                Function.identity(),
+                                (a, b) -> a
+                        ));
+
+        return usecaseIds.stream()
+                .map(id -> buildResponseFromEntities(
+                        useCaseMap.get(id),
+                        contentMap.get(id)
+                ))
+                .toList();
     }
 
     @Transactional
@@ -1579,4 +1610,161 @@ public class UseCaseServiceImpl implements UseCaseService {
 
         favouriteUseCaseRepository.delete(favourite);
     }
+
+    @Transactional
+    private void handleDemoVideoLinks(UseCase useCase, List<String> demoVideoExistingLinks, List<String> demoVideoLinks) {
+
+        final String LINK_TYPE = "DEMO_VIDEO_LINK";
+
+        Set<String> finalSet = demoVideoExistingLinks == null
+                ? new HashSet<>()
+                : demoVideoExistingLinks.stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .collect(Collectors.toSet());
+
+        if (demoVideoLinks != null) {
+            finalSet.addAll(
+                    demoVideoLinks.stream()
+                            .filter(Objects::nonNull)
+                            .map(String::trim)
+                            .filter(s -> !s.isBlank())
+                            .collect(Collectors.toSet())
+            );
+        }
+
+        Set<String> dbSet = useCase.getArtifacts().stream()
+                .filter(a -> LINK_TYPE.equalsIgnoreCase(a.getArtifactType()))
+                .map(a -> a.getUrl().trim())
+                .collect(Collectors.toSet());
+
+        Set<String> toDelete = new HashSet<>(dbSet);
+        toDelete.removeAll(finalSet);
+
+        Set<String> toInsert = new HashSet<>(finalSet);
+        toInsert.removeAll(dbSet);
+
+        Iterator<UseCaseArtifact> iterator = useCase.getArtifacts().iterator();
+
+        while (iterator.hasNext()) {
+            UseCaseArtifact artifact = iterator.next();
+
+            if (!LINK_TYPE.equalsIgnoreCase(artifact.getArtifactType())) {
+                continue;
+            }
+
+            String dbUrl = artifact.getUrl().trim();
+
+            if (toDelete.contains(dbUrl)) {
+                iterator.remove();
+                useCaseArtifactRepository.deleteById(artifact.getArtifactId());
+            }
+        }
+
+        for (String link : toInsert) {
+
+            UseCaseArtifact newArtifact = UseCaseArtifact.builder()
+                    .useCase(useCase)
+                    .artifactType(LINK_TYPE)
+                    .artifactName("DEMO_VIDEO_LINK")
+                    .url(link)
+                    .build();
+
+            useCase.getArtifacts().add(newArtifact);
+        }
+    }
+
+    @Transactional
+    private void saveDemoVideoLinks(UseCase useCase, List<String> demoVideoLinks) {
+
+        final String LINK_TYPE = "DEMO_VIDEO_LINK";
+
+        if (demoVideoLinks == null || demoVideoLinks.isEmpty()) {
+            return;
+        }
+
+        Set<String> existingSet = useCase.getArtifacts().stream()
+                .filter(a -> LINK_TYPE.equalsIgnoreCase(a.getArtifactType()))
+                .map(a -> a.getUrl().trim())
+                .collect(Collectors.toSet());
+
+        Set<String> incomingSet = demoVideoLinks.stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .collect(Collectors.toSet());
+
+        incomingSet.removeAll(existingSet);
+
+        for (String link : incomingSet) {
+
+            UseCaseArtifact artifact = UseCaseArtifact.builder()
+                    .useCase(useCase)
+                    .artifactType(LINK_TYPE)
+                    .artifactName("DEMO_VIDEO_LINK")
+                    .url(link)
+                    .build();
+
+            useCase.getArtifacts().add(artifact);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UseCaseResponseDTO> getUseCasesByStatus(String status, Integer page, Integer size) {
+
+        validateStatus(status);
+
+
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        Page<UseCase> useCasePage = fetchUseCases(status, pageable);
+
+        if (!useCasePage.hasContent()) {
+            return Collections.emptyList();
+        }
+
+        List<Integer> ids = useCasePage.getContent().stream()
+                .map(UseCase::getUsecaseId)
+                .toList();
+
+        Map<Integer, UseCaseContent> contentMap =
+                useCaseContentRepository.findByUsecaseIdIn(ids)
+                        .stream()
+                        .collect(Collectors.toMap(
+                                UseCaseContent::getUsecaseId,
+                                Function.identity(),
+                                (a, b) -> a
+                        ));
+
+        return useCasePage.getContent().stream()
+                .map(useCase -> buildResponseFromEntities(
+                        useCase,
+                        contentMap.get(useCase.getUsecaseId())
+                ))
+                .toList();
+    }
+
+    private void validateStatus(String status) {
+        if (status == null) {
+            throw new IllegalArgumentException("Status is required");
+        }
+
+        List<String> allowed = List.of("DRAFT", "IN_REVIEW", "APPROVED", "ARCHIVED");
+
+        if (!allowed.contains(status.toUpperCase())) {
+            throw new IllegalArgumentException("Invalid status: " + status);
+        }
+    }
+
+    private Page<UseCase> fetchUseCases(String status, Pageable pageable) {
+
+        if ("APPROVED".equalsIgnoreCase(status)) {
+            return useCaseRepository.findByStatusAndIsActiveTrue("APPROVED", pageable);
+        }
+
+        return useCaseRepository.findByStatus(status.toUpperCase(), pageable);
+    }
+
 }
