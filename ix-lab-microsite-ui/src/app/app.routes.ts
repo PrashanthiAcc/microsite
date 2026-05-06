@@ -183,6 +183,12 @@ const sharedChildren = [
         .then(m => m.ArchivedStoriesComponent)
   },
   {
+    path: 'favourites',
+    loadComponent: () =>
+      import('./features/stories/pages/favourites-story/favourites-story')
+        .then(m => m.FavouritesStoryComponent)
+  },
+  {
     path: 'user-management',
     loadComponent: () =>
       import('./users/user-management/user-management')

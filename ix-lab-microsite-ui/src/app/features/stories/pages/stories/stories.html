@@ -191,7 +191,7 @@
             </button>
             <button class="menu-item" *ngIf="!showAdminControls">
               <img [src]="favoriteIcon" alt="Favorite" />
-              <span>Add to Favourites</span>
+              <span (click)="favouriteStory(story.usecaseId)">Add to Favourites</span>
             </button>
             <!-- <button class="menu-item" *ngIf="showAdminControls && story.status === 'DRAFT'">
               <img [src]="discardIcon" alt="Discard" />

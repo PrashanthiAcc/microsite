@@ -93,4 +93,16 @@ export class UsecaseService {
       }
     );
   }
+
+/** Mark a usecase as favourite for a given user */
+favouriteUsecase(userId: number, usecaseId: string): Observable<{ data: any; message: string }> {
+  return this.http.post<{ data: any; message: string }>(
+    `${this.baseUrl}/api/usecase/v1/favourites`,
+    {}, // empty body
+    {
+      params: { userId, usecaseId }
+    }
+  );
+}
+
 }
