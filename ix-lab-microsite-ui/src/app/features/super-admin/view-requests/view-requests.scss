@@ -900,3 +900,26 @@ input[type="text"] {
     margin-top: 104px;
     margin-right: 10px;
 }
+
+.hero-meta {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #F1F1EF;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: flex-end; /* push to extreme right */
+  font-size: 14px;
+  color: #333;
+  z-index: 2;
+  border-top: 1px solid #ddd;
+}
+
+.hero-meta .meta-item {
+  margin-left: 12px; /* spacing between items */
+}
+
+.hero-meta .meta-separator {
+  margin: 0 12px; /* spacing around the dot */
+}

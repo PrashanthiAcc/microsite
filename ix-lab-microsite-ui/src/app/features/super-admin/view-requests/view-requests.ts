@@ -1097,6 +1097,12 @@ export class ViewRequestsComponent {
     this.location.back();
   }
 
+  getApproverEid(storyDetails: any): string {
+    if (!storyDetails?.approverId || !this.allUsers) return '';
+    const approver = this.allUsers.find((u: any) => u.userId === storyDetails.approverId);
+    return approver ? approver.userEid : storyDetails.approverId; // fallback to ID if not found
+  }
+
   openSuperAdminModal(action: 'send-to-draft' | 'accept') {
     this.superAdminModalAction = action;
     console.log(this.superAdminModalAction)

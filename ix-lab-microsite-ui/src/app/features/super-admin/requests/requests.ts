@@ -64,7 +64,7 @@ export class RequestsComponent {
   showIndustryOverview: boolean = false;
   showValueChain: boolean = false;
   isDataLoading = signal(false);
-  
+
   constructor(private router: Router, private http: HttpClient,
     private industryService: IndustryService, private cdr: ChangeDetectorRef, private route: ActivatedRoute,
     private userService: UserService, private usecaseService: UsecaseService
@@ -358,7 +358,7 @@ export class RequestsComponent {
     this.applyFilters();
   }
 
- 
+
   onSearch() {
     const value = this.searchText.trim().toLowerCase();
 
@@ -416,10 +416,9 @@ export class RequestsComponent {
   }
 
   isNewStory(story: any): boolean {
-    if (!story.createdDate || !story.updatedDate) return false;
-    const created = new Date(story.createdDate).getTime();
-    const updated = new Date(story.updatedDate).getTime();
-    return created === updated; // same → New Story, else Edit Story
+    if (!story.updatedDate) return true;
+    return false;
   }
+
 
 }
