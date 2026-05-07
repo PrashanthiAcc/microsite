@@ -200,13 +200,21 @@ loadAllStories(page: number = 1, size: number = 10) {
       // Shared pagination
 this.currentPage = page;
 this.pageSize = size;
-this.totalDrafts = drafts.totalElements || this.totalDrafts;
-this.totalInReview = inReview.totalElements || this.totalInReview;
-this.totalApproved = approved.totalElements || this.totalApproved;
+// this.totalDrafts = drafts.totalElements || this.totalDrafts;
+// this.totalInReview = inReview.totalElements || this.totalInReview;
+// this.totalApproved = approved.totalElements || this.totalApproved;
 
-this.totalElements = this.totalDrafts + this.totalInReview + this.totalApproved;
-this.totalPages = Math.ceil(this.totalElements / this.pageSize);
-
+// this.totalElements = this.totalDrafts + this.totalInReview + this.totalApproved;
+// this.totalPages = Math.ceil(this.totalElements / this.pageSize);
+if (this.showAdminControls) {
+  // Admin view → In Review
+  this.totalElements = inReview.totalElements;
+  this.totalPages = inReview.totalPages;
+} else {
+  // Normal view → Approved
+  this.totalElements = approved.totalElements;
+  this.totalPages = approved.totalPages;
+}
 // this.totalElements =
 //   this.drafts.length +
 //   this.inReviewStories.length +
