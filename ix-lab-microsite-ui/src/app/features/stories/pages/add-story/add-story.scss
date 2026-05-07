@@ -855,3 +855,51 @@ input[type="text"] {
   background: rgba(255, 255, 255, 0.6); /* optional semi-transparent backdrop */
   z-index: 10000;        /* above stories grid and modals */
 }
+
+
+.upload-row {
+  display: flex;
+  align-items: flex-start; /* align items at the top */
+  gap: 16px;
+}
+
+.upload-btn-wrapper {
+  display: flex;
+  flex-direction: column; /* stack button + info vertically */
+  align-items: flex-start;
+}
+
+.upload-info {
+  margin-top: 6px;
+}
+
+.upload-or {
+  font-weight: 600;
+  color: #555;
+  display: flex;
+  align-items: center;
+}
+
+.upload-link {
+  flex: 1; /* let link input expand */
+  display: flex;
+  flex-direction: column;
+}
+
+.upload-link input {
+  width: 100%;
+}
+
+/* Grey out disabled text field */
+.upload-link input:disabled {
+  background-color: #f0f0f0;
+  color: #999;
+  cursor: not-allowed;
+}
+
+/* Upload button disabled style */
+.upload-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
