@@ -21,5 +21,7 @@ public interface UserService {
 
     void removeUser(Integer userId);
 
+    boolean checkPasswordExists(String userEid, String userPassword);
+
 
 }

@@ -301,6 +301,12 @@ ADD
          CONSTRAINT DF_user_management_last_updated
          DEFAULT SYSUTCDATETIME()
          WITH VALUES;
+
+ALTER TABLE mfg.user_management
+ADD action_type VARCHAR(255),
+    user_password VARCHAR(255);
+
 --max value
 ALTER TABLE mfg.usecase_content
 ALTER COLUMN narration_guide VARCHAR(MAX)
+
