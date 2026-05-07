@@ -1492,15 +1492,14 @@ public class UseCaseServiceImpl implements UseCaseService {
     }
     @Override
     @Transactional(readOnly = true)
-    public List<UseCaseResponseDTO> getFavouriteUseCases(Integer userId, Integer page, Integer size) {
-
+    public Page<UseCaseResponseDTO> getFavouriteUseCases(Integer userId, Integer page, Integer size) {
 
         Pageable pageable = PageRequest.of(page - 1, size);
 
         Page<Favourite> favouritePage = favouriteUseCaseRepository.findByUserId(userId, pageable);
 
         if (!favouritePage.hasContent()) {
-            return Collections.emptyList();
+            return new PageImpl<>(Collections.emptyList(), pageable, 0);
         }
 
         List<Integer> usecaseIds = favouritePage.getContent().stream()
@@ -1525,12 +1524,14 @@ public class UseCaseServiceImpl implements UseCaseService {
                                 (a, b) -> a
                         ));
 
-        return usecaseIds.stream()
+        List<UseCaseResponseDTO> responseList = usecaseIds.stream()
                 .map(id -> buildResponseFromEntities(
                         useCaseMap.get(id),
                         contentMap.get(id)
                 ))
                 .toList();
+
+        return new PageImpl<>(responseList, pageable, favouritePage.getTotalElements());
     }
 
     @Transactional
@@ -1712,17 +1713,16 @@ public class UseCaseServiceImpl implements UseCaseService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<UseCaseResponseDTO> getUseCasesByStatus(String status, Integer page, Integer size) {
+    public Page<UseCaseResponseDTO> getUseCasesByStatus(String status, Integer page, Integer size) {
 
         validateStatus(status);
-
 
         Pageable pageable = PageRequest.of(page - 1, size);
 
         Page<UseCase> useCasePage = fetchUseCases(status, pageable);
 
         if (!useCasePage.hasContent()) {
-            return Collections.emptyList();
+            return new PageImpl<>(Collections.emptyList(), pageable, 0);
         }
 
         List<Integer> ids = useCasePage.getContent().stream()
@@ -1738,12 +1738,14 @@ public class UseCaseServiceImpl implements UseCaseService {
                                 (a, b) -> a
                         ));
 
-        return useCasePage.getContent().stream()
+        List<UseCaseResponseDTO> responseList = useCasePage.getContent().stream()
                 .map(useCase -> buildResponseFromEntities(
                         useCase,
                         contentMap.get(useCase.getUsecaseId())
                 ))
                 .toList();
+
+        return new PageImpl<>(responseList, pageable, useCasePage.getTotalElements());
     }
 
     private void validateStatus(String status) {

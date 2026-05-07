@@ -532,7 +532,7 @@ public class UseCaseController {
     }
 
     @GetMapping("/v1/favourites")
-    public ResponseEntity<List<UseCaseResponseDTO>> getFavouriteUseCases(@RequestParam Integer userId,
+    public ResponseEntity<Page<UseCaseResponseDTO>> getFavouriteUseCases(@RequestParam Integer userId,
                                                                          @RequestParam(defaultValue = "1") Integer page,
                                                                          @RequestParam(defaultValue = "10") Integer size) {
 
@@ -581,11 +581,11 @@ public class UseCaseController {
     }
 
 
-        @GetMapping(value = "/v1/usecases")
-        public ResponseEntity<List<UseCaseResponseDTO>> getUseCasesByStatus(@RequestParam String status,
-                                                                            @RequestParam(defaultValue = "1") Integer page,
-                                                                            @RequestParam(defaultValue = "10") Integer size) {
+    @GetMapping(value = "/v1/usecases")
+    public ResponseEntity<Page<UseCaseResponseDTO>> getUseCasesByStatus(@RequestParam String status,
+                                                                        @RequestParam(defaultValue = "1") Integer page,
+                                                                        @RequestParam(defaultValue = "10") Integer size) {
 
-            return ResponseEntity.ok(useCaseService.getUseCasesByStatus(status, page, size));
-        }
+        return ResponseEntity.ok(useCaseService.getUseCasesByStatus(status, page, size));
+    }
 }
