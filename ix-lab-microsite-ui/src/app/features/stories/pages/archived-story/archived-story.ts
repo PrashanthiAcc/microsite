@@ -49,7 +49,7 @@ export class ArchivedStoriesComponent {
 
   loadAllStories(page: number = 1, size: number = 10) {
     this.usecaseService.getUsecasesByStatus('ARCHIVED', page, size).subscribe((res: any) => {
-      const allStories = res || [];
+      const allStories = res.content || [];
 
       this.archivedStories = allStories
         .filter((story: any) => story.status === 'ARCHIVED')

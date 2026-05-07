@@ -95,7 +95,7 @@ export class FavouritesStoryComponent {
     this.isLoading = false;
     this.usecaseService.getFavouriteUsecases(32, page, size).subscribe({
       next: (res: any) => {
-        let allStories = res || [];
+        let allStories = res.content || [];
         console.log("all stories:: ", allStories)
 
         // if (!this.showAdminControls) {

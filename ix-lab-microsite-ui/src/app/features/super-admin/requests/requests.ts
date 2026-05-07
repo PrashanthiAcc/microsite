@@ -94,7 +94,7 @@ export class RequestsComponent {
     this.isLoading = false;
     this.usecaseService.getUsecasesByStatus('IN_REVIEW', page, size).subscribe({
       next: (res: any) => {
-        let allStories = res || [];
+        let allStories = res.content || [];
         console.log("all stories:: ", allStories)
 
         // if (!this.showAdminControls) {

@@ -183,9 +183,9 @@ loadAllStories(page: number = 1, size: number = 10) {
     approved: this.usecaseService.getUsecasesByStatus('APPROVED', page, size)
   }).subscribe({
     next: ({ drafts, inReview, approved }) => {
-      this.drafts = (drafts || []).map((d:any) => this.mapStory(d));
-      this.inReviewStories = (inReview || []).map((s:any) => this.mapStory(s));
-      this.approvedStories = (approved || []).map((a:any) => this.mapStory(a));
+      this.drafts = (drafts.content || []).map((d:any) => this.mapStory(d));
+      this.inReviewStories = (inReview.content || []).map((s:any) => this.mapStory(s));
+      this.approvedStories = (approved.content || []).map((a:any) => this.mapStory(a));
 
       // ✅ Hydrate filteredStories based on mode
       if (this.showAdminControls) {
