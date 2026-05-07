@@ -103,7 +103,7 @@ public interface UseCaseService {
 
     UseCaseResponseDTO sendBackToDraftWithoutEditingBySuperAdmin(Integer usecaseId);
 
-    List<UseCaseResponseDTO> getFavouriteUseCases(Integer userId, Integer page, Integer size);
+    Page<UseCaseResponseDTO> getFavouriteUseCases(Integer userId, Integer page, Integer size);
 
     Favourite addUseCaseAsFavourite(Integer userId, Integer usecaseId);
 
@@ -113,5 +113,5 @@ public interface UseCaseService {
 
     void removeFavourite(Integer userId, Integer usecaseId);
 
-    List<UseCaseResponseDTO> getUseCasesByStatus(String status, Integer page, Integer size);
+    Page<UseCaseResponseDTO> getUseCasesByStatus(String status, Integer page, Integer size);
 }
