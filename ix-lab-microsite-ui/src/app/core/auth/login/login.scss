@@ -1,0 +1,228 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f5f7fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Wrapper */
+.login-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 420px;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+/* Card */
+.login-card h2 {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #333;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+label {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+    color: #444;
+}
+
+input {
+    padding: 0.6rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    width: 100%;
+    /* ensures password field matches Enterprise ID field */
+}
+
+input:focus {
+    border-color: #6a1b9a;
+    outline: none;
+    box-shadow: 0 0 4px rgba(106, 27, 154, 0.4);
+}
+
+.forgot-password {
+    font-size: 0.85rem;
+    color: #6a1b9a;
+    text-decoration: none;
+    margin-bottom: 1rem;
+    display: block;
+    /* ensures it takes full width line */
+    text-align: right;
+    /* pushes text to extreme right */
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+
+/* Buttons row */
+.button-row {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.login-btn {
+    background: #6a1b9a;
+    color: #fff;
+    padding: 0.7rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    width: 100px;
+    text-align: center;
+}
+
+.login-btn:hover {
+    background: #4a148c;
+}
+
+.request-btn {
+    background-color: black;
+    color: white;
+    padding: 0.7rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.request-btn:hover {
+    background-color: #333;
+}
+
+/* Illustration */
+.illustration {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.illustration img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Error message */
+.error {
+    color: red;
+    font-size: 10px;
+    margin-top: 4px;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(2px);
+}
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 30%;
+    height: 366px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    font-family: Graphik, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    z-index: 10000;
+    animation: fadeInScale 0.3s ease;
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+}
+
+.modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #F1F1EF;
+    height: 56px;
+    padding: 0 20px;
+}
+
+.close-btn {
+    border: none;
+    background: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 10px 20px;
+}
+
+.btn-outline {
+    background: #dee2e6;
+    color: #A100FF;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: black;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.error {
+    color: red;
+    font-size: 10px;
+    margin-top: 4px;
+    margin-bottom: 15px;
+}
+.footer-actions {
+  display: flex;
+  gap: 12px;   
+}

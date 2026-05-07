@@ -1,1 +1,127 @@
-<p>login works!</p>
+
+<body>
+    <div class="login-wrapper">
+        <div class="login-card">
+            <h2>Please enter Enterprise ID to access Application</h2>
+
+            <form (ngSubmit)="onSubmit()">
+                <!-- Enterprise ID -->
+                <label for="enterprise-id">Enterprise ID:</label>
+                <input type="email" id="enterprise-id" [(ngModel)]="enterpriseId" name="enterpriseId"
+                    placeholder="Type Enterprise ID" required />
+
+                <!-- Enterprise ID error -->
+                <div *ngIf="error && !enterpriseValid" class="error">{{ error }}</div>
+
+                <!-- Password (only if valid ID) -->
+                <div *ngIf="enterpriseValid">
+                    <label for="password">Enter your Password:</label>
+                    <input type="password" id="password" [(ngModel)]="password" name="password" placeholder="Password"
+                        required />
+
+                    <!-- Password error -->
+                    <div *ngIf="error && enterpriseValid" class="error">{{ error }}</div>
+
+                    <a href="#" class="forgot-password" (click)="openForgotPassword($event)">Forgot Password</a>
+                </div>
+
+                <!-- Buttons side by side -->
+                <div class="button-row">
+                    <button type="submit" class="login-btn">
+                        <img [src]="lockPath" /> {{ buttonLabel }}
+                    </button>
+
+                    <button *ngIf="showRequestAccess" type="button" class="request-btn" (click)="openRequestAccess()">
+                        Request Access
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="illustration">
+            <img [src]="login_background" alt="Secure Access Illustration" />
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div class="modal-overlay" *ngIf="showForgotPassword">
+        <div class="modal">
+            <div class="modal-content">
+                <!-- Header -->
+                <div class="modal-header">
+                    <span style="font-size: 20px;">Reset Password</span>
+                    <button class="close-btn" (click)="closeForgotPassword()">✕</button>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body">
+                    <form (ngSubmit)="resetPassword()">
+                        <label for="new-password">Enter New Password:</label>
+                        <input type="password" id="new-password" [(ngModel)]="newPassword" name="newPassword"
+                            placeholder="New Password" required />
+
+                        <label for="confirm-password">Confirm Password:</label>
+                        <input type="password" id="confirm-password" [(ngModel)]="confirmPassword"
+                            name="confirmPassword" placeholder="Confirm Password" required />
+
+                        <!-- Error message -->
+                        <div *ngIf="resetError" class="error">{{ resetError }}</div>
+
+                        <!-- Footer -->
+                        <div class="modal-footer">
+                            <div class="footer-actions">
+                                <button type="button" class="btn-outline"
+                                    (click)="closeForgotPassword()">Cancel</button>
+                                <button type="submit" class="btn-primary">Reset Password</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Request Access Modal -->
+    <div class="modal-overlay" *ngIf="showRequestAccessModal">
+        <div class="modal" style="height: 502px;">
+            <div class="modal-content">
+                <!-- Header -->
+                <div class="modal-header">
+                    <span style="font-size: 20px;">Requesting Access</span>
+                    <button class="close-btn" (click)="closeRequestAccess()">✕</button>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body">
+                    <form (ngSubmit)="submitRequestAccess()">
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" [(ngModel)]="requestName" name="requestName"
+                            placeholder="Enter Name" required />
+
+                        <label for="enterprise-id">Enterprise ID:</label>
+                        <input type="email" id="enterprise-id" [(ngModel)]="requestEnterpriseId"
+                            name="requestEnterpriseId" placeholder="Type Enterprise ID" required />
+
+                        <label for="set-password">Set Password:</label>
+                        <input type="password" id="set-password" [(ngModel)]="requestPassword" name="requestPassword"
+                            placeholder="Set a Password" required />
+
+                        <label for="reason">Reason:</label>
+                        <input type="text" id="reason" [(ngModel)]="requestReason" name="requestReason"
+                            placeholder="Reason" required />
+
+                        <!-- Footer -->
+                        <div class="modal-footer">
+                            <div class="footer-actions">
+                                <button type="button" class="btn-outline" (click)="closeRequestAccess()">Cancel</button>
+                                <button type="submit" class="btn-primary">Request</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>

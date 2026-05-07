@@ -210,18 +210,6 @@ export const routes: Routes = [
         .then(m => m.LoginComponent)
   },
   {
-    path: 'forgot-password',
-    loadComponent: () =>
-      import('./core/auth/forget-password/forget-password')
-        .then(m => m.ForgetPasswordComponent)
-  },
-  {
-    path: 'request-access',
-    loadComponent: () =>
-      import('./core/auth/request-access/request-access')
-        .then(m => m.RequestAccessComponent)
-  },
-  {
     path: '',
     component: LayoutComponent,
     data: { role: 'admin' },

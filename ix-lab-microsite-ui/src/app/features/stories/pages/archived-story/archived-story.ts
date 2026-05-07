@@ -39,10 +39,12 @@ export class ArchivedStoriesComponent {
     window.scrollTo({ top: 0 });
     this.route.queryParams.subscribe(params => {
       this.showAdminControls = params['from'] === 'config';
+      this.currentPage = params['page'] ? +params['page'] : 1;
+      this.loadAllStories(this.currentPage);
     });
 
     this.loadIndustries();
-    this.loadAllStories(this.currentPage);
+    
     this.getAllUsers();
 
   }
@@ -58,6 +60,10 @@ export class ArchivedStoriesComponent {
           ownerName: this.getOwnerName(archived.ownerEId)
         }));
       console.log("archivedStories::", this.archivedStories);
+      this.currentPage = page;
+      this.totalPages = res.totalPages;
+      this.totalElements = res.totalElements;
+      this.pageSize = res.size;
       this.cdr.detectChanges();
     });
   }
