@@ -57,4 +57,10 @@ public class UserManagement {
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
+
+    @Column(name = "user_password")
+    private String userPassword;
+
+    @Column(name = "action_type")
+    private String actionType;
 }

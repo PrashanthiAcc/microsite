@@ -13,13 +13,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
-    private static final Logger logger = LoggerFactory.getLogger(UseCaseController.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
     private final CommonErrorManagement errorResponse;
 
@@ -144,5 +146,16 @@ public class UserController {
 
             return ResponseEntity.status(status).body(errorResponse);
         }
+    }
+
+    @GetMapping("/v1/check-password")
+    public ResponseEntity<Map<String, Boolean>> checkPassword(@RequestParam String userEid, @RequestParam String userPassword) {
+
+        boolean exists = userService.checkPasswordExists(userEid, userPassword);
+
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("passwordMatch", exists);
+
+        return ResponseEntity.ok(response);
     }
 }

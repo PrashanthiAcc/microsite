@@ -18,5 +18,6 @@ public class UserDTO {
     private String creatorEId;
     private String approverEid;
     private String updaterEid;
+    private String userPassword;
 
 }

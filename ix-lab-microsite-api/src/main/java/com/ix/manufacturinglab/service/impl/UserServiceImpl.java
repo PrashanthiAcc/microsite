@@ -82,6 +82,7 @@ public class UserServiceImpl implements UserService {
                 existingUser.setRequestedOn(LocalDate.now());
                 existingUser.setReason(dto.getReason());
                 existingUser.setLastUpdated(LocalDateTime.now());
+                existingUser.setActionType(dto.getActionType());
 
                 userRepository.save(existingUser);
                 return;
@@ -98,6 +99,8 @@ public class UserServiceImpl implements UserService {
                     .updatedBy(null)
                     .isActive(false)
                     .lastUpdated(LocalDateTime.now())
+                    .actionType(dto.getActionType())
+                    .userPassword(dto.getUserPassword())
                     .build();
 
             user = userRepository.save(user);
@@ -131,6 +134,7 @@ public class UserServiceImpl implements UserService {
                 existingUser.setUpdatedBy(creatorUser);
                 existingUser.setLastUpdated(LocalDateTime.now());
                 existingUser.setReason("Re-activated by " + creatorEid);
+                existingUser.setActionType(dto.getActionType());
 
                 userRepository.save(existingUser);
                 return;
@@ -148,6 +152,7 @@ public class UserServiceImpl implements UserService {
                     .updatedBy(creatorUser)
                     .lastUpdated(LocalDateTime.now())
                     .isActive(true)
+                    .actionType(dto.getActionType())
                     .build();
 
             userRepository.save(user);
@@ -191,20 +196,32 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void updateUser(String userEid, UserDTO dto) throws CommonException {
         try {
+
             UserManagement user = userRepository.findByUserEid(userEid.trim())
                     .orElseThrow(() -> new CommonException(
                             CommonExceptionConstants.NOT_FOUND,
                             ManufacturingLabConstants.USER_NOT_FOUND));
 
-            UserManagement updater = userRepository.findByUserEid(dto.getUpdaterEid().trim())
-                    .orElseThrow(() -> new CommonException(
-                            CommonExceptionConstants.NOT_FOUND,
-                            ManufacturingLabConstants.UPDATER_NOT_FOUND));
+            if (dto.getUpdaterEid() == null || dto.getUpdaterEid().isBlank()) {
+                throw new CommonException(CommonExceptionConstants.BAD_REQUEST, "UpdaterEid is required");
+            }
 
-            user.setRole(dto.getRole().trim().toUpperCase());
+            UserManagement updater = userRepository.findByUserEid(dto.getUpdaterEid().trim())
+                    .orElseThrow(() -> new CommonException(CommonExceptionConstants.NOT_FOUND, ManufacturingLabConstants.UPDATER_NOT_FOUND));
+
+
+            if (dto.getUserPassword() != null && !dto.getUserPassword().isBlank()) {
+                user.setUserPassword(dto.getUserPassword().trim());
+            }
+
+            if (dto.getRole() != null && !dto.getRole().isBlank()) {
+                user.setRole(dto.getRole().trim().toUpperCase());
+            }
+
             user.setApprovedBy(updater);
             user.setUpdatedBy(updater);
             user.setLastUpdated(LocalDateTime.now());
+            user.setActionType(dto.getActionType());
 
             userRepository.save(user);
 
@@ -263,4 +280,12 @@ public class UserServiceImpl implements UserService {
                     ManufacturingLabConstants.DELETE_USER_GENERIC_ERROR_MESSAGE);
         }
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean checkPasswordExists(String userEid, String userPassword) {
+
+        return userRepository.existsByUserEidAndUserPassword(userEid, userPassword);
+    }
+
 }
