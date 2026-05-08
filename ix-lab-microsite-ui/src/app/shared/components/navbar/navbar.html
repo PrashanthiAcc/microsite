@@ -1,5 +1,5 @@
 <header class="navbar">
-  <div class="navbar-left" [routerLink]="'/'" style="cursor: pointer;">
+  <div class="navbar-left" [routerLink]="'/home'" style="cursor: pointer;">
     <img class="logo-icon" src="assets/Accenture Logo.png" alt="Accenture Logo" />
     <div class="logo-text">
       <div class="title">Industry X - Digital</div>
@@ -8,11 +8,11 @@
   </div>
 
   <nav class="navbar-right">
-    <a class="nav-link" [routerLink]="getRoute()" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+    <a class="nav-link" [routerLink]="'/home'" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
       Home
     </a>
 
-    <a class="nav-link" [routerLink]="getRoute('stories')" [queryParams]="{from : 'stories'}" routerLinkActive="active">
+    <a class="nav-link" [routerLink]="getRoute('stories')" routerLinkActive="active">
       Stories
     </a>
 
@@ -20,36 +20,7 @@
       Favourites
     </a>
 
-    <!-- <div class="admin-menu" (click)="toggleAdminMenu()" tabindex="0" routerLinkActive="active"
-      >
-
-     
-      <a class="admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">
-        Admin <span class="arrow">▾</span>
-      </a>
-
-      <ul class="admin-options" *ngIf="adminOpen">
-        <li>
-          <a routerLink="/admin">
-            <img src="assets/icons/configurations.png" alt="Configurations" />
-            <span>Configurations</span>
-          </a>
-        </li>
-        <li>
-          <a routerLink="/dashboard">
-            <img src="assets/icons/dashboard.png" alt="Dashboard" />
-            <span>Dashboard</span>
-          </a>
-        </li>
-        <li>
-          <a routerLink="/favourites">
-            <img src="assets/icons/favourites.png" alt="Favourites" />
-            <span>Favourites</span>
-          </a>
-        </li>
-      </ul>
-    </div> -->
-
+    <!-- Admin dropdown only for admin/superadmin -->
     <div *ngIf="role === 'admin' || role === 'superadmin'" class="admin-menu" tabindex="0">
       <a routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}" class="admin nav-link"
         (click)="$event.preventDefault(); toggleAdminMenu($event)">
@@ -58,13 +29,13 @@
 
       <ul class="admin-options" *ngIf="adminOpen">
         <li>
-          <a routerLink="/admin/configuration" (click)="$event.preventDefault(); toggleAdminMenu($event)">
+          <a routerLink="/admin/configuration" (click)="toggleAdminMenu($event)">
             <img src="assets/icons/configurations.png" alt="Configurations" />
             <span>Configurations</span>
           </a>
         </li>
         <li>
-          <a routerLink="/dashboard">
+          <a routerLink="/dashboard" (click)="toggleAdminMenu($event)">
             <img src="assets/icons/dashboard.png" alt="Dashboard" />
             <span>Dashboard</span>
           </a>
@@ -72,12 +43,17 @@
       </ul>
     </div>
 
-    <a class="nav-link" [routerLink]="'/request'" routerLinkActive="active">
+    <!-- Request tab only for superadmin -->
+    <a *ngIf="role === 'superadmin'" class="nav-link" [routerLink]="'/request'" routerLinkActive="active">
       Request
     </a>
 
     <div class="profile">
       <img src="assets/Avatar.png" alt="profile" />
     </div>
+
+    <a class="nav-link" (click)="logout()">
+      Logout
+    </a>
   </nav>
 </header>

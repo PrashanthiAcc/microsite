@@ -95,26 +95,37 @@ export class LoginComponent {
   // }
 
 
-  login() {
-    this.userService.checkPassword(this.enterpriseId, this.password).subscribe({
-      next: (res: { passwordMatch: boolean }) => {
-        if (res.passwordMatch) {
-          this.error = '';
-          // 👇 store a dummy token until backend provides a real one
-          localStorage.setItem('authToken', 'dummy-token-123');
-          alert('Login successful!');
-          this.router.navigate(['/']); // redirect to home/landing
-        } else {
-          this.error = 'Invalid password. Please try again.';
+ login() {
+  this.userService.checkPassword(this.enterpriseId, this.password).subscribe({
+    next: (res: { passwordMatch: boolean }) => {
+      if (res.passwordMatch) {
+        this.error = '';
+
+        // find the logged-in user details from allUsers
+        const loggedUser = this.allUsers.find(
+          u => u.userEid?.toLowerCase() === this.enterpriseId.trim().toLowerCase()
+        );
+
+        // store token + user details in localStorage
+        localStorage.setItem('authToken', 'dummy-token-123');
+        if (loggedUser) {
+          localStorage.setItem('loggedUser', JSON.stringify(loggedUser));
         }
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.error = 'Login failed due to a server error.';
-        this.cdr.detectChanges();
+
+        alert(`Login successful! Welcome ${loggedUser?.name ?? ''}`);
+        this.router.navigate(['/home']); // redirect to home/landing
+      } else {
+        this.error = 'Invalid password. Please try again.';
       }
-    });
-  }
+      this.cdr.detectChanges();
+    },
+    error: () => {
+      this.error = 'Login failed due to a server error.';
+      this.cdr.detectChanges();
+    }
+  });
+}
+
 
   onSubmit() {
     if (!this.enterpriseValid) {
@@ -137,29 +148,35 @@ export class LoginComponent {
     this.resetError = '';
   }
 
-  resetPassword() {
-    if (this.newPassword !== this.confirmPassword) {
-      this.resetError = 'Passwords do not match';
-      return;
-    }
-
-    const payload = {
-      role: 'Admin', // or dynamically set based on context
-      updaterEid: 'mukunda.ram.bhuyan', // could be current logged-in approver
-      userPassword: this.newPassword
-    };
-
-    this.userService.resetPassword(this.enterpriseId, payload).subscribe({
-      next: () => {
-        alert('Password reset successful!');
-        this.closeForgotPassword();
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.resetError = 'Failed to reset password. Please try again.';
-      }
-    });
+ resetPassword() {
+  if (this.newPassword !== this.confirmPassword) {
+    this.resetError = 'Passwords do not match';
+    return;
   }
+
+  // dynamically resolve role from allUsers
+  const matchedUser = this.allUsers.find(
+    u => u.userEid?.toLowerCase() === this.enterpriseId.trim().toLowerCase()
+  );
+
+  const payload = {
+    role: matchedUser?.role ?? 'PRESENTER', // dynamic role
+    updaterEid: 'mukunda.ram.bhuyan', // could be current logged-in approver
+    userPassword: this.newPassword
+  };
+
+  this.userService.resetPassword(this.enterpriseId, payload).subscribe({
+    next: () => {
+      alert('Password reset successful!');
+      this.closeForgotPassword();
+      this.cdr.detectChanges();
+    },
+    error: () => {
+      this.resetError = 'Failed to reset password. Please try again.';
+    }
+  });
+}
+
 
 
   openRequestAccess() {
