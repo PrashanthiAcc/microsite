@@ -45,9 +45,9 @@ export class UserService {
   }
 
   checkPassword(userEid: string, userPassword: string) {
-    return this.http.get(`${environment.apiUrl}/api/users/v1/check-password`, {
-      params: { userEid, userPassword },
-      responseType: 'text'
-    });
-  }
+  return this.http.get<{ passwordMatch: boolean }>(
+    '/api/users/v1/check-password',
+    { params: { userEid, userPassword } }
+  );
+}
 }

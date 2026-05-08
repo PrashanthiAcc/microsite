@@ -77,34 +77,44 @@ export class LoginComponent {
   }
 
 
+
   // login() {
-  //   const found = this.users.find(
-  //     u => u.enterpriseId === this.enterpriseId && u.password === this.password
-  //   );
-  //   if (found) {
-  //     this.error = '';
-  //     alert('Login successful!');
-  //   } else {
-  //     this.error = 'Invalid password';
-  //   }
+  //   this.userService.checkPassword(this.enterpriseId, this.password).subscribe({
+  //     next: (res: any) => {
+  //       if (res === 'true' || res === 'success') { // adjust based on API response
+  //         this.error = '';
+  //         alert('Login successful!');
+  //       } else {
+  //         this.error = 'Invalid password';
+  //       }
+  //     },
+  //     error: () => {
+  //       this.error = 'Login failed. Please try again.';
+  //     }
+  //   });
   // }
+
 
   login() {
     this.userService.checkPassword(this.enterpriseId, this.password).subscribe({
-      next: (res: any) => {
-        if (res === 'true' || res === 'success') { // adjust based on API response
+      next: (res: { passwordMatch: boolean }) => {
+        if (res.passwordMatch) {
           this.error = '';
+          // 👇 store a dummy token until backend provides a real one
+          localStorage.setItem('authToken', 'dummy-token-123');
           alert('Login successful!');
+          this.router.navigate(['/']); // redirect to home/landing
         } else {
-          this.error = 'Invalid password';
+          this.error = 'Invalid password. Please try again.';
         }
+        this.cdr.detectChanges();
       },
       error: () => {
-        this.error = 'Login failed. Please try again.';
+        this.error = 'Login failed due to a server error.';
+        this.cdr.detectChanges();
       }
     });
   }
-
 
   onSubmit() {
     if (!this.enterpriseValid) {
