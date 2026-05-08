@@ -558,7 +558,7 @@ export class HomepageConfigurationsComponent {
       prodSiteCriticalSupport: this.stripPlus(this.homePageForm.value.productionSupport),
       sapEwmPrgDelivered: this.stripPlus(this.homePageForm.value.sapEwmPrograms),
       //sapEwmProgramsTbd: this.stripPlus(this.homePageForm.value.sapEwmProgramsTbd),
-      updatedById: 101, // or from your context
+      updatedById: JSON.parse(localStorage.getItem('loggedUser') || '{}').userId, // or from your context
       featuredStories: (this.homePageForm.value.featuredStories || []).map((s: { usecaseId: number }) => ({
         usecaseId: s.usecaseId
       })),
@@ -621,7 +621,7 @@ export class HomepageConfigurationsComponent {
       mesMomSolDelivered: this.stripPlus(this.homePageForm.value.mesMomSolutions),
       prodSiteCriticalSupport: this.stripPlus(this.homePageForm.value.productionSupport),
       sapEwmPrgDelivered: this.stripPlus(this.homePageForm.value.sapEwmPrograms),
-      updatedById: 101,
+      updatedById: JSON.parse(localStorage.getItem('loggedUser') || '{}').userId,
       featuredStories: (this.homePageForm.value.featuredStories || []).map((s: { usecaseId: number }) => ({
         usecaseId: s.usecaseId
       })),

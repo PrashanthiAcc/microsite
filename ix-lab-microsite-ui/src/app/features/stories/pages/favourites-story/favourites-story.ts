@@ -93,7 +93,7 @@ export class FavouritesStoryComponent {
   loadAllStories(page: number = 1, size: number = 10) {
     this.isDataLoading.set(true);
     this.isLoading = false;
-    this.usecaseService.getFavouriteUsecases(32, page, size).subscribe({
+    this.usecaseService.getFavouriteUsecases(JSON.parse(localStorage.getItem('loggedUser') || '{}').userId, page, size).subscribe({
       next: (res: any) => {
         let allStories = res.content || [];
         console.log("all stories:: ", allStories)

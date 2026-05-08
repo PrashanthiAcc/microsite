@@ -757,7 +757,7 @@ onSearch() {
   }
 
   favouriteStory(usecaseId: string) {
-  this.usecaseService.favouriteUsecase(32, usecaseId).subscribe({
+  this.usecaseService.favouriteUsecase(JSON.parse(localStorage.getItem('loggedUser') || '{}').userId, usecaseId).subscribe({
     next: (res) => {
       console.log('API success, response:', res);
 
