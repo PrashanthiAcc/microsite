@@ -191,9 +191,33 @@ export class LoginComponent {
     this.requestReason = '';
   }
 
+  // submitRequestAccess() {
+  //   // For now just show alert, later connect to API
+  //   alert(`Access request submitted:\nName: ${this.requestName}\nEnterprise ID: ${this.requestEnterpriseId}\nReason: ${this.requestReason}`);
+  //   this.closeRequestAccess();
+  // }
+
   submitRequestAccess() {
-    // For now just show alert, later connect to API
-    alert(`Access request submitted:\nName: ${this.requestName}\nEnterprise ID: ${this.requestEnterpriseId}\nReason: ${this.requestReason}`);
-    this.closeRequestAccess();
-  }
+  const requestBody = {
+    actionType: 'REQUEST_ACCESS',   // different action
+    userEid: this.requestEnterpriseId,
+    name: this.requestName,
+    creatorEId: 'shashi.veeramalla', // or current approver/admin
+    userPassword: this.requestPassword,
+    reason: this.requestReason
+  };
+
+  this.userService.addUser(requestBody).subscribe({
+    next: (res) => {
+      alert('Access request submitted successfully!');
+      this.closeRequestAccess();
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      console.error(err);
+      alert('Failed to submit access request. Please try again.');
+    }
+  });
+}
+
 }
