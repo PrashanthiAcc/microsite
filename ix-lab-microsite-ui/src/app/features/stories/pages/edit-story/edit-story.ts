@@ -148,7 +148,7 @@ export class EditStoryComponent {
           speakerType: 'TERTIARY'
         }
       ],
-      demoVideos: this.fb.array([this.createArtifact()]),
+      demoVideos: this.fb.array([this.createDemoVideo()]),
       clientStory: this.fb.array([this.fb.control(null)]),
       elevatorPitch: this.fb.array([this.fb.control(null)]),
       clientTestimonials: this.fb.array([this.createArtifact()]),
@@ -196,6 +196,18 @@ export class EditStoryComponent {
         this.loadUsecaseById(this.usecaseID);
       }
       this.cdr.detectChanges();
+    });
+
+    this.demoVideos.controls.forEach(ctrl => {
+      const videoGroup = ctrl as FormGroup;
+      videoGroup.get('link')?.valueChanges.subscribe(val => {
+        if (val) {
+          videoGroup.get('file')?.reset(null);
+          videoGroup.get('file')?.disable();
+        } else {
+          videoGroup.get('file')?.enable();
+        }
+      });
     });
 
   }
@@ -290,13 +302,61 @@ export class EditStoryComponent {
           this.elevatorPitch.push(this.fb.control({ name: a.artifactName, url: a.url }));
         } else if (a.artifactType === 'USER_STORY') {
           this.clientStory.push(this.fb.control({ name: a.artifactName, url: a.url }));
-        } else if (a.artifactType === 'DEMO_VIDEO') {
-          this.demoVideos.push(this.fb.control({ name: a.artifactName, url: a.url }));
-        } else if (a.artifactType === 'CLIENT_TESTIMONIAL') {
+        }
+        // else if (a.artifactType === 'DEMO_VIDEO') {
+        //   this.demoVideos.push(this.fb.control({ name: a.artifactName, url: a.url }));
+        // } 
+        //         else if (a.artifactType === 'DEMO_VIDEO') {
+        //   this.demoVideos.push(this.fb.group({
+        //     file: null,
+        //     name: a.artifactName,   // show actual file name
+        //     url: a.url,             // backend file URL
+        //     link: null,             // keep empty
+        //     isDeleted: false
+        //   }));
+        // } else if (a.artifactType === 'DEMO_VIDEO_LINK') {
+        //   this.demoVideos.push(this.fb.group({
+        //     file: null,
+        //     name: null,             // don’t set “DEMO_VIDEO_LINK” here
+        //     url: null,
+        //     link: a.url,            // patch external link into link field
+        //     isDeleted: false
+        //   }));
+        // }
+
+        else if (a.artifactType === 'DEMO_VIDEO') {
+          this.demoVideos.push(this.fb.group({
+            file: null,
+            name: a.artifactName,
+            url: a.url,   // backend file URL or blob URL
+            link: null,
+            isDeleted: false
+          }));
+        } else if (a.artifactType === 'DEMO_VIDEO_LINK') {
+          this.demoVideos.push(this.fb.group({
+            file: null,
+            name: null,
+            url: null,
+            link: a.url,  // external link
+            isDeleted: false
+          }));
+        }
+
+        else if (a.artifactType === 'CLIENT_TESTIMONIAL') {
           this.clientTestimonials.push(this.fb.control({ name: a.artifactName, url: a.url }));
         }
       });
-
+      this.demoVideos.controls.forEach(ctrl => {
+        const videoGroup = ctrl as FormGroup;
+        videoGroup.get('link')?.valueChanges.subscribe(val => {
+          if (val) {
+            videoGroup.get('file')?.reset(null);
+            videoGroup.get('file')?.disable();
+          } else {
+            videoGroup.get('file')?.enable();
+          }
+        });
+      });
       if (this.elevatorPitch.length === 0) {
         this.elevatorPitch.push(this.fb.control(null));
       }
@@ -319,6 +379,7 @@ export class EditStoryComponent {
       this.originalFaqs = this.faqs.value.map(faq => ({ ...faq }));
       this.isDataLoading.set(false);
     });
+
   }
 
 
@@ -370,6 +431,15 @@ export class EditStoryComponent {
     });
   }
 
+  createDemoVideo() {
+    return this.fb.group({
+      file: null,
+      name: null,
+      url: null,       // existing link from backend
+      link: '',        // new link entered in UI
+      isDeleted: false
+    });
+  }
   // GETTERS
   get tagsArray(): FormArray {
     return this.storyForm.get('tags') as FormArray;
@@ -383,8 +453,11 @@ export class EditStoryComponent {
   get clientStory(): FormArray {
     return this.storyForm.get('clientStory') as FormArray;
   }
-  get demoVideos(): FormArray {
-    return this.storyForm.get('demoVideos') as FormArray;
+  // get demoVideos(): FormArray {
+  //   return this.storyForm.get('demoVideos') as FormArray; 
+  // }
+  get demoVideos(): FormArray<FormGroup> {
+    return this.storyForm.get('demoVideos') as FormArray<FormGroup>;
   }
   get clientTestimonials(): FormArray {
     return this.storyForm.get('clientTestimonials') as FormArray;
@@ -395,10 +468,28 @@ export class EditStoryComponent {
 
 
   // ADD FIELD
-  addField(array: FormArray) {
-    array.push(this.createArtifact());
-  }
+  // addField(array: FormArray) {
+  //   array.push(this.createArtifact());
+  // }
 
+  addField(array: FormArray) {
+    if (array === this.demoVideos) {
+      const newGroup = this.createDemoVideo();
+      array.push(newGroup);
+
+      // attach exclusivity for new demoVideo row
+      (newGroup as FormGroup).get('link')?.valueChanges.subscribe(val => {
+        if (val) {
+          (newGroup as FormGroup).get('file')?.reset(null);
+          (newGroup as FormGroup).get('file')?.disable();
+        } else {
+          (newGroup as FormGroup).get('file')?.enable();
+        }
+      });
+    } else {
+      array.push(this.createArtifact());
+    }
+  }
   // REMOVE FIELD
   removeField(array: FormArray, index: number) {
     const control = array.at(index);
@@ -411,62 +502,140 @@ export class EditStoryComponent {
   }
 
 
+  // handleFileUpload(event: Event, field: string, index?: number) {
+  //   const input = event.target as HTMLInputElement;
+  //   const file = input.files?.[0];
+  //   if (file) {
+  //     // ✅ size check
+  //     if (file.size > this.fileSizeLimits[field]) {
+  //       alert(`File size exceeds ${this.fileSizeLimits[field] / (1024 * 1024)}MB. Please upload a smaller file.`);
+  //       input.value = '';
+  //       return;
+  //     }
+
+  //     // ✅ type check
+  //     if (!this.allowedFileTypes[field].includes(file.type)) {
+  //       alert(`Invalid file type. Allowed types: ${this.allowedFileTypes[field].join(', ')}`);
+  //       input.value = '';
+  //       return;
+  //     }
+
+  //     // ✅ save file into correct form control
+  //     if (field === 'thumbnail') {
+  //       this.storyForm.patchValue({ thumbnail: file });
+  //       this.thumbnailFile = file;
+  //     } else if (field === 'banner') {
+  //       this.storyForm.patchValue({ banner: file });
+  //       this.bannerFile = file;
+  //     } else if (index !== undefined) {
+  //       // (this.storyForm.get(field) as FormArray).at(index).setValue(file);
+
+  //       const control = (this.storyForm.get(field) as FormArray).at(index);
+
+  //       const existingValue = control.value;
+
+  //       control.setValue({
+  //         file: file,
+  //         name: file.name,
+  //         url: existingValue?.url || null,
+  //         isDeleted: false
+  //       });
+  //     } else {
+  //       this.storyForm.patchValue({ [field]: file });
+  //     }
+
+  //     const reader = new FileReader();
+  //     reader.onload = (e: any) => {
+  //       if (field === 'thumbnail') {
+  //         this.thumbnailPreview = e.target.result;
+  //       } else if (field === 'banner') {
+  //         this.bannerPreview = e.target.result;
+  //       }
+  //       this.cdr.detectChanges();
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // }
+
+  // --- Existing methods kept intact ---
+
+
   handleFileUpload(event: Event, field: string, index?: number) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-    if (file) {
-      // ✅ size check
-      if (file.size > this.fileSizeLimits[field]) {
-        alert(`File size exceeds ${this.fileSizeLimits[field] / (1024 * 1024)}MB. Please upload a smaller file.`);
-        input.value = '';
-        return;
-      }
+    if (!file) return;
 
-      // ✅ type check
-      if (!this.allowedFileTypes[field].includes(file.type)) {
-        alert(`Invalid file type. Allowed types: ${this.allowedFileTypes[field].join(', ')}`);
-        input.value = '';
-        return;
-      }
+    // ✅ size check
+    if (file.size > this.fileSizeLimits[field]) {
+      alert(`File size exceeds ${this.fileSizeLimits[field] / (1024 * 1024)}MB. Please upload a smaller file.`);
+      input.value = '';
+      return;
+    }
 
-      // ✅ save file into correct form control
-      if (field === 'thumbnail') {
-        this.storyForm.patchValue({ thumbnail: file });
-        this.thumbnailFile = file;
-      } else if (field === 'banner') {
-        this.storyForm.patchValue({ banner: file });
-        this.bannerFile = file;
-      } else if (index !== undefined) {
-        // (this.storyForm.get(field) as FormArray).at(index).setValue(file);
+    // ✅ type check
+    if (!this.allowedFileTypes[field].includes(file.type)) {
+      alert(`Invalid file type. Allowed types: ${this.allowedFileTypes[field].join(', ')}`);
+      input.value = '';
+      return;
+    }
 
-        const control = (this.storyForm.get(field) as FormArray).at(index);
-
-        const existingValue = control.value;
-
-        control.setValue({
-          file: file,
-          name: file.name,
-          url: existingValue?.url || null,
-          isDeleted: false
-        });
-      } else {
-        this.storyForm.patchValue({ [field]: file });
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        if (field === 'thumbnail') {
-          this.thumbnailPreview = e.target.result;
-        } else if (field === 'banner') {
-          this.bannerPreview = e.target.result;
-        }
-        this.cdr.detectChanges();
-      };
-      reader.readAsDataURL(file);
+    if (field === 'thumbnail') {
+      this.storyForm.patchValue({ thumbnail: file });
+      this.thumbnailFile = file;
+      this.readPreview(file, 'thumbnail');
+    } else if (field === 'banner') {
+      this.storyForm.patchValue({ banner: file });
+      this.bannerFile = file;
+      this.readPreview(file, 'banner');
+    } else if (field === 'demoVideos' && index !== undefined) {
+      const videoGroup = (this.storyForm.get(field) as FormArray).at(index) as FormGroup;
+      videoGroup.patchValue({
+        file: file,
+        name: file.name,
+        url: null
+      });
+      videoGroup.get('link')?.reset('');
+      videoGroup.get('link')?.disable();
+    } else if (field === 'clientTestimonials' && index !== undefined) {
+      const control = (this.storyForm.get(field) as FormArray).at(index);
+      const existingValue = control.value;
+      control.setValue({
+        file: file,
+        name: file.name,
+        url: existingValue?.url || null,
+        isDeleted: false
+      });
+    }
+    else if (index !== undefined) {
+      // ✅ Generic handling for elevatorPitch, clientStory, etc.
+      const control = (this.storyForm.get(field) as FormArray).at(index);
+      const existingValue = control.value;
+      control.setValue({
+        file: file,
+        name: file.name,
+        url: existingValue?.url || null,
+        isDeleted: false
+      });
+    } else {
+      this.storyForm.patchValue({ [field]: file });
     }
   }
 
-  // --- Existing methods kept intact ---
+
+  private readPreview(file: File, type: 'thumbnail' | 'banner') {
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      if (type === 'thumbnail') {
+        this.thumbnailPreview = e.target.result;
+      } else {
+        this.bannerPreview = e.target.result;
+      }
+      this.cdr.detectChanges();
+    };
+    reader.readAsDataURL(file);
+  }
+
+
   toggleInput(): void {
     this.showInput = !this.showInput;
   }
@@ -694,21 +863,63 @@ export class EditStoryComponent {
     let hasDemoVideos = false;
     let hasDemoVideoControl = this.demoVideos.controls.length > 0;
 
-    this.demoVideos.controls.forEach((control: any) => {
+    // this.demoVideos.controls.forEach((control: any) => {
+    //   const value = control.value;
+
+    //   if (!value || (!value.file && !value.url)) return;
+
+    //   if (value.isDeleted) return;
+
+    //   hasDemoVideos = true;
+
+    //   if (value.file instanceof File) {
+    //     formData.append('demoVideos', value.file);
+    //   } else if (value.url) {
+    //     formData.append('demoVideosUrls', value.url);
+    //   }
+    // });
+    // Demo Video section for Payload
+    this.demoVideos.controls.forEach((control: any, i: number) => {
       const value = control.value;
-
-      if (!value || (!value.file && !value.url)) return;
-
+      if (!value || (!value.file && !value.url && !value.link)) return;
       if (value.isDeleted) return;
-
-      hasDemoVideos = true;
 
       if (value.file instanceof File) {
         formData.append('demoVideos', value.file);
       } else if (value.url) {
-        formData.append('demoVideosUrls', value.url);
+        formData.append('demoVideoExistingLinks', value.url);
+      } else if (value.link) {
+        formData.append('demoVideoLinks', value.link);
       }
     });
+
+
+    // this.demoVideos.controls.forEach((control: FormGroup) => {
+    //   const value = control.value;
+    //   if (!value || (!value.file && !value.url && !value.link)) return;
+    //   if (value.isDeleted) return;
+
+    //   // ✅ Case 1: New file upload (binary)
+    //   if (value.file instanceof File) {
+    //     formData.append('demoVideos', value.file);
+    //   }
+
+    //   // ✅ Case 2: Existing video file (blob URL from backend)
+    //   else if (value.url && value.url.includes('blob.core.windows.net')) {
+    //     formData.append('demoVideosUrls', value.url);
+    //   }
+
+    //   // ✅ Case 3: Existing video link (from backend, artifactType = DEMO_VIDEO_LINK)
+    //   else if (value.url) {
+    //     formData.append('demoVideoExistingLinks', value.url);
+    //   }
+
+    //   // ✅ Case 4: New video link typed in UI
+    //   else if (value.link) {
+    //     formData.append('demoVideoLinks', value.link);
+    //   }
+    // });
+
 
     if (hasDemoVideoControl && !hasDemoVideos) {
       formData.append('demoVideosUrls', '');
@@ -893,25 +1104,41 @@ export class EditStoryComponent {
     let hasDemoVideos = false;
     let hasDemoVideoControl = this.demoVideos.controls.length > 0;
 
-    this.demoVideos.controls.forEach((control: any) => {
+    // this.demoVideos.controls.forEach((control: any) => {
+    //   const value = control.value;
+    //   if (!value || (!value.file && !value.url)) return;
+
+    //   if (value.isDeleted) return;
+
+    //   hasDemoVideos = true;
+
+    //   if (value.file instanceof File) {
+    //     formData.append('demoVideos', value.file);
+    //   } else if (value.url) {
+    //     formData.append('demoVideosUrls', value.url);
+    //   }
+    // });
+
+    // if (hasDemoVideoControl && !hasDemoVideos) {
+    //   formData.append('demoVideosUrls', '');
+    // }
+
+    this.demoVideos.controls.forEach((control: any, i: number) => {
       const value = control.value;
-      if (!value || (!value.file && !value.url)) return;
-
+      if (!value || (!value.file && !value.url && !value.link)) return;
       if (value.isDeleted) return;
-
-      hasDemoVideos = true;
 
       if (value.file instanceof File) {
         formData.append('demoVideos', value.file);
       } else if (value.url) {
-        formData.append('demoVideosUrls', value.url);
+        formData.append('demoVideoExistingLinks', value.url);
+      } else if (value.link) {
+        formData.append('demoVideoLinks', value.link);
       }
     });
-
     if (hasDemoVideoControl && !hasDemoVideos) {
       formData.append('demoVideosUrls', '');
     }
-
     // Client Testimonial section for Payload
     let hasTestimonials = false;
     let hasClientTestimonialControl = this.clientTestimonials.controls.length > 0;

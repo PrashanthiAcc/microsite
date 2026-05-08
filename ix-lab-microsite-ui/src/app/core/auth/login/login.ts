@@ -204,14 +204,17 @@ export class LoginComponent {
     name: this.requestName,
     creatorEId: 'shashi.veeramalla', // or current approver/admin
     userPassword: this.requestPassword,
-    reason: this.requestReason
+    reason: this.requestReason,
+    
   };
 
   this.userService.addUser(requestBody).subscribe({
     next: (res) => {
       alert('Access request submitted successfully!');
       this.closeRequestAccess();
+      this.router.navigate(['/login']);
       this.cdr.detectChanges();
+      
     },
     error: (err) => {
       console.error(err);

@@ -179,8 +179,8 @@
         <div class="upload-box" *ngFor="let item of elevatorPitch.controls; let i = index">
           <div class="upload-row btn-margin-bottom">
             <label class="artifacts-label">Elevator Pitch</label>
-            <button type="button" class="upload-btn btn-margin-left" (click)="elevatorInput.click()"> <img [src]="uploadIconPath"
-                alt="upload icon" class="upload-icon" /> Upload File</button>
+            <button type="button" class="upload-btn btn-margin-left" (click)="elevatorInput.click()"> <img
+                [src]="uploadIconPath" alt="upload icon" class="upload-icon" /> Upload File</button>
             <span class="file-name" *ngIf="item.value">{{ item.value.name }}</span>
             <p>Supported files .pptx up to 200MB.</p>
 
@@ -202,7 +202,7 @@
       </section>
 
       <!-- Demo Videos -->
-      <section class="artifacts-card">
+      <!-- <section class="artifacts-card">
         <div class="header-row">
           <h4>Demo Videos</h4>
           <button type="button" class="btn-add" (click)="addField(demoVideos)">+</button>
@@ -220,7 +220,49 @@
           <input type="file" #videoInput hidden (change)="handleFileUpload($event, 'demoVideos', i)">
           </ng-container>
         </div>
+      </section> -->
+
+      <section class="artifacts-card">
+        <div class="header-row">
+          <h4>Demo Videos</h4>
+          <button type="button" class="btn-add" (click)="addField(demoVideos)">+</button>
+        </div>
+
+        <div class="upload-box" *ngFor="let item of demoVideos.controls; let i = index" [formGroup]="item">
+          <div class="upload-row">
+            <label class="artifacts-label">Video {{i+1}}</label>
+
+            <!-- Upload button + info -->
+            <div class="upload-btn-wrapper">
+              <button type="button" class="upload-btn" (click)="videoInput.click()"
+                [disabled]="item.get('link')?.value || item.get('file')?.value || item.get('name')?.value">
+                <img [src]="uploadIconPath" alt="upload icon" class="upload-icon" /> Upload File
+              </button>
+              <!-- <span class="file-name" *ngIf="item.get('file')?.value">{{ item.get('file')?.value.name }}</span> -->
+              <span class="file-name" *ngIf="item.get('file')?.value || item.get('name')?.value">
+                {{ item.get('file')?.value?.name || item.get('name')?.value }}
+              </span>
+
+              <p>Supported file .mp4 up to 250MB.</p>
+            </div>
+
+            <!-- OR separator -->
+            <div class="upload-or">OR</div>
+
+            <!-- Link input beside the button -->
+            <div class="upload-link">
+              <input type="text" formControlName="link" placeholder="Paste a valid link"
+                [disabled]="item.get('file')?.value || item.get('name')?.value" />
+            </div>
+
+            <!-- Delete button -->
+            <button type="button" class="btn-delete" (click)="removeField(demoVideos, i)">🗑</button>
+          </div>
+
+          <input type="file" #videoInput hidden (change)="handleFileUpload($event, 'demoVideos', i)">
+        </div>
       </section>
+
 
       <!-- Client Testimonial -->
       <section class="artifacts-card">
@@ -410,11 +452,7 @@
 
 </form>
 
-<app-toaster 
-  [title]="toastTitle" 
-  [message]="toastMessage" 
-  [show]="showToast"
-  (closed)="showToast = false">
+<app-toaster [title]="toastTitle" [message]="toastMessage" [show]="showToast" (closed)="showToast = false">
 </app-toaster>
 <div>
 

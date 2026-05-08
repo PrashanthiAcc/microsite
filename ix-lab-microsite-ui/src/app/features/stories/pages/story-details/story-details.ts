@@ -234,7 +234,10 @@ export class StoryDetailsComponent {
 
         // Split artifacts by type
         this.clientCredentials = this.storyDetails.artifacts.filter(a => a.artifactType === 'ELEVATOR_PITCH' || a.artifactType === 'USER_STORY');
-        this.demoVideos = this.storyDetails.artifacts.filter(a => a.artifactType === 'DEMO_VIDEO');
+        //this.demoVideos = this.storyDetails.artifacts.filter(a => a.artifactType === 'DEMO_VIDEO');
+        this.demoVideos = this.storyDetails.artifacts.filter(
+          a => a.artifactType === 'DEMO_VIDEO' || a.artifactType === 'DEMO_VIDEO_LINK'
+        );
         this.clientTestimonials = this.storyDetails.artifacts.filter(a => a.artifactType === 'CLIENT_TESTIMONIAL');
 
         this.cdr.detectChanges();
@@ -325,110 +328,110 @@ export class StoryDetailsComponent {
   // } else {
   //   window.open(cleanUrl, '_blank');
   // }
-//}
+  //}
 
-toggleFaqGuide(event: Event): void {
-  console.log('FAQ & Guide checkbox changed:', event);
-  const input = event.target as HTMLInputElement;
-  this.showNarrationGuideAndFAQ = input.checked;
-}
-
-navigateBack() {
-  const queryParams = this.route.snapshot.queryParams;
-
-  this.router.navigate(['/stories'], {
-    queryParams: {
-      from: queryParams['from'] || 'stories',
-      page: queryParams['page'] || 1,
-      search: queryParams['search'] || null,
-      industry: queryParams['industry'] || null,
-      subIndustry: queryParams['subIndustry'] || null,
-      valueChain: queryParams['valueChain'] || null
-    }
-  });
-}
-
-  get faqFormGroups(): FormGroup[] {
-  return this.faqs.controls as FormGroup[];
-}
-
-addFAQ() {
-  const faqGroup = this.fb.group({
-    usecaseFaqId: [null],
-    usecaseId: [this.storyDetails.usecaseId],
-    question: ['', Validators.required],
-    answer: ['', Validators.required],
-    editing: [true],
-    showAnswer: [false],
-    updated: [false],
-    updatedBy: [this.storyDetails.creatorId] // or current user ID
-  });
-  this.faqs.insert(0, faqGroup);
-}
-
-
-
-editFAQ(i: number) {
-  const faqGroup = this.faqs.at(i);
-  this.faqBackup[i] = { ...faqGroup.value };
-  faqGroup.patchValue({ editing: true, showAnswer: true });
-}
-
-saveFAQ(i: number) {
-  const faqGroup = this.faqs.at(i);
-  if (faqGroup.valid) {
-    faqGroup.patchValue({ editing: false, updated: true });
-    // TODO: send faqGroup.value to backend
+  toggleFaqGuide(event: Event): void {
+    console.log('FAQ & Guide checkbox changed:', event);
+    const input = event.target as HTMLInputElement;
+    this.showNarrationGuideAndFAQ = input.checked;
   }
-}
 
-updateFAQ(i: number) {
-  const faqGroup = this.faqs.at(i);
-  console.log('Updating FAQ:', faqGroup.value);
-  // TODO: call backend update API here
-}
+  navigateBack() {
+    const queryParams = this.route.snapshot.queryParams;
 
-cancelFAQ(i: number) {
-  const faqGroup = this.faqs.at(i);
-  const original = this.faqBackup[i];
-  if (original) {
-    faqGroup.setValue(original);
-  }
-  faqGroup.patchValue({ editing: false, showAnswer: false });
-}
-
-deleteFAQ(i: number) {
-  this.faqs.removeAt(i);
-  this.faqBackup.splice(i, 1);
-}
-
-  get hasUpdatedFaq(): boolean {
-  return this.faqs.controls.some(f => f.get('updated')?.value === true);
-}
-
-updateFAQPayload() {
-  // Collect the entire FAQ array
-  const payload = this.faqs.value.map((f: any) => ({
-    usecaseFaqId: f.usecaseFaqId,
-    question: f.question,
-    answer: f.answer,
-    updatedBy: f.updatedBy
-  }));
-
-  console.log('Sending FAQ payload:', payload);
-
-  // TODO: call your backend service here
-  this.usecaseService.updateFaqs(this.storyDetails.usecaseId, payload)
-    .subscribe({
-      next: res => {
-        console.log('FAQ update response:', res)
-        this.getStoryDetails(this.storyID);
-      },
-      error: err => {
-        console.error('FAQ update failed:', err)
+    this.router.navigate(['/stories'], {
+      queryParams: {
+        from: queryParams['from'] || 'stories',
+        page: queryParams['page'] || 1,
+        search: queryParams['search'] || null,
+        industry: queryParams['industry'] || null,
+        subIndustry: queryParams['subIndustry'] || null,
+        valueChain: queryParams['valueChain'] || null
       }
     });
-}
+  }
+
+  get faqFormGroups(): FormGroup[] {
+    return this.faqs.controls as FormGroup[];
+  }
+
+  addFAQ() {
+    const faqGroup = this.fb.group({
+      usecaseFaqId: [null],
+      usecaseId: [this.storyDetails.usecaseId],
+      question: ['', Validators.required],
+      answer: ['', Validators.required],
+      editing: [true],
+      showAnswer: [false],
+      updated: [false],
+      updatedBy: [this.storyDetails.creatorId] // or current user ID
+    });
+    this.faqs.insert(0, faqGroup);
+  }
+
+
+
+  editFAQ(i: number) {
+    const faqGroup = this.faqs.at(i);
+    this.faqBackup[i] = { ...faqGroup.value };
+    faqGroup.patchValue({ editing: true, showAnswer: true });
+  }
+
+  saveFAQ(i: number) {
+    const faqGroup = this.faqs.at(i);
+    if (faqGroup.valid) {
+      faqGroup.patchValue({ editing: false, updated: true });
+      // TODO: send faqGroup.value to backend
+    }
+  }
+
+  updateFAQ(i: number) {
+    const faqGroup = this.faqs.at(i);
+    console.log('Updating FAQ:', faqGroup.value);
+    // TODO: call backend update API here
+  }
+
+  cancelFAQ(i: number) {
+    const faqGroup = this.faqs.at(i);
+    const original = this.faqBackup[i];
+    if (original) {
+      faqGroup.setValue(original);
+    }
+    faqGroup.patchValue({ editing: false, showAnswer: false });
+  }
+
+  deleteFAQ(i: number) {
+    this.faqs.removeAt(i);
+    this.faqBackup.splice(i, 1);
+  }
+
+  get hasUpdatedFaq(): boolean {
+    return this.faqs.controls.some(f => f.get('updated')?.value === true);
+  }
+
+  updateFAQPayload() {
+    // Collect the entire FAQ array
+    const payload = this.faqs.value.map((f: any) => ({
+      usecaseFaqId: f.usecaseFaqId,
+      question: f.question,
+      answer: f.answer,
+      updatedBy: f.updatedBy
+    }));
+
+    console.log('Sending FAQ payload:', payload);
+
+    // TODO: call your backend service here
+    this.usecaseService.updateFaqs(this.storyDetails.usecaseId, payload)
+      .subscribe({
+        next: res => {
+          console.log('FAQ update response:', res)
+          this.getStoryDetails(this.storyID);
+        },
+        error: err => {
+          console.error('FAQ update failed:', err)
+        }
+      });
+  }
 
 
 }
