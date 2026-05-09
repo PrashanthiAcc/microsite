@@ -491,15 +491,48 @@ export class EditStoryComponent {
     }
   }
   // REMOVE FIELD
-  removeField(array: FormArray, index: number) {
-    const control = array.at(index);
+  // removeField(array: FormArray, index: number) {
+  //   const control = array.at(index);
 
-    if (control.value?.url) {
+  //   if (control.value?.url) {
+  //     control.patchValue({ isDeleted: true });
+  //   } else {
+  //     array.removeAt(index);
+  //   }
+  // }
+
+removeField(array: FormArray, index: number) {
+  const control = array.at(index);
+  const value = control.value;
+
+  if (array === this.demoVideos) {
+    // Persisted DEMO_VIDEO (has url, no file) → mark deleted
+    if (value.url && !value.file) {
       control.patchValue({ isDeleted: true });
-    } else {
-      array.removeAt(index);
+      return;
     }
+
+    // Persisted DEMO_VIDEO_LINK (has link, no file) → mark deleted
+    if (value.link && !value.file) {
+      control.patchValue({ isDeleted: true });
+      return;
+    }
+
+    // New uploads or new links → remove outright
+    array.removeAt(index);
+    return;
   }
+
+  // Other artifact arrays
+  if (value?.url) {
+    control.patchValue({ isDeleted: true });
+  } else {
+    array.removeAt(index);
+  }
+}
+
+
+
 
 
   // handleFileUpload(event: Event, field: string, index?: number) {
@@ -860,8 +893,8 @@ export class EditStoryComponent {
     });
 
     // Demo Video section for Payload
-    let hasDemoVideos = false;
-    let hasDemoVideoControl = this.demoVideos.controls.length > 0;
+    // let hasDemoVideos = false;
+    // let hasDemoVideoControl = this.demoVideos.controls.length > 0;
 
     // this.demoVideos.controls.forEach((control: any) => {
     //   const value = control.value;
@@ -878,20 +911,24 @@ export class EditStoryComponent {
     //     formData.append('demoVideosUrls', value.url);
     //   }
     // });
-    // Demo Video section for Payload
-    this.demoVideos.controls.forEach((control: any, i: number) => {
-      const value = control.value;
-      if (!value || (!value.file && !value.url && !value.link)) return;
-      if (value.isDeleted) return;
 
-      if (value.file instanceof File) {
-        formData.append('demoVideos', value.file);
-      } else if (value.url) {
-        formData.append('demoVideoExistingLinks', value.url);
-      } else if (value.link) {
-        formData.append('demoVideoLinks', value.link);
-      }
-    });
+
+
+
+    // // Demo Video section for Payload
+    // this.demoVideos.controls.forEach((control: any, i: number) => {
+    //   const value = control.value;
+    //   if (!value || (!value.file && !value.url && !value.link)) return;
+    //   if (value.isDeleted) return;
+
+    //   if (value.file instanceof File) {
+    //     formData.append('demoVideos', value.file);
+    //   } else if (value.url) {
+    //     formData.append('demoVideoExistingLinks', value.url);
+    //   } else if (value.link) {
+    //     formData.append('demoVideoLinks', value.link);
+    //   }
+    // });
 
 
     // this.demoVideos.controls.forEach((control: FormGroup) => {
@@ -921,9 +958,41 @@ export class EditStoryComponent {
     // });
 
 
-    if (hasDemoVideoControl && !hasDemoVideos) {
-      formData.append('demoVideosUrls', '');
-    }
+    // if (hasDemoVideoControl && !hasDemoVideos) {
+    //   formData.append('demoVideosUrls', '');
+    // }
+
+    // ✅ Demo Video section for Payload
+    this.demoVideos.controls.forEach((control: FormGroup, i: number) => {
+      const value = control.value;
+      if (!value || (!value.file && !value.url && !value.link)) return;
+      if (value.isDeleted) return;
+
+      // Case 1: New file upload
+      if (value.file instanceof File) {
+        formData.append('demoVideos', value.file);
+        console.log(`DemoVideo[${i}] -> File: ${value.file.name}`);
+      }
+
+      // Case 2: Existing untouched blob URL (artifactType DEMO_VIDEO)
+      else if (value.url && value.url.includes('blob.core.windows.net')) {
+        formData.append('demoVideosUrls', value.url);
+        console.log(`DemoVideo[${i}] -> Blob URL: ${value.url}`);
+      }
+
+      // Case 3: Existing untouched external link (artifactType DEMO_VIDEO_LINK)
+      else if (value.link && !value.file) {
+        formData.append('demoVideoExistingLinks', value.link);
+        console.log(`DemoVideo[${i}] -> Existing Link: ${value.link}`);
+      }
+
+      // Case 4: Newly typed video link in UI
+      else if (value.link) {
+        formData.append('demoVideoLinks', value.link);
+        console.log(`DemoVideo[${i}] -> New Link: ${value.link}`);
+      }
+    });
+
 
     // Client Testimonial section for Payload
     let hasTestimonials = false;
@@ -1100,45 +1169,77 @@ export class EditStoryComponent {
       }
     });
 
-    // Demo Video section for Payload
-    let hasDemoVideos = false;
-    let hasDemoVideoControl = this.demoVideos.controls.length > 0;
+    // // Demo Video section for Payload
+    // let hasDemoVideos = false;
+    // let hasDemoVideoControl = this.demoVideos.controls.length > 0;
 
-    // this.demoVideos.controls.forEach((control: any) => {
+    // // this.demoVideos.controls.forEach((control: any) => {
+    // //   const value = control.value;
+    // //   if (!value || (!value.file && !value.url)) return;
+
+    // //   if (value.isDeleted) return;
+
+    // //   hasDemoVideos = true;
+
+    // //   if (value.file instanceof File) {
+    // //     formData.append('demoVideos', value.file);
+    // //   } else if (value.url) {
+    // //     formData.append('demoVideosUrls', value.url);
+    // //   }
+    // // });
+
+    // // if (hasDemoVideoControl && !hasDemoVideos) {
+    // //   formData.append('demoVideosUrls', '');
+    // // }
+
+    // this.demoVideos.controls.forEach((control: any, i: number) => {
     //   const value = control.value;
-    //   if (!value || (!value.file && !value.url)) return;
-
+    //   if (!value || (!value.file && !value.url && !value.link)) return;
     //   if (value.isDeleted) return;
-
-    //   hasDemoVideos = true;
 
     //   if (value.file instanceof File) {
     //     formData.append('demoVideos', value.file);
     //   } else if (value.url) {
-    //     formData.append('demoVideosUrls', value.url);
+    //     formData.append('demoVideoExistingLinks', value.url);
+    //   } else if (value.link) {
+    //     formData.append('demoVideoLinks', value.link);
     //   }
     // });
-
     // if (hasDemoVideoControl && !hasDemoVideos) {
     //   formData.append('demoVideosUrls', '');
     // }
 
-    this.demoVideos.controls.forEach((control: any, i: number) => {
+     // ✅ Demo Video section for Payload
+    this.demoVideos.controls.forEach((control: FormGroup, i: number) => {
       const value = control.value;
       if (!value || (!value.file && !value.url && !value.link)) return;
       if (value.isDeleted) return;
 
+      // Case 1: New file upload
       if (value.file instanceof File) {
         formData.append('demoVideos', value.file);
-      } else if (value.url) {
-        formData.append('demoVideoExistingLinks', value.url);
-      } else if (value.link) {
+        console.log(`DemoVideo[${i}] -> File: ${value.file.name}`);
+      }
+
+      // Case 2: Existing untouched blob URL (artifactType DEMO_VIDEO)
+      else if (value.url && value.url.includes('blob.core.windows.net')) {
+        formData.append('demoVideosUrls', value.url);
+        console.log(`DemoVideo[${i}] -> Blob URL: ${value.url}`);
+      }
+
+      // Case 3: Existing untouched external link (artifactType DEMO_VIDEO_LINK)
+      else if (value.link && !value.file) {
+        formData.append('demoVideoExistingLinks', value.link);
+        console.log(`DemoVideo[${i}] -> Existing Link: ${value.link}`);
+      }
+
+      // Case 4: Newly typed video link in UI
+      else if (value.link) {
         formData.append('demoVideoLinks', value.link);
+        console.log(`DemoVideo[${i}] -> New Link: ${value.link}`);
       }
     });
-    if (hasDemoVideoControl && !hasDemoVideos) {
-      formData.append('demoVideosUrls', '');
-    }
+
     // Client Testimonial section for Payload
     let hasTestimonials = false;
     let hasClientTestimonialControl = this.clientTestimonials.controls.length > 0;
