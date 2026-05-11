@@ -37,8 +37,8 @@
 
       <!-- Search -->
       <div class="search">
-        <input type="text" placeholder="Search" />
-        <button>🔍</button>
+        <input type="text" placeholder="Search" [(ngModel)]="searchTerm" (input)="filterStories()" />
+        <button (click)="filterStories()">🔍</button>
       </div>
 
     </div>
@@ -46,13 +46,13 @@
     <!---ARCHIVED STORIES SECTION-->
     <!-- new wrapper Archived Stories-->
     <div class="stories__header">
-      <h1 class="stories__title">All Archived ({{ archivedStories.length }})</h1>
+      <h1 class="stories__title">All Archived ({{ filteredStories.length }})</h1>
     </div>
 
     <!-- GRID ALL ARCHIVED STORIES------------ -->
     <div class="stories__grid">
 
-      <div class="story-card" *ngFor="let archived of archivedStories" [routerLink]="['/stories', archived.usecaseId]">
+      <div class="story-card" *ngFor="let archived of filteredStories" [routerLink]="['/stories', archived.usecaseId]">
 
         <div class="story-card__media">
           <img [src]="archived.thumbnailImageUrl" alt="">

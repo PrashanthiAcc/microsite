@@ -7,10 +7,11 @@ import { IndustryService } from '../../../../core/services/industry';
 import { UsecaseService } from '../../../../core/services/usecase';
 import { UserService } from '../../../../core/services/users';
 import { ChangeDetectorRef } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-archived-story',
-  imports: [CommonModule, CustomDropdownComponent, RouterModule],
+  imports: [CommonModule, CustomDropdownComponent, RouterModule,FormsModule ],
   templateUrl: './archived-story.html',
   styleUrl: './archived-story.scss',
 })
@@ -30,6 +31,8 @@ export class ArchivedStoriesComponent {
   totalElements = 0;
   pagination_right = 'assets/icons/pagination_right.png';
   pagination_left = 'assets/icons/pagination_left.png';
+  filteredStories: any[] = [];
+  searchTerm: string ='';
   constructor(private router: Router, private http: HttpClient,
     private industryService: IndustryService, private cdr: ChangeDetectorRef, private route: ActivatedRoute,
     private userService: UserService, private usecaseService: UsecaseService
@@ -60,10 +63,12 @@ export class ArchivedStoriesComponent {
           ownerName: this.getOwnerName(archived.ownerEId)
         }));
       console.log("archivedStories::", this.archivedStories);
+      
       this.currentPage = page;
       this.totalPages = res.totalPages;
       this.totalElements = res.totalElements;
       this.pageSize = res.size;
+      this.filteredStories = [...this.archivedStories];
       this.cdr.detectChanges();
     });
   }
@@ -146,6 +151,16 @@ export class ArchivedStoriesComponent {
     );
 
   }
+
+ filterStories() {
+  const term = this.searchTerm.toLowerCase();
+
+  this.filteredStories = this.archivedStories.filter(story =>
+    (story.title && story.title.toLowerCase().includes(term)) ||
+    (story.description && story.description.toLowerCase().includes(term)) ||
+    (Array.isArray(story.tag) && story.tag.some((t: string) => t.toLowerCase().includes(term)))
+  );
+}
 
 
 }

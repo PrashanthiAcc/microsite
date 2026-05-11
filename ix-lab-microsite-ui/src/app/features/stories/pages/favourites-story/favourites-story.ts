@@ -379,9 +379,9 @@ export class FavouritesStoryComponent {
 
 
   onSearch() {
-    const value = this.searchText.trim().toLowerCase();
+  const value = this.searchText.trim().toLowerCase();
 
-    if (this.showAdminControls && this.currentFrom !== 'stories') {
+  if (this.showAdminControls && this.currentFrom !== 'stories') {
       this.filteredStories = this.stories.filter((story: any) => story.status === 'IN_REVIEW');
       this.filtered = this.filteredStories;
     } else {
@@ -391,26 +391,32 @@ export class FavouritesStoryComponent {
       this.filteredStories = this.filtered;
       return;
     }
+  const searchFn = (story: any) => {
+    const title = (story.title || '').toLowerCase();
+    const description = (story.description || '').toLowerCase();
+    const ownerEId = (story.ownerEId || '').toLowerCase();
+    const ownerName = (story.ownerName || '').toLowerCase();
+    const tags = Array.isArray(story.tags)
+      ? story.tags.join(' ').toLowerCase()
+      : (story.tags || '').toLowerCase();
 
-    this.filteredStories = this.filtered.filter((story: any) => {
+    return (
+      title.includes(value) ||
+      description.includes(value) ||
+      ownerEId.includes(value) ||
+      ownerName.includes(value) ||
+      tags.includes(value)
+    );
+  };
 
-      const title = (story.title || '').toLowerCase();
-      const description = (story.description || '').toLowerCase();
-      const ownerEId = (story.ownerEId || '').toLowerCase();
-      const ownerName = (story.ownerName || '').toLowerCase();
-
-      const tags = Array.isArray(story.tags)
-        ? story.tags.join(' ').toLowerCase()
-        : (story.tags || '').toLowerCase();
-
-      return (
-        title.includes(value) ||
-        description.includes(value) || ownerEId.includes(value) || ownerName.includes(value) ||
-        tags.includes(value)
-      );
-    });
+  if (!value) {
+    this.applyFilters();
+    return;
   }
 
+  this.filteredStories = this.filteredStories.filter(searchFn);
+
+}
   getIndustryName(id: number): string {
     const industry = this.allIndustries.find((i: any) => i.industryId === id);
     return industry ? industry.industryName : '';

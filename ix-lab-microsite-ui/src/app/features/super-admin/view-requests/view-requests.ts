@@ -1125,8 +1125,12 @@ export class ViewRequestsComponent {
   sendToDraftStory() {
     this.usecaseService.sendToDraftUsecase(this.storyDetails.usecaseId).subscribe({
       next: (res: string) => {
+        this.showToast = false;
         console.log('Story send to draft successfully:', res);
+        this.toastTitle = 'Story updated for draft';
+        this.showToast = true;
         this.router.navigate(['/request']);
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Sending to draft failed:', err);
@@ -1137,8 +1141,12 @@ export class ViewRequestsComponent {
   approveStory() {
     this.usecaseService.approveUsecase(this.storyDetails.usecaseId, this.storyDetails.approverId).subscribe({
       next: (res: string) => {
+        this.showToast = false;
         console.log('Story approved successfully:', res);
+        this.toastTitle = 'Story approved successfully';
+        this.showToast = true;
         this.location.back();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Approval failed:', err);

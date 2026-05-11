@@ -647,7 +647,14 @@ onSearch() {
   this.filteredInReview = this.inReviewStories.filter(searchFn);
   this.filteredApproved = this.approvedStories.filter(searchFn);
 
-  this.filteredStories = this.filteredInReview; // keep template binding intact
+  if (this.showAdminControls) {
+    // ✅ Admin view: only In Review
+    this.filteredStories = this.filteredInReview;
+  } else {
+    // ✅ Normal view: only Approved
+    this.filteredStories = this.filteredApproved;
+  }
+  //this.filteredStories = this.filteredInReview; // keep template binding intact
 }
 
   getIndustryName(id: number): string {
