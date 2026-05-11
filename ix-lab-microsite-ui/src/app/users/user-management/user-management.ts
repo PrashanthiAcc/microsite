@@ -92,7 +92,7 @@ export class UserManagementComponent implements OnInit {
       next: (res: any) => {
         this.users = res;
         this.filteredUsers = this.users.filter(user => user.isActive === true && user.accessStartDate != null);;
-        this.requests = this.users.filter(user => user.isActive === false && user.accessStartDate == null);
+        this.requests = this.users.filter(user => user.isActive === false);
         this.cdr.detectChanges();
       },
       error: (err) => {
