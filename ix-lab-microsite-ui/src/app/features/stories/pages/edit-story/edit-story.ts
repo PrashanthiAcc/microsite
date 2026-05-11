@@ -501,35 +501,35 @@ export class EditStoryComponent {
   //   }
   // }
 
-removeField(array: FormArray, index: number) {
-  const control = array.at(index);
-  const value = control.value;
+  removeField(array: FormArray, index: number) {
+    const control = array.at(index);
+    const value = control.value;
 
-  if (array === this.demoVideos) {
-    // Persisted DEMO_VIDEO (has url, no file) → mark deleted
-    if (value.url && !value.file) {
-      control.patchValue({ isDeleted: true });
+    if (array === this.demoVideos) {
+      // Persisted DEMO_VIDEO (has url, no file) → mark deleted
+      if (value.url && !value.file) {
+        control.patchValue({ isDeleted: true });
+        return;
+      }
+
+      // Persisted DEMO_VIDEO_LINK (has link, no file) → mark deleted
+      if (value.link && !value.file) {
+        control.patchValue({ isDeleted: true });
+        return;
+      }
+
+      // New uploads or new links → remove outright
+      array.removeAt(index);
       return;
     }
 
-    // Persisted DEMO_VIDEO_LINK (has link, no file) → mark deleted
-    if (value.link && !value.file) {
+    // Other artifact arrays
+    if (value?.url) {
       control.patchValue({ isDeleted: true });
-      return;
+    } else {
+      array.removeAt(index);
     }
-
-    // New uploads or new links → remove outright
-    array.removeAt(index);
-    return;
   }
-
-  // Other artifact arrays
-  if (value?.url) {
-    control.patchValue({ isDeleted: true });
-  } else {
-    array.removeAt(index);
-  }
-}
 
 
 
@@ -931,42 +931,19 @@ removeField(array: FormArray, index: number) {
     // });
 
 
-    // this.demoVideos.controls.forEach((control: FormGroup) => {
-    //   const value = control.value;
-    //   if (!value || (!value.file && !value.url && !value.link)) return;
-    //   if (value.isDeleted) return;
-
-    //   // ✅ Case 1: New file upload (binary)
-    //   if (value.file instanceof File) {
-    //     formData.append('demoVideos', value.file);
-    //   }
-
-    //   // ✅ Case 2: Existing video file (blob URL from backend)
-    //   else if (value.url && value.url.includes('blob.core.windows.net')) {
-    //     formData.append('demoVideosUrls', value.url);
-    //   }
-
-    //   // ✅ Case 3: Existing video link (from backend, artifactType = DEMO_VIDEO_LINK)
-    //   else if (value.url) {
-    //     formData.append('demoVideoExistingLinks', value.url);
-    //   }
-
-    //   // ✅ Case 4: New video link typed in UI
-    //   else if (value.link) {
-    //     formData.append('demoVideoLinks', value.link);
-    //   }
-    // });
-
-
-    // if (hasDemoVideoControl && !hasDemoVideos) {
-    //   formData.append('demoVideosUrls', '');
-    // }
-
     // ✅ Demo Video section for Payload
+    //let deletedAny = false;
     this.demoVideos.controls.forEach((control: FormGroup, i: number) => {
       const value = control.value;
       if (!value || (!value.file && !value.url && !value.link)) return;
       if (value.isDeleted) return;
+      //if (!value) return;
+      // Case 0: Deleted file
+      // if (value.isDeleted) {
+      //   deletedAny = true;
+      //   console.log(`DemoVideo[${i}] -> Deleted`);
+      //   return;
+      // }
 
       // Case 1: New file upload
       if (value.file instanceof File) {
@@ -992,7 +969,10 @@ removeField(array: FormArray, index: number) {
         console.log(`DemoVideo[${i}] -> New Link: ${value.link}`);
       }
     });
-
+    // append ONE blank if any were deleted
+    // if (deletedAny) {
+    //   formData.append('demoVideosUrls', '');
+    // }
 
     // Client Testimonial section for Payload
     let hasTestimonials = false;
@@ -1209,7 +1189,7 @@ removeField(array: FormArray, index: number) {
     //   formData.append('demoVideosUrls', '');
     // }
 
-     // ✅ Demo Video section for Payload
+    // ✅ Demo Video section for Payload
     this.demoVideos.controls.forEach((control: FormGroup, i: number) => {
       const value = control.value;
       if (!value || (!value.file && !value.url && !value.link)) return;
