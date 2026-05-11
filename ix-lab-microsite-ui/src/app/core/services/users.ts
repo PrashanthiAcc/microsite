@@ -28,9 +28,21 @@ export class UserService {
     return this.http.post(`${environment.apiUrl}/api/users/v1/create`, addUser, { responseType: 'text' });
   }
 
+
   acceptUser(userEid: string, payload: any) {
-    return this.http.put(`${environment.apiUrl}/api/users/v1/${userEid}/accept`, payload);
+    return this.http.put(
+      `${environment.apiUrl}/api/users/v1/${userEid}/accept`,
+      payload,
+      { responseType: 'text' }
+    );
   }
+
+  rejectUser(userEid: string) {
+  return this.http.delete(
+    `${environment.apiUrl}/api/users/v1/${userEid}/reject`,
+    { responseType: 'text' } // 👈 still needed if backend returns plain text
+  );
+}
 
 
   deleteUser(userId: string) {
@@ -45,9 +57,9 @@ export class UserService {
   }
 
   checkPassword(userEid: string, userPassword: string) {
-  return this.http.get<{ passwordMatch: boolean }>(
-    '/api/users/v1/check-password',
-    { params: { userEid, userPassword } }
-  );
-}
+    return this.http.get<{ passwordMatch: boolean }>(
+      '/api/users/v1/check-password',
+      { params: { userEid, userPassword } }
+    );
+  }
 }

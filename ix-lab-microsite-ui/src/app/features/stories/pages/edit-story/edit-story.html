@@ -237,7 +237,7 @@
               <!-- Upload button + info -->
               <div class="upload-btn-wrapper">
                 <button type="button" class="upload-btn" (click)="videoInput.click()"
-                  [disabled]="item.get('link')?.value || item.get('file')?.value || item.get('name')?.value">
+                  [disabled]="item.get('link')?.value">
                   <img [src]="uploadIconPath" alt="upload icon" class="upload-icon" /> Upload File
                 </button>
                 <span class="file-name" *ngIf="item.get('file')?.value || item.get('name')?.value">
@@ -252,7 +252,7 @@
               <!-- Link input beside the button -->
               <div class="upload-link">
                 <input type="text" formControlName="link" placeholder="Paste a valid link"
-                  [disabled]="item.get('file')?.value || item.get('name')?.value" />
+                  />
               </div>
 
               <!-- Delete button -->

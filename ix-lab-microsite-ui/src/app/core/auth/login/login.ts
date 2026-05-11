@@ -78,23 +78,6 @@ export class LoginComponent {
 
 
 
-  // login() {
-  //   this.userService.checkPassword(this.enterpriseId, this.password).subscribe({
-  //     next: (res: any) => {
-  //       if (res === 'true' || res === 'success') { // adjust based on API response
-  //         this.error = '';
-  //         alert('Login successful!');
-  //       } else {
-  //         this.error = 'Invalid password';
-  //       }
-  //     },
-  //     error: () => {
-  //       this.error = 'Login failed. Please try again.';
-  //     }
-  //   });
-  // }
-
-
  login() {
   this.userService.checkPassword(this.enterpriseId, this.password).subscribe({
     next: (res: { passwordMatch: boolean }) => {
@@ -212,7 +195,7 @@ export class LoginComponent {
     next: (res) => {
       alert('Access request submitted successfully!');
       this.closeRequestAccess();
-      this.router.navigate(['/login']);
+      this.error = '';
       this.cdr.detectChanges();
       
     },

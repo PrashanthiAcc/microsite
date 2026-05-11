@@ -91,7 +91,7 @@ export class UserManagementComponent implements OnInit {
     this.userService.getAllUsers().subscribe({
       next: (res: any) => {
         this.users = res;
-        this.filteredUsers = [...this.users];
+        this.filteredUsers = this.users.filter(user => user.isActive === true && user.accessStartDate != null);;
         this.requests = this.users.filter(user => user.isActive === false && user.accessStartDate == null);
         this.cdr.detectChanges();
       },
@@ -191,7 +191,11 @@ export class UserManagementComponent implements OnInit {
     this.userService.acceptUser(userEid, payload).subscribe({
       next: (res) => {
         console.log('User accepted', res);
-
+        this.message = 'User Updated successfully';
+        this.loadUsers(); // refresh table
+        setTimeout(() => {
+          this.message = '';
+        }, 2000);
         // refresh table
         this.loadUsers();   // 🔥 reload data
 
@@ -202,6 +206,31 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
+  rejectUser(user: any) {
+    const payload = {
+      role: user.role?.toUpperCase(),     // ensure uppercase
+      approverEid: 'shashi.veeramalla'    // or logged-in user
+    };
+
+    const userEid = user.userEid;
+
+    this.userService.rejectUser(userEid).subscribe({
+      next: (res) => {
+        console.log('User rejected', res);
+        this.message = 'User Rejected successfully';
+        this.loadUsers(); // refresh table
+        setTimeout(() => {
+          this.message = '';
+        }, 2000);
+        // refresh table
+        this.loadUsers();   // 🔥 reload data
+
+      },
+      error: (err) => {
+        console.error('Error:', err);
+      }
+    });
+  }
   deleteUser(user: any) {
     const userId = user.userId;
     this.userService.deleteUser(userId).subscribe({
@@ -243,6 +272,22 @@ export class UserManagementComponent implements OnInit {
     const search = this.searchText.toLowerCase();
 
     this.filteredUsers = this.users.filter(user => {
+
+      const formattedDate = this.datePipe.transform(
+        user.accessStartDate,
+        'dd MMM yyyy'
+      )?.toLowerCase() || '';
+
+      return (
+        user.name?.toLowerCase().includes(search) ||
+        user.userEid?.toLowerCase().includes(search) ||
+        user.role?.toLowerCase().includes(search) ||
+        user.approverEid?.toLowerCase().includes(search) ||
+        formattedDate.includes(search)
+      );
+    });
+
+     this.requests = this.users.filter(user => {
 
       const formattedDate = this.datePipe.transform(
         user.accessStartDate,
