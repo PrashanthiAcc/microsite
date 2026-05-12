@@ -122,15 +122,15 @@ export class HomepageConfigurationsComponent {
     featured: false,
     capabilities: false
   };
-  industryNames = [
-    { industryId: 1, name: 'Consumer Package Goods' },
-    { industryId: 2, name: 'Life Sciences' },
-    { industryId: 3, name: 'Energy' },
-    { industryId: 4, name: 'Industrials' },
-    { industryId: 5, name: 'Utilities' },
-    { industryId: 6, name: 'Chemicals & Natural Services' },
-    { industryId: 7, name: 'High Tech' }
-  ];
+  // industryNames = [
+  //   { industryId: 1, name: 'Consumer Package Goods' },
+  //   { industryId: 2, name: 'Life Sciences' },
+  //   { industryId: 3, name: 'Energy' },
+  //   { industryId: 4, name: 'Industrials' },
+  //   { industryId: 5, name: 'Utilities' },
+  //   { industryId: 6, name: 'Chemicals & Natural Services' },
+  //   { industryId: 7, name: 'High Tech' }
+  // ];
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
@@ -145,15 +145,15 @@ export class HomepageConfigurationsComponent {
     });
 
 
-    const industriesArray = this.homePageForm.get('industries') as FormArray;
-    this.industryNames.forEach(ind => {
-      industriesArray.push(this.fb.group({
-        industryId: [ind.industryId],
-        name: [ind.name],
-        fileName: [''],
-        defaultImage: ['']   // keep blank
-      }));
-    });
+    // const industriesArray = this.homePageForm.get('industries') as FormArray;
+    // this.industryNames.forEach(ind => {
+    //   industriesArray.push(this.fb.group({
+    //     industryId: [ind.industryId],
+    //     name: [ind.name],
+    //     fileName: [''],
+    //     defaultImage: ['']   // keep blank
+    //   }));
+    // });
 
     this.loadIndustries();
     this.homePageForm.get('clientStories')?.disable();
@@ -184,12 +184,12 @@ export class HomepageConfigurationsComponent {
         industriesArray.clear();
         this.industryPreviews = [];
 
-        this.industryNames.forEach((ind, i) => {
+        this.allIndustries.forEach((ind, i) => {
           const backendThumb = res.industryThumbnails?.find((t: any) => t.industryId === ind.industryId);
 
           industriesArray.push(this.fb.group({
             industryId: ind.industryId,
-            name: ind.name,
+            name: ind.industryName,
             fileName: [''],
             defaultImage: ['']
           }));
@@ -374,6 +374,23 @@ export class HomepageConfigurationsComponent {
 
       this.allSubIndustries = res.subIndustries;
       this.allValueChains = res.valueChains;
+
+       // ✅ Populate industries FormArray dynamically
+    const industriesArray = this.homePageForm.get('industries') as FormArray;
+    industriesArray.clear();
+    this.industryPreviews = [];
+
+    this.allIndustries
+      .filter(ind => ind.isActive) // only active industries
+      .forEach((ind, i) => {
+        industriesArray.push(this.fb.group({
+          industryId: [ind.industryId],
+          name: [ind.industryName],
+          fileName: [''],
+          defaultImage: ['']
+        }));
+        this.industryPreviews[i] = ''; // initialize preview slot
+      });
 
       this.industries = [
         { industryId: null, industryName: 'All' },
