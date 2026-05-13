@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormsModule, ReactiveFormsModule, FormBuilder, FormArray } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
@@ -90,6 +90,10 @@ export class HomepageConfigurationsComponent {
   searchTerm: any;
   featuredStories: Story[] = [];
   getHomePageDetails: any;
+  showToast = false;
+  toastMessage = '';
+  toastTitle = '';
+  isDataLoading = signal(false);
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService, private cdr: ChangeDetectorRef,
     private route: ActivatedRoute, private homePageService: HomePageService) {
@@ -105,6 +109,7 @@ export class HomepageConfigurationsComponent {
       productionSupport: [''],
       sapEwmPrograms: [''],
       sapEwmProgramsTbd: [''],
+      nvidiaStorycount: [],
 
       industries: this.fb.array([]), // [{ name, fileName }]
       featuredStories: this.fb.array([]),
@@ -120,7 +125,8 @@ export class HomepageConfigurationsComponent {
     overview: false,
     industries: false,
     featured: false,
-    capabilities: false
+    capabilities: false,
+    industryNamesConf: false
   };
   // industryNames = [
   //   { industryId: 1, name: 'Consumer Package Goods' },
@@ -158,7 +164,7 @@ export class HomepageConfigurationsComponent {
     this.loadIndustries();
     this.homePageForm.get('clientStories')?.disable();
     this.getHomePageConfigDetails();
-    this.getApprovedStoryCount();
+
   }
 
 
@@ -174,7 +180,8 @@ export class HomepageConfigurationsComponent {
           mesMomSolutions: res.mesMomSolDelivered,
           productionSupport: res.prodSiteCriticalSupport,
           sapEwmPrograms: res.sapEwmPrgDelivered,
-          sapEwmProgramsTbd: res.sapEwmProgramsTbd
+          sapEwmProgramsTbd: res.sapEwmProgramsTbd,
+          nvidiaStorycount: res.nvidiaStorycount
         });
 
         this.imagePreviews['heroImage'] = res.heroImageUrl;
@@ -191,7 +198,8 @@ export class HomepageConfigurationsComponent {
             industryId: ind.industryId,
             name: ind.industryName,
             fileName: [''],
-            defaultImage: ['']
+            defaultImage: [''],
+            updatedName: [ind.name]
           }));
 
 
@@ -226,7 +234,7 @@ export class HomepageConfigurationsComponent {
             this.cdr.detectChanges();
           });
         }
-
+        this.getApprovedStoryCount();
         this.cdr.detectChanges();
       },
       error: err => console.error('Fetch failed', err)
@@ -240,12 +248,13 @@ export class HomepageConfigurationsComponent {
       next: (res: any) => {
         console.log('fetched successfully', res);
 
-        // ✅ Extract the number from the response object
-        const approvedCount = res["Total Approved usecases"];
+        // Extract approved count safely
+        const approvedCount = Number(res["Total Approved usecases"] || 0);
+        const nvidiaCount = Number(this.getHomePageDetails?.nvidiaStorycount || 0);
 
-        // ✅ Patch the clientStories field with just the number
+        // Patch the sum into clientStories
         this.homePageForm.patchValue({
-          clientStories: approvedCount
+          clientStories: (approvedCount + nvidiaCount).toString()
         });
 
         this.cdr.detectChanges();
@@ -255,12 +264,16 @@ export class HomepageConfigurationsComponent {
   }
 
 
-  get industriesArray(): FormArray {
-    return this.homePageForm.get('industries') as FormArray;
+  // get industriesArray(): FormArray {
+  //   return this.homePageForm.get('industries') as FormArray;
+  // }
+
+  get industriesArray(): FormArray<FormGroup> {
+    return this.homePageForm.get('industries') as FormArray<FormGroup>;
   }
 
   // Toggle function with "only one open at a time" behavior
-  toggleAccordion(section: 'hero' | 'overview' | 'industries' | 'featured' | 'capabilities') {
+  toggleAccordion(section: 'hero' | 'overview' | 'industries' | 'featured' | 'capabilities' | 'industryNamesConf') {
     const currentlyOpen = this.isAccordionOpen[section];
 
     // Close all
@@ -375,22 +388,22 @@ export class HomepageConfigurationsComponent {
       this.allSubIndustries = res.subIndustries;
       this.allValueChains = res.valueChains;
 
-       // ✅ Populate industries FormArray dynamically
-    const industriesArray = this.homePageForm.get('industries') as FormArray;
-    industriesArray.clear();
-    this.industryPreviews = [];
+      // ✅ Populate industries FormArray dynamically
+      const industriesArray = this.homePageForm.get('industries') as FormArray;
+      industriesArray.clear();
+      this.industryPreviews = [];
 
-    this.allIndustries
-      .filter(ind => ind.isActive) // only active industries
-      .forEach((ind, i) => {
-        industriesArray.push(this.fb.group({
-          industryId: [ind.industryId],
-          name: [ind.industryName],
-          fileName: [''],
-          defaultImage: ['']
-        }));
-        this.industryPreviews[i] = ''; // initialize preview slot
-      });
+      this.allIndustries
+        .filter(ind => ind.isActive) // only active industries
+        .forEach((ind, i) => {
+          industriesArray.push(this.fb.group({
+            industryId: [ind.industryId],
+            name: [ind.industryName],
+            fileName: [''],
+            defaultImage: ['']
+          }));
+          this.industryPreviews[i] = ''; // initialize preview slot
+        });
 
       this.industries = [
         { industryId: null, industryName: 'All' },
@@ -574,6 +587,7 @@ export class HomepageConfigurationsComponent {
       mesMomSolDelivered: this.stripPlus(this.homePageForm.value.mesMomSolutions),
       prodSiteCriticalSupport: this.stripPlus(this.homePageForm.value.productionSupport),
       sapEwmPrgDelivered: this.stripPlus(this.homePageForm.value.sapEwmPrograms),
+      nvidiaStoriesCount: this.stripPlus(this.homePageForm.value.nvidiaStorycount),
       //sapEwmProgramsTbd: this.stripPlus(this.homePageForm.value.sapEwmProgramsTbd),
       updatedById: JSON.parse(localStorage.getItem('loggedUser') || '{}').userId, // or from your context
       featuredStories: (this.homePageForm.value.featuredStories || []).map((s: { usecaseId: number }) => ({
@@ -620,11 +634,22 @@ export class HomepageConfigurationsComponent {
 
     this.homePageService.saveHomePageConfig(payload).subscribe({
       next: res => {
+
         console.log('Saved successfully', res);
+        this.toastTitle = 'Saved successfully';
+        this.showToast = true;
+        this.cdr.detectChanges();
         this.router.navigate(['/home']);   // ✅ redirect after success
       },
-      error: err => console.error('Save failed', err)
+      error: err => {
+        this.isDataLoading.set(false);
+        console.error('Save failed', err)
+        this.toastTitle = 'Save Failed';
+        this.showToast = true;
+        this.cdr.detectChanges();
+      }
     });
+    this.showToast = false;
   }
 
 
@@ -638,6 +663,7 @@ export class HomepageConfigurationsComponent {
       mesMomSolDelivered: this.stripPlus(this.homePageForm.value.mesMomSolutions),
       prodSiteCriticalSupport: this.stripPlus(this.homePageForm.value.productionSupport),
       sapEwmPrgDelivered: this.stripPlus(this.homePageForm.value.sapEwmPrograms),
+      nvidiaStoriesCount: this.stripPlus(this.homePageForm.value.nvidiaStorycount),
       updatedById: JSON.parse(localStorage.getItem('loggedUser') || '{}').userId,
       featuredStories: (this.homePageForm.value.featuredStories || []).map((s: { usecaseId: number }) => ({
         usecaseId: s.usecaseId
@@ -687,14 +713,24 @@ export class HomepageConfigurationsComponent {
         console.log(`${key}: ${value}`);
       }
     }
-
+    this.isDataLoading.set(true);
     this.homePageService.updateHomePageConfig(payload).subscribe({
       next: res => {
         console.log('Updated successfully', res);
+        this.toastTitle = 'Updated successfully';
+        this.showToast = true;
+        this.cdr.detectChanges();
         this.router.navigate(['/home']);   // ✅ redirect after success
       },
-      error: err => console.error('Save failed', err)
+      error: err => {
+        this.isDataLoading.set(false);
+        console.error('update failed', err)
+        this.toastTitle = 'Update Failed';
+        this.showToast = true;
+        this.cdr.detectChanges();
+      }
     });
+    this.showToast = false;
   }
 
   onSaveClick() {

@@ -880,6 +880,41 @@ input:focus {
     gap: 24px;
 }
 
+.industry-names-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.industry-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Current Name | Updated Name */
+  gap: 40px; /* spacing between columns */
+  align-items: center;
+}
+
+.industry-row label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+}
+
+.industry-row input {
+  border: 1px solid #D1D5DB;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 16px;
+  width: 100%;
+}
+
+.industry-row input:focus {
+  border-color: #7500C0;
+  outline: none;
+  box-shadow: 0 0 0 2px #E9D5FF;
+}
+
+
+
 /* 1163px breakpoint (~110–115% zoom) */
 @media (max-width: 1173px) {
     .stats-grid {

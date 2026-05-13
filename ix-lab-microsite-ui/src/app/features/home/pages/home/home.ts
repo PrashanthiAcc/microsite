@@ -59,7 +59,8 @@ export class HomeComponent {
         heroImageUrl: res.heroImageUrl,
         mesMomSolDelivered: res.mesMomSolDelivered,
         prodSiteCriticalSupport: res.prodSiteCriticalSupport,
-        sapEwmPrgDelivered: res.sapEwmPrgDelivered
+        sapEwmPrgDelivered: res.sapEwmPrgDelivered,
+        nvidiaStorycount: res.nvidiaStorycount
       };
 
       this.industriesData = {
