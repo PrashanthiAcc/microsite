@@ -12,6 +12,15 @@ import { FormsModule } from '@angular/forms';
 import { Spinner } from '../../../../shared/components/spinner/spinner';
 import { forkJoin } from 'rxjs';
 
+interface IndustryOverview {
+  name: string;
+  defaultImage: string;
+}
+
+interface ValueChainOverview {
+  name: string;
+  defaultImage: string;
+}
 
 @Component({
   selector: 'app-stories',
@@ -35,13 +44,13 @@ export class StoriesComponent implements OnInit {
   searchText: string = '';
   drafts: any[] = [];
   allDrafts: any[] = [];
-  
-inReviewStories: any[] = [];
-approvedStories: any[] = [];
 
-filteredDrafts: any[] = [];
-filteredInReview: any[] = [];
-filteredApproved: any[] = [];
+  inReviewStories: any[] = [];
+  approvedStories: any[] = [];
+
+  filteredDrafts: any[] = [];
+  filteredInReview: any[] = [];
+  filteredApproved: any[] = [];
 
   allUsers: any[] = [];
   showToast = false;
@@ -73,13 +82,15 @@ filteredApproved: any[] = [];
   showIndustryOverview: boolean = false;
   showValueChain: boolean = false;
   isDataLoading = signal(false);
-  viewIndustryOverview = [
-    { name: 'Life Sciences', defaultImage: 'assets/LifeScience Industry Overview.png' },
-  ];
-  viewValueChain = [
-    { name: 'Pharmaceuticals', defaultImage: 'assets/Pharmaceuticals Value Chain.png' },
-    //{ name: 'Med Tech', defaultImage: 'assets/Life Sciences.png' },
-  ];
+  // viewIndustryOverview = [
+  //   { name: 'Life Sciences', defaultImage: 'assets/LifeScience Industry Overview.png' },
+  // ];
+  // viewValueChain = [
+  //   { name: 'Pharmaceuticals', defaultImage: 'assets/Pharmaceuticals Value Chain.png' },
+  //   //{ name: 'Med Tech', defaultImage: 'assets/Life Sciences.png' },
+  // ];
+  viewIndustryOverview: IndustryOverview[] = [];
+  viewValueChain: ValueChainOverview[] = [];
   totalDrafts: any;
   totalInReview: any;
   totalApproved: any;
@@ -174,83 +185,83 @@ filteredApproved: any[] = [];
 
 
 
-loadAllStories(page: number = 1, size: number = 10) {
-  this.isDataLoading.set(true);
+  loadAllStories(page: number = 1, size: number = 10) {
+    this.isDataLoading.set(true);
 
-  forkJoin({
-    drafts: this.usecaseService.getUsecasesByStatus('DRAFT', page, size),
-    inReview: this.usecaseService.getUsecasesByStatus('IN_REVIEW', page, size),
-    approved: this.usecaseService.getUsecasesByStatus('APPROVED', page, size)
-  }).subscribe({
-    next: ({ drafts, inReview, approved }) => {
-      this.drafts = (drafts.content || []).map((d:any) => this.mapStory(d));
-      this.inReviewStories = (inReview.content || []).map((s:any) => this.mapStory(s));
-      this.approvedStories = (approved.content || []).map((a:any) => this.mapStory(a));
+    forkJoin({
+      drafts: this.usecaseService.getUsecasesByStatus('DRAFT', page, size),
+      inReview: this.usecaseService.getUsecasesByStatus('IN_REVIEW', page, size),
+      approved: this.usecaseService.getUsecasesByStatus('APPROVED', page, size)
+    }).subscribe({
+      next: ({ drafts, inReview, approved }) => {
+        this.drafts = (drafts.content || []).map((d: any) => this.mapStory(d));
+        this.inReviewStories = (inReview.content || []).map((s: any) => this.mapStory(s));
+        this.approvedStories = (approved.content || []).map((a: any) => this.mapStory(a));
 
-      // ✅ Hydrate filteredStories based on mode
-      if (this.showAdminControls) {
-        this.filteredStories = [...this.inReviewStories];
-      } else {
-        this.filteredStories = [...this.approvedStories];
+        // ✅ Hydrate filteredStories based on mode
+        if (this.showAdminControls) {
+          this.filteredStories = [...this.inReviewStories];
+        } else {
+          this.filteredStories = [...this.approvedStories];
+        }
+
+        this.applyFilters();
+
+        // Shared pagination
+        // Shared pagination
+        this.currentPage = page;
+        this.pageSize = size;
+        // this.totalDrafts = drafts.totalElements || this.totalDrafts;
+        // this.totalInReview = inReview.totalElements || this.totalInReview;
+        // this.totalApproved = approved.totalElements || this.totalApproved;
+
+        // this.totalElements = this.totalDrafts + this.totalInReview + this.totalApproved;
+        // this.totalPages = Math.ceil(this.totalElements / this.pageSize);
+        if (this.showAdminControls) {
+          // Admin view → In Review
+          this.totalElements = inReview.totalElements;
+          this.totalPages = inReview.totalPages;
+        } else {
+          // Normal view → Approved
+          this.totalElements = approved.totalElements;
+          this.totalPages = approved.totalPages;
+        }
+        // this.totalElements =
+        //   this.drafts.length +
+        //   this.inReviewStories.length +
+        //   this.approvedStories.length;
+
+        // this.totalPages = Math.ceil(this.totalElements / this.pageSize);
+
+        this.isLoading = false;
+        this.isDataLoading.set(false);
+        this.cdr.detectChanges();
+
+        // Debug logs
+        console.log('Drafts:', this.drafts.length);
+        console.log('In Review:', this.inReviewStories.length);
+        console.log('Approved:', this.approvedStories.length);
+        console.log('FilteredStories:', this.filteredStories.length);
+      },
+      error: () => {
+        this.isDataLoading.set(false);
+        this.isLoading = false;
       }
-
-      this.applyFilters();
-
-      // Shared pagination
-      // Shared pagination
-this.currentPage = page;
-this.pageSize = size;
-// this.totalDrafts = drafts.totalElements || this.totalDrafts;
-// this.totalInReview = inReview.totalElements || this.totalInReview;
-// this.totalApproved = approved.totalElements || this.totalApproved;
-
-// this.totalElements = this.totalDrafts + this.totalInReview + this.totalApproved;
-// this.totalPages = Math.ceil(this.totalElements / this.pageSize);
-if (this.showAdminControls) {
-  // Admin view → In Review
-  this.totalElements = inReview.totalElements;
-  this.totalPages = inReview.totalPages;
-} else {
-  // Normal view → Approved
-  this.totalElements = approved.totalElements;
-  this.totalPages = approved.totalPages;
-}
-// this.totalElements =
-//   this.drafts.length +
-//   this.inReviewStories.length +
-//   this.approvedStories.length;
-
-// this.totalPages = Math.ceil(this.totalElements / this.pageSize);
-
-this.isLoading = false;
-this.isDataLoading.set(false);
-this.cdr.detectChanges();
-
-      // Debug logs
-      console.log('Drafts:', this.drafts.length);
-      console.log('In Review:', this.inReviewStories.length);
-      console.log('Approved:', this.approvedStories.length);
-      console.log('FilteredStories:', this.filteredStories.length);
-    },
-    error: () => {
-      this.isDataLoading.set(false);
-      this.isLoading = false;
-    }
-  });
-}
+    });
+  }
 
 
 
-private mapStory(story: any) {
-  return {
-    ...story,
-    tags: story.tag,
-    ownerName: this.getOwnerName(story.ownerEId),
-    industryName: this.getIndustryName(story.industryId),
-    subIndustryName: this.getSubIndustryName(story.subIndustryId),
-    valueChainName: this.getValueChainName(story.valueChainId)
-  };
-}
+  private mapStory(story: any) {
+    return {
+      ...story,
+      tags: story.tag,
+      ownerName: this.getOwnerName(story.ownerEId),
+      industryName: this.getIndustryName(story.industryId),
+      subIndustryName: this.getSubIndustryName(story.subIndustryId),
+      valueChainName: this.getValueChainName(story.valueChainId)
+    };
+  }
 
   // applyFilters() {
   //   this.filtered = [...this.stories];
@@ -288,24 +299,24 @@ private mapStory(story: any) {
   //   }
   // }
 
-applyFilters() {
-  const filterFn = (story: any) =>
-    (this.selectedIndustryId === -1 || story.industryId === this.selectedIndustryId) &&
-    (this.selectedSubIndustryId === -1 || story.subIndustryId === this.selectedSubIndustryId) &&
-    (this.selectedValueChainId === -1 || story.valueChainId === this.selectedValueChainId);
+  applyFilters() {
+    const filterFn = (story: any) =>
+      (this.selectedIndustryId === -1 || story.industryId === this.selectedIndustryId) &&
+      (this.selectedSubIndustryId === -1 || story.subIndustryId === this.selectedSubIndustryId) &&
+      (this.selectedValueChainId === -1 || story.valueChainId === this.selectedValueChainId);
 
-  this.filteredDrafts = this.drafts.filter(filterFn);
-  this.filteredInReview = this.inReviewStories.filter(filterFn);
-  this.filteredApproved = this.approvedStories.filter(filterFn);
+    this.filteredDrafts = this.drafts.filter(filterFn);
+    this.filteredInReview = this.inReviewStories.filter(filterFn);
+    this.filteredApproved = this.approvedStories.filter(filterFn);
 
-  if (this.showAdminControls) {
-    // ✅ Admin view: only In Review
-    this.filteredStories = this.filteredInReview;
-  } else {
-    // ✅ Normal view: only Approved
-    this.filteredStories = this.filteredApproved;
+    if (this.showAdminControls) {
+      // ✅ Admin view: only In Review
+      this.filteredStories = this.filteredInReview;
+    } else {
+      // ✅ Normal view: only Approved
+      this.filteredStories = this.filteredApproved;
+    }
   }
-}
 
 
 
@@ -412,6 +423,37 @@ applyFilters() {
 
       this.selectedSubIndustryId = -1;
       this.selectedValueChainId = -1;
+
+
+      //  Industry Image Map Block based on industryId
+      const industryImageMap: Record<number, string> = {
+        //1: 'assets/Consumer Packaged Goods.png',          // Consumer Packaged Goods
+        2: 'assets/LifeScience Industry Overview.png',      // Life Sciences
+        // future additions:
+        // 3: 'assets/Energy.png',                          // Energy
+        // 4: 'assets/Industrials.png',                     // Industrials
+        // 5: 'assets/Utilities.png',                       // Utilities
+        // 6: 'assets/Chemicals & Natural Resources.png',   // Chemicals & Natural Resources
+        // 7: 'assets/High Tech.png',                       // High Tech
+      };
+
+      //  Sub-Industry Image Map Block based on subIndustryId
+      const subIndustryImageMap: Record<number, string> = {
+        1: 'assets/Pharmaceuticals Value Chain.png',
+        // future additions:
+        // 3: 'assets/MedTech Value Chain.png'
+      };
+
+      this.viewIndustryOverview = this.allIndustries.map(ind => ({
+        name: ind.industryName,
+        defaultImage: industryImageMap[ind.industryId] || ''
+      }));
+
+      this.viewValueChain = this.allSubIndustries.map(sub => ({
+        name: sub.subIndustryName,
+        defaultImage: subIndustryImageMap[sub.subIndustryId] || ''
+      }));
+
 
       this.cardCategoryTitle = this.route.snapshot.queryParams['title'];
       const title = this.route.snapshot.queryParams['title'];
@@ -617,45 +659,45 @@ applyFilters() {
   //     );
   //   });
   // }
-onSearch() {
-  const value = this.searchText.trim().toLowerCase();
+  onSearch() {
+    const value = this.searchText.trim().toLowerCase();
 
-  const searchFn = (story: any) => {
-    const title = (story.title || '').toLowerCase();
-    const description = (story.description || '').toLowerCase();
-    const ownerEId = (story.ownerEId || '').toLowerCase();
-    const ownerName = (story.ownerName || '').toLowerCase();
-    const tags = Array.isArray(story.tags)
-      ? story.tags.join(' ').toLowerCase()
-      : (story.tags || '').toLowerCase();
+    const searchFn = (story: any) => {
+      const title = (story.title || '').toLowerCase();
+      const description = (story.description || '').toLowerCase();
+      const ownerEId = (story.ownerEId || '').toLowerCase();
+      const ownerName = (story.ownerName || '').toLowerCase();
+      const tags = Array.isArray(story.tags)
+        ? story.tags.join(' ').toLowerCase()
+        : (story.tags || '').toLowerCase();
 
-    return (
-      title.includes(value) ||
-      description.includes(value) ||
-      ownerEId.includes(value) ||
-      ownerName.includes(value) ||
-      tags.includes(value)
-    );
-  };
+      return (
+        title.includes(value) ||
+        description.includes(value) ||
+        ownerEId.includes(value) ||
+        ownerName.includes(value) ||
+        tags.includes(value)
+      );
+    };
 
-  if (!value) {
-    this.applyFilters();
-    return;
+    if (!value) {
+      this.applyFilters();
+      return;
+    }
+
+    this.filteredDrafts = this.drafts.filter(searchFn);
+    this.filteredInReview = this.inReviewStories.filter(searchFn);
+    this.filteredApproved = this.approvedStories.filter(searchFn);
+
+    if (this.showAdminControls) {
+      // ✅ Admin view: only In Review
+      this.filteredStories = this.filteredInReview;
+    } else {
+      // ✅ Normal view: only Approved
+      this.filteredStories = this.filteredApproved;
+    }
+    //this.filteredStories = this.filteredInReview; // keep template binding intact
   }
-
-  this.filteredDrafts = this.drafts.filter(searchFn);
-  this.filteredInReview = this.inReviewStories.filter(searchFn);
-  this.filteredApproved = this.approvedStories.filter(searchFn);
-
-  if (this.showAdminControls) {
-    // ✅ Admin view: only In Review
-    this.filteredStories = this.filteredInReview;
-  } else {
-    // ✅ Normal view: only Approved
-    this.filteredStories = this.filteredApproved;
-  }
-  //this.filteredStories = this.filteredInReview; // keep template binding intact
-}
 
   getIndustryName(id: number): string {
     const industry = this.allIndustries.find((i: any) => i.industryId === id);
@@ -672,28 +714,55 @@ onSearch() {
     return valueChain ? valueChain.valueChainName : '';
   }
 
-  getIndustryImage() {
-    const name = this.industryName;
-    const industry = this.viewIndustryOverview.find(item => item.name === name);
-    return industry ? industry.defaultImage : 'assets/cards.png';
+  // getIndustryImage() {
+  //   const name = this.industryName;
+  //   const industry = this.viewIndustryOverview.find(item => item.name === name);
+  //   return industry ? industry.defaultImage : 'assets/cards.png';
+  // }
+
+  // getValueChainImage() {
+  //   const name = this.subIndustryName;
+  //   const chain = this.viewValueChain.find(item => item.name === name);
+  //   return chain ? chain.defaultImage : 'assets/cards.png';
+  // }
+
+  // isIndustryOverviewEnabled(): boolean {
+  //   return !!this.industryName &&
+  //     this.industryName !== 'All' &&
+  //     this.viewIndustryOverview.some(item => item.name === this.industryName);
+  // }
+
+  // isValueChainEnabled(): boolean {
+  //   return !!this.subIndustryName &&
+  //     this.subIndustryName !== 'All' &&
+  //     this.viewValueChain.some(item => item.name === this.subIndustryName);
+  // }
+
+  getIndustryImage(): string | null {
+    const industry = this.viewIndustryOverview.find(item => item.name === this.industryName);
+    return industry && industry.defaultImage ? industry.defaultImage : null;
   }
 
-  getValueChainImage() {
-    const name = this.subIndustryName;
-    const chain = this.viewValueChain.find(item => item.name === name);
-    return chain ? chain.defaultImage : 'assets/cards.png';
+  getValueChainImage(): string | null {
+    const chain = this.viewValueChain.find(item => item.name === this.subIndustryName);
+    return chain && chain.defaultImage ? chain.defaultImage : null;
   }
+
 
   isIndustryOverviewEnabled(): boolean {
+    const industry = this.viewIndustryOverview.find(item => item.name === this.industryName);
     return !!this.industryName &&
       this.industryName !== 'All' &&
-      this.viewIndustryOverview.some(item => item.name === this.industryName);
+      !!industry &&
+      !!industry.defaultImage;   // ✅ must have image
   }
 
   isValueChainEnabled(): boolean {
+    const chain = this.viewValueChain.find(item => item.name === this.subIndustryName);
     return !!this.subIndustryName &&
       this.subIndustryName !== 'All' &&
-      this.viewValueChain.some(item => item.name === this.subIndustryName);
+      !!chain &&
+      !!chain.defaultImage;      // ✅ must have image
   }
 
   getBreadcrumbTitle(): string {
@@ -764,33 +833,33 @@ onSearch() {
   }
 
   favouriteStory(usecaseId: string) {
-  this.usecaseService.favouriteUsecase(JSON.parse(localStorage.getItem('loggedUser') || '{}').userId, usecaseId).subscribe({
-    next: (res) => {
-      console.log('API success, response:', res);
+    this.usecaseService.favouriteUsecase(JSON.parse(localStorage.getItem('loggedUser') || '{}').userId, usecaseId).subscribe({
+      next: (res) => {
+        console.log('API success, response:', res);
 
-      this.toastTitle = 'Story Added To Favorite Tab.';
-      this.toastMessage = res.message; // ✅ now valid
-      this.showToast = true;
+        this.toastTitle = 'Story Added To Favorite Tab.';
+        this.toastMessage = res.message; // ✅ now valid
+        this.showToast = true;
 
-      this.stories.forEach(s => {
-        if (s.usecaseId === usecaseId) {
-          s.showMenu = false;
-        }
-      });
-      this.drafts.forEach(d => {
-        if (d.usecaseId === usecaseId) {
-          d.showMenu = false;
-        }
-      });
+        this.stories.forEach(s => {
+          if (s.usecaseId === usecaseId) {
+            s.showMenu = false;
+          }
+        });
+        this.drafts.forEach(d => {
+          if (d.usecaseId === usecaseId) {
+            d.showMenu = false;
+          }
+        });
 
-      this.cdr.detectChanges();
-      window.scrollTo({ top: 0 });
-      this.loadAllStories();
-    },
-    error: (err) => {
-      console.error('API error:', err);
-    }
-  });
-}
+        this.cdr.detectChanges();
+        window.scrollTo({ top: 0 });
+        this.loadAllStories();
+      },
+      error: (err) => {
+        console.error('API error:', err);
+      }
+    });
+  }
 
 }

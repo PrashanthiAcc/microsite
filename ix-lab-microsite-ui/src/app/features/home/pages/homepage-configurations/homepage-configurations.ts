@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, signal, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, FormsModule, ReactiveFormsModule, FormBuilder, FormArray } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
@@ -96,7 +96,7 @@ export class HomepageConfigurationsComponent {
   isDataLoading = signal(false);
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService, private cdr: ChangeDetectorRef,
-    private route: ActivatedRoute, private homePageService: HomePageService) {
+    private route: ActivatedRoute, private homePageService: HomePageService, private ngZone: NgZone) {
 
     this.homePageForm = this.fb.group({
       applicationName: [''],
@@ -273,22 +273,41 @@ export class HomepageConfigurationsComponent {
             this.industryPreviews[i] = backendThumb ? backendThumb.industryThumbnailUrl : '';
           });
 
-          // ✅ Patch form only after industries + previews are ready
-          this.homePageForm.patchValue({
-            applicationName: res.applicationName,
-            title: res.title,
-            subtitle: res.subTitle,
-            mesMomSolutions: res.mesMomSolDelivered,
-            productionSupport: res.prodSiteCriticalSupport,
-            sapEwmPrograms: res.sapEwmPrgDelivered,
-            sapEwmProgramsTbd: res.sapEwmProgramsTbd,
-            nvidiaStorycount: res.nvidiaStorycount
+          // // ✅ Patch form only after industries + previews are ready
+          // this.homePageForm.patchValue({
+          //   applicationName: res.applicationName,
+          //   title: res.title,
+          //   subtitle: res.subTitle,
+          //   mesMomSolutions: res.mesMomSolDelivered,
+          //   productionSupport: res.prodSiteCriticalSupport,
+          //   sapEwmPrograms: res.sapEwmPrgDelivered,
+          //   sapEwmProgramsTbd: res.sapEwmProgramsTbd,
+          //   nvidiaStorycount: res.nvidiaStorycount
+          // });
+
+          // this.imagePreviews['heroImage'] = res.heroImageUrl;
+          // this.imagePreviews['keyCapabilitiesImage'] = res.keyCapabilityConfigurationImage;
+
+          // this.cdr.detectChanges();
+
+          this.ngZone.run(() => {
+            this.homePageForm.patchValue({
+              applicationName: res.applicationName,
+              title: res.title,
+              subtitle: res.subTitle,
+              mesMomSolutions: res.mesMomSolDelivered,
+              productionSupport: res.prodSiteCriticalSupport,
+              sapEwmPrograms: res.sapEwmPrgDelivered,
+              sapEwmProgramsTbd: res.sapEwmProgramsTbd,
+              nvidiaStorycount: res.nvidiaStorycount
+            }, { emitEvent: true });
+
+            this.imagePreviews['heroImage'] = res.heroImageUrl;
+            this.imagePreviews['keyCapabilitiesImage'] = res.keyCapabilityConfigurationImage;
+
+            this.cdr.markForCheck();   // <-- use markForCheck instead of detectChanges
           });
 
-          this.imagePreviews['heroImage'] = res.heroImageUrl;
-          this.imagePreviews['keyCapabilitiesImage'] = res.keyCapabilityConfigurationImage;
-
-          this.cdr.detectChanges();
 
           const featuredStoriesArray = this.homePageForm.get('featuredStories') as FormArray;
           featuredStoriesArray.clear();
@@ -328,25 +347,23 @@ export class HomepageConfigurationsComponent {
 
 
 
-  getApprovedStoryCount(): void {
-    this.homePageService.getApprovedUsecaseCount().subscribe({
-      next: (res: any) => {
-        console.log('fetched successfully', res);
+ getApprovedStoryCount(): void {
+  this.homePageService.getApprovedUsecaseCount().subscribe({
+    next: (res: any) => {
+      const approvedCount = Number(res["Total Approved usecases"] || 0);
+      const nvidiaCount = Number(this.getHomePageDetails?.nvidiaStorycount || 0);
 
-        // Extract approved count safely
-        const approvedCount = Number(res["Total Approved usecases"] || 0);
-        const nvidiaCount = Number(this.getHomePageDetails?.nvidiaStorycount || 0);
+      const clientStoriesCtrl = this.homePageForm.get('clientStories');
+      clientStoriesCtrl?.enable({ emitEvent: false });
+      clientStoriesCtrl?.setValue((approvedCount + nvidiaCount).toString(), { emitEvent: true });
+      clientStoriesCtrl?.disable({ emitEvent: false });
 
-        // Patch the sum into clientStories
-        this.homePageForm.patchValue({
-          clientStories: (approvedCount + nvidiaCount).toString()
-        });
+      this.cdr.markForCheck();
+    },
+    error: err => console.error('Fetch failed', err)
+  });
+}
 
-        this.cdr.detectChanges();
-      },
-      error: err => console.error('Fetch failed', err)
-    });
-  }
 
 
   // get industriesArray(): FormArray {
