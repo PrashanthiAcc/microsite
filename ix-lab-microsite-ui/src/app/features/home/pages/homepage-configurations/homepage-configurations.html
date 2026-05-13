@@ -87,16 +87,46 @@
                     <input type="text" formControlName="sapEwmPrograms" numericPlus value="30+"
                         placeholder="Enter number">
                 </div>
-                <!-- <div class="stat-item">
-                    <label>SAP EWM programs delivered (TBD)</label>
-                    <input type="text" formControlName="sapEwmProgramsTbd" numericPlus value="30+" placeholder="Enter number">
-                </div> -->
+                <div class="stat-item">
+                    <label>NVIDIA Stories</label>
+                    <input type="text" formControlName="nvidiaStorycount" numericPlus  placeholder="Enter number">
+                </div>
             </div>
         </div>
     </section>
 
+
+    <!-- Industry Names Accordion -->
+    <section class="card industry-names-config">
+        <h3 class="label-header" (click)="toggleAccordion('industryNamesConf')">
+            <img src="assets/icons/square.png" alt="industry" class="label-icon">
+            Industry Names Configuration
+            <span class="accordion-icon">
+                <img [src]="isAccordionOpen.industryNamesConf ? upArrowIconPath : downArrowIconPath" />
+            </span>
+        </h3>
+        <div class="divider"></div>
+
+        <div class="accordion-body" *ngIf="isAccordionOpen.industryNamesConf">
+            <div class="industry-names-grid">
+                <div class="industry-row" *ngFor="let industry of industriesArray.controls; let i = index"
+                    [formGroup]="industry">
+                    <div class="form-field">
+                        <label>Current Name</label>
+                        <input type="text" [value]="industry.value.name" disabled />
+                    </div>
+                    <div class="form-field">
+                        <label>Updated Name</label>
+                        <input type="text" formControlName="updatedName" placeholder="Enter updated name" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
     <!-- Industries Accordion -->
-   
+
     <section class="card industries-config">
         <h3 class="label-header" (click)="toggleAccordion('industries')">
             <img src="assets/icons/square.png" alt="industry" class="label-icon">
@@ -230,7 +260,7 @@
     <!-- Action Buttons -->
     <div class="button-group">
         <button type="button" class="btn-cancel">Cancel</button>
-        
+
         <button type="button" class="btn-approve" (click)="onSaveClick()">
             <img src="assets/icons/save_white.png" class="btn-icon" alt="approve"> Save Changes
         </button>
@@ -238,7 +268,8 @@
 
 </form>
 
-
+<app-toaster [title]="toastTitle" [message]="toastMessage" [show]="showToast" (closed)="showToast = false">
+</app-toaster>
 <!-- Modal Overlay -->
 <div class="modal-overlay" *ngIf="showStoryModal">
     <div class="modal">
