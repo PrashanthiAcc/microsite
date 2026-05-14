@@ -12,6 +12,7 @@ import { HttpClient } from '@angular/common/http';
 import { NumericPlusDirective } from '../../../../shared/directives/numeric-plus';
 import { HomePageService } from '../../../../core/services/home-page.service';
 import { forkJoin, of } from 'rxjs';
+import { Spinner } from '../../../../shared/components/spinner/spinner';
 
 export interface Story {
   usecaseId: number;
@@ -38,7 +39,7 @@ interface IndustryThumbnail {
   selector: 'app-homepage-configurations',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, QuillModule, CustomDropdownComponent, ToasterComponent, RouterModule,
-    NumericPlusDirective
+    NumericPlusDirective, Spinner
   ],
   templateUrl: './homepage-configurations.html',
   styleUrls: ['./homepage-configurations.scss'],
@@ -244,6 +245,7 @@ export class HomepageConfigurationsComponent {
 
 
   getHomePageConfigDetails(): void {
+    this.isDataLoading.set(true);
     this.homePageService.getHomePageData().subscribe({
       next: (res: any) => {
         console.log('fetched successfully', res);
@@ -340,9 +342,14 @@ export class HomepageConfigurationsComponent {
           this.getApprovedStoryCount();
           this.cdr.detectChanges();
         });
+        this.isDataLoading.set(false);
       },
-      error: err => console.error('Fetch failed', err)
+      error: err => {
+        console.error('Fetch failed', err)
+        this.isDataLoading.set(false);
+      }
     });
+    this.isDataLoading.set(false);
   }
 
 
@@ -741,13 +748,14 @@ export class HomepageConfigurationsComponent {
       }
     }
 
-
+    this.isDataLoading.set(true);
     this.homePageService.saveHomePageConfig(payload).subscribe({
       next: res => {
 
         console.log('Saved successfully', res);
         this.toastTitle = 'Saved successfully';
         this.showToast = true;
+        this.isDataLoading.set(false);
         this.cdr.detectChanges();
         this.router.navigate(['/home']);   // ✅ redirect after success
       },
@@ -837,6 +845,7 @@ export class HomepageConfigurationsComponent {
         console.log('Updated successfully', res);
         this.toastTitle = 'Updated successfully';
         this.showToast = true;
+        this.isDataLoading.set(false);
         this.cdr.detectChanges();
         this.router.navigate(['/home']);   // ✅ redirect after success
       },

@@ -913,7 +913,15 @@ input:focus {
   box-shadow: 0 0 0 2px #E9D5FF;
 }
 
-
+.spinner-overlay {
+  position: fixed;       /* cover entire viewport */
+  inset: 0;              /* shorthand for top/right/bottom/left: 0 */
+  display: flex;         /* flexbox centering */
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.6); /* optional semi-transparent backdrop */
+  z-index: 10000;        /* above stories grid and modals */
+}
 
 /* 1163px breakpoint (~110–115% zoom) */
 @media (max-width: 1173px) {

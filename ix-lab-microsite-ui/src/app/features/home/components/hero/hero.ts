@@ -1,9 +1,10 @@
 import { ChangeDetectorRef, Component, Input } from '@angular/core';
 import { HomePageService } from '../../../../core/services/home-page.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-hero',
-  imports: [],
+  imports: [CommonModule],
   standalone: true,
   templateUrl: './hero.html',
   styleUrl: './hero.scss',

@@ -106,7 +106,7 @@
 .hero {
   position: relative;
   min-height: 400px;
-  background: url('/assets/hero-bg.png') top center/cover no-repeat;
+  background: top center/cover no-repeat;
   display: flex;
   align-items: flex-start;
   padding: 0 5vw; // fluid horizontal padding
