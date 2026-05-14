@@ -309,7 +309,7 @@
         <div class="stories__grid">
             <div class="story-card" *ngFor="let story of filteredStories" (click)="selectStory(story)">
                 <div class="story-card__media">
-                    <img [src]="story.thumbnailImageUrl" [alt]="story.industryName" />
+                    <img [src]="story.thumbnailImageUrl" [alt]="story.industryName" style="max-height: 250px;"/>
                 </div>
                 <div class="story-card__content">
                     <span class="industry-subindustry-border-bottom">

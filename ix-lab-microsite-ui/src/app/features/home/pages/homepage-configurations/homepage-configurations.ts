@@ -169,191 +169,193 @@ export class HomepageConfigurationsComponent {
   }
 
 
-  // getHomePageConfigDetails(): void {
-  //   this.homePageService.getHomePageData().subscribe({
-  //     next: (res: any) => {
-  //       console.log('fetched successfully', res);
-  //       this.getHomePageDetails = res;
-  //       this.homePageForm.patchValue({
-  //         applicationName: res.applicationName,
-  //         title: res.title,
-  //         subtitle: res.subTitle,
-  //         mesMomSolutions: res.mesMomSolDelivered,
-  //         productionSupport: res.prodSiteCriticalSupport,
-  //         sapEwmPrograms: res.sapEwmPrgDelivered,
-  //         sapEwmProgramsTbd: res.sapEwmProgramsTbd,
-  //         nvidiaStorycount: res.nvidiaStorycount
-  //       });
-
-  //       this.imagePreviews['heroImage'] = res.heroImageUrl;
-  //       this.imagePreviews['keyCapabilitiesImage'] = res.keyCapabilityConfigurationImage;
-
-  //       const industriesArray = this.homePageForm.get('industries') as FormArray;
-  //       industriesArray.clear();
-  //       this.industryPreviews = [];
-
-  //       this.allIndustries.forEach((ind, i) => {
-  //         const backendThumb = res.industryThumbnails?.find((t: any) => t.industryId === ind.industryId);
-
-  //         industriesArray.push(this.fb.group({
-  //           industryId: ind.industryId,
-  //           name: ind.industryName,
-  //           fileName: [''],
-  //           defaultImage: [''],
-  //           updatedName: [ind.name]
-  //         }));
-
-
-  //         this.industryPreviews[i] = backendThumb ? backendThumb.industryThumbnailUrl : '';
-  //       });
-
-
-
-  //       const featuredStoriesArray = this.homePageForm.get('featuredStories') as FormArray;
-  //       featuredStoriesArray.clear();
-
-  //       if (res.featuredStories?.length > 0) {
-  //         res.featuredStories.forEach((story: any) => {
-  //           featuredStoriesArray.push(this.fb.group({ usecaseId: story.usecaseId }));
-  //         });
-
-  //         // Example: hardcoded test with one ID
-  //         // const storyRequests = [
-  //         //   this.usecaseService.getStoryDetailsById('10163')
-  //         // ];
-  //         const storyRequests = res.featuredStories.map((s: any) =>
-  //           this.usecaseService.getStoryDetailsById((s.usecaseId))
-  //         );
-  //         console.log("req::", storyRequests)
-  //         forkJoin<any[]>(storyRequests).subscribe((stories: any[]) => {
-  //           this.featuredStories = stories.map(story => ({
-  //             ...story,
-  //             industryName: this.getIndustryName(story.industryId),
-  //             subIndustryName: this.getSubIndustryName(story.subIndustryId),
-  //             tags: story.tag || []
-  //           }));
-  //           this.cdr.detectChanges();
-  //         });
-  //       }
-  //       this.getApprovedStoryCount();
-  //       this.cdr.detectChanges();
-  //     },
-  //     error: err => console.error('Fetch failed', err)
-  //   });
-  // }
-
-
-
   getHomePageConfigDetails(): void {
-    this.isDataLoading.set(true);
     this.homePageService.getHomePageData().subscribe({
       next: (res: any) => {
         console.log('fetched successfully', res);
         this.getHomePageDetails = res;
+        this.homePageForm.patchValue({
+          applicationName: res.applicationName,
+          title: res.title,
+          subtitle: res.subTitle,
+          mesMomSolutions: res.mesMomSolDelivered,
+          productionSupport: res.prodSiteCriticalSupport,
+          sapEwmPrograms: res.sapEwmPrgDelivered,
+          sapEwmProgramsTbd: res.sapEwmProgramsTbd,
+          nvidiaStorycount: res.nvidiaStorycount
+        });
+
+        this.imagePreviews['heroImage'] = res.heroImageUrl;
+        this.imagePreviews['keyCapabilitiesImage'] = res.keyCapabilityConfigurationImage;
 
         const industriesArray = this.homePageForm.get('industries') as FormArray;
         industriesArray.clear();
         this.industryPreviews = [];
 
-        // ✅ Wrap industry thumbnail resolution in forkJoin
-        const industryRequests = this.allIndustries.map(ind =>
-          of(res.industryThumbnails?.find((t: any) => t.industryId === ind.industryId))
-        );
+        this.allIndustries.forEach((ind, i) => {
+          const backendThumb = res.industryThumbnails?.find((t: any) => t.industryId === ind.industryId);
 
-        forkJoin(industryRequests).subscribe((thumbs: any[]) => {
-          this.allIndustries.forEach((ind, i) => {
-            const backendThumb = thumbs[i];
-
-            industriesArray.push(this.fb.group({
-              industryId: ind.industryId,
-              name: ind.industryName,
-              fileName: [''],
-              defaultImage: [''],
-              updatedName: [ind.name]
-            }));
-
-            this.industryPreviews[i] = backendThumb ? backendThumb.industryThumbnailUrl : '';
-          });
-
-          // // ✅ Patch form only after industries + previews are ready
-          // this.homePageForm.patchValue({
-          //   applicationName: res.applicationName,
-          //   title: res.title,
-          //   subtitle: res.subTitle,
-          //   mesMomSolutions: res.mesMomSolDelivered,
-          //   productionSupport: res.prodSiteCriticalSupport,
-          //   sapEwmPrograms: res.sapEwmPrgDelivered,
-          //   sapEwmProgramsTbd: res.sapEwmProgramsTbd,
-          //   nvidiaStorycount: res.nvidiaStorycount
-          // });
-
-          // this.imagePreviews['heroImage'] = res.heroImageUrl;
-          // this.imagePreviews['keyCapabilitiesImage'] = res.keyCapabilityConfigurationImage;
-
-          // this.cdr.detectChanges();
-
-          this.ngZone.run(() => {
-            this.homePageForm.patchValue({
-              applicationName: res.applicationName,
-              title: res.title,
-              subtitle: res.subTitle,
-              mesMomSolutions: res.mesMomSolDelivered,
-              productionSupport: res.prodSiteCriticalSupport,
-              sapEwmPrograms: res.sapEwmPrgDelivered,
-              sapEwmProgramsTbd: res.sapEwmProgramsTbd,
-              nvidiaStorycount: res.nvidiaStorycount
-            }, { emitEvent: true });
-
-            this.imagePreviews['heroImage'] = res.heroImageUrl;
-            this.imagePreviews['keyCapabilitiesImage'] = res.keyCapabilityConfigurationImage;
-
-            this.cdr.markForCheck();   // <-- use markForCheck instead of detectChanges
-          });
+          industriesArray.push(this.fb.group({
+            industryId: ind.industryId,
+            name: ind.industryName,
+            fileName: [''],
+            defaultImage: [''],
+            updatedName: [ind.name]
+          }));
 
 
-          const featuredStoriesArray = this.homePageForm.get('featuredStories') as FormArray;
-          featuredStoriesArray.clear();
-
-          if (res.featuredStories?.length > 0) {
-            res.featuredStories.forEach((story: any) => {
-              featuredStoriesArray.push(this.fb.group({ usecaseId: story.usecaseId }));
-            });
-
-            // Example: hardcoded test with one ID
-            // const storyRequests = [
-            //   this.usecaseService.getStoryDetailsById('10163')
-            // ];
-            const storyRequests = res.featuredStories.map((s: any) =>
-              this.usecaseService.getStoryDetailsById((s.usecaseId))
-            );
-            console.log("req::", storyRequests);
-
-            forkJoin<any[]>(storyRequests).subscribe((stories: any[]) => {
-              this.featuredStories = stories.map(story => ({
-                ...story,
-                industryName: this.getIndustryName(story.industryId),
-                subIndustryName: this.getSubIndustryName(story.subIndustryId),
-                tags: story.tag || []
-              }));
-              this.cdr.detectChanges();
-            });
-          }
-
-          this.getApprovedStoryCount();
-          this.cdr.detectChanges();
+          this.industryPreviews[i] = backendThumb ? backendThumb.industryThumbnailUrl : '';
         });
-        this.isDataLoading.set(false);
+
+
+
+        const featuredStoriesArray = this.homePageForm.get('featuredStories') as FormArray;
+        featuredStoriesArray.clear();
+
+        if (res.featuredStories?.length > 0) {
+          res.featuredStories.forEach((story: any) => {
+            featuredStoriesArray.push(this.fb.group({ usecaseId: story.usecaseId }));
+          });
+
+          // Example: hardcoded test with one ID
+          // const storyRequests = [
+          //   this.usecaseService.getStoryDetailsById('10163')
+          // ];
+          const storyRequests = res.featuredStories.map((s: any) =>
+            this.usecaseService.getStoryDetailsById((s.usecaseId))
+          );
+          console.log("req::", storyRequests)
+          forkJoin<any[]>(storyRequests).subscribe((stories: any[]) => {
+            this.featuredStories = stories.map(story => ({
+              ...story,
+              industryName: this.getIndustryName(story.industryId),
+              subIndustryName: this.getSubIndustryName(story.subIndustryId),
+              tags: story.tag || []
+            }));
+            this.cdr.detectChanges();
+          });
+        }
+        this.getApprovedStoryCount();
+        this.cdr.detectChanges();
       },
-      error: err => {
-        console.error('Fetch failed', err)
-        this.isDataLoading.set(false);
-      }
+      error: err => console.error('Fetch failed', err)
     });
-    this.isDataLoading.set(false);
   }
 
 
 
+  // getHomePageConfigDetails(): void {
+  //   this.isDataLoading.set(true);
+  //   this.homePageService.getHomePageData().subscribe({
+  //     next: (res: any) => {
+  //       console.log('fetched successfully', res);
+  //       this.getHomePageDetails = res;
+
+  //       const industriesArray = this.homePageForm.get('industries') as FormArray;
+  //       industriesArray.clear();
+  //       this.industryPreviews = [];
+
+  //       // ✅ Wrap industry thumbnail resolution in forkJoin
+  //       const industryRequests = this.allIndustries.map(ind =>
+  //         of(res.industryThumbnails?.find((t: any) => t.industryId === ind.industryId))
+  //       );
+
+  //       forkJoin(industryRequests).subscribe((thumbs: any[]) => {
+  //         this.allIndustries.forEach((ind, i) => {
+  //           const backendThumb = thumbs[i];
+
+  //           industriesArray.push(this.fb.group({
+  //             industryId: ind.industryId,
+  //             name: ind.industryName,
+  //             fileName: [''],
+  //             defaultImage: [''],
+  //             updatedName: [ind.name]
+  //           }));
+
+  //           this.industryPreviews[i] = backendThumb ? backendThumb.industryThumbnailUrl : '';
+  //         });
+
+  //         // // ✅ Patch form only after industries + previews are ready
+  //         // this.homePageForm.patchValue({
+  //         //   applicationName: res.applicationName,
+  //         //   title: res.title,
+  //         //   subtitle: res.subTitle,
+  //         //   mesMomSolutions: res.mesMomSolDelivered,
+  //         //   productionSupport: res.prodSiteCriticalSupport,
+  //         //   sapEwmPrograms: res.sapEwmPrgDelivered,
+  //         //   sapEwmProgramsTbd: res.sapEwmProgramsTbd,
+  //         //   nvidiaStorycount: res.nvidiaStorycount
+  //         // });
+
+  //         // this.imagePreviews['heroImage'] = res.heroImageUrl;
+  //         // this.imagePreviews['keyCapabilitiesImage'] = res.keyCapabilityConfigurationImage;
+
+  //         // this.cdr.detectChanges();
+
+  //         this.ngZone.run(() => {
+  //           this.homePageForm.patchValue({
+  //             applicationName: res.applicationName,
+  //             title: res.title,
+  //             subtitle: res.subTitle,
+  //             mesMomSolutions: res.mesMomSolDelivered,
+  //             productionSupport: res.prodSiteCriticalSupport,
+  //             sapEwmPrograms: res.sapEwmPrgDelivered,
+  //             sapEwmProgramsTbd: res.sapEwmProgramsTbd,
+  //             nvidiaStorycount: res.nvidiaStorycount
+  //           }, { emitEvent: true });
+
+  //           this.imagePreviews['heroImage'] = res.heroImageUrl;
+  //           this.imagePreviews['keyCapabilitiesImage'] = res.keyCapabilityConfigurationImage;
+
+  //           this.cdr.markForCheck();   // <-- use markForCheck instead of detectChanges
+  //         });
+
+
+  //         const featuredStoriesArray = this.homePageForm.get('featuredStories') as FormArray;
+  //         featuredStoriesArray.clear();
+
+  //         if (res.featuredStories?.length > 0) {
+  //           res.featuredStories.forEach((story: any) => {
+  //             featuredStoriesArray.push(this.fb.group({ usecaseId: story.usecaseId }));
+  //           });
+
+  //           // Example: hardcoded test with one ID
+  //           // const storyRequests = [
+  //           //   this.usecaseService.getStoryDetailsById('10163')
+  //           // ];
+  //           const storyRequests = res.featuredStories.map((s: any) =>
+  //             this.usecaseService.getStoryDetailsById((s.usecaseId))
+  //           );
+  //           console.log("req::", storyRequests);
+
+  //           forkJoin<any[]>(storyRequests).subscribe((stories: any[]) => {
+  //             this.featuredStories = stories.map(story => ({
+  //               ...story,
+  //               industryName: this.getIndustryName(story.industryId),
+  //               subIndustryName: this.getSubIndustryName(story.subIndustryId),
+  //               tags: story.tag || []
+  //             }));
+  //             this.cdr.detectChanges();
+  //           });
+  //         }
+
+  //         this.getApprovedStoryCount();
+  //         this.cdr.detectChanges();
+  //       });
+  //       this.isDataLoading.set(false);
+  //     },
+  //     error: err => {
+  //       console.error('Fetch failed', err) 
+  //       this.isDataLoading.set(false);
+  //     }
+  //   });
+  //   //this.isDataLoading.set(false);
+  //    this.cdr.detectChanges();
+  // }
+
+
+
+  
  getApprovedStoryCount(): void {
   this.homePageService.getApprovedUsecaseCount().subscribe({
     next: (res: any) => {
