@@ -1,10 +1,16 @@
 <header class="navbar">
   <div class="navbar-left" [routerLink]="'/home'" style="cursor: pointer;">
     <img class="logo-icon" src="assets/Accenture Logo.png" alt="Accenture Logo" />
-    <div class="logo-text">
+    <!-- <div class="logo-text">
       <div class="title">Industry X - Digital</div>
       <div class="title">Manufacturing Experience Zone</div>
-    </div>
+    </div> -->
+    <div class="logo-text" *ngIf="getHomePageDetails">
+  <div class="title">{{ getAppNameParts()[0] }}</div>
+  <div class="title" *ngIf="getAppNameParts().length > 1">
+    {{ getAppNameParts()[1] }}
+  </div>
+</div>
   </div>
 
   <nav class="navbar-right">

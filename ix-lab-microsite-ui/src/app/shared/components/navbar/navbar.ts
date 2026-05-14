@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostListener } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostListener } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
+import { HomePageService } from '../../../core/services/home-page.service';
 
 @Component({
   selector: 'app-navbar',
@@ -13,15 +14,40 @@ export class NavbarComponent {
   adminOpen = false;
   userPhotoUrl = 'assets/images/profile.png';
   role: string = ''; // no default
+  getHomePageDetails: any;
 
-  constructor(private elRef: ElementRef, private router: Router) {}
+  constructor(private elRef: ElementRef, private router: Router,private homePageService: HomePageService,
+    private cdRef: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     this.setRoleFromStorage();
     this.router.events.subscribe(() => {
       this.setRoleFromStorage();
     });
+    this.getHomePageConfigDetails();
   }
+
+   getHomePageConfigDetails(): void {
+    this.homePageService.getHomePageData().subscribe({
+      next: (res: any) => {
+        console.log('fetched successfully', res);
+        this.getHomePageDetails = res;
+        this.cdRef.detectChanges();
+      },
+      error: err => console.error('Fetch failed', err)
+    });
+  }
+
+  getAppNameParts(): string[] {
+  if (!this.getHomePageDetails?.applicationName) return [];
+  const appName = this.getHomePageDetails.applicationName;
+  const prefix = 'Digital Manufacturing';
+  if (appName.startsWith(prefix)) {
+    return [prefix, appName.substring(prefix.length).trim()];
+  }
+  return [appName]; // fallback if it doesn't match
+}
 
   /** ✅ Read role from localStorage only */
   setRoleFromStorage() {
@@ -64,4 +90,6 @@ export class NavbarComponent {
       this.adminOpen = false;
     }
   }
+
+  
 }
