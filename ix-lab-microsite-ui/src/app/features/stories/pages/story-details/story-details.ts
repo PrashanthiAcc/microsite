@@ -292,16 +292,37 @@ export class StoryDetailsComponent {
     this.currentVideo = '';
   }
 
+  // playVideoInPlayer(url: string) {
+  //   this.showVideoPlayer = true;
+
+  //   if (!this.videoList.includes(url)) {
+  //     this.videoList.push(url);
+  //   }
+
+  //   this.currentIndex = this.videoList.indexOf(url);
+  //   this.currentVideo = url;
+  // }
+
   playVideoInPlayer(url: string) {
-    this.showVideoPlayer = true;
+  this.showVideoPlayer = true;
 
-    if (!this.videoList.includes(url)) {
-      this.videoList.push(url);
-    }
-
-    this.currentIndex = this.videoList.indexOf(url);
-    this.currentVideo = url;
+  if (!this.videoList.includes(url)) {
+    this.videoList.push(url);
   }
+
+  this.currentIndex = this.videoList.indexOf(url);
+  this.currentVideo = url;
+
+  setTimeout(() => {
+    const video = document.querySelector('video') as HTMLVideoElement;
+    if (video) {
+      video.addEventListener('ended', () => {
+        video.currentTime = 0;
+        video.play(); // restart automatically
+      });
+    }
+  }, 0);
+}
 
   playNext() {
     this.currentIndex++;
@@ -336,12 +357,42 @@ export class StoryDetailsComponent {
     this.showNarrationGuideAndFAQ = input.checked;
   }
 
-  navigateBack() {
-    const queryParams = this.route.snapshot.queryParams;
+  // navigateBack() {
+  //   const queryParams = this.route.snapshot.queryParams;
 
+  //   this.router.navigate(['/stories'], {
+  //     queryParams: {
+  //       from: queryParams['from'] || 'stories',
+  //       page: queryParams['page'] || 1,
+  //       search: queryParams['search'] || null,
+  //       industry: queryParams['industry'] || null,
+  //       subIndustry: queryParams['subIndustry'] || null,
+  //       valueChain: queryParams['valueChain'] || null
+  //     }
+  //   });
+  // }
+
+  navigateBack() {
+  const queryParams = this.route.snapshot.queryParams;
+
+  // Check if the user came from archived
+  const from = queryParams['from'] || 'stories';
+
+  if (from === 'archived') {
+    this.router.navigate(['/archived'], {
+      queryParams: {
+        from: 'archived',
+        page: queryParams['page'] || 1,
+        search: queryParams['search'] || null,
+        industry: queryParams['industry'] || null,
+        subIndustry: queryParams['subIndustry'] || null,
+        valueChain: queryParams['valueChain'] || null
+      }
+    });
+  } else {
     this.router.navigate(['/stories'], {
       queryParams: {
-        from: queryParams['from'] || 'stories',
+        from: 'stories',
         page: queryParams['page'] || 1,
         search: queryParams['search'] || null,
         industry: queryParams['industry'] || null,
@@ -350,6 +401,7 @@ export class StoryDetailsComponent {
       }
     });
   }
+}
 
   get faqFormGroups(): FormGroup[] {
     return this.faqs.controls as FormGroup[];

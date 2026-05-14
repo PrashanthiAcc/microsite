@@ -52,7 +52,7 @@
     <!-- GRID ALL ARCHIVED STORIES------------ -->
     <div class="stories__grid">
 
-      <div class="story-card" *ngFor="let archived of filteredStories" [routerLink]="['/stories', archived.usecaseId]">
+      <div class="story-card" *ngFor="let archived of filteredStories" [routerLink]="['/stories', archived.usecaseId]" [queryParams]="{ from: 'archived', page: currentPage }">
 
         <div class="story-card__media">
           <img [src]="archived.thumbnailImageUrl" alt="">
