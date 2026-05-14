@@ -34,14 +34,22 @@
             <app-custom-dropdown label="Client Testimonials" [options]="clientTestimonials" displayKey="artifactName"
                 (optionSelected)="onArtifactSelected($event)" formControlName="clientTestimonial">
             </app-custom-dropdown>
+
             
             <!-- ✅ Video Player -->
             <div *ngIf="showVideoPlayer" class="video-container">
                 <button class="close-btn" (click)="closeVideo()">✖️</button>
+
                 <video width="100%" controls autoplay (ended)="playNext()" [src]="currentVideo">
                     Your browser does not support the video tag.
                 </video>
+
+                <!-- Play Next button (only if more than one video) -->
+                <!-- <button *ngIf="videoList.length > 1" class="btn-next" (click)="playNext()">
+                    ▶️ Play Next
+                </button> -->
             </div>
+
 
             <label class="btn-checkbox">
                 <input type="checkbox" class="faq-checkbox" (change)="toggleFaqGuide($event)" />

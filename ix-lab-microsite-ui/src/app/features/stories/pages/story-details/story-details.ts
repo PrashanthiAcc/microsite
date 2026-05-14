@@ -238,6 +238,7 @@ export class StoryDetailsComponent {
         this.demoVideos = this.storyDetails.artifacts.filter(
           a => a.artifactType === 'DEMO_VIDEO' || a.artifactType === 'DEMO_VIDEO_LINK'
         );
+        this.videoList = this.demoVideos.map(a => a.url);
         this.clientTestimonials = this.storyDetails.artifacts.filter(a => a.artifactType === 'CLIENT_TESTIMONIAL');
 
         this.cdr.detectChanges();
@@ -303,13 +304,25 @@ export class StoryDetailsComponent {
   //   this.currentVideo = url;
   // }
 
+
+  // playNext() {
+  //   this.currentIndex++;
+
+  //   if (this.currentIndex < this.videoList.length) {
+  //     this.currentVideo = this.videoList[this.currentIndex];
+  //   } else {
+  //     this.currentIndex = 0; // loop
+  //     this.currentVideo = this.videoList[0];
+  //   }
+  // }
+
   playVideoInPlayer(url: string) {
   this.showVideoPlayer = true;
 
   if (!this.videoList.includes(url)) {
     this.videoList.push(url);
   }
-
+  console.log("video list::", this.videoList)
   this.currentIndex = this.videoList.indexOf(url);
   this.currentVideo = url;
 
@@ -317,23 +330,30 @@ export class StoryDetailsComponent {
     const video = document.querySelector('video') as HTMLVideoElement;
     if (video) {
       video.addEventListener('ended', () => {
-        video.currentTime = 0;
-        video.play(); // restart automatically
+        if (this.videoList.length === 1) {
+          // ✅ Only one video → loop same video
+          video.currentTime = 0;
+          video.play();
+        } else {
+          // ✅ Multiple videos → go to next
+          this.playNext();
+        }
       });
     }
   }, 0);
 }
 
-  playNext() {
-    this.currentIndex++;
+playNext() {
+  this.currentIndex++;
 
-    if (this.currentIndex < this.videoList.length) {
-      this.currentVideo = this.videoList[this.currentIndex];
-    } else {
-      this.currentIndex = 0; // loop
-      this.currentVideo = this.videoList[0];
-    }
+  if (this.currentIndex < this.videoList.length) {
+    this.currentVideo = this.videoList[this.currentIndex];
+  } else {
+    this.currentIndex = 0; // loop back to first
+    this.currentVideo = this.videoList[0];
   }
+}
+
 
   // if (fileName.endsWith('.ppt') || fileName.endsWith('.pptx')) {
   //   // const viewerUrl = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(artifact.url)}`;
@@ -389,7 +409,18 @@ export class StoryDetailsComponent {
         valueChain: queryParams['valueChain'] || null
       }
     });
-  } else {
+  } else if (from === 'favourites') {
+    this.router.navigate(['/favourites'], {
+      queryParams: {
+        from: 'favourites',
+        page: queryParams['page'] || 1,
+        search: queryParams['search'] || null,
+        industry: queryParams['industry'] || null,
+        subIndustry: queryParams['subIndustry'] || null,
+        valueChain: queryParams['valueChain'] || null
+      }
+    });
+  }else {
     this.router.navigate(['/stories'], {
       queryParams: {
         from: 'stories',

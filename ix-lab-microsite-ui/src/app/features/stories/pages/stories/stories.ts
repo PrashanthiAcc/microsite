@@ -94,6 +94,8 @@ export class StoriesComponent implements OnInit {
   totalDrafts: any;
   totalInReview: any;
   totalApproved: any;
+  loggedUserDetails: any;
+  userRole: any;
   constructor(private router: Router, private http: HttpClient,
     private industryService: IndustryService, private cdr: ChangeDetectorRef, private route: ActivatedRoute,
     private userService: UserService, private usecaseService: UsecaseService
@@ -114,6 +116,10 @@ export class StoriesComponent implements OnInit {
     this.getAllUsers();
     this.cdr.detectChanges();
     window.scrollTo({ top: 0 });
+
+    const loggedUserStr = localStorage.getItem('loggedUser');
+    this.loggedUserDetails = loggedUserStr ? JSON.parse(loggedUserStr) : null;
+    this.userRole = this.loggedUserDetails?.role?.toLowerCase();
 
   }
 

@@ -818,7 +818,7 @@ export class EditStoryComponent {
 
       approverId: ownerUser ? ownerUser.userId : null,
       creatorId: ownerUser ? ownerUser.userId : null,
-      isActive: true,
+      isActive: false,
 
       speakers: [
         { speakerEid: formValue.primarySpeaker, speakerType: 'PRIMARY' },
@@ -1075,7 +1075,7 @@ export class EditStoryComponent {
 
       approverId: ownerUser ? ownerUser.userId : null,
       creatorId: ownerUser ? ownerUser.userId : null,
-      isActive: true,
+      isActive: false,
 
       speakers: [
         { speakerEid: formValue.primarySpeaker, speakerType: 'PRIMARY' },

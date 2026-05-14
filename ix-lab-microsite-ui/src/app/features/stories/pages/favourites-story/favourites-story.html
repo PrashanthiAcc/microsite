@@ -71,7 +71,7 @@
         <div class="stories__grid" *ngIf="!isLoading && filteredStories.length > 0">
 
             <div class="story-card" *ngFor="let story of filteredStories"
-                [routerLink]="['/view-request', story.usecaseId, 'edit']" [queryParams]="{page: currentPage}">
+                [routerLink]="['/stories', story.usecaseId]" [queryParams]="{ from: 'favourites', page: currentPage }">
 
                 <div class="story-card__media">
                     <img [src]="story.thumbnailImageUrl" alt="">
@@ -165,7 +165,7 @@
 
         <!---NO REQUEST SECTION-->
         <div class="stories__header" *ngIf="!showAdminControls">
-            <h1 class="stories__title" *ngIf="!isLoading && filteredStories.length === 0">No Requests Found</h1>
+            <h1 class="stories__title" *ngIf="!isLoading && filteredStories.length === 0">No Favourites Found</h1>
         </div>
 
 
