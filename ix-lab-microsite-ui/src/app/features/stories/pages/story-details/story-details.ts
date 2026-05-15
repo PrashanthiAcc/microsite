@@ -238,7 +238,9 @@ export class StoryDetailsComponent {
         this.demoVideos = this.storyDetails.artifacts.filter(
           a => a.artifactType === 'DEMO_VIDEO' || a.artifactType === 'DEMO_VIDEO_LINK'
         );
-        this.videoList = this.demoVideos.map(a => a.url);
+        this.videoList = this.storyDetails.artifacts
+          .filter(a => a.artifactType === 'DEMO_VIDEO')
+          .map(a => a.url);
         this.clientTestimonials = this.storyDetails.artifacts.filter(a => a.artifactType === 'CLIENT_TESTIMONIAL');
 
         this.cdr.detectChanges();
@@ -317,42 +319,42 @@ export class StoryDetailsComponent {
   // }
 
   playVideoInPlayer(url: string) {
-  this.showVideoPlayer = true;
+    this.showVideoPlayer = true;
 
-  if (!this.videoList.includes(url)) {
-    this.videoList.push(url);
-  }
-  console.log("video list::", this.videoList)
-  this.currentIndex = this.videoList.indexOf(url);
-  this.currentVideo = url;
-
-  setTimeout(() => {
-    const video = document.querySelector('video') as HTMLVideoElement;
-    if (video) {
-      video.addEventListener('ended', () => {
-        if (this.videoList.length === 1) {
-          // ✅ Only one video → loop same video
-          video.currentTime = 0;
-          video.play();
-        } else {
-          // ✅ Multiple videos → go to next
-          this.playNext();
-        }
-      });
+    if (!this.videoList.includes(url)) {
+      this.videoList.push(url);
     }
-  }, 0);
-}
+    console.log("video list::", this.videoList)
+    this.currentIndex = this.videoList.indexOf(url);
+    this.currentVideo = url;
 
-playNext() {
-  this.currentIndex++;
-
-  if (this.currentIndex < this.videoList.length) {
-    this.currentVideo = this.videoList[this.currentIndex];
-  } else {
-    this.currentIndex = 0; // loop back to first
-    this.currentVideo = this.videoList[0];
+    setTimeout(() => {
+      const video = document.querySelector('video') as HTMLVideoElement;
+      if (video) {
+        video.addEventListener('ended', () => {
+          if (this.videoList.length === 1) {
+            // ✅ Only one video → loop same video
+            video.currentTime = 0;
+            video.play();
+          } else {
+            // ✅ Multiple videos → go to next
+            this.playNext();
+          }
+        });
+      }
+    }, 0);
   }
-}
+
+  playNext() {
+    this.currentIndex++;
+
+    if (this.currentIndex < this.videoList.length) {
+      this.currentVideo = this.videoList[this.currentIndex];
+    } else {
+      this.currentIndex = 0; // loop back to first
+      this.currentVideo = this.videoList[0];
+    }
+  }
 
 
   // if (fileName.endsWith('.ppt') || fileName.endsWith('.pptx')) {
@@ -393,46 +395,46 @@ playNext() {
   // }
 
   navigateBack() {
-  const queryParams = this.route.snapshot.queryParams;
+    const queryParams = this.route.snapshot.queryParams;
 
-  // Check if the user came from archived
-  const from = queryParams['from'] || 'stories';
+    // Check if the user came from archived
+    const from = queryParams['from'] || 'stories';
 
-  if (from === 'archived') {
-    this.router.navigate(['/archived'], {
-      queryParams: {
-        from: 'archived',
-        page: queryParams['page'] || 1,
-        search: queryParams['search'] || null,
-        industry: queryParams['industry'] || null,
-        subIndustry: queryParams['subIndustry'] || null,
-        valueChain: queryParams['valueChain'] || null
-      }
-    });
-  } else if (from === 'favourites') {
-    this.router.navigate(['/favourites'], {
-      queryParams: {
-        from: 'favourites',
-        page: queryParams['page'] || 1,
-        search: queryParams['search'] || null,
-        industry: queryParams['industry'] || null,
-        subIndustry: queryParams['subIndustry'] || null,
-        valueChain: queryParams['valueChain'] || null
-      }
-    });
-  }else {
-    this.router.navigate(['/stories'], {
-      queryParams: {
-        from: 'stories',
-        page: queryParams['page'] || 1,
-        search: queryParams['search'] || null,
-        industry: queryParams['industry'] || null,
-        subIndustry: queryParams['subIndustry'] || null,
-        valueChain: queryParams['valueChain'] || null
-      }
-    });
+    if (from === 'archived') {
+      this.router.navigate(['/archived'], {
+        queryParams: {
+          from: 'archived',
+          page: queryParams['page'] || 1,
+          search: queryParams['search'] || null,
+          industry: queryParams['industry'] || null,
+          subIndustry: queryParams['subIndustry'] || null,
+          valueChain: queryParams['valueChain'] || null
+        }
+      });
+    } else if (from === 'favourites') {
+      this.router.navigate(['/favourites'], {
+        queryParams: {
+          from: 'favourites',
+          page: queryParams['page'] || 1,
+          search: queryParams['search'] || null,
+          industry: queryParams['industry'] || null,
+          subIndustry: queryParams['subIndustry'] || null,
+          valueChain: queryParams['valueChain'] || null
+        }
+      });
+    } else {
+      this.router.navigate(['/stories'], {
+        queryParams: {
+          from: 'stories',
+          page: queryParams['page'] || 1,
+          search: queryParams['search'] || null,
+          industry: queryParams['industry'] || null,
+          subIndustry: queryParams['subIndustry'] || null,
+          valueChain: queryParams['valueChain'] || null
+        }
+      });
+    }
   }
-}
 
   get faqFormGroups(): FormGroup[] {
     return this.faqs.controls as FormGroup[];
