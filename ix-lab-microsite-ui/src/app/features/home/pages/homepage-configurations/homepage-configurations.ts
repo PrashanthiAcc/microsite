@@ -97,8 +97,8 @@ export class HomepageConfigurationsComponent {
    editorConfig = {
     toolbar: [
       ['bold', 'italic', 'underline'],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-      [{ align: [] }]
+      // [{ list: 'ordered' }, { list: 'bullet' }],
+      // [{ align: [] }]
     ]
   };
   isDataLoading = signal(false);

@@ -156,9 +156,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 5vw; /* fluid padding */
+  padding: 0 5vw;
+  /* fluid padding */
   border-bottom: 2px solid #ececec;
-  flex-wrap: wrap; /* allow wrapping if needed */
+  flex-wrap: wrap;
+  /* allow wrapping if needed */
 }
 
 .navbar-left {
@@ -177,6 +179,8 @@
   font-size: clamp(14px, 1.5vw, 18px);
   font-weight: 700;
   color: #1a1a1a;
+  line-height: 1;
+  margin-top: 6px;
 }
 
 .logo-text .subtitle {
@@ -188,10 +192,12 @@
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: clamp(12px, 2vw, 36px); /* scales gap */
+  gap: clamp(12px, 2vw, 36px);
+  /* scales gap */
   flex: 1 1 auto;
   justify-content: flex-end;
-  flex-wrap: wrap; /* prevents overflow */
+  flex-wrap: wrap;
+  /* prevents overflow */
 }
 
 .nav-link {
@@ -301,12 +307,15 @@
   .navbar {
     padding: 0 3vw;
   }
+
   .navbar-right {
     gap: 20px;
   }
+
   .admin-options {
     left: auto;
-    right: 0; /* keep dropdown inside viewport */
+    right: 0;
+    /* keep dropdown inside viewport */
   }
 }
 
@@ -324,7 +333,8 @@
     justify-content: flex-start;
     gap: 16px;
     margin-top: 12px;
-    flex-direction: column; /* stack links */
+    flex-direction: column;
+    /* stack links */
     align-items: flex-start;
   }
 
@@ -337,7 +347,8 @@
   }
 
   .admin-options {
-    position: static; /* dropdown flows naturally below Admin */
+    position: static;
+    /* dropdown flows naturally below Admin */
     box-shadow: none;
     border: none;
     margin-top: 8px;
