@@ -55,6 +55,8 @@ public interface UseCaseService {
      */
     void archiveApprovedUseCase(Integer usecaseId);
 
+    void restoreArchivedUseCase(Integer usecaseId);
+
 
     /**
      * Get all ARCHIVE use cases.

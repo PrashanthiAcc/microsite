@@ -142,6 +142,27 @@ public class UseCaseController {
         }
     }
 
+    @PatchMapping(value =  "/v1/{usecaseId}/restore")
+    public ResponseEntity<Object> restoreArchivedUseCase(@PathVariable Integer usecaseId) {
+
+        try {
+            useCaseService.restoreArchivedUseCase(usecaseId);
+            return ResponseEntity.ok("Use case Id " + usecaseId + " is restored successfully");
+
+
+        } catch (CommonException e) {
+
+            logger.error("Exception occurred while restoring use case: {}", e.getMessage(), e);
+
+            errorResponse.setErrorCode(e.getErrorCode());
+            errorResponse.setErrorDescription(e.getMessage());
+
+            HttpStatus status = CommonExceptionConstants.BAD_REQUEST.equals(e.getErrorCode()) ? HttpStatus.BAD_REQUEST : HttpStatus.NOT_FOUND.equals(e.getErrorCode()) ? HttpStatus.NOT_FOUND : HttpStatus.INTERNAL_SERVER_ERROR;
+
+            return ResponseEntity.status(status).body(errorResponse);
+        }
+    }
+
     /**
      * Discard an existing APPROVED active use case.
      *
