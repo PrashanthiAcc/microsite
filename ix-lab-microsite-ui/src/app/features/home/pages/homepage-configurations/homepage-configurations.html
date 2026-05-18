@@ -24,18 +24,34 @@
             <div class="form-grid">
                 <div class="form-field full-width">
                     <label>Application Name (Shown on Navbar)</label>
-                    <input type="text" formControlName="applicationName"
-                        placeholder="Industry X - Digital Manufacturing Experience Zone">
+                    <!-- <input type="text" formControlName="applicationName"
+                        placeholder="Industry X - Digital Manufacturing Experience Zone"> -->
+
+                    <div class="editor">
+                        <quill-editor formControlName="applicationName" [modules]="editorConfig" class="custom-editor">
+                        </quill-editor>
+                    </div>
                 </div>
+
                 <div class="form-field full-width">
                     <label>Title</label>
-                    <input type="text" formControlName="title"
-                        placeholder="Industry X - Digital Manufacturing Experience Zone">
+                    <!-- <input type="text" formControlName="title"
+                        placeholder="Industry X - Digital Manufacturing Experience Zone"> -->
+
+                    <div class="editor">
+                        <quill-editor formControlName="title" [modules]="editorConfig" class="custom-editor">
+                        </quill-editor>
+                    </div>
                 </div>
                 <div class="form-field full-width">
                     <label>Subtitle</label>
-                    <input type="text" formControlName="subtitle"
-                        placeholder="Stories That Demonstrate Real-World Impact">
+                    <!-- <input type="text" formControlName="subtitle"
+                        placeholder="Stories That Demonstrate Real-World Impact"> -->
+
+                    <div class="editor">
+                        <quill-editor formControlName="subtitle" [modules]="editorConfig" class="custom-editor">
+                        </quill-editor>
+                    </div>
                 </div>
             </div>
 
@@ -89,7 +105,7 @@
                 </div>
                 <div class="stat-item">
                     <label>NVIDIA Stories</label>
-                    <input type="text" formControlName="nvidiaStorycount" numericPlus  placeholder="Enter number">
+                    <input type="text" formControlName="nvidiaStorycount" numericPlus placeholder="Enter number">
                 </div>
             </div>
         </div>
@@ -309,7 +325,7 @@
         <div class="stories__grid">
             <div class="story-card" *ngFor="let story of filteredStories" (click)="selectStory(story)">
                 <div class="story-card__media">
-                    <img [src]="story.thumbnailImageUrl" [alt]="story.industryName" style="max-height: 250px;"/>
+                    <img [src]="story.thumbnailImageUrl" [alt]="story.industryName" style="max-height: 250px;" />
                 </div>
                 <div class="story-card__content">
                     <span class="industry-subindustry-border-bottom">
@@ -330,5 +346,5 @@
 
 
 <div class="spinner-overlay" *ngIf="isDataLoading()">
-  <app-spinner></app-spinner>
+    <app-spinner></app-spinner>
 </div>

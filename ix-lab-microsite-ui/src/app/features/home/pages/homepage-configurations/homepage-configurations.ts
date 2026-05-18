@@ -94,6 +94,13 @@ export class HomepageConfigurationsComponent {
   showToast = false;
   toastMessage = '';
   toastTitle = '';
+   editorConfig = {
+    toolbar: [
+      ['bold', 'italic', 'underline'],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      [{ align: [] }]
+    ]
+  };
   isDataLoading = signal(false);
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService, private cdr: ChangeDetectorRef,

@@ -923,6 +923,65 @@ input:focus {
   z-index: 10000;        /* above stories grid and modals */
 }
 
+
+.custom-editor {
+  height: 180px;
+  width: 100%;
+}
+
+/* Editor Toolbar */
+.editor-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.editor-toolbar button {
+  border: 1px solid #D1D5DB;
+  background: #F9FAFB;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.editor {
+  // border: 1px solid #D1D5DB;
+  // border-radius: 6px;
+  // background: #F9FAFB;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.editor-toolbar {
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+  background: #E5E7EB;
+  border-bottom: 1px solid #D1D5DB;
+}
+
+.editor-toolbar button {
+  border: none;
+  background: #F9FAFB;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.editor-toolbar button:hover {
+  background: #D1D5DB;
+}
+
+.editor textarea {
+  width: 100%;
+  min-height: 120px;
+  border: none;
+  padding: 10px;
+  font-size: 14px;
+  resize: vertical;
+  background: #F9FAFB;
+}
 /* 1163px breakpoint (~110–115% zoom) */
 @media (max-width: 1173px) {
     .stats-grid {

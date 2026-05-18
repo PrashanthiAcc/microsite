@@ -5,12 +5,16 @@
       <div class="title">Industry X - Digital</div>
       <div class="title">Manufacturing Experience Zone</div>
     </div> -->
-    <div class="logo-text" *ngIf="getHomePageDetails">
+    <!-- <div class="logo-text" *ngIf="getHomePageDetails">
   <div class="title">{{ getAppNameParts()[0] }}</div>
   <div class="title" *ngIf="getAppNameParts().length > 1">
     {{ getAppNameParts()[1] }}
   </div>
-</div>
+</div> -->
+
+    <div class="logo-text" *ngIf="getHomePageDetails">
+      <div class="title" [innerHTML]="getHomePageDetails.applicationName"></div>
+    </div>
   </div>
 
   <nav class="navbar-right">
@@ -41,7 +45,7 @@
           </a>
         </li>
         <li>
-          <a  (click)="toggleAdminMenu($event)">
+          <a (click)="toggleAdminMenu($event)">
             <img src="assets/icons/dashboard.png" alt="Dashboard" />
             <span>Dashboard</span>
           </a>

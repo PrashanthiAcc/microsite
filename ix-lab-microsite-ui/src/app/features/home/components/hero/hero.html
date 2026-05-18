@@ -2,12 +2,15 @@
   <div class="hero-overlay"></div>
 
   <div class="hero-content">
-    <h1>
-      {{heroData.title}} <br />
+    <h1 [innerHTML]="heroData.title">
+      <!-- {{heroData.title}}  -->
+      <br />
       
     </h1>
 
-    <p class="subtitle">{{heroData.subTitle}}</p>
+    <p class="subtitle" [innerHTML]="heroData.subTitle">
+      <!-- {{heroData.subTitle}} -->
+    </p>
 
   </div>
 
