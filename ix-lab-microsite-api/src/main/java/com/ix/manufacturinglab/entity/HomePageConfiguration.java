@@ -59,4 +59,7 @@ public class HomePageConfiguration {
     @Column(name = "updated_by_id", nullable = false)
     private Integer updatedById;
 
+    @Column(name = "nvidia_stories_count", nullable = false)
+    private Integer nvidiaStoriesCount;
+
 }

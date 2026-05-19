@@ -35,11 +35,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserManagementDTO> getAllActiveUsers() {
+    public List<UserManagementDTO> getAllActiveUsers(String users) {
+        List<UserManagement> userObj;
 
-        List<UserManagement> users = userRepository.findByIsActiveTrue();
+        if (users == null || users.isBlank()) {
+            userObj = userRepository.findAll();
+        } else if ("INACTIVE".equalsIgnoreCase(users)) {
+            userObj = userRepository.findByIsActiveFalse();
+        } else {
+            userObj = userRepository.findByIsActiveTrue();
+        }
 
-        return users.stream()
+        return userObj.stream()
                 .map(user -> {
                     UserManagementDTO dto = new UserManagementDTO();
                     dto.setUserId(user.getUserId());

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/users")
@@ -34,14 +35,22 @@ public class UserController {
      * Fetch all active users
      */
     @GetMapping("/v1/all")
-    public ResponseEntity<Object> getAllActiveUsers() {
+    public ResponseEntity<Object> getAllActiveUsers(@RequestParam(required = false) String users) {
 
         //logger.debug("Received request to fetch all active users");
 
         try {
-            List<UserManagementDTO> users = userService.getAllActiveUsers();
+            List<UserManagementDTO> usersObj;
 
-            return new ResponseEntity<>(users, HttpStatus.OK);
+            if (Objects.isNull(users)) {
+                usersObj = userService.getAllActiveUsers("");
+            } else if ("INACTIVE".equals(users)) {
+                usersObj = userService.getAllActiveUsers(users);
+            } else {
+                usersObj = userService.getAllActiveUsers("ACTIVE");
+            }
+
+            return new ResponseEntity<>(usersObj, HttpStatus.OK);
 
         } catch (CommonException e) {
             logger.error("Exception occurred while fetching use cases: {}", e.getMessage(), e);

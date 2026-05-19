@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Builder
@@ -54,6 +55,9 @@ public class HomePageRequestDTO {
     @Size(max = 50, message = "Key Capability Configuration Image must not exceed 500 characters")
     private String  keyCapabilityConfigurationImage;
 
+    private Integer nvidiaStoriesCount;
+
     private Integer updatedById;
 
+    private List<IndustryDTO> industryNames;
 }

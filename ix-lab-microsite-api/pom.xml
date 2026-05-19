@@ -10,7 +10,7 @@
 
     <groupId>com.ix</groupId>
     <artifactId>ix-lab-microsite-api</artifactId>
-    <version>0.0.32-SNAPSHOT</version>
+    <version>0.0.33-SNAPSHOT</version>
     <name>ix-lab-microsite-api</name>
     <description>Industry-X Manufacturing Lab Microsite REST API</description>
 
