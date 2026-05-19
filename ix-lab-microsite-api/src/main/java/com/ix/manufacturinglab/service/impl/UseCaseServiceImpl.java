@@ -512,7 +512,27 @@ public class UseCaseServiceImpl implements UseCaseService {
         }
 
         useCase.setStatus("ARCHIVED");
+        useCase.setIsActive(true);
         useCase.setUpdatedDate(LocalDateTime.now());
+
+        useCaseRepository.save(useCase);
+    }
+
+    @Override
+    @Transactional
+    public void restoreArchivedUseCase(Integer usecaseId) {
+
+        UseCase useCase = useCaseRepository.findById(usecaseId)
+                .orElseThrow(() -> new CommonException(
+                        CommonExceptionConstants.NOT_FOUND,
+                        ManufacturingLabConstants.USE_CASE_NOT_FOUND + usecaseId));
+
+        useCase.setStatus("DRAFT");
+        useCase.setApprovedDate(null);
+        useCase.setParentUsecaseId(null);
+        useCase.setIsUpdatedUsecase(true);
+        useCase.setUpdatedDate(LocalDateTime.now());
+        useCase.setIsActive(false);
 
         useCaseRepository.save(useCase);
     }
@@ -1418,12 +1438,28 @@ public class UseCaseServiceImpl implements UseCaseService {
                                 CommonExceptionConstants.BAD_REQUEST,
                                 "Usecase not found with ID: " + usecaseId));
 
+        Integer parentUsecaseId = useCase.getParentUsecaseId();
+
+        if (parentUsecaseId != null) {
+            UseCase parentUseCase = useCaseRepository.findById(parentUsecaseId)
+                    .orElseThrow(() ->
+                            new CommonException(
+                                    CommonExceptionConstants.BAD_REQUEST,
+                                    "Usecase not found with ID: " + parentUsecaseId));
+
+            parentUseCase.setIsActive(false);
+            parentUseCase.setUpdatedDate(LocalDateTime.now());
+
+            useCaseRepository.save(parentUseCase);
+        }
+
         useCase.setStatus("APPROVED");
         useCase.setIsActive(true);
         useCase.setApproverId(approverId);
         useCase.setApprovedDate(LocalDateTime.now());
         useCase.setUpdatedDate(LocalDateTime.now());
         useCase.setIsUpdatedUsecase(true);
+        useCase.setParentUsecaseId(null);
 
         UseCase savedUseCase = useCaseRepository.save(useCase);
 
