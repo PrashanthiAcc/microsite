@@ -28,4 +28,5 @@ public class HomePageResponseDTO {
 
     private List<FeatureStoriesDTO> featuredStories;
     private List<IndustryThumbnailDTO> industryThumbnails;
+    private Integer nvidiaStorycount;
 }

@@ -17,4 +17,5 @@ import java.time.LocalDateTime;
 public class IndustryDTO {
     private Long industryId;
     private String industryName;
+    private String updatedIndustryName;
 }

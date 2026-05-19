@@ -8,12 +8,15 @@ import com.ix.manufacturinglab.dto.HomePageResponseDTO;
 import com.ix.manufacturinglab.dto.IndustryThumbnailDTO;
 import com.ix.manufacturinglab.entity.FeaturedStories;
 import com.ix.manufacturinglab.entity.HomePageConfiguration;
+import com.ix.manufacturinglab.entity.Industry;
 import com.ix.manufacturinglab.entity.IndustryThumbnails;
 import com.ix.manufacturinglab.exception.CommonException;
 import com.ix.manufacturinglab.repository.FeaturedStoriesRepository;
 import com.ix.manufacturinglab.repository.HomePageConfigurationRepository;
+import com.ix.manufacturinglab.repository.IndustryRepository;
 import com.ix.manufacturinglab.repository.IndustryThumbnailsRepository;
 import com.ix.manufacturinglab.service.HomePageService;
+import com.ix.manufacturinglab.service.MicrositeService;
 import com.ix.manufacturinglab.storage.CloudStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,15 +43,20 @@ public class HomePageServiceImpl implements HomePageService {
     private final FeaturedStoriesRepository featuredStoriesRepository;
     private final IndustryThumbnailsRepository industryThumbnailsRepository;
     private final CloudStorageService cloudStorageService;
+    private final IndustryRepository industryRepository;
+    private final MicrositeService micrositeService;
 
     public HomePageServiceImpl(HomePageConfigurationRepository homePageRepository,
                                FeaturedStoriesRepository featuredStoriesRepository,
                                IndustryThumbnailsRepository industryThumbnailsRepository,
-                               CloudStorageService cloudStorageService) {
+                               CloudStorageService cloudStorageService, IndustryRepository industryRepository,
+                               MicrositeService micrositeService) {
         this.homePageRepository = homePageRepository;
         this.featuredStoriesRepository = featuredStoriesRepository;
         this.industryThumbnailsRepository = industryThumbnailsRepository;
         this.cloudStorageService = cloudStorageService;
+        this.industryRepository = industryRepository;
+        this.micrositeService = micrositeService;
     }
 
     @Override
@@ -114,6 +122,7 @@ public class HomePageServiceImpl implements HomePageService {
                     .heroImageUrl(heroSasUrl)
                     .keyCapConfUrl(keyCapabilityConfigurationSasUrl)
                     .lastUpdated(LocalDateTime.now())
+                    .nvidiaStoriesCount(requestDTO.getNvidiaStoriesCount())
                     .build();
 
             homePageRepository.save(config);
@@ -174,6 +183,18 @@ public class HomePageServiceImpl implements HomePageService {
                 }
 
                 industryThumbnailsRepository.saveAll(thumbnails);
+
+                if (requestDTO.getIndustryNames() != null || !requestDTO.getIndustryNames().isEmpty()) {
+                    requestDTO.getIndustryNames().stream()
+                            .filter(industryDTO ->
+                                    industryDTO.getUpdatedIndustryName() != null
+                                            && !industryDTO.getUpdatedIndustryName().trim().isEmpty())
+                            .forEach(industryDTO ->
+                                    updateIndustryName(
+                                            industryDTO.getIndustryId(),
+                                            industryDTO.getUpdatedIndustryName()
+                                    ));
+                }
             }
 
         } catch (CommonException ex) {
@@ -228,6 +249,7 @@ public class HomePageServiceImpl implements HomePageService {
                     .updatedById(config.getUpdatedById())
                     .featuredStories(stories)
                     .industryThumbnails(thumbnails)
+                    .nvidiaStorycount(config.getNvidiaStoriesCount())
                     .build();
 
         } catch (CommonException ex) {
@@ -259,6 +281,7 @@ public class HomePageServiceImpl implements HomePageService {
         config.setSapEwmPrgDelivered(dto.getSapEwmPrgDelivered());
         config.setUpdatedById(dto.getUpdatedById());
         config.setLastUpdated(LocalDateTime.now());
+        config.setNvidiaStoriesCount(dto.getNvidiaStoriesCount());
 
         config.setHeroImageUrl(
                 handleSingleUpdate(config.getHeroImageUrl(), heroUrl, heroFile, "hero-image/"));
@@ -270,6 +293,18 @@ public class HomePageServiceImpl implements HomePageService {
         updateIndustryThumbnails(dto, industryFiles, industryThumbnailFileUrls);
 
         handleFeaturedStories(dto);
+
+        if (dto.getIndustryNames() != null || !dto.getIndustryNames().isEmpty()) {
+            dto.getIndustryNames().stream()
+                    .filter(industryDTO ->
+                            industryDTO.getUpdatedIndustryName() != null
+                                    && !industryDTO.getUpdatedIndustryName().trim().isEmpty())
+                    .forEach(industryDTO ->
+                            updateIndustryName(
+                                    industryDTO.getIndustryId(),
+                                    industryDTO.getUpdatedIndustryName()
+                            ));
+        }
 
         homePageRepository.save(config);
     }
@@ -407,5 +442,14 @@ public class HomePageServiceImpl implements HomePageService {
         }
 
         return path;
+    }
+
+    private void updateIndustryName(Long industryId, String updatedIndustryName) {
+        Industry industry = industryRepository.findByIndustryId(industryId);
+        if(industry != null) {
+            industry.setIndustryName(updatedIndustryName);
+            micrositeService.updateIndustry(industry.getIndustryId(), industry);
+        }
+
     }
 }

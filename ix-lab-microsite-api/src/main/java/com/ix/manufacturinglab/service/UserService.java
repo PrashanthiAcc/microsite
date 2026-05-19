@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface UserService {
 
-    List<UserManagementDTO> getAllActiveUsers();
+    List<UserManagementDTO> getAllActiveUsers(String users);
 
     void createUser(UserDTO dto);
 

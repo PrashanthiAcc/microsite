@@ -10,6 +10,10 @@ public interface UserRepository extends JpaRepository<UserManagement, Integer> {
 
     List<UserManagement> findByIsActiveTrue();
 
+    List<UserManagement> findAll();
+
+    List<UserManagement> findByIsActiveFalse();
+
     boolean existsByUserEid(String userEid);
     Optional<UserManagement> findByUserEid(String userEid);
 
