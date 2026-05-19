@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit,signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -8,10 +8,11 @@ import { UsecaseService } from '../../../../core/services/usecase';
 import { UserService } from '../../../../core/services/users';
 import { ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ToasterComponent } from '../../../../shared/components/toaster/toaster';
 
 @Component({
   selector: 'app-archived-story',
-  imports: [CommonModule, CustomDropdownComponent, RouterModule,FormsModule ],
+  imports: [CommonModule, CustomDropdownComponent, RouterModule,FormsModule,ToasterComponent ],
   templateUrl: './archived-story.html',
   styleUrl: './archived-story.scss',
 })
@@ -31,8 +32,13 @@ export class ArchivedStoriesComponent {
   totalElements = 0;
   pagination_right = 'assets/icons/pagination_right.png';
   pagination_left = 'assets/icons/pagination_left.png';
+  discardIcon = "assets/icons/discard.png";
   filteredStories: any[] = [];
   searchTerm: string ='';
+  isDataLoading = signal(false);
+  showToast = false;
+  toastMessage = '';
+  toastTitle = '';
   constructor(private router: Router, private http: HttpClient,
     private industryService: IndustryService, private cdr: ChangeDetectorRef, private route: ActivatedRoute,
     private userService: UserService, private usecaseService: UsecaseService
@@ -162,5 +168,31 @@ export class ArchivedStoriesComponent {
   );
 }
 
+
+restoreArchive(usecaseId: string) {
+    this.isDataLoading.set(true);
+    this.usecaseService.restoreArchivedUsecase(usecaseId).subscribe({
+      next: (res: string) => {
+        this.isDataLoading.set(false);
+        console.log('API success, response:', res);
+        this.showToast = false;
+        this.toastTitle = 'Usecase Restored Successfully';
+        //this.toastMessage = res;
+        this.showToast = true;
+
+        this.cdr.detectChanges();
+        window.scrollTo({ top: 0 });
+        this.loadAllStories(); // Refresh the list 
+      },
+      error: (err) => {
+        this.showToast = false;
+        this.isDataLoading.set(false);
+        console.error('API error:', err);
+        this.toastTitle = err.error;
+        this.showToast = true;
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
 }

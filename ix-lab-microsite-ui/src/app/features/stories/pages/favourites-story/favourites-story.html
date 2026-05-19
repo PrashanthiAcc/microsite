@@ -70,32 +70,33 @@
         <!---ALL STORIES-------------------->
         <div class="stories__grid" *ngIf="!isLoading && filteredStories.length > 0">
 
-            <div class="story-card" *ngFor="let story of filteredStories"
-                [routerLink]="['/stories', story.usecaseId]" [queryParams]="{ from: 'favourites', page: currentPage }">
+            <div class="story-card" *ngFor="let story of filteredStories" [routerLink]="['/stories', story.usecaseId]"
+                [queryParams]="{ from: 'favourites', page: currentPage }">
 
                 <div class="story-card__media">
                     <img [src]="story.thumbnailImageUrl" alt="">
-                    <!-- <button class="card-menu-btn" (click)="$event.stopPropagation(); toggleMenu(story, $event)">⋮</button> -->
+                    <button class="card-menu-btn"
+                        (click)="$event.stopPropagation(); toggleMenu(story, $event)">⋮</button>
 
-                    <!-- <div class="card-menu" *ngIf="story.showMenu" (click)="$event.stopPropagation()">
+                    <div class="card-menu" *ngIf="story.showMenu" (click)="$event.stopPropagation()">
 
-            <button class="menu-item">
-              <img [src]="editIcon" alt="Edit" />
-              <span [routerLink]="['/stories', story.usecaseId, 'edit']">Edit Story</span>
-            </button>
-            <button class="menu-item">
-              <img [src]="favoriteIcon" alt="Favorite" />
-              <span>Add to Favourites</span>
-            </button>
-            <button class="menu-item" *ngIf="showAdminControls && story.status === 'DRAFT'">
-              <img [src]="discardIcon" alt="Discard" />
-              <span (click)="discardDraft(story.usecaseId)">Discard Draft</span>
-            </button>
-            <button class="menu-item" *ngIf="showAdminControls && story.status !== 'ARCHIVED'">
-              <img [src]="archiveIcon" alt="Archive" />
-              <span (click)="archiveStory(story.usecaseId)">Archive Story</span>
-            </button>
-          </div> -->
+                        <button class="menu-item">
+                            <img [src]="discardIcon" alt="Edit" />
+                            <span (click)="removeFavourites(story.usecaseId)">Remove Favourites</span>
+                        </button>
+                        <!-- <button class="menu-item">
+                            <img [src]="favoriteIcon" alt="Favorite" />
+                            <span>Add to Favourites</span>
+                        </button> -->
+                        <!-- <button class="menu-item" *ngIf="showAdminControls && story.status === 'DRAFT'">
+                            <img [src]="discardIcon" alt="Discard" />
+                            <span (click)="discardDraft(story.usecaseId)">Discard Draft</span>
+                        </button> -->
+                        <!-- <button class="menu-item" *ngIf="showAdminControls && story.status !== 'ARCHIVED'">
+                            <img [src]="archiveIcon" alt="Archive" />
+                            <span (click)="archiveStory(story.usecaseId)">Archive Story</span>
+                        </button> -->
+                    </div>
                 </div>
 
                 <div class="story-card__content">
@@ -211,7 +212,7 @@
             <!-- Scrollable area -->
             <div class="modal-body">
                 <div class="story-selection" *ngFor="let usecaseId of getSelectedUsecaseIds()">
-                    
+
                     <h3>
                         <strong style="font-size: 20px;">Story</strong>
                         <span style="margin-left:12px; font-weight:normal; font-size: 20px;">

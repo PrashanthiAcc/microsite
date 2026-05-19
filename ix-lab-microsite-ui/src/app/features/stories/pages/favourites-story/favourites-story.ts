@@ -379,9 +379,9 @@ export class FavouritesStoryComponent {
 
 
   onSearch() {
-  const value = this.searchText.trim().toLowerCase();
+    const value = this.searchText.trim().toLowerCase();
 
-  if (this.showAdminControls && this.currentFrom !== 'stories') {
+    if (this.showAdminControls && this.currentFrom !== 'stories') {
       this.filteredStories = this.stories.filter((story: any) => story.status === 'IN_REVIEW');
       this.filtered = this.filteredStories;
     } else {
@@ -391,32 +391,32 @@ export class FavouritesStoryComponent {
       this.filteredStories = this.filtered;
       return;
     }
-  const searchFn = (story: any) => {
-    const title = (story.title || '').toLowerCase();
-    const description = (story.description || '').toLowerCase();
-    const ownerEId = (story.ownerEId || '').toLowerCase();
-    const ownerName = (story.ownerName || '').toLowerCase();
-    const tags = Array.isArray(story.tags)
-      ? story.tags.join(' ').toLowerCase()
-      : (story.tags || '').toLowerCase();
+    const searchFn = (story: any) => {
+      const title = (story.title || '').toLowerCase();
+      const description = (story.description || '').toLowerCase();
+      const ownerEId = (story.ownerEId || '').toLowerCase();
+      const ownerName = (story.ownerName || '').toLowerCase();
+      const tags = Array.isArray(story.tags)
+        ? story.tags.join(' ').toLowerCase()
+        : (story.tags || '').toLowerCase();
 
-    return (
-      title.includes(value) ||
-      description.includes(value) ||
-      ownerEId.includes(value) ||
-      ownerName.includes(value) ||
-      tags.includes(value)
-    );
-  };
+      return (
+        title.includes(value) ||
+        description.includes(value) ||
+        ownerEId.includes(value) ||
+        ownerName.includes(value) ||
+        tags.includes(value)
+      );
+    };
 
-  if (!value) {
-    this.applyFilters();
-    return;
+    if (!value) {
+      this.applyFilters();
+      return;
+    }
+
+    this.filteredStories = this.filteredStories.filter(searchFn);
+
   }
-
-  this.filteredStories = this.filteredStories.filter(searchFn);
-
-}
   getIndustryName(id: number): string {
     const industry = this.allIndustries.find((i: any) => i.industryId === id);
     return industry ? industry.industryName : '';
@@ -604,5 +604,31 @@ export class FavouritesStoryComponent {
       });
   }
 
+
+  removeFavourites(usecaseId: string) {
+    this.isDataLoading.set(true);
+    this.usecaseService.deleteFavouriteUsecase(JSON.parse(localStorage.getItem('loggedUser') || '{}').userId, usecaseId).subscribe({
+      next: (res: string) => {
+        this.isDataLoading.set(false);
+        console.log('API success, response:', res);
+        this.showToast = false;
+        this.toastTitle = 'Usecase Removed From Favourites Successfully';
+        //this.toastMessage = res;
+        this.showToast = true;
+
+        this.cdr.detectChanges();
+        window.scrollTo({ top: 0 });
+        this.loadAllStories(); // Refresh the list 
+      },
+      error: (err) => {
+        this.showToast = false;
+        this.isDataLoading.set(false);
+        console.error('API error:', err);
+        this.toastTitle = err.error;
+        this.showToast = true;
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
 }

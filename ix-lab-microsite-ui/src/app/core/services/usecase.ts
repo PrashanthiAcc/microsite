@@ -115,6 +115,14 @@ export class UsecaseService {
     });
   }
 
+  deleteFavouriteUsecase(userId: number, usecaseId: string): Observable<string> {
+  return this.http.delete(`${this.baseUrl}/api/usecase/v1/favourites`, {
+    params: { userId, usecaseId },
+    responseType: 'text'
+  });
+}
+
+
   getUsecasesByStatus(
     status: string,
     page: number = 1,
@@ -123,5 +131,14 @@ export class UsecaseService {
     return this.http.get(`${this.baseUrl}/api/usecase/v1/usecases`, {
       params: { status, page, size }
     });
+  }
+
+   /** Restore a previously archived usecase */
+  restoreArchivedUsecase(storyId: string): Observable<string> {
+    return this.http.patch(
+      `${this.baseUrl}/api/usecase/v1/${storyId}/restore`,
+      {}, // empty body
+      { responseType: 'text' }
+    );
   }
 }
