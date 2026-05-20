@@ -199,20 +199,7 @@ export class HomepageConfigurationsComponent {
         industriesArray.clear();
         this.industryPreviews = [];
 
-        this.allIndustries.forEach((ind, i) => {
-          const backendThumb = res.industryThumbnails?.find((t: any) => t.industryId === ind.industryId);
-
-          industriesArray.push(this.fb.group({
-            industryId: ind.industryId,
-            name: ind.industryName,
-            fileName: [''],
-            defaultImage: [''],
-            updatedName: [ind.name]
-          }));
-
-
-          this.industryPreviews[i] = backendThumb ? backendThumb.industryThumbnailUrl : '';
-        });
+        
 
 
 
@@ -243,6 +230,20 @@ export class HomepageConfigurationsComponent {
           });
         }
         this.getApprovedStoryCount();
+        this.allIndustries.forEach((ind, i) => {
+          const backendThumb = res.industryThumbnails?.find((t: any) => t.industryId === ind.industryId);
+
+          industriesArray.push(this.fb.group({
+            industryId: ind.industryId,
+            name: ind.industryName,
+            fileName: [''],
+            defaultImage: [''],
+            updatedName: [ind.name]
+          }));
+
+
+          this.industryPreviews[i] = backendThumb ? backendThumb.industryThumbnailUrl : '';
+        });
         this.cdr.detectChanges();
       },
       error: err => console.error('Fetch failed', err)
