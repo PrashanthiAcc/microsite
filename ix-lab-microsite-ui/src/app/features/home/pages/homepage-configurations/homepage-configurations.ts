@@ -214,8 +214,8 @@ export class HomepageConfigurationsComponent {
           this.industryPreviews[i] = backendThumb ? backendThumb.industryThumbnailUrl : '';
 
           return this.fb.group({
-            industryId: ind.industryId,
-            name: ind.industryName,
+            industryId: ind?.industryId,
+            name: ind?.industryName,
             fileName: [''],
             defaultImage: [''],
             updatedName: [ind?.name]
