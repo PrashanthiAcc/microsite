@@ -11,7 +11,7 @@ import { UserService } from '../../../../core/services/users';
 import { HttpClient } from '@angular/common/http';
 import { NumericPlusDirective } from '../../../../shared/directives/numeric-plus';
 import { HomePageService } from '../../../../core/services/home-page.service';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
 import { Spinner } from '../../../../shared/components/spinner/spinner';
 
 export interface Story {
@@ -94,7 +94,7 @@ export class HomepageConfigurationsComponent {
   showToast = false;
   toastMessage = '';
   toastTitle = '';
-   editorConfig = {
+  editorConfig = {
     toolbar: [
       ['bold', 'italic', 'underline'],
       // [{ list: 'ordered' }, { list: 'bullet' }],
@@ -176,11 +176,55 @@ export class HomepageConfigurationsComponent {
   }
 
 
+
+
   getHomePageConfigDetails(): void {
     this.homePageService.getHomePageData().subscribe({
       next: (res: any) => {
         console.log('fetched successfully', res);
         this.getHomePageDetails = res;
+
+        // Prepare story requests
+        const storyRequests: Observable<any>[] = res.featuredStories?.map((s: any) =>
+          this.usecaseService.getStoryDetailsById(s.usecaseId)
+        ) || [];
+
+        if (storyRequests.length > 0) {
+          forkJoin(storyRequests).subscribe((stories: any[]) => {
+            this.featuredStories = stories.map(story => ({
+              ...story,
+              industryName: this.getIndustryName(story.industryId),
+              subIndustryName: this.getSubIndustryName(story.subIndustryId),
+              tags: story.tag || []
+            }));
+            this.cdr.detectChanges();
+          });
+        }
+
+        // --- Industries + thumbnails ---
+        const industriesArray = this.homePageForm.get('industries') as FormArray;
+        industriesArray.clear();
+        this.industryPreviews = [];
+
+        const industryGroups = this.allIndustries.map((ind, i) => {
+          const backendThumb = res.industryThumbnails?.find(
+            (t: any) => t.industryId === ind.industryId
+          );
+
+          this.industryPreviews[i] = backendThumb ? backendThumb.industryThumbnailUrl : '';
+
+          return this.fb.group({
+            industryId: ind.industryId,
+            name: ind.industryName,
+            fileName: [''],
+            defaultImage: [''],
+            updatedName: [ind.name]
+          });
+        });
+
+        industryGroups.forEach(group => industriesArray.push(group));
+
+        // --- Patch simple fields ---
         this.homePageForm.patchValue({
           applicationName: res.applicationName,
           title: res.title,
@@ -195,60 +239,14 @@ export class HomepageConfigurationsComponent {
         this.imagePreviews['heroImage'] = res.heroImageUrl;
         this.imagePreviews['keyCapabilitiesImage'] = res.keyCapabilityConfigurationImage;
 
-        const industriesArray = this.homePageForm.get('industries') as FormArray;
-        industriesArray.clear();
-        this.industryPreviews = [];
-
-        
-
-
-
-        const featuredStoriesArray = this.homePageForm.get('featuredStories') as FormArray;
-        featuredStoriesArray.clear();
-
-        if (res.featuredStories?.length > 0) {
-          res.featuredStories.forEach((story: any) => {
-            featuredStoriesArray.push(this.fb.group({ usecaseId: story.usecaseId }));
-          });
-
-          // Example: hardcoded test with one ID
-          // const storyRequests = [
-          //   this.usecaseService.getStoryDetailsById('10163')
-          // ];
-          const storyRequests = res.featuredStories.map((s: any) =>
-            this.usecaseService.getStoryDetailsById((s.usecaseId))
-          );
-          console.log("req::", storyRequests)
-          forkJoin<any[]>(storyRequests).subscribe((stories: any[]) => {
-            this.featuredStories = stories.map(story => ({
-              ...story,
-              industryName: this.getIndustryName(story.industryId),
-              subIndustryName: this.getSubIndustryName(story.subIndustryId),
-              tags: story.tag || []
-            }));
-            this.cdr.detectChanges();
-          });
-        }
         this.getApprovedStoryCount();
-        this.allIndustries.forEach((ind, i) => {
-          const backendThumb = res.industryThumbnails?.find((t: any) => t.industryId === ind.industryId);
 
-          industriesArray.push(this.fb.group({
-            industryId: ind.industryId,
-            name: ind.industryName,
-            fileName: [''],
-            defaultImage: [''],
-            updatedName: [ind.name]
-          }));
-
-
-          this.industryPreviews[i] = backendThumb ? backendThumb.industryThumbnailUrl : '';
-        });
         this.cdr.detectChanges();
       },
       error: err => console.error('Fetch failed', err)
     });
   }
+
 
 
 
@@ -363,23 +361,23 @@ export class HomepageConfigurationsComponent {
 
 
 
-  
- getApprovedStoryCount(): void {
-  this.homePageService.getApprovedUsecaseCount().subscribe({
-    next: (res: any) => {
-      const approvedCount = Number(res["Total Approved usecases"] || 0);
-      const nvidiaCount = Number(this.getHomePageDetails?.nvidiaStorycount || 0);
 
-      const clientStoriesCtrl = this.homePageForm.get('clientStories');
-      clientStoriesCtrl?.enable({ emitEvent: false });
-      clientStoriesCtrl?.setValue((approvedCount + nvidiaCount).toString(), { emitEvent: true });
-      clientStoriesCtrl?.disable({ emitEvent: false });
+  getApprovedStoryCount(): void {
+    this.homePageService.getApprovedUsecaseCount().subscribe({
+      next: (res: any) => {
+        const approvedCount = Number(res["Total Approved usecases"] || 0);
+        const nvidiaCount = Number(this.getHomePageDetails?.nvidiaStorycount || 0);
 
-      this.cdr.markForCheck();
-    },
-    error: err => console.error('Fetch failed', err)
-  });
-}
+        const clientStoriesCtrl = this.homePageForm.get('clientStories');
+        clientStoriesCtrl?.enable({ emitEvent: false });
+        clientStoriesCtrl?.setValue((approvedCount + nvidiaCount).toString(), { emitEvent: true });
+        clientStoriesCtrl?.disable({ emitEvent: false });
+
+        this.cdr.markForCheck();
+      },
+      error: err => console.error('Fetch failed', err)
+    });
+  }
 
 
 
