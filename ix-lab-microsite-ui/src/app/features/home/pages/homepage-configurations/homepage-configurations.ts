@@ -218,7 +218,7 @@ export class HomepageConfigurationsComponent {
             name: ind.industryName,
             fileName: [''],
             defaultImage: [''],
-            updatedName: [ind.name]
+            updatedName: [ind?.name]
           });
         });
 
