@@ -154,8 +154,8 @@ export class HomepageConfigurationsComponent {
     });
 
     this.loadIndustries();
-    this.homePageForm.get('clientStories')?.disable();
-    this.getHomePageConfigDetails();
+    //this.homePageForm.get('clientStories')?.disable();
+    //this.getHomePageConfigDetails();
   }
 
 
@@ -220,7 +220,7 @@ export class HomepageConfigurationsComponent {
 
         this.imagePreviews['heroImage'] = res.heroImageUrl;
         this.imagePreviews['keyCapabilitiesImage'] = res.keyCapabilityConfigurationImage;
-
+        this.homePageForm.get('clientStories')?.disable();
         this.getApprovedStoryCount();
         this.isDataLoading.set(false);
         this.cdr.detectChanges();
@@ -414,6 +414,7 @@ export class HomepageConfigurationsComponent {
         // Default Industry also to "All"
         this.selectedIndustryId = -1;
       }
+      this.getHomePageConfigDetails();
     });
   }
 
