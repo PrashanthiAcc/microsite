@@ -31,14 +31,14 @@ export class NavbarComponent {
     this.appStateService.appName$.subscribe(name => {
     this.applicationName = name;
   });
-    //this.getHomePageConfigDetails();
+    this.getHomePageConfigDetails();
   }
 
    getHomePageConfigDetails(): void {
     this.homePageService.getHomePageData().subscribe({
       next: (res: any) => {
         console.log('fetched successfully', res);
-        this.getHomePageDetails = res;
+        this.applicationName = res.applicationName;
         this.cdRef.detectChanges();
       },
       error: err => console.error('Fetch failed', err)
