@@ -163,57 +163,22 @@ export class RequestsComponent {
   }
 
 
-  // applyFilters() {
-  //   this.filtered = [...this.stories];
+ 
+  applyFilters() {
+    this.filtered = [...this.stories];
 
-  //   if (this.selectedIndustryId !== -1) {
-  //     this.filtered = this.filtered.filter((story: any) => story.industryId === this.selectedIndustryId);
-  //   }
+    if (this.selectedIndustryId !== -1) {
+      this.filtered = this.filtered.filter((story: any) => story.industryId === this.selectedIndustryId);
+    }
+    if (this.selectedSubIndustryId !== -1) {
+      this.filtered = this.filtered.filter((story: any) => story.subIndustryId === this.selectedSubIndustryId);
+    }
+    if (this.selectedValueChainId !== -1) {
+      this.filtered = this.filtered.filter((story: any) => story.valueChainId === this.selectedValueChainId);
+    }
 
-  //   if (this.selectedSubIndustryId !== -1) {
-  //     this.filtered = this.filtered.filter((story: any) => story.subIndustryId === this.selectedSubIndustryId);
-  //   }
-
-  //   if (this.selectedValueChainId !== -1) {
-  //     this.filtered = this.filtered.filter((story: any) => story.valueChainId === this.selectedValueChainId);
-  //   }
-
-  //   this.filteredStories = this.filtered;
-
-  //   if (this.showAdminControls && this.currentFrom !== 'stories') {
-
-  //     this.drafts = this.filtered
-  //       .filter((story: any) => story.status === 'DRAFT')
-  //       .map((draft: any) => ({
-  //         ...draft,
-  //         tags: draft.tags,
-  //         ownerName: this.getOwnerName(draft.ownerId),
-  //         industryName: this.getIndustryName(draft.industryId),
-  //         subIndustryName: this.getSubIndustryName(draft.subIndustryId)
-  //       }));
-
-  //     this.filteredStories = this.filtered.filter((story: any) => story.status === 'IN_REVIEW');
-  //     console.log("filtered stories:: ", this.filteredStories)
-  //     // this.filtered = this.filteredStories;
-  //   } else {
-  //     this.filteredStories = [...this.filtered];
-  //   }
-  // }
-applyFilters() {
-  this.filtered = [...this.stories];
-
-  if (this.selectedIndustryId !== -1) {
-    this.filtered = this.filtered.filter((story:any) => story.industryId === this.selectedIndustryId);
+    this.filteredStories = [...this.filtered];
   }
-  if (this.selectedSubIndustryId !== -1) {
-    this.filtered = this.filtered.filter((story:any) => story.subIndustryId === this.selectedSubIndustryId);
-  }
-  if (this.selectedValueChainId !== -1) {
-    this.filtered = this.filtered.filter((story:any) => story.valueChainId === this.selectedValueChainId);
-  }
-
-  this.filteredStories = [...this.filtered];
-}
 
   getAllUsers() {
     this.userService.getAllUsers().subscribe((res: any) => {

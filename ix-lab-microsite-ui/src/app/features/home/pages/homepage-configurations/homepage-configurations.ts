@@ -102,6 +102,10 @@ export class HomepageConfigurationsComponent {
     ]
   };
   isDataLoading = signal(false);
+  filtered: any;
+  subIndustryName: any;
+  industryName: any;
+  valueChainName: any;
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService, private cdr: ChangeDetectorRef,
     private route: ActivatedRoute, private homePageService: HomePageService, private ngZone: NgZone) {
@@ -353,43 +357,25 @@ export class HomepageConfigurationsComponent {
 
   loadIndustries() {
     this.industryService.getIndustries().subscribe((res: any) => {
-
       this.allIndustries = res.industries;
-
       this.allSubIndustries = res.subIndustries;
       this.allValueChains = res.valueChains;
 
-      // ✅ Populate industries FormArray dynamically
-      const industriesArray = this.homePageForm.get('industries') as FormArray;
-      industriesArray.clear();
-      this.industryPreviews = [];
-
-      this.allIndustries
-        .filter(ind => ind.isActive) // only active industries
-        .forEach((ind, i) => {
-          industriesArray.push(this.fb.group({
-            industryId: [ind.industryId],
-            name: [ind.industryName],
-            fileName: [''],
-            defaultImage: ['']
-          }));
-          this.industryPreviews[i] = ''; // initialize preview slot
-        });
-
       this.industries = [
-        { industryId: null, industryName: 'All' },
+        { industryId: -1, industryName: 'All' },
         ...this.allIndustries
       ];
 
       this.subIndustries = [
-        { subIndustryId: null, subIndustryName: 'All' },
-        ...this.allSubIndustries
+        { subIndustryId: -1, subIndustryName: 'All' }
       ];
 
-      this.valueChains = [
-        { valueChainId: null, valueChainName: 'All' },
-        ...this.allValueChains
-      ];
+      this.valueChains = [{ valueChainId: -1, valueChainName: 'All' }];
+      this.valueChainName = 'All';
+
+
+      this.selectedSubIndustryId = -1;
+      this.selectedValueChainId = -1;
 
       this.cardCategoryTitle = this.route.snapshot.queryParams['title'];
       const title = this.route.snapshot.queryParams['title'];
@@ -399,73 +385,92 @@ export class HomepageConfigurationsComponent {
         );
         if (selectedIndustryObj) {
           this.selectedIndustryId = selectedIndustryObj.industryId;
+          this.industryName = selectedIndustryObj.industryName;   // ✅ hydrate name
+          this.subIndustryName = null;                           // reset
+          this.valueChainName = null;
           this.applyFilters();
           this.cdr.detectChanges();
         }
+        this.loadAllStories(this.currentPage, this.pageSize);
+      } else {
+        // Default Industry also to "All"
+        this.selectedIndustryId = -1;
       }
-
     });
   }
 
-  onIndustrySelected(industry: any) {
+   onIndustrySelected(industry: any) {
+    this.industryName = industry.industryName;
+    console.log("industry name::", industry)
+    if (!industry || industry.industryId === -1) {
+      this.selectedIndustryId = -1;
+      this.selectedSubIndustryId = -1;
+      this.selectedValueChainId = -1;
 
-    if (!industry || !industry.industryId) {
-      this.selectedIndustryId = null;
-      this.selectedSubIndustryId = null;
-      this.selectedValueChainId = null;
+      this.industryName = null;
+      this.subIndustryName = null;
+      this.valueChainName = null;
+
       this.subIndustries = [
-        { subIndustryId: null, subIndustryName: 'All' },
-        ...this.allSubIndustries
+        { subIndustryId: -1, subIndustryName: 'All' }
       ];
 
-      this.valueChains = [
-        { valueChainId: null, valueChainName: 'All' },
-        ...this.allValueChains
-      ];
+      this.valueChains = [{ valueChainId: -1, valueChainName: 'All' }];
+      this.valueChainName = 'All';
 
       this.applyFilters();
       return;
     }
 
     this.selectedIndustryId = industry.industryId;
-    this.selectedSubIndustryId = null;
-    this.selectedValueChainId = null;
+    this.selectedSubIndustryId = -1;
+    this.selectedValueChainId = -1;
+
+    this.subIndustryName = null;
+    this.valueChainName = null;
     this.subIndustries = [
-      { subIndustryId: null, subIndustryName: 'All' },
-      ...this.allSubIndustries.filter(
-        sub => sub.industryId === industry.industryId
-      )
+      { subIndustryId: -1, subIndustryName: 'All' },
+      ...this.allSubIndustries.filter(sub => sub.industryId === industry.industryId)
     ];
 
-    this.valueChains = [
-      { valueChainId: null, valueChainName: 'All' }
-    ];
+    this.valueChains = [{ valueChainId: -1, valueChainName: 'All' }];
+    this.valueChainName = 'All';
+
     this.applyFilters();
   }
 
   onSubIndustrySelected(sub: any) {
+    this.subIndustryName = sub.subIndustryName;
+    console.log("sub industry name::", sub)
+    if (!sub || sub.subIndustryId === -1) {
+      this.selectedSubIndustryId = -1;
+      this.selectedValueChainId = -1;
+      this.valueChainName = null;
+      this.valueChains = [{ valueChainId: -1, valueChainName: 'All' }];
+      this.valueChainName = 'All';
 
-    if (!sub || !sub.subIndustryId) {
-      this.selectedSubIndustryId = null;
-      this.selectedValueChainId = null;
-      this.valueChains = [{ valueChainId: null, valueChainName: 'All' }, ...this.allValueChains];
       this.applyFilters();
       return;
     }
+
     this.selectedSubIndustryId = sub.subIndustryId;
-    this.selectedValueChainId = null;
+    this.selectedValueChainId = -1;
+    this.valueChainName = null;
     this.valueChains = [
-      { valueChainId: null, valueChainName: 'All' },
-      ...this.allValueChains.filter(
-        vc => vc.subIndustryId === sub.subIndustryId
-      )
+      { valueChainId: -1, valueChainName: 'All' },
+      ...this.allValueChains.filter(vc => Number(vc.subIndustryId) === Number(sub.subIndustryId))
     ];
+    this.valueChainName = 'All';
+
     this.applyFilters();
   }
 
   onValueChainSelected(vc: any) {
-    if (!vc || !vc.valueChainId) {
-      this.selectedValueChainId = null;
+    this.valueChainName = vc.valueChainName;
+    console.log("value chain name::", vc)
+    if (!vc || vc.valueChainId === -1) {
+      this.selectedValueChainId = -1;
+      this.valueChainName = null;
       this.applyFilters();
       return;
     }
@@ -474,37 +479,23 @@ export class HomepageConfigurationsComponent {
     this.applyFilters();
   }
 
-  applyFilters() {
-    let filtered = [...this.stories];
+applyFilters() {
+    this.filtered = [...this.stories];
 
-    // Industry filter
-    if (this.selectedIndustryId) {
-      filtered = filtered.filter(story => story.industryId === this.selectedIndustryId);
+    if (this.selectedIndustryId !== -1) {
+      this.filtered = this.filtered.filter((story: any) => story.industryId === this.selectedIndustryId);
+    }
+    if (this.selectedSubIndustryId !== -1) {
+      this.filtered = this.filtered.filter((story: any) => story.subIndustryId === this.selectedSubIndustryId);
+    }
+    if (this.selectedValueChainId !== -1) {
+      this.filtered = this.filtered.filter((story: any) => story.valueChainId === this.selectedValueChainId);
     }
 
-    // Sub-Industry filter
-    if (this.selectedSubIndustryId) {
-      filtered = filtered.filter(story => story.subIndustryId === this.selectedSubIndustryId);
-    }
-
-    // Value Chain filter
-    if (this.selectedValueChainId) {
-      filtered = filtered.filter(story => story.valueChainId === this.selectedValueChainId);
-    }
-
-    // Search filter (case-insensitive)
-    if (this.searchTerm && this.searchTerm.trim() !== '') {
-      const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(story =>
-        (story.title && story.title.toLowerCase().includes(term)) ||
-        (story.description && story.description.toLowerCase().includes(term)) ||
-        (story.tag && story.tag.some((t: any) => t.toLowerCase().includes(term)))
-      );
-    }
-
-    this.filteredStories = filtered;
-    console.log("filtered stories::", this.filteredStories);
+    this.filteredStories = [...this.filtered];
+    console.log("filtered stories:::",this.filteredStories)
   }
+
 
   updateImage(fieldName: 'heroImage' | 'keyCapabilitiesImage' | 'industries', index?: number) {
     const input = document.createElement('input');

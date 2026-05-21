@@ -309,7 +309,7 @@
             </app-custom-dropdown>
 
             <!-- Value Chain -->
-            <app-custom-dropdown label="Value Chain" [options]="valueChains" displayKey="valueChainName">
+            <app-custom-dropdown label="Value Chain" [options]="valueChains" displayKey="valueChainName" (optionSelected)="onValueChainSelected($event)">
             </app-custom-dropdown>
 
             <div class="search">
