@@ -179,6 +179,12 @@ export class HomepageConfigurationsComponent {
               subIndustryName: this.getSubIndustryName(story?.subIndustryId),
               tags: story?.tag || []
             }));
+            // ✅ Sync FormArray with local array
+            const featuredStoriesArray = this.homePageForm.get('featuredStories') as FormArray;
+            featuredStoriesArray.clear();
+            this.featuredStories.forEach(story => {
+              featuredStoriesArray.push(this.fb.group({ usecaseId: story.usecaseId }));
+            });
             this.cdr.detectChanges();
           });
         }
@@ -320,17 +326,17 @@ export class HomepageConfigurationsComponent {
   // }
 
   removeStory(index: number) {
-  this.featuredStories.splice(index, 1);
+    this.featuredStories.splice(index, 1);
 
-  const featuredStoriesArray = this.homePageForm.get('featuredStories') as FormArray;
-  featuredStoriesArray.clear();
+    const featuredStoriesArray = this.homePageForm.get('featuredStories') as FormArray;
+    featuredStoriesArray.clear();
 
-  this.featuredStories.forEach(story => {
-    featuredStoriesArray.push(this.fb.group({ usecaseId: story.usecaseId }));
-  });
+    this.featuredStories.forEach(story => {
+      featuredStoriesArray.push(this.fb.group({ usecaseId: story.usecaseId }));
+    });
 
-  console.log("featured stories after delete::", this.featuredStories);
-}
+    console.log("featured stories after delete::", this.featuredStories);
+  }
 
 
   loadAllStories(page: number = 1, size: number = 10) {
