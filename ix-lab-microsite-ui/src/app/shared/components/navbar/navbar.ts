@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, HostListener } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
 import { HomePageService } from '../../../core/services/home-page.service';
+import { AppStateService } from '../../../core/services/app-state.service';
+
 
 @Component({
   selector: 'app-navbar',
@@ -15,9 +17,10 @@ export class NavbarComponent {
   userPhotoUrl = 'assets/images/profile.png';
   role: string = ''; // no default
   getHomePageDetails: any;
+  applicationName: string ='';
 
   constructor(private elRef: ElementRef, private router: Router,private homePageService: HomePageService,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef, private appStateService: AppStateService
   ) {}
 
   ngOnInit() {
@@ -25,7 +28,10 @@ export class NavbarComponent {
     this.router.events.subscribe(() => {
       this.setRoleFromStorage();
     });
-    this.getHomePageConfigDetails();
+    this.appStateService.appName$.subscribe(name => {
+    this.applicationName = name;
+  });
+    //this.getHomePageConfigDetails();
   }
 
    getHomePageConfigDetails(): void {

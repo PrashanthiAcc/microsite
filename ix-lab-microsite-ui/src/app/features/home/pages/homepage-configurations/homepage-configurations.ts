@@ -13,6 +13,7 @@ import { NumericPlusDirective } from '../../../../shared/directives/numeric-plus
 import { HomePageService } from '../../../../core/services/home-page.service';
 import { forkJoin, Observable, of } from 'rxjs';
 import { Spinner } from '../../../../shared/components/spinner/spinner';
+import { AppStateService } from '../../../../core/services/app-state.service';
 
 export interface Story {
   usecaseId: number;
@@ -108,7 +109,7 @@ export class HomepageConfigurationsComponent {
   valueChainName: any;
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService, private cdr: ChangeDetectorRef,
-    private route: ActivatedRoute, private homePageService: HomePageService, private ngZone: NgZone) {
+    private route: ActivatedRoute, private homePageService: HomePageService, private ngZone: NgZone, private appStateService: AppStateService) {
 
     this.homePageForm = this.fb.group({
       applicationName: [''],
@@ -138,7 +139,7 @@ export class HomepageConfigurationsComponent {
     capabilities: false,
     industryNamesConf: false
   };
-  
+
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
@@ -399,7 +400,7 @@ export class HomepageConfigurationsComponent {
     });
   }
 
-   onIndustrySelected(industry: any) {
+  onIndustrySelected(industry: any) {
     this.industryName = industry.industryName;
     console.log("industry name::", industry)
     if (!industry || industry.industryId === -1) {
@@ -479,7 +480,7 @@ export class HomepageConfigurationsComponent {
     this.applyFilters();
   }
 
-applyFilters() {
+  applyFilters() {
     this.filtered = [...this.stories];
 
     if (this.selectedIndustryId !== -1) {
@@ -493,7 +494,7 @@ applyFilters() {
     }
 
     this.filteredStories = [...this.filtered];
-    console.log("filtered stories:::",this.filteredStories)
+    console.log("filtered stories:::", this.filteredStories)
   }
 
 
@@ -609,6 +610,7 @@ applyFilters() {
         this.toastTitle = 'Saved successfully';
         this.showToast = true;
         this.isDataLoading.set(false);
+        this.appStateService.setApplicationName(this.homePageForm.value.applicationName);
         this.cdr.detectChanges();
         this.router.navigate(['/home']);   // ✅ redirect after success
       },
@@ -699,6 +701,9 @@ applyFilters() {
         this.toastTitle = 'Updated successfully';
         this.showToast = true;
         this.isDataLoading.set(false);
+        // homepage-conf.ts (inside success callback)
+        this.appStateService.setApplicationName(this.homePageForm.value.applicationName);
+
         this.cdr.detectChanges();
         this.router.navigate(['/home']);   // ✅ redirect after success
       },
