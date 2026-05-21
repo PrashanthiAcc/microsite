@@ -318,8 +318,8 @@
             </div>
         </div>
         <!-- Empty state -->
-        <div class="stories__header" *ngIf="!isLoading && filteredStories.length === 0 && !showAdminControls">
-            <h1 class="stories__title">No Active Stories</h1>
+        <div class="stories__header" *ngIf="filteredStories.length === 0">
+            <h1 class="stories__title">No Featured Stories</h1>
         </div>
         <!-- Grid state -->
         <div class="stories__grid">
@@ -340,6 +340,26 @@
             </div>
         </div>
 
+        <ng-container>
+            <div class="pagination" *ngIf="totalPages > 1">
+
+                <button (click)="loadAllStories(currentPage - 1, pageSize)" [disabled]="currentPage === 1">
+                    <img [src]="pagination_left" alt="Previous" style="border: none;" />
+                </button>
+
+
+                <span *ngFor="let page of [].constructor(totalPages); let i = index"
+                    (click)="loadAllStories(i + 1, pageSize)" [class.active]="currentPage === i + 1">
+                    {{ i + 1 }}
+                </span>
+
+
+
+                <button (click)="loadAllStories(currentPage + 1, pageSize)" [disabled]="currentPage === totalPages">
+                    <img [src]="pagination_right" alt="Next" style="border: none;"/>
+                </button>
+            </div>
+        </ng-container>
     </div>
 
 </div>

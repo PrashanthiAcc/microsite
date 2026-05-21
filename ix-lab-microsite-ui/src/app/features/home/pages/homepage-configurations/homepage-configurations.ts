@@ -124,8 +124,6 @@ export class HomepageConfigurationsComponent {
       keyCapabilitiesImage: ['']
     });
 
-
-
   }
   // Track which accordion is open
   isAccordionOpen = {
@@ -136,15 +134,7 @@ export class HomepageConfigurationsComponent {
     capabilities: false,
     industryNamesConf: false
   };
-  // industryNames = [
-  //   { industryId: 1, name: 'Consumer Package Goods' },
-  //   { industryId: 2, name: 'Life Sciences' },
-  //   { industryId: 3, name: 'Energy' },
-  //   { industryId: 4, name: 'Industrials' },
-  //   { industryId: 5, name: 'Utilities' },
-  //   { industryId: 6, name: 'Chemicals & Natural Services' },
-  //   { industryId: 7, name: 'High Tech' }
-  // ];
+  
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
@@ -158,24 +148,10 @@ export class HomepageConfigurationsComponent {
       this.loadAllStories(this.currentPage);
     });
 
-
-    // const industriesArray = this.homePageForm.get('industries') as FormArray;
-    // this.industryNames.forEach(ind => {
-    //   industriesArray.push(this.fb.group({
-    //     industryId: [ind.industryId],
-    //     name: [ind.name],
-    //     fileName: [''],
-    //     defaultImage: ['']   // keep blank
-    //   }));
-    // });
-
     this.loadIndustries();
     this.homePageForm.get('clientStories')?.disable();
     this.getHomePageConfigDetails();
-
   }
-
-
 
 
   getHomePageConfigDetails(): void {
@@ -247,121 +223,6 @@ export class HomepageConfigurationsComponent {
     });
   }
 
-
-
-
-  // getHomePageConfigDetails(): void {
-  //   this.isDataLoading.set(true);
-  //   this.homePageService.getHomePageData().subscribe({
-  //     next: (res: any) => {
-  //       console.log('fetched successfully', res);
-  //       this.getHomePageDetails = res;
-
-  //       const industriesArray = this.homePageForm.get('industries') as FormArray;
-  //       industriesArray.clear();
-  //       this.industryPreviews = [];
-
-  //       // ✅ Wrap industry thumbnail resolution in forkJoin
-  //       const industryRequests = this.allIndustries.map(ind =>
-  //         of(res.industryThumbnails?.find((t: any) => t.industryId === ind.industryId))
-  //       );
-
-  //       forkJoin(industryRequests).subscribe((thumbs: any[]) => {
-  //         this.allIndustries.forEach((ind, i) => {
-  //           const backendThumb = thumbs[i];
-
-  //           industriesArray.push(this.fb.group({
-  //             industryId: ind.industryId,
-  //             name: ind.industryName,
-  //             fileName: [''],
-  //             defaultImage: [''],
-  //             updatedName: [ind.name]
-  //           }));
-
-  //           this.industryPreviews[i] = backendThumb ? backendThumb.industryThumbnailUrl : '';
-  //         });
-
-  //         // // ✅ Patch form only after industries + previews are ready
-  //         // this.homePageForm.patchValue({
-  //         //   applicationName: res.applicationName,
-  //         //   title: res.title,
-  //         //   subtitle: res.subTitle,
-  //         //   mesMomSolutions: res.mesMomSolDelivered,
-  //         //   productionSupport: res.prodSiteCriticalSupport,
-  //         //   sapEwmPrograms: res.sapEwmPrgDelivered,
-  //         //   sapEwmProgramsTbd: res.sapEwmProgramsTbd,
-  //         //   nvidiaStorycount: res.nvidiaStorycount
-  //         // });
-
-  //         // this.imagePreviews['heroImage'] = res.heroImageUrl;
-  //         // this.imagePreviews['keyCapabilitiesImage'] = res.keyCapabilityConfigurationImage;
-
-  //         // this.cdr.detectChanges();
-
-  //         this.ngZone.run(() => {
-  //           this.homePageForm.patchValue({
-  //             applicationName: res.applicationName,
-  //             title: res.title,
-  //             subtitle: res.subTitle,
-  //             mesMomSolutions: res.mesMomSolDelivered,
-  //             productionSupport: res.prodSiteCriticalSupport,
-  //             sapEwmPrograms: res.sapEwmPrgDelivered,
-  //             sapEwmProgramsTbd: res.sapEwmProgramsTbd,
-  //             nvidiaStorycount: res.nvidiaStorycount
-  //           }, { emitEvent: true });
-
-  //           this.imagePreviews['heroImage'] = res.heroImageUrl;
-  //           this.imagePreviews['keyCapabilitiesImage'] = res.keyCapabilityConfigurationImage;
-
-  //           this.cdr.markForCheck();   // <-- use markForCheck instead of detectChanges
-  //         });
-
-
-  //         const featuredStoriesArray = this.homePageForm.get('featuredStories') as FormArray;
-  //         featuredStoriesArray.clear();
-
-  //         if (res.featuredStories?.length > 0) {
-  //           res.featuredStories.forEach((story: any) => {
-  //             featuredStoriesArray.push(this.fb.group({ usecaseId: story.usecaseId }));
-  //           });
-
-  //           // Example: hardcoded test with one ID
-  //           // const storyRequests = [
-  //           //   this.usecaseService.getStoryDetailsById('10163')
-  //           // ];
-  //           const storyRequests = res.featuredStories.map((s: any) =>
-  //             this.usecaseService.getStoryDetailsById((s.usecaseId))
-  //           );
-  //           console.log("req::", storyRequests);
-
-  //           forkJoin<any[]>(storyRequests).subscribe((stories: any[]) => {
-  //             this.featuredStories = stories.map(story => ({
-  //               ...story,
-  //               industryName: this.getIndustryName(story.industryId),
-  //               subIndustryName: this.getSubIndustryName(story.subIndustryId),
-  //               tags: story.tag || []
-  //             }));
-  //             this.cdr.detectChanges();
-  //           });
-  //         }
-
-  //         this.getApprovedStoryCount();
-  //         this.cdr.detectChanges();
-  //       });
-  //       this.isDataLoading.set(false);
-  //     },
-  //     error: err => {
-  //       console.error('Fetch failed', err) 
-  //       this.isDataLoading.set(false);
-  //     }
-  //   });
-  //   //this.isDataLoading.set(false);
-  //    this.cdr.detectChanges();
-  // }
-
-
-
-
   getApprovedStoryCount(): void {
     this.homePageService.getApprovedUsecaseCount().subscribe({
       next: (res: any) => {
@@ -378,7 +239,6 @@ export class HomepageConfigurationsComponent {
       error: err => console.error('Fetch failed', err)
     });
   }
-
 
 
   // get industriesArray(): FormArray {
@@ -450,21 +310,10 @@ export class HomepageConfigurationsComponent {
     console.log("featured stories after delete::", this.featuredStories);
   }
 
+
   loadAllStories(page: number = 1, size: number = 10) {
-    this.isLoading = false;
-    this.usecaseService.getAllStories(page, size).subscribe((res: any) => {
+    this.usecaseService.getUsecasesByStatus('APPROVED', page, size).subscribe((res: any) => {
       let allStories = res.content || [];
-
-      if (!this.showAdminControls) {
-        allStories = allStories.filter((story: any) => story.isActive == true);
-        if (allStories.length > 0) {
-          this.isLoading = true;
-        } else {
-          this.isLoading = false;
-        }
-      }
-
-      this.isLoading = false;
 
       this.stories = allStories.map((story: any) => ({
         ...story,
@@ -474,18 +323,23 @@ export class HomepageConfigurationsComponent {
         subIndustryName: this.getSubIndustryName(story.subIndustryId)
       }));
 
-      this.filteredStories = this.stories;
-      console.log("is active stories::", this.filteredStories)
+      this.filteredStories = this.stories
+        .filter((story: any) => story.status === 'APPROVED')
+      // .map((archived: any) => ({
+      //   ...archived,
+      //   ownerName: this.getOwnerName(archived.ownerEId)
+      // }));
+      console.log("ApprovedStories::", this.filteredStories);
       this.applyFilters();
-
       this.currentPage = page;
       this.totalPages = res.totalPages;
       this.totalElements = res.totalElements;
       this.pageSize = res.size;
+      this.filteredStories = [...this.filteredStories];
       this.cdr.detectChanges();
-      //console.log('Stories loaded:', this.stories);
     });
   }
+
 
   getIndustryName(id: number): string {
     const industry = this.allIndustries.find((i: any) => i.industryId === id);
