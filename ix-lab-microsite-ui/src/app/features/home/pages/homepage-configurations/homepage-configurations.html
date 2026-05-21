@@ -123,7 +123,7 @@
         </h3>
         <div class="divider"></div>
 
-        <div class="accordion-body" *ngIf="isAccordionOpen.industryNamesConf">
+        <div class="accordion-body" *ngIf="isAccordionOpen.industryNamesConf && industriesArray?.length">
             <div class="industry-names-grid">
                 <div class="industry-row" *ngFor="let industry of industriesArray.controls; let i = index"
                     [formGroup]="industry">
