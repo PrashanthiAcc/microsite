@@ -79,6 +79,7 @@ export class LoginComponent {
 
 
  login() {
+  this.getAllUsers();
   this.userService.checkPassword(this.enterpriseId, this.password).subscribe({
     next: (res: { passwordMatch: boolean }) => {
       if (res.passwordMatch) {

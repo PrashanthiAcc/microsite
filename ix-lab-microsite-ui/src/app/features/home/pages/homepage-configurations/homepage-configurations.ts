@@ -160,6 +160,7 @@ export class HomepageConfigurationsComponent {
 
 
   getHomePageConfigDetails(): void {
+    this.isDataLoading.set(true);
     this.homePageService.getHomePageData().subscribe({
       next: (res: any) => {
         console.log('fetched successfully', res);
@@ -172,11 +173,11 @@ export class HomepageConfigurationsComponent {
 
         if (storyRequests.length > 0) {
           forkJoin(storyRequests).subscribe((stories: any[]) => {
-            this.featuredStories = stories.map(story => ({
+            this.featuredStories = stories?.map(story => ({
               ...story,
-              industryName: this.getIndustryName(story.industryId),
-              subIndustryName: this.getSubIndustryName(story.subIndustryId),
-              tags: story.tag || []
+              industryName: this.getIndustryName(story?.industryId),
+              subIndustryName: this.getSubIndustryName(story?.subIndustryId),
+              tags: story?.tag || []
             }));
             this.cdr.detectChanges();
           });
@@ -188,8 +189,8 @@ export class HomepageConfigurationsComponent {
         this.industryPreviews = [];
 
         const industryGroups = this.allIndustries.map((ind, i) => {
-          const backendThumb = res.industryThumbnails?.find(
-            (t: any) => t.industryId === ind.industryId
+          const backendThumb = res?.industryThumbnails?.find(
+            (t: any) => t.industryId === ind?.industryId
           );
 
           this.industryPreviews[i] = backendThumb ? backendThumb.industryThumbnailUrl : '';
@@ -221,10 +222,13 @@ export class HomepageConfigurationsComponent {
         this.imagePreviews['keyCapabilitiesImage'] = res.keyCapabilityConfigurationImage;
 
         this.getApprovedStoryCount();
-
+        this.isDataLoading.set(false);
         this.cdr.detectChanges();
       },
-      error: err => console.error('Fetch failed', err)
+      error: err => {
+        console.error('Fetch failed', err)
+        this.isDataLoading.set(false);
+      }
     });
   }
 
@@ -303,17 +307,30 @@ export class HomepageConfigurationsComponent {
     this.showStoryModal = false;
   }
 
+  // removeStory(index: number) {
+  //   const featuredStoriesArray = this.homePageForm.get('featuredStories') as FormArray;
+
+  //   // remove from local array
+  //   this.featuredStories.splice(index, 1);
+
+  //   // remove from FormArray
+  //   featuredStoriesArray.removeAt(index);
+
+  //   console.log("featured stories after delete::", this.featuredStories);
+  // }
+
   removeStory(index: number) {
-    const featuredStoriesArray = this.homePageForm.get('featuredStories') as FormArray;
+  this.featuredStories.splice(index, 1);
 
-    // remove from local array
-    this.featuredStories.splice(index, 1);
+  const featuredStoriesArray = this.homePageForm.get('featuredStories') as FormArray;
+  featuredStoriesArray.clear();
 
-    // remove from FormArray
-    featuredStoriesArray.removeAt(index);
+  this.featuredStories.forEach(story => {
+    featuredStoriesArray.push(this.fb.group({ usecaseId: story.usecaseId }));
+  });
 
-    console.log("featured stories after delete::", this.featuredStories);
-  }
+  console.log("featured stories after delete::", this.featuredStories);
+}
 
 
   loadAllStories(page: number = 1, size: number = 10) {
