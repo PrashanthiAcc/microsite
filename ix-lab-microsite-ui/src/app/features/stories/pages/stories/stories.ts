@@ -475,15 +475,15 @@ export class StoriesComponent implements OnInit {
           this.applyFilters();
           this.cdr.detectChanges();
         }
-        // if (selectedIndustryObj) {
-        //   this.selectedIndustryId = selectedIndustryObj.industryId;
-        //   this.industryName = selectedIndustryObj.industryName;
+        if (selectedIndustryObj) {
+          this.selectedIndustryId = selectedIndustryObj.industryId;
+          this.industryName = selectedIndustryObj.industryName;
 
-        //   // 🔥 Trigger the same cascade as if user clicked the dropdown
-        //   this.onIndustrySelected(selectedIndustryObj);
+          // 🔥 Trigger the same cascade as if user clicked the dropdown
+          this.onIndustrySelected(selectedIndustryObj);
 
-        //   this.cdr.detectChanges();
-        // }
+          this.cdr.detectChanges();
+        }
 
         this.loadAllStories(this.currentPage, this.pageSize);
       } else {
