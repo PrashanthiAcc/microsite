@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CustomDropdownComponent } from '../../../../shared/components/custom-dropdown/custom-dropdown';
-import { CommonModule } from '@angular/common';
+import { CommonModule,Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UsecaseService } from '../../../../core/services/usecase';
 import { ChangeDetectorRef } from '@angular/core';
@@ -147,7 +147,7 @@ export class StoryDetailsComponent {
   currentIndex = 0;
   showVideoPlayer = false;
   storyID: any;
-  constructor(private route: ActivatedRoute, private usecaseService: UsecaseService, private cdr: ChangeDetectorRef,
+  constructor(private route: ActivatedRoute, private usecaseService: UsecaseService, private cdr: ChangeDetectorRef, private location: Location,
     private router: Router, private fb: FormBuilder
   ) { this.faqs = this.fb.array<FormGroup>([]); }
 
@@ -423,17 +423,20 @@ export class StoryDetailsComponent {
         }
       });
     } else {
-      this.router.navigate(['/stories'], {
-        queryParams: {
-          from: 'stories',
-          page: queryParams['page'] || 1,
-          search: queryParams['search'] || null,
-          industry: queryParams['industry'] || null,
-          subIndustry: queryParams['subIndustry'] || null,
-          valueChain: queryParams['valueChain'] || null
-        }
-      });
+      // this.router.navigate(['/stories'], 
+      //   {
+      //   queryParams: {
+      //     from: 'stories',
+      //     page: queryParams['page'] || 1,
+      //     search: queryParams['search'] || null,
+      //     industry: queryParams['industry'] || null,
+      //     subIndustry: queryParams['subIndustry'] || null,
+      //     valueChain: queryParams['valueChain'] || null
+      //   }
+      // });
+      this.location.back();
     }
+    
   }
 
   get faqFormGroups(): FormGroup[] {

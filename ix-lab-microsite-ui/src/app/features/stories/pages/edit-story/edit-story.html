@@ -112,13 +112,23 @@
       <div class="form-grid">
         <div class="form-field">
           <label for="owner">Owner</label>
-          <select id="owner" formControlName="ownerId"
+          <!-- <select id="owner" formControlName="ownerId"
             [ngStyle]="{'background-image': 'url(' + dropdownIconPath + ')'}">
-            <!-- <option>Select Owner</option> -->
+           
             <option *ngFor="let user of allUsers" [value]="user.userEid">
               {{ user.userEid }}
             </option>
+          </select> -->
+
+          <select id="owner" formControlName="ownerId"
+            [ngStyle]="{'background-image': 'url(' + dropdownIconPath + ')'}">
+            <ng-container *ngFor="let user of allUsers">
+              <option *ngIf="user.isActive" [value]="user.userEid">
+                {{ user.userEid }}
+              </option>
+            </ng-container>
           </select>
+
         </div>
 
         <div class="form-field">
@@ -251,8 +261,7 @@
 
               <!-- Link input beside the button -->
               <div class="upload-link">
-                <input type="text" formControlName="link" placeholder="Paste a valid link"
-                  />
+                <input type="text" formControlName="link" placeholder="Paste a valid link" />
               </div>
 
               <!-- Delete button -->

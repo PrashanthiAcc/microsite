@@ -100,6 +100,7 @@ export class AddStoryComponent {
   thumbnailPreview: string | ArrayBuffer | null = null;
   bannerPreview: string | ArrayBuffer | null = null;
   isDataLoading = signal(false);
+  approvedUsers: any[] = [];
   constructor(private fb: FormBuilder, private router: Router, private http: HttpClient, private location: Location,
     private industryService: IndustryService, private userService: UserService, private usecaseService: UsecaseService, private cd: ChangeDetectorRef) {
     this.storyForm = this.fb.group({
@@ -178,6 +179,7 @@ export class AddStoryComponent {
   getAllUsers() {
     this.userService.getAllUsers().subscribe((res: any) => {
       this.allUsers = res;
+      this.approvedUsers = this.allUsers.filter((user: any) => user.isActive);
     });
   }
 

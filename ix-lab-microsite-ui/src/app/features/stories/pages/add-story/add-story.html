@@ -115,7 +115,7 @@
           <select id="owner" formControlName="ownerId"
             [ngStyle]="{'background-image': 'url(' + dropdownIconPath + ')'}">
             <!-- <option>Select Owner</option> -->
-            <option *ngFor="let user of allUsers" [value]="user.userEid">
+            <option *ngFor="let user of approvedUsers" [value]="user.userEid">
               {{ user.userEid }}
             </option>
           </select>
