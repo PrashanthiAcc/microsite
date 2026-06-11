@@ -126,7 +126,7 @@
           <select id="primarySpeaker" formControlName="primarySpeaker"
             [ngStyle]="{'background-image': 'url(' + dropdownIconPath + ')'}">
             <!-- <option>Select Primary Speaker</option> -->
-            <option *ngFor="let user of allUsers" [value]="user.userEid">
+            <option *ngFor="let user of approvedUsers" [value]="user.userEid">
               {{ user.userEid }}
             </option>
           </select>
@@ -137,7 +137,7 @@
           <select id="secondarySpeaker" formControlName="secondarySpeaker"
             [ngStyle]="{'background-image': 'url(' + dropdownIconPath + ')'}">
             <!-- <option>Select Secondary Speaker</option> -->
-            <option *ngFor="let user of allUsers" [value]="user.userEid">
+            <option *ngFor="let user of approvedUsers" [value]="user.userEid">
               {{ user.userEid }}
             </option>
           </select>
@@ -148,7 +148,7 @@
           <select id="tertiarySpeaker" formControlName="tertiarySpeaker"
             [ngStyle]="{'background-image': 'url(' + dropdownIconPath + ')'}">
             <!-- <option>Select Tertiary Speaker</option> -->
-            <option *ngFor="let user of allUsers" [value]="user.userEid">
+            <option *ngFor="let user of approvedUsers" [value]="user.userEid">
               {{ user.userEid }}
             </option>
           </select>
