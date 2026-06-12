@@ -23,7 +23,9 @@ export class Hero {
       next: (res: any) => {
         console.log('fetched successfully', res);
 
-        const approvedCount = Number(res["Total Approved usecases"] || 0);
+        // ✅ Handle both "10" and "10+" (or any non-digit chars)
+        const rawApproved = res["Total Approved usecases"] || "0";
+        const approvedCount = Number(rawApproved.replace(/\D/g, "")) || 0;
         const nvidiaCount = Number(this.heroData?.nvidiaStorycount || 0);
 
         // ✅ Extract the number from the response object

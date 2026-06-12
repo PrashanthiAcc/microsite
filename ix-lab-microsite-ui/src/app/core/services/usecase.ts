@@ -126,7 +126,7 @@ export class UsecaseService {
   getUsecasesByStatus(
     status: string,
     page: number = 1,
-    size: number = 10
+    size: number = 12
   ): Observable<any> {
     return this.http.get(`${this.baseUrl}/api/usecase/v1/usecases`, {
       params: { status, page, size }

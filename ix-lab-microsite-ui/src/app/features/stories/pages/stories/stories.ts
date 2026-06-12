@@ -96,6 +96,7 @@ export class StoriesComponent implements OnInit {
   totalApproved: any;
   loggedUserDetails: any;
   userRole: any;
+  totalApprovedStories: any;
   constructor(private router: Router, private http: HttpClient,
     private industryService: IndustryService, private cdr: ChangeDetectorRef, private route: ActivatedRoute,
     private userService: UserService, private usecaseService: UsecaseService
@@ -191,7 +192,7 @@ export class StoriesComponent implements OnInit {
 
 
 
-  loadAllStories(page: number = 1, size: number = 10) {
+  loadAllStories(page: number = 1, size: number = 12) {
     this.isDataLoading.set(true);
 
     forkJoin({
@@ -203,7 +204,8 @@ export class StoriesComponent implements OnInit {
         this.drafts = (drafts.content || []).map((d: any) => this.mapStory(d));
         this.inReviewStories = (inReview.content || []).map((s: any) => this.mapStory(s));
         this.approvedStories = (approved.content || []).map((a: any) => this.mapStory(a));
-
+        this.totalApprovedStories = approved.totalElements;
+       
         // ✅ Hydrate filteredStories based on mode
         if (this.showAdminControls) {
           this.filteredStories = [...this.inReviewStories];
