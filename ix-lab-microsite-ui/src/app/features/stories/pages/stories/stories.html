@@ -157,7 +157,7 @@
     <div class="stories__header">
       <!-- <h1 class="stories__title" *ngIf="filteredStories.length && !showAdminControls">{{ getBreadcrumbTitle() }} ({{ stories.length }})</h1> -->
       <!-- <h1 class="stories__title" *ngIf="!showAdminControls">{{ getDynamicTitle() }} ({{ approvedStories.length }})</h1> -->
-       <h1 class="stories__title" *ngIf="!showAdminControls">{{ getDynamicTitle() }} ({{totalApprovedStories }})</h1>
+       <h1 class="stories__title" *ngIf="!showAdminControls">{{ getDynamicTitle() }} ({{filteredStories.length }})</h1>
       <h1 class="stories__title" *ngIf="showAdminControls">All In Review Stories ({{ filteredStories.length }})</h1>
 
 
