@@ -197,7 +197,11 @@ export class AddStoryComponent {
 
 
   onIndustrySelected(industry: any) {
-    this.storyForm.patchValue({ industryId: industry?.industryId || '' });
+    this.storyForm.patchValue({ 
+      industryId: industry?.industryId || '',
+      subIndustryId: '',   // ✅ reset sub-industry
+      valueChainId: ''     // ✅ reset value chain
+     });
     this.subIndustries = industry
       ? this.allSubIndustries.filter(sub => sub.industryId === industry.industryId)
       : [];
@@ -205,7 +209,10 @@ export class AddStoryComponent {
   }
 
   onSubIndustrySelected(sub: any) {
-    this.storyForm.patchValue({ subIndustryId: sub?.subIndustryId || '' });
+    this.storyForm.patchValue({ 
+      subIndustryId: sub?.subIndustryId || '',
+      valueChainId: ''     // ✅ reset value chain when sub-industry changes
+    });
     this.valueChains = sub
       ? this.allValueChains.filter(vc => vc.subIndustryId === sub.subIndustryId)
       : [];

@@ -401,26 +401,56 @@ export class EditStoryComponent {
     });
   }
 
-
   onIndustrySelected(industry: any) {
-    this.storyForm.patchValue({ industryId: industry?.industryId || '' });
+    this.storyForm.patchValue({ industryId: industry?.industryId || null });
+
+    this.storyForm.get('subIndustryId')?.reset();
+    this.storyForm.get('valueChainId')?.reset();
+
     this.subIndustries = industry
       ? this.allSubIndustries.filter(sub => sub.industryId === industry.industryId)
       : [];
+
     this.valueChains = [];
   }
 
   onSubIndustrySelected(sub: any) {
-    this.storyForm.patchValue({ subIndustryId: sub?.subIndustryId || '' });
+    this.storyForm.patchValue({ subIndustryId: sub?.subIndustryId || null });
+
+    this.storyForm.get('valueChainId')?.reset();
+
     this.valueChains = sub
       ? this.allValueChains.filter(vc => vc.subIndustryId === sub.subIndustryId)
       : [];
   }
 
   onValueChainSelected(vc: any) {
-    this.storyForm.patchValue({ valueChainId: vc?.valueChainId || '' });
+    this.storyForm.patchValue({ valueChainId: vc?.valueChainId || null });
   }
 
+
+
+  // onIndustrySelected(industry: any) {
+  //   this.storyForm.patchValue({ industryId: industry?.industryId || '' });
+  //   this.subIndustries = industry
+  //     ? this.allSubIndustries.filter(sub => sub.industryId === industry.industryId)
+  //     : [];
+  //   this.valueChains = [];
+  // }
+
+  // onSubIndustrySelected(sub: any) {
+  //   this.storyForm.patchValue({ subIndustryId: sub?.subIndustryId || '' });
+  //   this.valueChains = sub
+  //     ? this.allValueChains.filter(vc => vc.subIndustryId === sub.subIndustryId)
+  //     : [];
+  // }
+
+  // onValueChainSelected(vc: any) {
+  //   this.storyForm.patchValue({ valueChainId: vc?.valueChainId || '' });
+  // }
+
+  
+  
   // Create artifact control (file or null)
   createArtifact() {
     return this.fb.control({
@@ -791,10 +821,12 @@ export class EditStoryComponent {
     const formValue = this.storyForm.value;
 
     // ✅ Map industry/subIndustry/valueChain names back to IDs
-    const industryObj = this.industries.find(i => i.industryName === formValue.industryId);
-    const subIndustryObj = this.allSubIndustries.find(si => si.subIndustryName === formValue.subIndustryId);
-    const valueChainObj = this.allValueChains.find(vc => vc.valueChainName === formValue.valueChainId);
-
+    // const industryObj = this.industries.find(i => i.industryName === formValue.industryId);
+    // const subIndustryObj = this.allSubIndustries.find(si => si.subIndustryName === formValue.subIndustryId);
+    // const valueChainObj = this.allValueChains.find(vc => vc.valueChainName === formValue.valueChainId);
+    const industryObj = this.industries.find(i => i.industryId === formValue.industryId);
+    const subIndustryObj = this.allSubIndustries.find(si => si.subIndustryId === formValue.subIndustryId);
+    const valueChainObj = this.allValueChains.find(vc => vc.valueChainId === formValue.valueChainId);
     // Owner and speakers already working fine (userEid strings)
     const ownerUser = this.allUsers.find(u => u.userEid === formValue.ownerId);
 
