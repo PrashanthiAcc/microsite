@@ -5,7 +5,7 @@
     <!-- BREADCRUMB & ACTION BUTTONS -->
     <div class="stories__top-bar" *ngIf="showAdminControls">
       <div class="breadcrumb">
-        <a  class="breadcrumb-link">Admin</a>
+        <a class="breadcrumb-link">Admin</a>
         <span class="breadcrumb-separator">›</span>
         <a [routerLink]="['/admin/configuration']" class="breadcrumb-link">Configurations</a>
         <span class="breadcrumb-separator">›</span>
@@ -62,92 +62,92 @@
     <!---DRAFTS SECTION-->
     <!-- new wrapper Drafts-->
     <ng-container *ngIf="showAdminControls && this.currentFrom !== 'stories'">
-  <div class="stories__header">
-    <h1 class="stories__title">All Drafts ({{ filteredDrafts.length }})</h1>
-  </div>
+      <div class="stories__header">
+        <h1 class="stories__title">All Drafts ({{ filteredDrafts.length }})</h1>
+      </div>
 
-  <!-- GRID ALL DRAFTS------------ -->
-  <!-- ✅ use filteredDrafts instead of drafts -->
-  <div class="stories__grid" *ngIf="filteredDrafts.length">
+      <!-- GRID ALL DRAFTS------------ -->
+      <!-- ✅ use filteredDrafts instead of drafts -->
+      <div class="stories__grid" *ngIf="filteredDrafts.length">
 
-    <div class="story-card" *ngFor="let draft of filteredDrafts" [routerLink]="['/stories', draft.usecaseId]"
-      [queryParams]="{from: currentFrom,page: currentPage}">
+        <div class="story-card" *ngFor="let draft of filteredDrafts" [routerLink]="['/stories', draft.usecaseId]"
+          [queryParams]="{from: currentFrom,page: currentPage}">
 
-      <div class="story-card__media">
-        <img [src]="draft.thumbnailImageUrl" alt="">
-        <button class="card-menu-btn" (click)="$event.stopPropagation(); toggleMenu(draft, $event)">⋮</button>
+          <div class="story-card__media">
+            <img [src]="draft.thumbnailImageUrl" alt="">
+            <button class="card-menu-btn" (click)="$event.stopPropagation(); toggleMenu(draft, $event)">⋮</button>
 
-        <div class="card-menu" *ngIf="draft.showMenu" (click)="$event.stopPropagation()">
+            <div class="card-menu" *ngIf="draft.showMenu" (click)="$event.stopPropagation()">
 
-          <button class="menu-item">
-            <img [src]="editIcon" alt="Edit" />
-            <span [routerLink]="['/stories', draft.usecaseId, 'edit']">Edit Story</span>
-          </button>
-          <!-- <button class="menu-item">
+              <button class="menu-item">
+                <img [src]="editIcon" alt="Edit" />
+                <span [routerLink]="['/stories', draft.usecaseId, 'edit']">Edit Story</span>
+              </button>
+              <!-- <button class="menu-item">
             <img [src]="favoriteIcon" alt="Favorite" />
             <span>Add to Favourites</span>
           </button> -->
-          <button class="menu-item">
-            <img [src]="discardIcon" alt="Discard" />
-            <span (click)="discardDraft(draft.usecaseId)">Discard Draft</span>
-          </button>
-          <!-- <button class="menu-item" *ngIf="draft.status !== 'ARCHIVED'">
+              <button class="menu-item">
+                <img [src]="discardIcon" alt="Discard" />
+                <span (click)="discardDraft(draft.usecaseId)">Discard Draft</span>
+              </button>
+              <!-- <button class="menu-item" *ngIf="draft.status !== 'ARCHIVED'">
             <img [src]="archiveIcon" alt="Archive" />
             <span (click)="archiveStory(draft.usecaseId)">Archive Story</span>
           </button> -->
+            </div>
+          </div>
+
+          <div class="story-card__content">
+            <span class="category">{{ draft.category }}</span>
+
+            <div class="industry-row">
+              <span class="left industry-subindustry-border-bottom feild-font">
+                {{draft.industryName}} • {{draft.subIndustryName}}
+              </span>
+
+              <span class="right feild-font">
+                <img src="assets/icons/value-chain.png" alt="Value chain" />
+                {{draft.valueChainName}}
+              </span>
+            </div>
+
+            <h3>{{ draft.title }}</h3>
+
+            <p class="truncate-3-lines">{{ draft.description }}</p>
+
+            <div class="tags">
+              <span *ngFor="let tag of draft.tag">{{ tag }}</span>
+            </div>
+
+            <!-- Footer row for stories -->
+            <div class="story-card__footer">
+              <div class="footer-row">
+                <div class="footer-item">
+                  <img [src]="user_logo" alt="user" />
+                  <span>{{ draft.ownerName }}</span>
+                </div>
+                <div class="footer-item">
+                  <img [src]="durationIcon" alt="time" />
+                  <span>{{ draft.duration }} Min</span>
+                </div>
+              </div>
+              <div class="footer-row status">
+                <div class="footer-item">
+                  <img [src]="reviewIcon" alt="status" />
+                  <span>{{ draft.status }}</span>
+                </div>
+              </div>
+              <div class="footer-item" *ngIf="draft.updatedDate">
+                <span>{{ draft.updatedDate | date:'dd MMM yyyy' }}</span>
+              </div>
+            </div>
+          </div>
+
         </div>
+
       </div>
-
-      <div class="story-card__content">
-        <span class="category">{{ draft.category }}</span>
-
-        <div class="industry-row">
-          <span class="left industry-subindustry-border-bottom feild-font">
-            {{draft.industryName}} • {{draft.subIndustryName}}
-          </span>
-        
-          <span class="right feild-font">
-            <img src="assets/icons/value-chain.png" alt="Value chain" />
-            {{draft.valueChainName}}
-          </span>
-        </div>
-
-        <h3>{{ draft.title }}</h3>
-
-        <p class="truncate-3-lines">{{ draft.description }}</p>
-
-        <div class="tags">
-          <span *ngFor="let tag of draft.tag">{{ tag }}</span>
-        </div>
-
-        <!-- Footer row for stories -->
-        <div class="story-card__footer">
-          <div class="footer-row">
-            <div class="footer-item">
-              <img [src]="user_logo" alt="user" />
-              <span>{{ draft.ownerName }}</span>
-            </div>
-            <div class="footer-item">
-              <img [src]="durationIcon" alt="time" />
-              <span>{{ draft.duration }} Min</span>
-            </div>
-          </div>
-          <div class="footer-row status">
-            <div class="footer-item">
-              <img [src]="reviewIcon" alt="status" />
-              <span>{{ draft.status }}</span>
-            </div>
-          </div>
-          <div class="footer-item" *ngIf="draft.updatedDate">
-            <span>{{ draft.updatedDate | date:'dd MMM yyyy' }}</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-  </div>
-</ng-container>
+    </ng-container>
 
     <!---DRAFTS SECTION-->
 
@@ -157,7 +157,12 @@
     <div class="stories__header">
       <!-- <h1 class="stories__title" *ngIf="filteredStories.length && !showAdminControls">{{ getBreadcrumbTitle() }} ({{ stories.length }})</h1> -->
       <!-- <h1 class="stories__title" *ngIf="!showAdminControls">{{ getDynamicTitle() }} ({{ approvedStories.length }})</h1> -->
-       <h1 class="stories__title" *ngIf="!showAdminControls">{{ getDynamicTitle() }} ({{filteredStories.length }})</h1>
+      <!-- <h1 class="stories__title" *ngIf="!showAdminControls">{{ getDynamicTitle() }} ({{filteredStories.length }})</h1> -->
+      <h1 class="stories__title" *ngIf="!showAdminControls">
+        {{ getDynamicTitle() }}
+        ({{ getDynamicTitle() === 'All Stories' ? totalApprovedStories : filteredStories.length }})
+      </h1>
+
       <h1 class="stories__title" *ngIf="showAdminControls">All In Review Stories ({{ filteredStories.length }})</h1>
 
 
@@ -167,8 +172,7 @@
           View Industry Overview
         </a>
 
-        <a class="action-link" (click)="openValueChainModal()"
-          [class.disabled]="!isValueChainEnabled()">
+        <a class="action-link" (click)="openValueChainModal()" [class.disabled]="!isValueChainEnabled()">
           <img src="assets/icons/value-chain.png" alt="Value chain" />
           View Value Chain
         </a>
@@ -214,7 +218,7 @@
             <span class="left industry-subindustry-border-bottom feild-font">
               {{story.industryName}} • {{story.subIndustryName}}
             </span>
-          
+
             <span class="right feild-font">
               <img src="assets/icons/value-chain.png" alt="Value chain" />
               {{story.valueChainName}}
@@ -229,7 +233,7 @@
             <span *ngFor="let tag of story.tag">{{ tag }}</span>
           </div>
 
-          
+
           <div class="story-card__footer">
             <div class="footer-row">
               <div class="footer-item">
@@ -263,7 +267,7 @@
     </div>
 
 
-    <ng-container >
+    <ng-container>
       <div class="pagination" *ngIf="totalPages > 1">
         <!-- Previous -->
         <button [routerLink]="['/stories']" [queryParams]="{ from: currentFrom, page: currentPage - 1 }"
