@@ -824,16 +824,30 @@ export class EditStoryComponent {
     // const industryObj = this.industries.find(i => i.industryName === formValue.industryId);
     // const subIndustryObj = this.allSubIndustries.find(si => si.subIndustryName === formValue.subIndustryId);
     // const valueChainObj = this.allValueChains.find(vc => vc.valueChainName === formValue.valueChainId);
-    const industryObj = this.industries.find(i => i.industryId === formValue.industryId);
-    const subIndustryObj = this.allSubIndustries.find(si => si.subIndustryId === formValue.subIndustryId);
-    const valueChainObj = this.allValueChains.find(vc => vc.valueChainId === formValue.valueChainId);
+    // const industryObj = this.industries.find(i => i.industryId === formValue.industryId);
+    // const subIndustryObj = this.allSubIndustries.find(si => si.subIndustryId === formValue.subIndustryId);
+    // const valueChainObj = this.allValueChains.find(vc => vc.valueChainId === formValue.valueChainId);
+
+    // Handle both name and ID cases
+const industryObj = this.industries.find(i =>
+  i.industryId === formValue.industryId || i.industryName === formValue.industryId
+);
+const subIndustryObj = this.allSubIndustries.find(si =>
+  si.subIndustryId === formValue.subIndustryId || si.subIndustryName === formValue.subIndustryId
+);
+const valueChainObj = this.allValueChains.find(vc =>
+  vc.valueChainId === formValue.valueChainId || vc.valueChainName === formValue.valueChainId
+);
     // Owner and speakers already working fine (userEid strings)
     const ownerUser = this.allUsers.find(u => u.userEid === formValue.ownerId);
 
     const payload = {
-      industryId: industryObj ? industryObj.industryId : null,
-      subIndustryId: subIndustryObj ? subIndustryObj.subIndustryId : null,
-      valueChainId: valueChainObj ? valueChainObj.valueChainId : null,
+      // industryId: industryObj ? industryObj.industryId : null,
+      // subIndustryId: subIndustryObj ? subIndustryObj.subIndustryId : null,
+      // valueChainId: valueChainObj ? valueChainObj.valueChainId : null,
+      industryId: industryObj?.industryId || null,
+  subIndustryId: subIndustryObj?.subIndustryId || null,
+  valueChainId: valueChainObj?.valueChainId || null,
       title: formValue.title,
       thumbnailImageUrl: this.extractValue(this.storyForm.get('thumbnailUrl')?.value),
       bannerUrl: this.extractValue(this.storyForm.get('bannerUrl')?.value),
@@ -1080,17 +1094,29 @@ export class EditStoryComponent {
     const formValue = this.storyForm.value;
 
     // ✅ Map industry/subIndustry/valueChain names back to IDs
-    const industryObj = this.industries.find(i => i.industryName === formValue.industryId);
-    const subIndustryObj = this.allSubIndustries.find(si => si.subIndustryName === formValue.subIndustryId);
-    const valueChainObj = this.allValueChains.find(vc => vc.valueChainName === formValue.valueChainId);
+    // const industryObj = this.industries.find(i => i.industryName === formValue.industryId);
+    // const subIndustryObj = this.allSubIndustries.find(si => si.subIndustryName === formValue.subIndustryId);
+    // const valueChainObj = this.allValueChains.find(vc => vc.valueChainName === formValue.valueChainId);
 
+    const industryObj = this.industries.find(i =>
+  i.industryId === formValue.industryId || i.industryName === formValue.industryId
+);
+const subIndustryObj = this.allSubIndustries.find(si =>
+  si.subIndustryId === formValue.subIndustryId || si.subIndustryName === formValue.subIndustryId
+);
+const valueChainObj = this.allValueChains.find(vc =>
+  vc.valueChainId === formValue.valueChainId || vc.valueChainName === formValue.valueChainId
+);
     // Owner and speakers already working fine (userEid strings)
     const ownerUser = this.allUsers.find(u => u.userEid === formValue.ownerId);
 
     const payload = {
-      industryId: industryObj ? industryObj.industryId : null,
-      subIndustryId: subIndustryObj ? subIndustryObj.subIndustryId : null,
-      valueChainId: valueChainObj ? valueChainObj.valueChainId : null,
+      // industryId: industryObj ? industryObj.industryId : null,
+      // subIndustryId: subIndustryObj ? subIndustryObj.subIndustryId : null,
+      // valueChainId: valueChainObj ? valueChainObj.valueChainId : null,
+       industryId: industryObj?.industryId || null,
+  subIndustryId: subIndustryObj?.subIndustryId || null,
+  valueChainId: valueChainObj?.valueChainId || null,
       title: formValue.title,
       thumbnailImageUrl: this.extractValue(this.storyForm.get('thumbnailUrl')?.value),
       bannerUrl: this.extractValue(this.storyForm.get('bannerUrl')?.value),
