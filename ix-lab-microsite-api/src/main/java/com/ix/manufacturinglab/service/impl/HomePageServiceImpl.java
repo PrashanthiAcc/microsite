@@ -11,10 +11,7 @@ import com.ix.manufacturinglab.entity.HomePageConfiguration;
 import com.ix.manufacturinglab.entity.Industry;
 import com.ix.manufacturinglab.entity.IndustryThumbnails;
 import com.ix.manufacturinglab.exception.CommonException;
-import com.ix.manufacturinglab.repository.FeaturedStoriesRepository;
-import com.ix.manufacturinglab.repository.HomePageConfigurationRepository;
-import com.ix.manufacturinglab.repository.IndustryRepository;
-import com.ix.manufacturinglab.repository.IndustryThumbnailsRepository;
+import com.ix.manufacturinglab.repository.*;
 import com.ix.manufacturinglab.service.HomePageService;
 import com.ix.manufacturinglab.service.MicrositeService;
 import com.ix.manufacturinglab.storage.CloudStorageService;
@@ -35,6 +32,8 @@ import java.util.Set;
 import java.util.Optional;
 import java.util.Objects;
 
+import static java.lang.Boolean.TRUE;
+
 @Service
 public class HomePageServiceImpl implements HomePageService {
 
@@ -45,18 +44,20 @@ public class HomePageServiceImpl implements HomePageService {
     private final CloudStorageService cloudStorageService;
     private final IndustryRepository industryRepository;
     private final MicrositeService micrositeService;
+    private final UseCaseRepository useCaseRepository;
 
     public HomePageServiceImpl(HomePageConfigurationRepository homePageRepository,
                                FeaturedStoriesRepository featuredStoriesRepository,
                                IndustryThumbnailsRepository industryThumbnailsRepository,
                                CloudStorageService cloudStorageService, IndustryRepository industryRepository,
-                               MicrositeService micrositeService) {
+                               MicrositeService micrositeService, UseCaseRepository useCaseRepository) {
         this.homePageRepository = homePageRepository;
         this.featuredStoriesRepository = featuredStoriesRepository;
         this.industryThumbnailsRepository = industryThumbnailsRepository;
         this.cloudStorageService = cloudStorageService;
         this.industryRepository = industryRepository;
         this.micrositeService = micrositeService;
+        this.useCaseRepository = useCaseRepository;
     }
 
     @Override
@@ -237,6 +238,8 @@ public class HomePageServiceImpl implements HomePageService {
                     ))
                     .toList();
 
+            long countOfActiveApprovedStories = useCaseRepository.countByStatusAndIsActive("APPROVED", TRUE);
+
             return HomePageResponseDTO.builder()
                     .applicationName(config.getApplicationName())
                     .title(config.getTitle())
@@ -250,6 +253,7 @@ public class HomePageServiceImpl implements HomePageService {
                     .featuredStories(stories)
                     .industryThumbnails(thumbnails)
                     .nvidiaStorycount(config.getNvidiaStoriesCount())
+                    .activeStoriesCount(countOfActiveApprovedStories)
                     .build();
 
         } catch (CommonException ex) {

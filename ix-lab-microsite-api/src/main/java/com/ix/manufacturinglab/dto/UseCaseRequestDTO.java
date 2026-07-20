@@ -22,10 +22,8 @@ public class UseCaseRequestDTO {
     @NotNull(message = "Industry ID is required")
     private Long industryId;
 
-    @NotNull(message = "Sub-Industry ID is required")
     private Long subIndustryId;
 
-    @NotNull(message = "Value Chain ID is required")
     private Integer valueChainId;
 
     @NotBlank(message = "Title is required")

@@ -1,7 +1,6 @@
 package com.ix.manufacturinglab.repository;
 
 import com.ix.manufacturinglab.entity.UseCase;
-import com.ix.manufacturinglab.enums.UseCaseStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -47,5 +46,6 @@ public interface UseCaseRepository extends JpaRepository<UseCase, Integer> {
     Page<UseCase> findByStatusAndIsActiveTrue(String status, Pageable pageable);
 
     List<UseCase> findByUsecaseIdIn(List<Integer> ids);
+
 
 }

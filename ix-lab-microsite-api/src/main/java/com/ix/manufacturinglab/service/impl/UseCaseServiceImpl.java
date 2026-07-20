@@ -60,8 +60,6 @@ import com.ix.manufacturinglab.exception.CommonException;
 import com.ix.manufacturinglab.service.UseCaseService;
 import org.springframework.web.multipart.MultipartFile;
 
-import static com.ix.manufacturinglab.enums.ArtifactType.DEMO_VIDEO;
-
 /**
  * Implementation of UseCaseService that persists data across multiple entity tables.
  */
@@ -136,7 +134,7 @@ public class UseCaseServiceImpl implements UseCaseService {
 
         UseCaseContent content = useCaseContentRepository.findByUsecaseId(usecaseId).orElse(null);
 
-        return buildResponseFromEntities(useCase, content);
+        return buildResponseFromEntities(useCase, content, null);
     }
 
     @Override
@@ -322,7 +320,10 @@ public class UseCaseServiceImpl implements UseCaseService {
     }
 
     private UseCaseResponseDTO buildResponseDTO(UseCase useCase, UseCaseContent content, UseCaseRequestDTO requestDTO) {
-        ValueChain valueChain = valueChainRepository.findById(useCase.getValueChainId().longValue()).orElse(null);
+        ValueChain valueChain = null;
+        if(useCase.getValueChainId() != null) {
+             valueChain = valueChainRepository.findById(useCase.getValueChainId().longValue()).orElse(null);
+        }
 
         Long industryId = null;
         Long subIndustryId = null;
@@ -343,7 +344,7 @@ public class UseCaseServiceImpl implements UseCaseService {
         }
         return UseCaseResponseDTO.builder()
                 .usecaseId(useCase.getUsecaseId())
-                .industryId(industryId)
+                .industryId(requestDTO.getIndustryId())
                 .subIndustryId(subIndustryId)
                 .valueChainId(useCase.getValueChainId())
                 .title(useCase.getTitle())
@@ -384,8 +385,12 @@ public class UseCaseServiceImpl implements UseCaseService {
                 .build();
     }
 
-    private UseCaseResponseDTO buildResponseFromEntities(UseCase useCase, UseCaseContent content) {
-        ValueChain valueChain = valueChainRepository.findById(useCase.getValueChainId().longValue()).orElse(null);
+    private UseCaseResponseDTO buildResponseFromEntities(UseCase useCase, UseCaseContent content, UseCaseRequestDTO requestDTO) {
+        ValueChain valueChain = null;
+
+        if(useCase.getValueChainId() != null){
+             valueChain = valueChainRepository.findById(useCase.getValueChainId().longValue()).orElse(null);
+        }
 
         Long industryId = null;
         Long subIndustryId = null;
@@ -399,6 +404,9 @@ public class UseCaseServiceImpl implements UseCaseService {
                     industryId = industry.getIndustryId();
                 }
             }
+        } else {
+                subIndustryId = useCase.getSubIndustryId();
+                industryId = useCase.getIndustryId();
         }
         return buildResponseFromEntities(useCase, content, industryId, subIndustryId);
     }
@@ -746,6 +754,8 @@ public class UseCaseServiceImpl implements UseCaseService {
         // 1. Build UseCase entity
         UseCase useCase = UseCase.builder()
                 .valueChainId(requestDTO.getValueChainId())
+                .subIndustryId(requestDTO.getSubIndustryId())
+                .industryId(requestDTO.getIndustryId())
                 .title(requestDTO.getTitle())
                 .ownerEid(String.valueOf(requestDTO.getOwnerEId()))
                 .status(requestDTO.getStatus() != null ? requestDTO.getStatus() : UseCaseStatus.IN_REVIEW.name())
@@ -854,6 +864,8 @@ public class UseCaseServiceImpl implements UseCaseService {
         } else if ("APPROVED".equalsIgnoreCase(status) && parentId == null) {
             useCase = new UseCase();
             useCase.setValueChainId(existingUseCase.getValueChainId());
+            useCase.setIndustryId(requestDTO.getIndustryId());
+            useCase.setSubIndustryId(requestDTO.getSubIndustryId());
             useCase.setCreatorId(existingUseCase.getCreatorId());
             useCase.setOwnerEid(existingUseCase.getOwnerEid());
             useCase.setCreatedDate(LocalDateTime.now());
@@ -947,7 +959,7 @@ public class UseCaseServiceImpl implements UseCaseService {
 
         useCaseRepository.save(useCase);
 
-        return buildResponseFromEntities(useCase, content);
+        return buildResponseFromEntities(useCase, content, requestDTO);
     }
 
     @Override
@@ -957,6 +969,8 @@ public class UseCaseServiceImpl implements UseCaseService {
 // 1. Build UseCase entity
         UseCase useCase = UseCase.builder()
                 .valueChainId(requestDTO.getValueChainId())
+                .subIndustryId(requestDTO.getSubIndustryId())
+                .industryId(requestDTO.getIndustryId())
                 .title(requestDTO.getTitle())
                 .ownerEid(String.valueOf(requestDTO.getOwnerEId()))
                 .status(requestDTO.getStatus() != null ? requestDTO.getStatus() : UseCaseStatus.DRAFT.name())
@@ -1083,6 +1097,8 @@ public class UseCaseServiceImpl implements UseCaseService {
         } else if ("APPROVED".equalsIgnoreCase(status) && parentId == null) {
             useCase = new UseCase();
             useCase.setValueChainId(existingUseCase.getValueChainId());
+            useCase.setSubIndustryId(requestDTO.getSubIndustryId());
+            useCase.setIndustryId(requestDTO.getIndustryId());
             useCase.setCreatorId(existingUseCase.getCreatorId());
             useCase.setOwnerEid(existingUseCase.getOwnerEid());
             useCase.setCreatedDate(LocalDateTime.now());
@@ -1181,7 +1197,7 @@ public class UseCaseServiceImpl implements UseCaseService {
 
         useCaseRepository.save(useCase);
 
-        return buildResponseFromEntities(useCase, content);
+        return buildResponseFromEntities(useCase, content, requestDTO);
     }
 
     public Map<String, Object> getApprovedActiveUseCaseCount() {
@@ -1353,7 +1369,7 @@ public class UseCaseServiceImpl implements UseCaseService {
         useCaseRepository.save(useCase);
 
 
-        return buildResponseFromEntities(useCase, content);
+        return buildResponseFromEntities(useCase, content, requestDTO);
     }
 
     @Override
@@ -1363,6 +1379,8 @@ public class UseCaseServiceImpl implements UseCaseService {
 
         UseCase useCase = UseCase.builder()
                 .valueChainId(requestDTO.getValueChainId())
+                .industryId(requestDTO.getIndustryId())
+                .subIndustryId(requestDTO.getSubIndustryId())
                 .title(requestDTO.getTitle())
                 .ownerEid(String.valueOf(requestDTO.getOwnerEId()))
                 .status(requestDTO.getStatus() != null ? requestDTO.getStatus() : UseCaseStatus.APPROVED.name())
@@ -1563,7 +1581,7 @@ public class UseCaseServiceImpl implements UseCaseService {
         List<UseCaseResponseDTO> responseList = usecaseIds.stream()
                 .map(id -> buildResponseFromEntities(
                         useCaseMap.get(id),
-                        contentMap.get(id)
+                        contentMap.get(id), null
                 ))
                 .toList();
 
@@ -1777,7 +1795,7 @@ public class UseCaseServiceImpl implements UseCaseService {
         List<UseCaseResponseDTO> responseList = useCasePage.getContent().stream()
                 .map(useCase -> buildResponseFromEntities(
                         useCase,
-                        contentMap.get(useCase.getUsecaseId())
+                        contentMap.get(useCase.getUsecaseId()), null
                 ))
                 .toList();
 

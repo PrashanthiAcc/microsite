@@ -34,17 +34,13 @@ public class UseCase {
     @Column(name = "usecase_id")
     private Integer usecaseId;
 
-    /* @Column(name = "industry_id", nullable = false)
+    @Column(name = "industry_id")
     private Long industryId;
 
-     */
-
-    /* @Column(name = "sub_industry_id", nullable = false)
+    @Column(name = "sub_industry_id")
     private Long subIndustryId;
 
-     */
-
-    @Column(name = "value_chain_id", nullable = false)
+    @Column(name = "value_chain_id", nullable = true)
     private Integer valueChainId;
 
     @Column(name = "creator_id", nullable = false)
